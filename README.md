@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fix House - Sineklik İmalat ve Maliyet Otomasyonu</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Normal ekranda A4 baskı şablonunu gizle */
+        #baskiAlani { display: none; }
+
+        /* Android ve Yazıcı moduna geçildiğinde sadece baskı alanını göster, ana ekranı gizle */
+        @media print {
+            body { background-color: #fff !important; color: #000 !important; padding: 0 !important; margin: 0 !important; }
+            .no-print { display: none !important; }
+            #baskiAlani { display: block !important; width: 100% !important; }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans antialiased">
+
+    <div class="max-w-7xl mx-auto px-4 py-6 no-print">
+        
+        <header class="flex justify-between items-center border-b border-gray-200 pb-4 mb-6">
+            <div>
+                <h1 class="text-2xl font-extrabold text-blue-600 tracking-tight">FIX HOUSE</h1>
+                <p class="text-xs text-gray-500 mt-0.5">Sineklik İmalat, Maliyet ve Sipariş Otomasyonu</p>
+            </div>
+            <div class="text-right">
+                <button type="button" onclick="fiyatPaneliniAc()" class="text-[10px] bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-1.5 rounded-lg font-bold cursor-pointer">
+                    ⚙️ Fiyat Ayarları (Gizli)
+                </button>
+            </div>
+        </header>
+
+        <div class="grid grid-cols-1 gap-6">
+            
+            <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
+                <h2 class="text-lg font-bold text-gray-900 mb-3 flex items-center gap-2">👤 Müşteri Bilgileri</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <div>
+                        <label class="block text-xs font-medium text-gray-600">Adı Soyadı</label>
+                        <input type="text" id="m_adi" placeholder="Kadir Yıldırım" class="w-full mt-1 p-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-600">Telefon</label>
+                        <input type="text" id="m_tel" placeholder="0533 443 32 23" class="w-full mt-1 p-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-600">Adres / Konum</label>
+                        <input type="text" id="m_adres" placeholder="Sürsürü Mah. Elazığ" class="w-full mt-1 p-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm">
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
+                <div class="flex justify-between items-center mb-3">
+                    <h2 class="text-lg font-bold text-gray-900 flex items-center gap-2">📏 Ölçü Listesi</h2>
+                    <button type="button" onclick="satirEkle()" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold shadow-sm flex items-center gap-1 transition-colors cursor-pointer">
+                        ➕ Yeni Satır Ekle
+                    </button>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full border-collapse text-left text-xs" id="olcuTablosu">
+                        <thead>
+                            <tr class="bg-gray-50 border-b border-gray-100 text-gray-600 font-semibold">
+                                <th class="py-2.5 px-1.5">Mahal</th>
+                                <th class="py-2.5 px-1.5 w-32">Sineklik Türü</th>
+                                <th class="py-2.5 px-1.5 w-24">Profil Rengi</th>
+                                <th class="py-2.5 px-1.5">Özellikler / Seçenekler</th>
+                                <th class="py-2.5 px-1.5 w-24">Tül Tipi</th>
+                                <th class="py-2.5 px-1.5 w-16">En (cm)</th>
+                                <th class="py-2.5 px-1.5 w-16">Boy (cm)</th>
+                                <th class="py-2.5 px-1.5 w-12">Adet</th>
+                                <th class="py-2.5 px-1.5 text-center w-10">İşlem</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabloGövde" class="divide-y divide-gray-100">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
+                <h2 class="text-lg font-bold text-gray-900 mb-3 flex items-center gap-2">💰 Finansal Yönetim</h2>
+                
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+                    <div>
+                        <label class="block text-[10px] font-semibold text-gray-500">Malzeme Maliyeti (Gizli)</label>
+                        <input type="text" id="fin_otomalzeme" value="ŞİFRELİ KİLİT" disabled class="w-full mt-1 p-2 bg-gray-100 border border-gray-200 rounded-lg font-bold text-gray-400 text-center cursor-not-allowed text-xs">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-semibold text-gray-500">Ek İşçilik / Montaj (TL)</label>
+                        <input type="number" id="fin_iscilik" value="0" oninput="finansalHesapla()" class="w-full mt-1 p-2 border border-gray-200 rounded-lg text-center font-bold text-blue-600 focus:ring-2 focus:ring-blue-500 outline-none text-xs">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-semibold text-gray-500">Hedef Kâr Oranı (%)</label>
+                        <input type="number" id="fin_kar" value="50" oninput="finansalHesapla()" class="w-full mt-1 p-2 border border-gray-200 rounded-lg text-center font-bold text-emerald-600 focus:ring-2 focus:ring-blue-500 outline-none text-xs">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-semibold text-gray-500">Sabit KDV Oranı</label>
+                        <input type="text" value="%20" disabled class="w-full mt-1 p-2 bg-gray-50 border border-gray-200 rounded-lg text-center font-bold text-gray-500 text-xs">
+                    </div>
+                </div>
+
+                <div class="bg-slate-900 text-white p-5 rounded-xl grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+                    <div>
+                        <p class="text-[10px] text-slate-400">KDV Hariç Fiyat</p>
+                        <p class="text-lg font-bold text-slate-200" id="ozet_kdvharic">0.00 TL</p>
+                    </div>
+                    <div>
+                        <p class="text-[10px] text-slate-400">Hesaplanan KDV (%20)</p>
+                        <p class="text-lg font-bold text-slate-200" id="ozet_kdv">0.00 TL</p>
+                    </div>
+                    <div class="border-t md:border-t-0 md:border-l border-slate-700 md:pl-4 pt-2 md:pt-0">
+                        <p class="text-[10px] text-blue-400 font-semibold">Müşteri Teklif Tutarı (KDV Dahil)</p>
+                        <p class="text-2xl font-extrabold text-blue-400" id="ozet_geneltoplam">0.00 TL</p>
+                    </div>
+                </div>
+
+                <div class="flex flex-col sm:flex-row gap-3 mt-4">
+                    <button type="button" onclick="anaHesaplamaDöngüsü()" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-bold shadow-md text-sm transition-all cursor-pointer text-center">
+                        🔄 Fiyatı Hesapla
+                    </button>
+                    <button type="button" onclick="androidMobilYazdir()" class="flex-1 bg-gray-800 hover:bg-gray-900 text-white py-3 rounded-xl font-bold shadow-md text-sm transition-all cursor-pointer text-center flex items-center justify-center gap-2">
+                        🖨️ A4 İş Emri Çıkart / PDF Yap
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div id="baskiAlani" class="p-4 bg-white text-black"></div>
+
+    <div id="fiyatModal" class="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center hidden z-50 p-4 no-print">
+        <div class="bg-white w-full max-w-2xl rounded-xl shadow-2xl border border-gray-100 max-h-[90vh] overflow-y-auto p-5">
+            <div class="flex justify-between items-center border-b border-gray-100 pb-2 mb-3">
+                <h3 class="text-lg font-bold text-gray-900">🛠️ Birim Fiyatları Güncelle (16mm Plise)</h3>
+                <button type="button" onclick="fiyatPaneliniKapat()" class="text-gray-400 hover:text-gray-600 font-bold text-base">✕</button>
+            </div>
+            
+            <form id="fiyatForm" class="space-y-4 text-xs" onsubmit="return false;">
+                <div>
+                    <h4 class="font-bold text-blue-600 mb-2 border-b pb-0.5">Menteşeli Malzemeleri</h4>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                        <div><label class="text-[10px] text-gray-500">Profil (mt)</label><input type="number" step="0.01" id="p_profil" value="70.00" class="w-full mt-0.5 p-1.5 border border-gray-200 rounded-lg"></div>
+                        <div><label class="text-[10px] text-gray-500">Fitil (mt)</label><input type="number" step="0.01" id="p_fitil" value="2.80" class="w-full mt-0.5 p-1.5 border border-gray-200 rounded-lg"></div>
+                        <div><label class="text-[10px] text-gray-500">Menteşe (Ad)</label><input type="number" step="0.01" id="p_mentese" value="2.75" class="w-full mt-0.5 p-1.5 border border-gray-200 rounded-lg"></div>
+                        <div><label class="text-[10px] text-gray-500">Çıt Çıt (Ad)</label><input type="number" step="0.01" id="p_citcit" value="2.75" class="w-full mt-0.5 p-1.5 border border-gray-200 rounded-lg"></div>
+                        <div><label class="text-[10px] text-gray-500">Köşe Takozu (Ad)</label><input type="number" step="0.01" id="p_takoz" value="2.75" class="w-full mt-0.5 p-1.5 border border-gray-200 rounded-lg"></div>
+                        <div><label class="text-[10px] text-gray-500">Tutamak (Ad)</label><input type="number" step="0.01" id="p_tutamak" value="2.75" class="w-full mt-0.5 p-1.5 border border-gray-200 rounded-lg"></div>
+                        <div><label class="text-[10px] text-gray-500">Mukavemet Takozu</label><input type="number" step="0.01" id="p_mukavemet" value="2.75" class="w-full mt-0.5 p-1.5 border border-gray-200 rounded-lg"></div>
+                        <div><label class="text-[10px] text-gray-500">Mıknatıs (Ad)</label><input type="number" step="0.01" id="p_miknatis" value="17.00" class="w-full mt-0.5 p-1.5 border border-gray-200 rounded-lg"></div>
+                        <div><label class="text-[10px] text-gray-500">Düz Tül (mt)</label><input type="number" step="0.01" id="p_duztul" value="40.00" class="w-full mt-0.5 p-1.5 border border-gray-200 rounded-lg"></div>
+                        <div><label class="text-[10px] text-gray-500">Kedi Tülü (mt)</label><input type="number" step="0.01" id="p_keditulu" value="173.00" class="w-full mt-0.5 p-1.5 border border-gray-200 rounded-lg"></div>
+                    </div>
+                </div>
+
+                <div>
+                    <h4 class="font-bold text-purple-600 mb-2 border-b pb-0.5">Plise Malzemeleri</h4>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                        <div><label class="text-[10px] text-gray-500">Plise Tül (mt)</label><input type="number" step="0.01" id="p_plisetul" value="80.00" class="w-full mt-0.5 p-1.5 border border-gray-200 rounded-lg"></div>
+                        <div><label class="text-[10px] text-gray-500">Polen (Kedi) Tülü</label><input type="number" step="0.01" id="p_polentul" value="200.00" class="w-full mt-0.5 p-1.5 border border-gray-200 rounded-lg"></div>
+                        <div><label class="text-[10px] text-gray-500">Tekerli Takoz (Ad)</label><input type="number" step="0.01" id="p_tekerlitakoz" value="2.75" class="w-full mt-0.5 p-1.5 border border-gray-200 rounded-lg"></div>
+                        <div><label class="text-[10px] text-gray-500">İp Pimi (Ad)</label><input type="number" step="0.01" id="p_ippimi" value="2.75" class="w-full mt-0.5 p-1.5 border border-gray-200 rounded-lg"></div>
+                        <div><label class="text-[10px] text-gray-500">Mekanizma İpi (mt)</label><input type="number" step="0.01" id="p_ip" value="1.00" class="w-full mt-0.5 p-1.5 border border-gray-200 rounded-lg"></div>
+                        <div><label class="text-[10px] text-gray-500">Şerit Yapışkan (mt)</label><input type="number" step="0.01" id="p_serit" value="2.50" class="w-full mt-0.5 p-1.5 border border-gray-200 rounded-lg"></div>
+                        <div><label class="text-[10px] text-gray-500">Kuş Gözü (Ad)</label><input type="number" step="0.01" id="p_kusgozu" value="0.50" class="w-full mt-0.5 p-1.5 border border-gray-200 rounded-lg"></div>
+                        <div><label class="text-[10px] text-gray-500">Kıl Fitil (mt)</label><input type="number" step="0.01" id="p_kilfitil" value="6.00" class="w-full mt-0.5 p-1.5 border border-gray-200 rounded-lg"></div>
+                    </div>
+                </div>
+
+                <div class="flex gap-2 pt-2 border-t border-gray-100">
+                    <button type="button" onclick="fiyatlariKaydet()" class="flex-1 bg-emerald-600 text-white p-2 rounded-lg font-bold">Kaydet</button>
+                    <button type="button" onclick="fiyatPaneliniKapat()" class="bg-gray-100 text-gray-700 px-4 p-2 rounded-lg font-bold">Kapat</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let satirSayaci = 0;
+        let sonHesaplananMalzemeMaliyeti = 0;
+
+        window.onload = function() {
+            fiyatlariYukle();
+            satirEkle(); 
+        };
+
+        // GİZLİ ŞİFRE MOTORU
+        function fiyatPaneliniAc() {
+            const sifre = prompt("Sistem şifresini girin:");
+            if (sifre === "1234") { 
+                document.getElementById('fiyatModal').classList.remove('hidden');
+            } else if (sifre !== null) {
+                alert("Hatalı şifre!");
+            }
+        }
+
+        function fiyatPaneliniKapat() {
+            document.getElementById('fiyatModal').classList.add('hidden');
+        }
+
+        function fiyatlariYukle() {
+            const sakliFiyatlar = localStorage.getItem('fixhouse_prices');
+            if (sakliFiyatlar) {
+                const f = JSON.parse(sakliFiyatlar);
+                for (let anahtar in f) {
+                    if (document.getElementById(anahtar)) {
+                        document.getElementById(anahtar).value = f[anahtar];
+                    }
+                }
+            }
+        }
+
+        // DEPOLAMA MOTORU (Cihaz kapansa da fiyatlar silinmez)
+        function fiyatlariKaydet() {
+            const inputs = document.querySelectorAll('#fiyatForm input');
+            let fiyatlar = {};
+            inputs.forEach(input => fiyatlar[input.id] = parseFloat(input.value) || 0);
+            localStorage.setItem('fixhouse_prices', JSON.stringify(fiyatlar));
+            alert('Fiyatlar hafızaya kaydedildi.');
+            fiyatPaneliniKapat();
+            anaHesaplamaDöngüsü();
+        }
+
+        function satirEkle() {
+            satirSayaci++;
+            const tbody = document.getElementById('tabloGövde');
+            const tr = document.createElement('tr');
+            tr.id = `satir_${satirSayaci}`;
+            tr.className = "hover:bg-gray-50/50 transition-colors";
+            
+            tr.innerHTML = `
+                <td class="py-2 px-1">
+                    <input type="text" id="mahal_${satirSayaci}" placeholder="Örn: Mutfak" class="w-full p-1 border border-gray-200 rounded-md outline-none text-xs">
+                </td>
+                <td class="py-2 px-1">
+                    <select onchange="sineklikTuruDegisti(${satirSayaci})" id="tur_${satirSayaci}" class="w-full p-1 border border-gray-200 rounded-md outline-none bg-white text-xs cursor-pointer">
+                        <option value="menteseli">Menteşeli (Düz)</option>
+                        <option value="plise">Plise (Sürgülü)</option>
+                    </select>
+                </td>
+                <td class="py-2 px-1">
+                    <select id="renk_${satirSayaci}" class="w-full p-1 border border-gray-200 rounded-md outline-none bg-white text-xs cursor-pointer">
+                        <option value="Antrasit">Antrasit</option>
+                        <option value="Beyaz">Beyaz</option>
+                        <option value="Kahve">Kahve</option>
+                    </select>
+                </td>
+                <td class="py-2 px-1" id="opsiyon_hucre_${satirSayaci}">
+                    <div class="flex flex-wrap gap-1 text-[10px]">
+                        <select id="kasa_${satirSayaci}" class="p-0.5 border border-gray-200 rounded bg-white outline-none">
+                            <option value="kasasiz">Kasasız</option>
+                            <option value="kasali">Kasalı</option>
+                        </select>
+                        <select id="yon_${satirSayaci}" class="p-0.5 border border-gray-200 rounded bg-white outline-none">
+                            <option value="sag">Sağ</option>
+                            <option value="sol">Sol</option>
+                        </select>
+                        <select id="kilit_${satirSayaci}" class="p-0.5 border border-gray-200 rounded bg-white outline-none">
+                            <option value="citcit">Çıtçıt</option>
+                            <option value="miknatis">Mıknatıs</option>
+                        </select>
+                    </div>
+                </td>
+                <td class="py-2 px-1">
+                    <select id="tul_${satirSayaci}" class="w-full p-1 border border-gray-200 rounded-md outline-none bg-white text-xs cursor-pointer">
+                        <option value="duz">Düz Tül</option>
+                        <option value="kedi">Kedi Tülü</option>
+                    </select>
+                </td>
+                <td class="py-2 px-1">
+                    <input type="number" id="en_${satirSayaci}" placeholder="cm" class="w-full p-1 border border-gray-200 rounded-md text-center text-xs">
+                </td>
+                <td class="py-2 px-1">
+                    <input type="number" id="boy_${satirSayaci}" placeholder="cm" class="w-full p-1 border border-gray-200 rounded-md text-center text-xs">
+                </td>
+                <td class="py-2 px-1">
+                    <input type="number" id="adet_${satirSayaci}" value="1" min="1" class="w-full p-1 border border-gray-200 rounded-md text-center text-xs">
+                </td>
+                <td class="py-2 px-1 text-center">
+                    <button type="button" onclick="satirSil(${satirSayaci})" class="text-red-500 hover:text-red-700 font-bold text-xs p-1 cursor-pointer">Sil</button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        }
+
+        function satirSil(id) {
+            const kacinciSatir = document.getElementById(`satir_${id}`);
+            if (kacinciSatir) {
+                kacinciSatir.remove();
+                anaHesaplamaDöngüsü();
+            }
+        }
+
+        function sineklikTuruDegisti(id) {
+            const tur = document.getElementById(`tur_${id}`).value;
+            const opsiyonHucre = document.getElementById(`opsiyon_hucre_${id}`);
+            const tulSelect = document.getElementById(`tul_${id}`);
+
+            if (tur === 'plise') {
+                opsiyonHucre.innerHTML = `
+                    <div class="flex gap-1 text-[10px]">
+                        <select id="yon_${id}" class="p-0.5 border border-gray-200 rounded bg-white outline-none">
+                            <option value="yatay">Yatay (Sağa-Sola)</option>
+                            <option value="dikey">Dikey (Yukarı-Aşağı)</option>
+                        </select>
+                    </div>
+                `;
+                tulSelect.innerHTML = `
+                    <option value="plise">Plise Tül</option>
+                    <option value="polen">Polen (Kedi)</option>
+                `;
+            } else {
+                opsiyonHucre.innerHTML = `
+                    <div class="flex flex-wrap gap-1 text-[10px]">
+                        <select id="kasa_${id}" class="p-0.5 border border-gray-200 rounded bg-white outline-none">
+                            <option value="kasasiz">Kasasız</option>
+                            <option value="kasali">Kasalı</option>
+                        </select>
+                        <select id="yon_${id}" class="p-0.5 border border-gray-200 rounded bg-white outline-none">
+                            <option value="sag">Sağ</option>
+                            <option value="sol">Sol</option>
+                        </select>
+                        <select id="kilit_${id}" class="p-0.5 border border-gray-200 rounded bg-white outline-none">
+                            <option value="citcit">Çıtçıt</option>
+                            <option value="miknatis">Mıknatıs</option>
+                        </select>
+                    </div>
+                `;
+                tulSelect.innerHTML = `
+                    <option value="duz">Düz Tül</option>
+                    <option value="kedi">Kedi Tülü</option>
+                `;
+            }
+        }
+
+        function anaHesaplamaDöngüsü() {
+            const satirlar = document.querySelectorAll('#tabloGövde tr');
+            let toplamMalzemeMaliyeti = 0;
+
+            const fiyat = {
+                profil: parseFloat(document.getElementById('p_profil').value) || 0,
+                fitil: parseFloat(document.getElementById('p_fitil').value) || 0,
+                mentese: parseFloat(document.getElementById('p_mentese').value) || 0,
+                citcit: parseFloat(document.getElementById('p_citcit').value) || 0,
+                takoz: parseFloat(document.getElementById('p_takoz').value) || 0,
+                tutamak: parseFloat(document.getElementById('p_tutamak').value) || 0,
+                mukavemet: parseFloat(document.getElementById('p_mukavemet').value) || 0,
+                miknatis: parseFloat(document.getElementById('p_miknatis').value) || 0,
+                duztul: parseFloat(document.getElementById('p_duztul').value) || 0,
+                keditulu: parseFloat(document.getElementById('p_keditulu').value) || 0,
+                plisetul: parseFloat(document.getElementById('p_plisetul').value) || 0,
+                polentul: parseFloat(document.getElementById('p_polentul').value) || 0,
+                tekerlitakoz: parseFloat(document.getElementById('p_tekerlitakoz').value) || 0,
+                ippimi: parseFloat(document.getElementById('p_ippimi').value) || 0,
+                ip: parseFloat(document.getElementById('p_ip').value) || 0,
+                serit: parseFloat(document.getElementById('p_serit').value) || 0,
+                kusgozu: parseFloat(document.getElementById('p_kusgozu').value) || 0,
+                kilfitil: parseFloat(document.getElementById('p_kilfitil').value) || 0
+            };
+
+            satirlar.forEach(satir => {
+                const id = satir.id.split('_')[1];
+                const enInput = document.getElementById(`en_${id}`);
+                const boyInput = document.getElementById(`boy_${id}`);
+                const adetInput = document.getElementById(`adet_${id}`);
+
+                if (!enInput || !boyInput) return;
+
+                const en = parseFloat(enInput.value) || 0;
+                const boy = parseFloat(boyInput.value) || 0;
+                const adet = parseInt(adetInput.value) || 1;
+                const tur = document.getElementById(`tur_${id}`).value;
+                const tulTipi = document.getElementById(`tul_${id}`).value;
+
+                if (en <= 0 || boy <= 0) return; 
+
+                let satirMaliyeti = 0;
+
+                if (tur === 'menteseli') {
+                    const kasaTipi = document.getElementById(`kasa_${id}`).value;
+                    const kilitTipi = document.getElementById(`kilit_${id}`).value;
+
+                    let profilMetre = (2 * (en + boy)) / 100;
+                    if (kasaTipi === 'kasali') { profilMetre = (4 * (en + boy)) / 100; }
+                    let fitilMetre = (2 * (en + boy)) / 100;
+
+                    let p_maliyeti = profilMetre * fiyat.profil;
+                    let f_maliyeti = fitilMetre * fiyat.fitil;
+
+                    let harcananTulM2 = 0;
+                    let tulBirimFiyat = (tulTipi === 'kedi') ? fiyat.keditulu : fiyat.duztul;
+                    
+                    if (en <= 78) { harcananTulM2 = (0.8 * boy) / 100; } 
+                    else { harcananTulM2 = (1.4 * boy) / 100; }
+                    let t_maliyeti = harcananTulM2 * tulBirimFiyat;
+
+                    let menteseAdet = 2; let tutamakAdet = 1; let citcitAdet = 0; let miknatisAdet = 0;
+
+                    if (boy > 150 && boy <= 200) { menteseAdet = 3; tutamakAdet = 2; } 
+                    else if (boy > 200) { menteseAdet = 4; tutamakAdet = 2; }
+
+                    if (kilitTipi === 'citcit') { citcitAdet = (boy > 150) ? 3 : 2; } 
+                    else { miknatisAdet = (boy > 150) ? 2 : 1; }
+
+                    let takozAdet = (kasaTipi === 'kasali') ? 8 : 4;
+                    let mukavemetTakozAdet = (boy > 180) ? 4 : 0;
+
+                    let a_maliyeti = (menteseAdet * fiyat.mentese) + (citcitAdet * fiyat.citcit) + (miknatisAdet * fiyat.miknatis) + (takozAdet * fiyat.takoz) + (tutamakAdet * fiyat.tutamak) + (mukavemetTakozAdet * Math.max(0, fiyat.mukavemet));
+                    satirMaliyeti = (p_maliyeti + f_maliyeti + t_maliyeti + a_maliyeti) * adet;
+                } 
+                else if (tur === 'plise') {
+                    const calismaYonu = document.getElementById(`yon_${id}`).value;
+                    let disKasaMetre = (2 * (en + boy)) / 100;
+                    let icKanatMetre = (calismaYonu === 'yatay') ? (boy / 100) : (en / 100);
+                    let p_maliyeti = (disKasaMetre + icKanatMetre) * fiyat.profil;
+
+                    let harcananTulM2 = 0; let tepeSayisi = 0;
+                    let pliseTulBirimFiyat = (tulTipi === 'polen') ? fiyat.polentul : fiyat.plisetul;
+
+                    // 16mm PLİSE KAT SAYISI ALGORİTMASI
+                    if (calismaYonu === 'yatay') {
+                        tepeSayisi = Math.ceil(en / 1.6);
+                        harcananTulM2 = (boy / 100) * (((tepeSayisi * 3.2) + 10) / 100);
+                    } else {
+                        tepeSayisi = Math.ceil(boy / 1.6);
+                        harcananTulM2 = (en / 100) * (((tepeSayisi * 3.2) + 10) / 100);
+                    }
+                    let t_maliyeti = harcananTulM2 * pliseTulBirimFiyat;
+
+                    let kusGozuAdet = Math.ceil(tepeSayisi / 2);
+                    let a_maliyeti = (4 * fiyat.takoz) + (2 * fiyat.tekerlitakoz) + (2 * fiyat.ippimi) + (kusGozuAdet * fiyat.kusgozu) + (((2 * (en + boy)) / 100) * fiyat.ip) + (((2 * boy) / 100) * fiyat.serit) + (((2 * en) / 100) * fiyat.kilfitil);
+                    satirMaliyeti = (p_maliyeti + t_maliyeti + a_maliyeti) * adet;
+                }
+                toplamMalzemeMaliyeti += satirMaliyeti;
+            });
+
+            sonHesaplananMalzemeMaliyeti = toplamMalzemeMaliyeti;
+            document.getElementById('fin_otomalzeme').value = "ŞİFRELİ KİLİT";
+            finansalHesapla();
+        }
+
+        function finansalHesapla() {
+            const ekIscilik = parseFloat(document.getElementById('fin_iscilik').value) || 0;
+            const karOrani = parseFloat(document.getElementById('fin_kar').value) || 0;
+
+            const toplamMaliyet = sonHesaplananMalzemeMaliyeti + ekIscilik;
+            const kdvHaricTutar = toplamMaliyet * (1 + (karOrani / 100));
+            const kdvTutari = kdvHaricTutar * 0.20; 
+            const genelToplam = kdvHaricTutar + kdvTutari;
+
+            document.getElementById('ozet_kdvharic').innerText = kdvHaricTutar.toFixed(2) + " TL";
+            document.getElementById('ozet_kdv').innerText = kdvTutari.toFixed(2) + " TL";
+            document.getElementById('ozet_geneltoplam').innerText = genelToplam.toFixed(2) + " TL";
+        }
+
+        // ANDROID MOBİL SİSTEME ÖZEL YAZDIRMA VE PDF MOTORU
+        function androidMobilYazdir() {
+            anaHesaplamaDöngüsü();
+
+            const m_adi = document.getElementById('m_adi').value || "Belirtilmedi";
+            const m_tel = document.getElementById('m_tel').value || "Belirtilmedi";
+            const m_adres = document.getElementById('m_adres').value || "Belirtilmedi";
+            const bugun = new Date().toLocaleDateString('tr-TR');
+            const siparisNo = "FX-" + Math.floor(100000 + Math.random() * 900000);
+            const finGenelToplam = document.getElementById('ozet_geneltoplam').innerText;
+
+            let tabloSatirlariHtml = "";
+            const satirlar = document.querySelectorAll('#tabloGövde tr');
+            let idx = 1;
+            let veriVarMi = false;
+
+            satirlar.forEach(satir => {
+                const id = satir.id.split('_')[1];
+                const mahalInput = document.getElementById(`mahal_${id}`);
+                if(!mahalInput) return;
+
+                const mahal = mahalInput.value || "Belirtilmedi";
+                const tur = document.getElementById(`tur_${id}`).value;
+                const renk = document.getElementById(`renk_${id}`).value;
+                const tulTipi = document.getElementById(`tul_${id}`).value;
+                const en = parseFloat(document.getElementById(`en_${id}`).value) || 0;
+                const boy = parseFloat(document.getElementById(`boy_${id}`).value) || 0;
+                const adet = document.getElementById(`adet_${id}`).value;
+
+                if (en <= 0 || boy <= 0) return;
+                veriVarMi = true;
+
+                let ozellikMetni = ""; let netKesimMetni = ""; let tulDetayMetni = "";
+
+                if (tur === 'menteseli') {
+                    const kasa = document.getElementById(`kasa_${id}`).value;
+                    const yon = document.getElementById(`yon_${id}`).value === 'sag' ? "Sağ" : "Sol";
+                    const kilit = document.getElementById(`kilit_${id}`).value === 'citcit' ? "Çıtçıt" : "Mıknatıs";
+                    ozellikMetni = `Renk: <b>${renk}</b><br>${kasa === 'kasali'?'Kasalı':'Kasasız'} / Yön: ${yon} / Kilit: ${kilit}`;
+                    netKesimMetni = `En: <b>${en - 5} cm</b><br>Boy: <b>${boy - 5} cm</b><br><small>(K.Takozu Hariç)</small>`;
+                    tulDetayMetni = (en <= 78) ? "80 cm Sabit Rulo" : "140 cm Sabit Rulo";
+                } else {
+                    const calismaYonu = document.getElementById(`yon_${id}`).value;
+                    const yonMetni = calismaYonu === 'yatay' ? "Yatay" : "Dikey";
+                    ozellikMetni = `Renk: <b>${renk}</b><br>Plise Sürgülü / Çalışma: ${yonMetni}`;
+                    
+                    let kesimEn = en - 2; let kesimBoy = boy - 4;
+                    let icKanat = (calismaYonu === 'yatay') ? `İç Kanat: <b>${kesimBoy} cm</b>` : `İç Kanat: <b>${kesimEn} cm</b>`;
+                    netKesimMetni = `Kasa En: <b>${kesimEn} cm</b><br>Kasa Boy: <b>${kesimBoy} cm</b><br>${icKanat}`;
+                    
+                    let tepe = (calismaYonu === 'yatay') ? Math.ceil(en / 1.6) : Math.ceil(boy / 1.6);
+                    tulDetayMetni = `<b>Tepe: ${tepe} Kat</b><br><small>16mm Pile Kalıbı</small>`;
+                }
+
+                tabloSatirlariHtml += `
+                    <tr style="border-bottom: 1px solid #000;">
+                        <td style="border: 1px solid #000; padding: 6px; text-align: center;">${idx++}</td>
+                        <td style="border: 1px solid #000; padding: 6px;">${mahal}</td>
+                        <td style="border: 1px solid #000; padding: 6px; font-weight: bold;">${tur === 'menteseli' ? 'DÜZ' : 'PLİSE'}</td>
+                        <td style="border: 1px solid #000; padding: 6px; font-size:10px; line-height:1.2;">${ozellikMetni}</td>
+                        <td style="border: 1px solid #000; padding: 6px;">${tulTipi==='kedi'||tulTipi==='polen'?'🔒 Kedi Tülü':'Standart Tül'}</td>
+                        <td style="border: 1px solid #000; padding: 6px; text-align: center;">${en} x ${boy} cm</td>
+                        <td style="border: 1px solid #000; padding: 6px; text-align: center; background-color: #f1f5f9;">${netKesimMetni}</td>
+                        <td style="border: 1px solid #000; padding: 6px; text-align: center; background-color: #f0fdf4;">${tulDetayMetni}</td>
+                        <td style="border: 1px solid #000; padding: 6px; text-align: center; font-weight: bold;">${adet}</td>
+                    </tr>
+                `;
+            });
+
+            if(!veriVarMi) { alert("Lütfen önce geçerli bir ölçü girip hesaplayın."); return; }
+
+            // Baskı alanını dolduruyoruz
+            document.getElementById('baskiAlani').innerHTML = `
+                <div style="font-family: Arial, sans-serif; color: #000; padding: 10px;">
+                    <div style="display: flex; justify-content: space-between; border-bottom: 2px solid #000; padding-bottom: 8px;">
+                        <div>
+                            <h1 style="font-size: 24px; font-weight: bold; margin: 0; color: #1d4ed8;">FIX HOUSE</h1>
+                            <p style="margin: 2px 0 0 0; font-size: 10px; color: #555;">Sineklik İmalat Atölyesi İş Emri</p>
+                        </div>
+                        <div style="text-align: right; font-size: 11px;">
+                            <p style="margin: 0; font-weight: bold; font-size:13px;">İmalat Sipariş Fişi</p>
+                            <p style="margin: 1px 0 0 0;">Tarih: ${bugun}</p>
+                            <p style="margin: 1px 0 0 0; font-weight: bold;">No: ${siparisNo}</p>
+                        </div>
+                    </div>
+                    <div style="background-color: #f8fafc; border: 1px solid #cbd5e1; padding: 8px; border-radius: 6px; margin-top: 10px; margin-bottom: 15px; font-size: 11px;">
+                        <table style="width: 100%; border:none; border-collapse: collapse;">
+                            <tr style="border:none;"><td style="width: 60px; font-weight: bold; border:none; padding:1px 0;">Müşteri:</td><td style="border: none; padding:1px 0;">${m_adi}</td></tr>
+                            <tr style="border:none;"><td style="font-weight: bold; border:none; padding:1px 0;">Telefon:</td><td style="border: none; padding:1px 0;">${m_tel}</td></tr>
+                            <tr style="border:none;"><td style="font-weight: bold; border:none; padding:1px 0;">Adres:</td><td style="border: none; padding:1px 0;">${m_adres}</td></tr>
+                        </table>
+                    </div>
+                    <table style="width: 100%; border-collapse: collapse; font-size: 11px; text-align: left;">
+                        <thead>
+                            <tr style="background-color: #1e293b; color: #fff;">
+                                <th style="border: 1px solid #000; padding: 5px; text-align:center;">Sıra</th>
+                                <th style="border: 1px solid #000; padding: 5px;">Mahal</th>
+                                <th style="border: 1px solid #000; padding: 5px;">Tür</th>
+                                <th style="border: 1px solid #000; padding: 5px;">Özellikler</th>
+                                <th style="border: 1px solid #000; padding: 5px;">Tül Tipi</th>
+                                <th style="border: 1px solid #000; padding: 5px; text-align: center;">Sipariş Ölçüsü</th>
+                                <th style="border: 1px solid #000; padding: 5px; text-align: center;">NET PROFiL KESiMi</th>
+                                <th style="border: 1px solid #000; padding: 5px; text-align: center;">TÜL / PiLE DETAYI</th>
+                                <th style="border: 1px solid #000; padding: 5px; text-align: center;">Adet</th>
+                            </tr>
+                        </thead>
+                        <tbody>${tabloSatirlariHtml}</tbody>
+                    </table>
+                    <div style="margin-top: 30px; display: flex; justify-content: space-between; align-items: flex-end;">
+                        <div style="font-size: 9px; color: #444; max-width: 60%;"><b>İmalat Notu:</b> Ölçüler 16mm plise standart atölye kalıbına göre düşülmüştür.</div>
+                        <div style="text-align: right; border-top: 1px dashed #000; padding-top: 6px; width: 200px;">
+                            <span style="font-size: 10px; font-weight: bold;">Müşteri Onaylı Tutar:</span><br>
+                            <span style="font-size: 18px; font-weight: bold; color: #1d4ed8;">${finGenelToplam}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Android'in yerleşik sistem yazdırma ekranını çağırıyoruz (Sıfır hata)
+            window.print();
+        }
+    </script>
+</body>
+</html>
