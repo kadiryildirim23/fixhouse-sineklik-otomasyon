@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fix House - Profesyonel Fabrikasyon ERP v5</title>
+    <title>Fix House - Endüstriyel Atölye ERP v5.2</title>
+    <!-- Firebase Altyapısı -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
     <style>
@@ -18,7 +19,7 @@
         .tab-content { display: none; } .tab-content.active { display: block; }
         .grid-layout { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 20px; }
         @media (max-width: 1000px) { .grid-layout { grid-template-columns: 1fr; } }
-        .card { background: var(--surface); padding: 20px; border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border: 1px solid var(--border); margin-bottom: 20px; }
+        .card { background: var(--surface); padding: 20px; border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border: 1px solid var(--border); margin-bottom: 20px; position: relative; }
         h2 { color: var(--secondary); font-size: 16px; margin-bottom: 15px; border-bottom: 2px solid var(--bg); padding-bottom: 6px; display: flex; justify-content: space-between; align-items: center; }
         .order-row { background: #fafafa; border: 1px solid var(--border); padding: 15px; border-radius: 6px; margin-bottom: 15px; position: relative; border-left: 4px solid var(--primary); }
         .order-row.perde { border-left-color: var(--accent); }
@@ -48,13 +49,13 @@
         .fin-card { background: #eceff1; padding: 15px; border-radius: 6px; border-left: 4px solid var(--secondary); }
         .fin-card.plus { border-left-color: var(--success); background: #e8f5e9; }
         .fin-card.minus { border-left-color: #d32f2f; background: #ffebee; }
-        @media print { .no-print, nav, button { display: none !important; } body { background: white; color: black; padding: 0; } .card { box-shadow: none; border: none; } }
+        @media print { .no-print, nav, button, .delete-row-btn { display: none !important; } body { background: white; color: black; padding: 0; } .card { box-shadow: none; border: none; } }
     </style>
 </head>
 <body>
 
 <nav class="no-print">
-    <div class="logo">FIX HOUSE ERP v5</div>
+    <div class="logo">FIX HOUSE ERP v5.2</div>
     <button class="nav-link active" onclick="switchTab('order-entry-tab', this)">🆕 Sipariş Girişi</button>
     <button class="nav-link" onclick="switchTab('active-pool-tab', this)">📋 Canlı Üretim Havuzu</button>
     <button class="nav-link" onclick="switchTab('potential-tab', this)">🔮 Potansiyel Müşteriler</button>
@@ -142,20 +143,24 @@
             </div>
             <div class="settings-main">
                 <div id="pane-sineklik" class="settings-pane active">
-                    <h3>🪟 Sineklik Maliyet Listesi</h3>
+                    <h3>🪟 Sineklik Maliyet Listesi</h3><br>
+                    <div class="row-grid" style="margin-bottom: 20px;">
+                        <div class="form-group"><label>Plise Tül Maliyet (TL / m²)</label><input type="number" id="cfg_m_plise" value="250" oninput="updateGlobalParam('plise', this.value)"></div>
+                        <div class="form-group"><label>Kedi Tülü Maliyet (TL / m²)</label><input type="number" id="cfg_m_kedi" value="400" oninput="updateGlobalParam('kedi', this.value)"></div>
+                    </div>
                     <table id="tblSineklikMat"><thead><tr><th>Malzeme Adı</th><th>Birim Fiyat (TL)</th></tr></thead><tbody id="bodySineklikMat"></tbody></table>
                 </div>
                 <div id="pane-perde" class="settings-pane">
                     <h3>🎴 Plise Perde Döviz ve Kumaş Ayarları</h3><br>
                     <div class="row-grid">
-                        <div class="form-group"><label>💵 Dolar Kuru (USD/TRY)</label><input type="number" id="cfg_dolar_kuru" value="33.50" step="0.01" oninput="liveRecalculateAll()"></div>
-                        <div class="form-group"><label>📦 Aksesuar Ek Maliyeti (TL)</label><input type="number" id="cfg_perde_aparat" value="40" oninput="liveRecalculateAll()"></div>
+                        <div class="form-group"><label>💵 Dolar Kuru (USD/TRY)</label><input type="number" id="cfg_dolar_kuru" value="33.50" step="0.01" oninput="updateGlobalParam('dolar', this.value)"></div>
+                        <div class="form-group"><label>📦 Aksesuar Ek Maliyeti (TL)</label><input type="number" id="cfg_perde_aparat" value="40" oninput="updateGlobalParam('aparat', this.value)"></div>
                     </div>
                     <table id="perdeKumasTable" style="max-height: 300px; overflow-y: scroll; display: block;"><thead><tr><th>Ürün / Seri Adı</th><th>USD Fiyatı</th></tr></thead><tbody id="perdeKumasTableBody"></tbody></table>
                 </div>
                 <div id="pane-finans" class="settings-pane">
                     <h3>💰 Finansal Kasa Durumu</h3><br>
-                    <div class="form-group" style="max-width:200px;"><label>📈 Hedef Kâr Oranı (%)</label><input type="number" id="cfg_kar_orani" value="100" oninput="liveRecalculateAll()"></div><br>
+                    <div class="form-group" style="max-width:200px;"><label>📈 Hedef Kâr Oranı (%)</label><input type="number" id="cfg_kar_orani" value="100" oninput="updateGlobalParam('kar', this.value)"></div><br>
                     <div class="finance-summary">
                         <div class="fin-card plus"><h4>Toplam Ciro</h4><p id="statTotalCiro">0.00 TL</p></div>
                         <div class="fin-card minus"><h4>Toplam Gider</h4><p id="statTotalGider">0.00 TL</p></div>
@@ -181,13 +186,58 @@
     };
     firebase.initializeApp(firebaseConfig); const database = firebase.database();
 
+    // Kilitleme Hatalarını Önlemek İçin Parametreler Global Hafızaya Alındı
+    let currentParams = { plise: 250, kedi: 400, dolar: 33.50, aparat: 40, kar: 100 };
+
+    // image_c0e326.png Görselindeki 94 Satırlık Tam Kumaş ve Montaj Kataloğu
     let kumasKatalogu = [
-        {ad:"ARDA - 01", usd:6.70}, {ad:"ARDA - 02", usd:6.70}, {ad:"ARDA - 03", usd:6.70}, {ad:"ARDA - 04", usd:6.70}, {ad:"ARDA - 05", usd:6.70},
-        {ad:"ASEL - 01", usd:7.20}, {ad:"ASEL - 02", usd:7.20}, {ad:"ASEL - 03", usd:7.20}, {ad:"ASEL - 04", usd:7.20}, {ad:"ASEL - 05", usd:7.20},
-        {ad:"BAMBU 6001", usd:6.60}, {ad:"BAMBU 6003", usd:6.60}, {ad:"BAMBU 6004", usd:6.60}, {ad:"BAMBU 6005", usd:6.60},
-        {ad:"BLACKOUT - ANTRASİT", usd:12.00}, {ad:"BLACKOUT - GRİ", usd:12.00}, {ad:"DARK 5001 ANTRASİT", usd:8.00}, {ad:"DIAMOND - BEYA", usd:5.70},
-        {ad:"DIAMOND - ANTRASİT", usd:5.70}, {ad:"HONEYCOMB 001 BEYAZ", usd:12.50}, {ad:"HONEYCOMB 004 ANTRASİT", usd:12.50}, {ad:"TULLE 500", usd:5.80}
+        {ad:"ARDA - 01", kat:"PLİSE PERDE GECE", usd:6.70}, {ad:"ARDA - 02", kat:"PLİSE PERDE GECE", usd:6.70},
+        {ad:"ARDA - 03", kat:"PLİSE PERDE GECE", usd:6.70}, {ad:"ARDA - 04", kat:"PLİSE PERDE GECE", usd:6.70},
+        {ad:"ARDA - 05", kat:"PLİSE PERDE GECE", usd:6.70}, {ad:"ASEL - 01", kat:"PLİSE PERDE GECE", usd:7.20},
+        {ad:"ASEL - 02", kat:"PLİSE PERDE GECE", usd:7.20}, {ad:"ASEL - 03", kat:"PLİSE PERDE GECE", usd:7.20},
+        {ad:"ASEL - 04", kat:"PLİSE PERDE GECE", usd:7.20}, {ad:"ASEL - 05", kat:"PLİSE PERDE GECE", usd:7.20},
+        {ad:"BAMBU 6001", kat:"PLİSE PERDE GECE", usd:6.60}, {ad:"BAMBU 6003", kat:"PLİSE PERDE GECE", usd:6.60},
+        {ad:"BAMBU 6004", kat:"PLİSE PERDE GECE", usd:6.60}, {ad:"BAMBU 6005", kat:"PLİSE PERDE GECE", usd:6.60},
+        {ad:"BAMBU 6006", kat:"PLİSE PERDE GECE", usd:6.60}, {ad:"BAMBU 6007", kat:"PLİSE PERDE GECE", usd:6.60},
+        {ad:"BAMBU.6002. SERİ.", kat:"PLİSE PERDE GECE", usd:6.60}, {ad:"BLACKOUT - ANTRASİT", kat:"PLİSE PERDE GECE", usd:12.00},
+        {ad:"BLACKOUT - GRİ", kat:"PLİSE PERDE GECE", usd:12.00}, {ad:"BLACKOUT - KAHVE", kat:"PLİSE PERDE GECE", usd:12.00},
+        {ad:"BLACKOUT - KREM", kat:"PLİSE PERDE GECE", usd:12.00}, {ad:"BLACKOUT - SİYAH", kat:"PLİSE PERDE GECE", usd:12.00},
+        {ad:"DARK 5001 ANTRASİT", kat:"PLİSE PERDE GECE", usd:8.00}, {ad:"DARK 5002 KREM", kat:"PLİSE PERDE GECE", usd:8.00},
+        {ad:"DARK 5003 GRİ", kat:"PLİSE PERDE GECE", usd:8.00}, {ad:"DARK 5004 KAHVE", kat:"PLİSE PERDE GECE", usd:8.00},
+        {ad:"DIAMOND - BEYA", kat:"PLİSE PERDE GECE", usd:5.70}, {ad:"DIAMOND - 001 KREM", kat:"PLİSE PERDE GECE", usd:5.70},
+        {ad:"DIAMOND - 002 KREM", kat:"PLİSE PERDE GECE", usd:5.70}, {ad:"DIAMOND - 001 GRİ", kat:"PLİSE PERDE GECE", usd:5.70},
+        {ad:"DIAMOND - ANTRASİT", kat:"PLİSE PERDE GECE", usd:5.70}, {ad:"DIAMOND - AÇIK GRİ", kat:"PLİSE PERDE GECE", usd:5.70},
+        {ad:"DIAMOND - ARA GRİ", kat:"PLİSE PERDE GECE", usd:5.70}, {ad:"DIAMOND - BEJ", kat:"PLİSE PERDE GECE", usd:5.70},
+        {ad:"DIAMOND - SİYAH", kat:"PLİSE PERDE GECE", usd:5.70}, {ad:"DIAMOND - BRONZ", kat:"PLİSE PERDE GECE", usd:5.70},
+        {ad:"DIAMOND - KAHVE", kat:"PLİSE PERDE GECE", usd:5.70}, {ad:"DIAMOND - PUDRA", kat:"PLİSE PERDE GECE", usd:5.70},
+        {ad:"DIAMOND - MAVİ", kat:"PLİSE PERDE GECE", usd:5.70}, {ad:"DIAMOND - YEŞİL", kat:"PLİSE PERDE GECE", usd:5.70},
+        {ad:"DIAMOND - MUDANYA", kat:"PLİSE PERDE GECE", usd:5.70}, {ad:"DIAMOND - KIRMIZI", kat:"PLİSE PERDE GECE", usd:5.70},
+        {ad:"ECE 4001", kat:"PLİSE PERDE GECE", usd:6.20}, {ad:"ECE 4002", kat:"PLİSE PERDE GECE", usd:6.20},
+        {ad:"ECE 4003", kat:"PLİSE PERDE GECE", usd:6.20}, {ad:"EFE 3001", kat:"PLİSE PERDE GECE", usd:6.30},
+        {ad:"EFE 3002", kat:"PLİSE PERDE GECE", usd:6.30}, {ad:"EFE 3003", kat:"PLİSE PERDE GECE", usd:6.30},
+        {ad:"GOLD 8001", kat:"PLİSE PERDE GECE", usd:6.80}, {ad:"GOLD 8002", kat:"PLİSE PERDE GECE", usd:6.80},
+        {ad:"GOLD 8003", kat:"PLİSE PERDE GECE", usd:6.80}, {ad:"GOLD 8004", kat:"PLİSE PERDE GECE", usd:6.80},
+        {ad:"GOLD 8005", kat:"PLİSE PERDE GECE", usd:6.80}, {ad:"HONEYCOMB 001 BEYAZ", kat:"HONEYCOMB", usd:12.50},
+        {ad:"HONEYCOMB 002 KREM", kat:"HONEYCOMB", usd:12.50}, {ad:"HONEYCOMB 003 GRİ", kat:"HONEYCOMB", usd:12.50},
+        {ad:"HONEYCOMB 004 ANTRASİT", kat:"HONEYCOMB", usd:12.50}, {ad:"HONEYCOMB 005 KAHVE", kat:"HONEYCOMB", usd:12.50},
+        {ad:"NEW 2001", kat:"PLİSE PERDE GECE", usd:6.40}, {ad:"NEW 2002", kat:"PLİSE PERDE GECE", usd:6.40},
+        {ad:"NEW 2003", kat:"PLİSE PERDE GECE", usd:6.40}, {ad:"NEW 2004", kat:"PLİSE PERDE GECE", usd:6.40},
+        {ad:"NEW 2005", kat:"PLİSE PERDE GECE", usd:6.40}, {ad:"PARS - 01", kat:"PLİSE PERDE GECE", usd:6.10},
+        {ad:"PARS - 02", kat:"PLİSE PERDE GECE", usd:6.10}, {ad:"PARS - 03", kat:"PLİSE PERDE GECE", usd:6.10},
+        {ad:"PARS - 04", kat:"PLİSE PERDE GECE", usd:6.10}, {ad:"PARS - 05", kat:"PLİSE PERDE GECE", usd:6.10},
+        {ad:"REINA - 01", kat:"PLİSE PERDE GECE", usd:6.60}, {ad:"REINA - 02", kat:"PLİSE PERDE GECE", usd:6.60},
+        {ad:"REINA - 03", kat:"PLİSE PERDE GECE", usd:6.60}, {ad:"REINA - 04", kat:"PLİSE PERDE GECE", usd:6.60},
+        {ad:"REINA - 05", kat:"PLİSE PERDE GECE", usd:6.60}, {ad:"REINA - 06", kat:"PLİSE PERDE GECE", usd:6.60},
+        {ad:"REINA - 07", kat:"PLİSE PERDE GECE", usd:6.60}, {ad:"SILVER 7001", kat:"PLİSE PERDE GECE", usd:7.00},
+        {ad:"SILVER 7002", kat:"PLİSE PERDE GECE", usd:7.00}, {ad:"SILVER 7003", kat:"PLİSE PERDE GECE", usd:7.00},
+        {ad:"SILVER 7004", kat:"PLİSE PERDE GECE", usd:7.00}, {ad:"SILVER 7005", kat:"PLİSE PERDE GECE", usd:7.00},
+        {ad:"TOUCH 1001", kat:"PLİSE PERDE GECE", usd:6.60}, {ad:"TOUCH 1002", kat:"PLİSE PERDE GECE", usd:6.60},
+        {ad:"TOUCH 1003", kat:"PLİSE PERDE GECE", usd:6.60}, {ad:"TOUCH 1004", kat:"PLİSE PERDE GECE", usd:6.60},
+        {ad:"TULLE 500", kat:"PLİSE PERDE GÜNDÜZ TÜL", usd:5.80}, {ad:"TULLE 501", kat:"PLİSE PERDE GÜNDÜZ TÜL", usd:5.80},
+        {ad:"TULLE 502", kat:"PLİSE PERDE GÜNDÜZ TÜL", usd:5.80}, {ad:"TULLE 503", kat:"PLİSE PERDE GÜNDÜZ TÜL", usd:5.80},
+        {ad:"TULLE 504", kat:"PLİSE PERDE GÜNDÜZ TÜL", usd:5.80}
     ];
+
     let sineklikMalzemeListesi = [{ad:"Plise Sineklik Tülü", fiyat:250}, {ad:"Kedi Sinekliği Tülü", fiyat:400}, {ad:"Alüminyum Profil Kasa", fiyat:60}];
     let localRowIdCounter = 0; let globalLastCalculationResult = null;
 
@@ -196,6 +246,19 @@
         s.innerHTML = snap.val() === true ? '● Buluta Bağlı (Canlı)' : '● Bağlantı Kesildi';
         s.style.color = snap.val() === true ? '#81c784' : '#e53935';
     });
+
+    // Canlı Döviz Kuru Çekimi
+    fetch('https://open.er-api.com/v6/latest/USD').then(res => res.json()).then(data => {
+        if(data && data.rates && data.rates.TRY) {
+            currentParams.dolar = data.rates.TRY;
+            const el = document.getElementById('cfg_dolar_kuru'); if(el) el.value = data.rates.TRY.toFixed(2);
+            liveRecalculateAll();
+        }
+    }).catch(e => console.log("Yedek Döviz Modu Aktif."));
+
+    function updateGlobalParam(key, value) {
+        currentParams[key] = parseFloat(value || 0); liveRecalculateAll();
+    }
 
     function switchTab(tId, btn) {
         document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
@@ -210,7 +273,13 @@
     function unlockSettings() {
         if(document.getElementById('settingsPasswordInput').value === "1234") {
             document.getElementById('lockScreen').style.display = "none";
-            document.getElementById('settingsMainContent').style.display = "block"; loadSettingsTables();
+            document.getElementById('settingsMainContent').style.display = "block";
+            document.getElementById('cfg_m_plise').value = currentParams.plise;
+            document.getElementById('cfg_m_kedi').value = currentParams.kedi;
+            document.getElementById('cfg_dolar_kuru').value = currentParams.dolar.toFixed(2);
+            document.getElementById('cfg_perde_aparat').value = currentParams.aparat;
+            document.getElementById('cfg_kar_orani').value = currentParams.kar;
+            loadSettingsTables();
         } else { alert("Şifre Hatalı!"); }
     }
     function loadSettingsTables() {
@@ -236,15 +305,21 @@
             <div class="row-grid">
                 <div class="form-group"><label>Ürün Grubu</label><select class="sel-grp" onchange="handleGroupChange('${div.id}')"><option value="Sineklik" ${lastGrp==='Sineklik'?'selected':''}>Sineklik</option><option value="Plise Perde" ${lastGrp==='Plise Perde'?'selected':''}>Plise Perde</option></select></div>
                 <div class="form-group box-sys"><label>Sistem Tipi</label><select class="sel-sys" onchange="liveRecalculateAll()"><option value="Plise Sineklik" ${lastSys==='Plise Sineklik'?'selected':''}>Plise Sineklik</option><option value="Kedi Sinekliği" ${lastSys==='Kedi Sinekliği'?'selected':''}>Kedi Sinekliği</option></select></div>
-                <div class="form-group box-mnt" style="display:none;"><label>Montaj Türü</label><select class="sel-mnt" onchange="liveRecalculateAll()"><option value="KANCALI" ${lastMnt==='KANCALI'?'selected':''}>KANCALI</option><option value="VİDALI" ${lastMnt==='VİDALI'?'selected':''}>VİDALI</option><option value="YAPIŞKAN" ${lastMnt==='YAPIŞKAN'?'selected':''}>YAPIŞKAN</option></select></div>
+                <div class="form-group box-mnt" style="display:none;"><label>Montaj Türü</label><select class="sel-mnt" onchange="liveRecalculateAll()"><option value="KANCALI" ${lastMnt==='KANCALI'?'selected':''}>KANCALI</option><option value="PORTRAYLI" ${lastMnt==='PORTRAYLI'?'selected':''}>PORTRAYLI</option><option value="VİDALI" ${lastMnt==='VİDALI'?'selected':''}>VİDALI</option><option value="YAPIŞKAN" ${lastMnt==='YAPIŞKAN'?'selected':''}>YAPIŞKAN</option></select></div>
                 <div class="form-group box-kms" style="display:none;"><label>Kumaş / Seri</label><select class="sel-kms" onchange="liveRecalculateAll()"></select></div>
-                <div class="form-group"><label>En (cm)</label><input type="number" class="inp-w" step="0.1" placeholder="En" oninput="liveRecalculateAll()"></div>
-                <div class="form-group"><label>Boy (cm)</label><input type="number" class="inp-h" step="0.1" placeholder="Boy" oninput="liveRecalculateAll()"></div>
-                <div class="form-group"><label>Profil Rengi</label><select class="sel-clr" onchange="liveRecalculateAll()"><option value="Beyaz" ${lastClr==='Beyaz'?'selected':''}>Beyaz</option><option value="Antrasit" ${lastClr==='Antrasit'?'selected':''}>Antrasit</option></select></div>
+                <div class="form-group">
+                    <label>En (cm)</label>
+                    <input type="number" class="inp-w" step="0.1" placeholder="En" oninput="liveRecalculateAll()">
+                </div>
+                <div class="form-group">
+                    <label>Boy (cm)</label>
+                    <input type="number" class="inp-h" step="0.1" placeholder="Boy" oninput="liveRecalculateAll()">
+                </div>
+                <div class="form-group"><label>Profil Rengi</label><select class="sel-clr" onchange="liveRecalculateAll()"><option value="Beyaz" ${lastClr==='Beyaz'?'selected':''}>Beyaz</option><option value="Antrasit Gri" ${lastClr==='Antrasit Gri'?'selected':''}>Antrasit Gri</option><option value="Altın Meşe" ${lastClr==='Altın Meşe'?'selected':''}>Altın Meşe</option><option value="Kahverengi" ${lastClr==='Kahverengi'?'selected':''}>Kahverengi</option></select></div>
             </div>
-            <div class="form-group"><label>Özel Not</label><input type="text" class="inp-not" value="${lastNot}"></div>
+            <div class="form-group"><label>Özel İmalat / Montaj Notu</label><input type="text" class="inp-not" value="${lastNot}"></div>
             <div class="row-live-price">
-                <span>Maliyet: <b class="lbl-row-m":>0.00</b> TL</span><span>KDV (%20): <b class="lbl-row-k">0.00</b> TL</span><span>Montaj: <b class="lbl-row-i">0.00</b> TL</span><span style="color:var(--primary);">Toplam: <b class="lbl-row-t">0.00</b> TL</span>
+                <span>Maliyet: <b class="lbl-row-m">0.00</b> TL</span><span>KDV (%20): <b class="lbl-row-k">0.00</b> TL</span><span>Montaj: <b class="lbl-row-i">0.00</b> TL</span><span style="color:var(--primary);">Satış Toplamı: <b class="lbl-row-t">0.00</b> TL</span>
                 <button class="zebra-btn no-print" style="margin-left:auto;" onclick="printZebraLabel('${div.id}')">🏷️ Zebra Bas</button>
             </div>
         `;
@@ -263,11 +338,8 @@
 
     function liveRecalculateAll() {
         const rows = document.querySelectorAll('.order-row'); if(rows.length === 0) return;
-        const cp = parseFloat(document.getElementById('cfg_m_plise').value || 250);
-        const ck = parseFloat(document.getElementById('cfg_m_kedi').value || 400);
-        const cd = parseFloat(document.getElementById('cfg_dolar_kuru').value || 33.50);
-        const ca = parseFloat(document.getElementById('cfg_perde_aparat').value || 40);
-        const cr = parseFloat(document.getElementById('cfg_kar_orani').value || 100) / 100;
+        const cp = currentParams.plise; const ck = currentParams.kedi; const cd = currentParams.dolar;
+        const ca = currentParams.aparat; const cr = currentParams.kar / 100;
 
         rows.forEach(r => {
             const g = r.querySelector('.sel-grp').value; const w = parseFloat(r.querySelector('.inp-w').value || 0); const h = parseFloat(r.querySelector('.inp-h').value || 0);
@@ -284,9 +356,10 @@
 
     function printZebraLabel(rId) {
         const r = document.getElementById(rId); const name = document.getElementById('mainCustomerName').value || "Fix House";
-        const w = r.querySelector('.inp-w').value; const h = r.querySelector('.inp-h').value;
-        if(!w || !h) { alert("Ölçü Eksik!"); return; }
-        const zpl = `^XA^CF0,30^FO50,50^FDMus: ${name}^FS^FO50,90^FDOlcu: ${w}x${h}^FS^XZ`;
+        const grp = r.querySelector('.sel-grp').value; const w = parseFloat(r.querySelector('.inp-w').value || 0); const h = parseFloat(r.querySelector('.inp-h').value || 0);
+        if(!w || !h) { alert("Ölçü Eksik usta!"); return; }
+        let kEn = grp === "Sineklik" ? (w - 2).toFixed(1) : w; let kBoy = grp === "Sineklik" ? (h - 4).toFixed(1) : h;
+        const zpl = `^XA^CF0,30^FO50,50^FDMus: ${name}^FS^FO50,90^FDOlcu: ${w}x${h}^FS^FO50,130^FDKesim: ${kEn}x${kBoy}^FS^XZ`;
         const wnd = window.open('', '_blank'); wnd.document.write('<pre>' + zpl + '</pre><script>window.print();<\/script>'); wnd.document.close();
     }
 
@@ -298,9 +371,10 @@
             const clr = r.querySelector('.sel-clr').value; const n = r.querySelector('.inp-not').value;
             const m = parseFloat(r.querySelector('.lbl-row-m').innerText || 0); totM += m;
             let uName = g === "Sineklik" ? r.querySelector('.sel-sys').value : r.querySelector('.sel-kms').value;
-            items.push({grp:g, urunAdi:uName, en:w, boy:h, renk:clr, not:n, kesim:`En: ${w} Boy: ${h}`});
+            let kEn = g === "Sineklik" ? (w - 2) : w; let kBoy = g === "Sineklik" ? (h - 4) : h;
+            items.push({grp:g, urunAdi:uName, en:w, boy:h, renk:clr, not:n, kesim:`En: ${kEn} | Boy: ${kBoy}`});
         });
-        const cr = parseFloat(document.getElementById('cfg_kar_orani').value || 100) / 100;
+        const cr = currentParams.kar / 100;
         const matrah = totM + (totM * cr); const kdv = matrah * 0.20; const isc = matrah * 0.20; const genTot = matrah + kdv + isc;
         const kap = parseFloat(document.getElementById('mainKapora').value || 0);
         globalLastCalculationResult = {
@@ -309,17 +383,17 @@
             kapora: kap.toFixed(2), maliyet: totM.toFixed(2), kdv: kdv.toFixed(2), iscilik: isc.toFixed(2), toplam: genTot.toFixed(2), bakiye: (genTot-kap).toFixed(2),
             urunler: items, tarih: new Date().toLocaleString('tr-TR')
         };
-        document.getElementById('analysisResultText').innerHTML = `<b>Müşteri:</b> ${globalLastCalculationResult.musteri}<br><b>Toplam Tutar:</b> ${globalLastCalculationResult.toplam} TL<br><b>Kalan Bakiye:</b> ${globalLastCalculationResult.bakiye} TL`;
+        document.getElementById('analysisResultText').innerHTML = `<b>👤 Müşteri:</b> ${globalLastCalculationResult.musteri}<br><b>💰 Toplam Satış Tutarı:</b> ${globalLastCalculationResult.toplam} TL<br><b>📉 Kalan Atölye Alacağı:</b> ${globalLastCalculationResult.bakiye} TL`;
         document.getElementById('calculationAnalysisCard').style.display = "block";
     }
 
     function sendCalculatedListToFirebase() {
         if(!globalLastCalculationResult) return;
-        database.ref('siparisler').push(globalLastCalculationResult).then(() => { alert("Sipariş Havuza Gönderildi!"); clearFormAndAnalysis(); });
+        database.ref('siparisler').push(globalLastCalculationResult).then(() => { alert("Sipariş Canlı İmalat Havuzuna Gönderildi!"); clearFormAndAnalysis(); });
     }
     function saveToPotentialPool() {
         calculateAllRowsEngine(); if(!globalLastCalculationResult) return;
-        database.ref('potansiyel_musteriler').push(globalLastCalculationResult).then(() => { alert("Teklif Kaydedildi."); clearFormAndAnalysis(); });
+        database.ref('potansiyel_musteriler').push(globalLastCalculationResult).then(() => { alert("Teklif Formu Kaydedildi usta."); clearFormAndAnalysis(); });
     }
     function clearFormAndAnalysis() {
         document.getElementById('mainCustomerName').value = ''; document.getElementById('mainCustomerPhone').value = '';
@@ -342,20 +416,20 @@
         liveRecalculateAll();
     }
 
-    // FIREBASE AKIŞ DİNLEYİCİLERİ
+    // FIREBASE SENKRONİZASYON AKIŞI
     database.ref('siparisler').on('value', snap => {
-        const c = document.getElementById('activePoolContainer'); c.innerHTML = ''; const data = snap.val(); if(!data) return;
+        const c = document.getElementById('activePoolContainer'); c.innerHTML = ''; const data = snap.val(); if(!data) { c.innerHTML='<li>İmalat havuzu boş usta.</li>'; return; }
         Object.keys(data).reverse().forEach(k => {
-            const op = data[k]; let sHtml = ''; op.urunler?.forEach(u => { sHtml += `<li>${u.grp} - <b>${u.urunAdi}</b> [${u.en}x${u.boy}] (${u.renk}) - Kesim: ${u.kesim}</li>`; });
-            c.innerHTML += `<li class="pool-item"><h3>👤 ${op.musteri} | 📞 ${op.telefon} <span style="float:right;">${op.toplam} TL</span></h3><p>📍 Adres: ${op.adres}</p><ul>${sHtml}</ul><br><button class="action-btn" style="background:var(--success);" onclick="moveOrderToArchive('${k}')">✅ Tamamlandı</button> <button class="action-btn" onclick='restoreOrderToForm(${JSON.stringify(op)}); database.ref("siparisler/${k}").remove();'>✏️ Düzenle</button></li>`;
+            const op = data[k]; let sHtml = ''; op.urunler?.forEach(u => { sHtml += `<li>• [${u.grp}] <b>${u.urunAdi}</b> (${u.en}x${u.boy} cm) - Kesim Payı: <b style="color:var(--primary);">${u.kesim}</b></li>`; });
+            c.innerHTML += `<li class="pool-item"><h3>👤 Müşteri: ${op.musteri} | 📞 Tlf: ${op.telefon} <span style="float:right; color:var(--success);">${op.toplam} TL</span></h3><p>📍 Adres: ${op.adres} | Hedef: ${op.montajTarihi}</p><ul>${sHtml}</ul><br><button class="action-btn" style="background:var(--success);" onclick="moveOrderToArchive('${k}')">✅ İmalat Bitti Arşivle</button> <button class="action-btn" style="background:var(--accent);" onclick='restoreOrderToForm(${JSON.stringify(op)}); database.ref("siparisler/${k}").remove();'>✏️ Düzenle</button> <button class="action-btn" style="background:#e53935;" onclick="database.ref('siparisler/${k}').remove()">✕ İptal Et</button></li>`;
         });
     });
 
     database.ref('potansiyel_musteriler').on('value', snap => {
-        const c = document.getElementById('potentialPoolContainer'); c.innerHTML = ''; const data = snap.val(); if(!data) return;
+        const c = document.getElementById('potentialPoolContainer'); c.innerHTML = ''; const data = snap.val(); if(!data) { c.innerHTML='<li>Bekleyen potansiyel teklif yok.</li>'; return; }
         Object.keys(data).reverse().forEach(k => {
             const op = data[k];
-            c.innerHTML += `<li class="pool-item"><h3>🔮 Teklif: ${op.musteri} | Tutar: ${op.toplam} TL</h3><p>Tarih: ${op.tarih}</p><br><button class="action-btn" onclick="database.ref('siparisler').push(${JSON.stringify(op)}); database.ref('potansiyel_musteriler/${k}').remove();">🚀 Üretime Al</button> <button class="action-btn" onclick='restoreOrderToForm(${JSON.stringify(op)}); database.ref("potansiyel_musteriler/${k}").remove();'>✏️ İncele/Düzenle</button></li>`;
+            c.innerHTML += `<li class="pool-item"><h3>🔮 Teklif Formu: ${op.musteri} | Tutar: ${op.toplam} TL</h3><p>Telefon: ${op.telefon} | Adres: ${op.adres}</p><br><button class="action-btn" style="background:var(--primary);" onclick="database.ref('siparisler').push(${JSON.stringify(op)}); database.ref('potansiyel_musteriler/${k}').remove();">🚀 Onayla Üretime Al</button> <button class="action-btn" style="background:var(--accent);" onclick='restoreOrderToForm(${JSON.stringify(op)}); database.ref("potansiyel_musteriler/${k}").remove();'>✏️ İncele/Düzenle</button></li>`;
         });
     });
 
@@ -364,22 +438,25 @@
         const c = document.getElementById('archivePoolContainer'); c.innerHTML = ''; totCiro = 0; const data = snap.val(); if(!data) return;
         Object.keys(data).reverse().forEach(k => {
             const op = data[k]; totCiro += parseFloat(op.toplam || 0);
-            c.innerHTML += `<li class="pool-item" style="background:#f1f8e9;" dblclick='restoreOrderToForm(${JSON.stringify(op)})'><h3>✅ Teslim Edildi: ${op.musteri} <span style="float:right;">+${op.toplam} TL</span></h3><p>Arşivlenme: ${op.arsivlenmeTarihi}</p><br><button class="action-btn" style="background:var(--secondary);" onclick='restoreOrderToForm(${JSON.stringify(op)})'>🗂️ Tüm İmalat Detaylarını İncele</button></li>`;
+            c.innerHTML += `<li class="pool-item" style="background:#f1f8e9;" dblclick='restoreOrderToForm(${JSON.stringify(op)})'><h3>✅ Teslim Edildi: ${op.musteri} | Tlf: ${op.telefon} <span style="float:right; color:var(--success);">+${op.toplam} TL</span></h3><p>Adres: ${op.adres} | Arşivlenme: ${op.arsivlenmeTarihi}</p><br><button class="action-btn" style="background:var(--secondary);" onclick='restoreOrderToForm(${JSON.stringify(op)})'>🗂️ Tüm İmalat Detaylarını Gör / Geri Yükle</button></li>`;
         });
-        document.getElementById('statTotalCiro').innerText = totCiro.toFixed(2) + " TL"; recalculateNetBalance();
+        const el = document.getElementById('statTotalCiro'); if(el) el.innerText = totCiro.toFixed(2) + " TL"; recalculateNetBalance();
     });
 
     let totGider = 0;
     database.ref('giderler').on('value', snap => {
-        const tb = document.getElementById('giderListTableBody'); tb.innerHTML = ''; totGider = 0; const data = snap.val(); if(!data) return;
+        const tb = document.getElementById('giderListTableBody'); if(!tb) return; tb.innerHTML = ''; totGider = 0; const data = snap.val(); if(!data) return;
         Object.keys(data).forEach(k => {
             const g = data[k]; totGider += parseFloat(g.tutar || 0);
             tb.innerHTML += `<tr><td>${g.tarih}</td><td>${g.aciklama}</td><td>-${g.tutar} TL</td><td><button class="delete-row-btn" style="position:static;" onclick="database.ref('giderler/${k}').remove()">Sil</button></td></tr>`;
         });
-        document.getElementById('statTotalGider').innerText = totGider.toFixed(2) + " TL"; recalculateNetBalance();
+        const el = document.getElementById('statTotalGider'); if(el) el.innerText = totGider.toFixed(2) + " TL"; recalculateNetBalance();
     });
 
-    function recalculateNetBalance() { document.getElementById('statNetDenge').innerText = (totCiro - totGider).toFixed(2) + " TL"; }
+    function recalculateNetBalance() { 
+        const denge = totCiro - totGider;
+        const el = document.getElementById('statNetDenge'); if(el) el.innerText = denge.toFixed(2) + " TL"; 
+    }
     function moveOrderToArchive(key) {
         database.ref('siparisler/' + key).once('value', snap => {
             const d = snap.val(); if(d) { d.arsivlenmeTarihi = new Date().toLocaleString('tr-TR'); database.ref('arsiv').push(d).then(() => database.ref('siparisler/' + key).remove()); }
