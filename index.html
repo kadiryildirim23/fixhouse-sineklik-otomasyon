@@ -320,7 +320,7 @@
         const tbody = document.getElementById('perdeKumasTableBody');
         tbody.innerHTML = '';
         kumasKatalogu.forEach(k => {
-            tbody.innerHTML += <tr><td><b>${k.ad}</b></td><td>${k.kat}</td><td>$${k.usd.toFixed(2)}</td></tr>;
+            tbody.innerHTML += `<tr><td><b>${k.ad}</b></td><td>${k.kat}</td><td>$${k.usd.toFixed(2)}</td></tr>`;
         });
     }
 
@@ -348,8 +348,8 @@
         }
 
         const div = document.createElement('div');
-        div.id = or_row_${localRowIdCounter};
-        div.className = order-row ${lastGrp === 'Plise Perde' ? 'perde' : ''};
+        div.id = `or_row_${localRowIdCounter}`;
+        div.className = `order-row ${lastGrp === 'Plise Perde' ? 'perde' : ''}`;
         
         div.innerHTML = `
             <button class="delete-row-btn" onclick="document.getElementById('${div.id}').remove()">✕ Sil</button>
@@ -416,7 +416,7 @@
         kumasKatalogu.forEach(k => {
             const opt = document.createElement('option');
             opt.value = k.ad;
-            opt.text = ${k.ad} [Katalog];
+            opt.text = `${k.ad} [Katalog]`;
             if(k.ad === selectValue) opt.selected = true;
             sel.appendChild(opt);
         });
@@ -489,17 +489,17 @@
                 if(sys === "Plise Sineklik") {
                     // Takoz Ölçü Kuralı: En-2, Boy-4
                     satirMalzemeMaliyeti = finalSqm * cfg_m_plise;
-                    kesimNotu = Atölye Kesimi (Takoz Paylı) -> En: ${(w - 2).toFixed(1)} cm | Boy: ${(h - 4).toFixed(1)} cm;
+                    kesimNotu = `Atölye Kesimi (Takoz Paylı) -> En: ${(w - 2).toFixed(1)} cm | Boy: ${(h - 4).toFixed(1)} cm`;
                 } else {
                     // Menteşeli Kedi Sinekliği: 140cm En Sabit
                     satirMalzemeMaliyeti = finalSqm * cfg_m_kedi;
-                    kesimNotu = Menteşeli Kedi Sinekliği İskeleti -> En: ${w} cm | Boy: ${h} cm (140cm Tül Genişliği);
+                    kesimNotu = `Menteşeli Kedi Sinekliği İskeleti -> En: ${w} cm | Boy: ${h} cm (140cm Tül Genişliği)`;
                 }
             } else {
                 // Plise Perde Hesaplama
                 const mnt = r.querySelector('.sel-mnt').value;
                 const kms = r.querySelector('.sel-kms').value;
-                urunDetayAdi = Plise Perde (${mnt});
+                urunDetayAdi = `Plise Perde (${mnt})`;
 
                 const kumasObj = kumasKatalogu.find(k => k.ad === kms) || kumasKatalogu[0];
                 const kumasTlMaliyeti = kumasObj.usd * cfg_dolar;
@@ -507,7 +507,7 @@
                 satirMalzemeMaliyeti = finalSqm * kumasTlMaliyeti;
                 if(mnt === "KANCALI" || mnt === "YAPIŞKAN") { satirMalzemeMaliyeti += cfg_aparat; }
 
-                kesimNotu = Üst/Alt Çıta ve Çift Açılır Hareketli Mekanizma Ölçüsü -> En: ${w} cm | Boy: ${h} cm;
+                kesimNotu = `Üst/Alt Çıta ve Çift Açılır Hareketli Mekanizma Ölçüsü -> En: ${w} cm | Boy: ${h} cm`;
             }
 
             totalMalzemeMaliyeti += satirMalzemeMaliyeti;
@@ -605,7 +605,7 @@
             const op = data[key];
             let urunListesiHtml = '';
             op.urunler.forEach(u => {
-                urunListesiHtml += <li>• [${u.grp}] <b>${u.urunAdi}</b> - ${u.en}x${u.height || u.boy} cm (${u.renk})<br><span style="color:var(--primary-color); font-weight:600;">✂️ ${u.kesim}</span></li>;
+                urunListesiHtml += `<li>• [${u.grp}] <b>${u.urunAdi}</b> - ${u.en}x${u.height || u.boy} cm (${u.renk})<br><span style="color:var(--primary-color); font-weight:600;">✂️ ${u.kesim}</span></li>`;
             });
             
             container.innerHTML += `
