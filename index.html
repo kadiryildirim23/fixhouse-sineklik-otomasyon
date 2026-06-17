@@ -3,99 +3,164 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fix House - Dinamik Malzeme Yönetimli ERP v5.3</title>
+    <title>Fix House - Endüstriyel Atölye Sepetli ERP v5.4</title>
     <!-- Firebase Altyapısı -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
     <style>
-        :root { --primary: #e65100; --secondary: #263238; --bg: #f8f9fa; --surface: #ffffff; --text: #37474f; --border: #cfd8dc; --success: #2e7d32; --accent: #0288d1; }
+        :root { --primary: #e65100; --secondary: #263238; --bg: #f1f3f4; --surface: #ffffff; --text: #2c3e50; --border: #b0bec5; --success: #1b5e20; --accent: #01579b; }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, sans-serif; }
-        body { background: var(--bg); color: var(--text); padding: 15px; }
-        nav { display: flex; background: var(--secondary); padding: 10px; border-radius: 6px; margin-bottom: 15px; gap: 10px; border-bottom: 4px solid var(--primary); align-items: center; }
-        nav .logo { color: white; font-weight: bold; font-size: 18px; margin-right: 15px; }
-        nav button { background: rgba(255,255,255,0.1); color: white; border: none; padding: 10px 18px; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 14px; }
-        nav button:hover { background: rgba(255,255,255,0.2); }
-        nav button.active { background: var(--primary); }
-        #connection-status { margin-left: auto; color: #ffcc80; font-size: 13px; font-weight: bold; padding-right: 10px; }
+        body { background: var(--bg); color: var(--text); padding: 20px; }
+        
+        /* Geliştirilmiş Üst Menü */
+        nav { display: flex; background: var(--secondary); padding: 12px 20px; border-radius: 8px; margin-bottom: 20px; gap: 12px; border-bottom: 4px solid var(--primary); align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        nav .logo { color: white; font-weight: 800; font-size: 22px; letter-spacing: 1px; margin-right: 20px; text-shadow: 1px 1px 2px rgba(0,0,0,0.5); }
+        nav button { background: rgba(255,255,255,0.08); color: white; border: none; padding: 12px 22px; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 14px; transition: all 0.2s ease; }
+        nav button:hover { background: rgba(255,255,255,0.2); transform: translateY(-1px); }
+        nav button.active { background: var(--primary); box-shadow: inset 0 2px 4px rgba(0,0,0,0.2); }
+        
+        /* Canlı Saat ve Durum Çubuğu */
+        .status-bar-container { margin-left: auto; display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+        #live-clock { color: #ffffff; font-size: 15px; font-weight: bold; background: rgba(0,0,0,0.2); padding: 3px 10px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.1); letter-spacing: 0.5px; }
+        #connection-status { color: #ffcc80; font-size: 12px; font-weight: bold; display: flex; align-items: center; gap: 5px; }
+        
         .tab-content { display: none; } .tab-content.active { display: block; }
-        .grid-layout { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 20px; }
-        @media (max-width: 1000px) { .grid-layout { grid-template-columns: 1fr; } }
-        .card { background: var(--surface); padding: 20px; border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border: 1px solid var(--border); margin-bottom: 20px; position: relative; }
-        h2 { color: var(--secondary); font-size: 16px; margin-bottom: 15px; border-bottom: 2px solid var(--bg); padding-bottom: 6px; display: flex; justify-content: space-between; align-items: center; }
-        .order-row { background: #fafafa; border: 1px solid var(--border); padding: 15px; border-radius: 6px; margin-bottom: 15px; position: relative; border-left: 4px solid var(--primary); }
-        .order-row.perde { border-left-color: var(--accent); }
-        .row-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 10px; margin-bottom: 10px; }
+        .grid-layout { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 25px; }
+        @media (max-width: 1100px) { .grid-layout { grid-template-columns: 1fr; } }
+        
+        /* Büyük Kart Tasarımı */
+        .card { background: var(--surface); padding: 25px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.06); border: 1px solid var(--border); margin-bottom: 25px; }
+        h2 { color: var(--secondary); font-size: 18px; margin-bottom: 18px; border-bottom: 3px solid #cfd8dc; padding-bottom: 8px; display: flex; justify-content: space-between; align-items: center; font-weight: 700; }
+        
+        /* Büyütülmüş Rahat Giriş Kutucukları */
+        .row-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; margin-bottom: 15px; }
         .form-group { display: flex; flex-direction: column; }
-        label { font-size: 11px; font-weight: 600; margin-bottom: 4px; color: #546e7a; }
-        input, select { padding: 8px 10px; border: 1px solid var(--border); border-radius: 4px; font-size: 13px; outline: none; background: white; }
-        .row-live-price { background: #efebe9; padding: 6px 10px; border-radius: 4px; font-size: 12px; font-weight: bold; margin-top: 5px; display: flex; gap: 15px; color: #4e342e; align-items: center; }
-        button.main-btn { background: var(--primary); color: white; border: none; padding: 10px 15px; border-radius: 4px; font-weight: bold; cursor: pointer; width: 100%; }
-        button.action-btn { background: #455a64; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: 600; }
-        button.print-btn { background: #00897b; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 12px; }
-        button.zebra-btn { background: #7e57c2; color: white; border: none; padding: 4px 8px; border-radius: 3px; font-size: 11px; cursor: pointer; font-weight: bold; }
-        button.delete-row-btn { position: absolute; right: 10px; top: 10px; background: #e53935; color: white; border: none; padding: 3px 8px; border-radius: 4px; font-size: 11px; cursor: pointer; }
+        label { font-size: 12px; font-weight: 700; margin-bottom: 6px; color: #455a64; text-transform: uppercase; letter-spacing: 0.3px; }
+        input, select { padding: 12px 14px; border: 2px solid var(--border); border-radius: 6px; font-size: 15px; font-weight: 600; color: #2c3e50; outline: none; background: #ffffff; transition: border-color 0.2s ease; }
+        input:focus, select:focus { border-color: var(--primary); background: #fffde7; }
+        
+        /* Sepet ve Anlık Fiyat Çubuğu */
+        .price-display-bar { background: #efebe9; padding: 12px 15px; border-radius: 6px; font-size: 14px; font-weight: bold; margin-top: 10px; display: flex; gap: 20px; color: #4e342e; align-items: center; border-left: 5px solid var(--primary); }
+        .price-display-bar b { font-size: 16px; color: #d84315; }
+        
+        /* Büyük Butonlar */
+        button.main-btn { background: var(--primary); color: white; border: none; padding: 14px 20px; border-radius: 6px; font-weight: 800; font-size: 15px; cursor: pointer; width: 100%; text-transform: uppercase; letter-spacing: 0.5px; box-shadow: 0 3px 6px rgba(0,0,0,0.1); transition: all 0.2s ease; }
+        button.main-btn:hover { background: #bf360c; transform: translateY(-1px); }
+        button.action-btn { background: #455a64; color: white; border: none; padding: 10px 16px; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 700; transition: background 0.2s ease; }
+        button.action-btn:hover { background: #37474f; }
+        button.print-btn { background: #00897b; color: white; border: none; padding: 8px 16px; border-radius: 5px; cursor: pointer; font-weight: 700; font-size: 13px; }
+        button.zebra-btn { background: #7e57c2; color: white; border: none; padding: 6px 12px; border-radius: 4px; font-size: 12px; cursor: pointer; font-weight: bold; }
+        
+        /* Sepet Tablosu Görseli */
+        .sepet-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 14px; font-weight: 600; }
+        .sepet-table th { background: var(--secondary); color: white; padding: 10px; text-transform: uppercase; font-size: 11px; }
+        .sepet-table td { padding: 10px; border-bottom: 2px solid #eceff1; background: #ffffff; }
+        .sepet-table tr:hover td { background: #f5f5f5; }
+        
         .order-pool-list { list-style: none; }
-        .pool-item { background: white; border: 1px solid var(--border); padding: 15px; border-radius: 6px; margin-bottom: 12px; border-left: 4px solid var(--secondary); }
-        .pool-item.perde { border-left-color: #7b1fa2; }
-        .pool-item h3 { font-size: 15px; color: var(--secondary); margin-bottom: 6px; }
-        .pool-item ul { padding-left: 20px; font-size: 13px; margin: 8px 0; }
-        .settings-layout { display: grid; grid-template-columns: 200px 1fr; gap: 20px; }
+        .pool-item { background: white; border: 1px solid var(--border); padding: 18px; border-radius: 8px; margin-bottom: 15px; border-left: 5px solid var(--secondary); box-shadow: 0 2px 6px rgba(0,0,0,0.03); }
+        .pool-item h3 { font-size: 16px; color: var(--secondary); margin-bottom: 8px; border-bottom: 1px solid #efebe9; padding-bottom: 4px; }
+        .pool-item ul { padding-left: 20px; font-size: 14px; margin: 10px 0; color: #37474f; }
+        
+        .settings-layout { display: grid; grid-template-columns: 220px 1fr; gap: 20px; }
         .settings-sidebar { display: flex; flex-direction: column; gap: 8px; border-right: 1px solid var(--border); padding-right: 15px; }
-        .settings-sidebar button { background: none; color: var(--text); border: none; text-align: left; padding: 10px; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 13px; }
+        .settings-sidebar button { background: none; color: var(--text); border: none; text-align: left; padding: 12px; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 14px; }
         .settings-sidebar button.active { background: #eceff1; color: var(--primary); }
         .settings-pane { display: none; } .settings-pane.active { display: block; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; }
-        table th, table td { border: 1px solid var(--border); padding: 8px 10px; text-align: left; }
-        table th { background: #f5f7f8; }
+        table.settings-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; }
+        table.settings-table th, table.settings-table td { border: 1px solid var(--border); padding: 10px; }
+        
         .finance-summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; }
-        .fin-card { background: #eceff1; padding: 15px; border-radius: 6px; border-left: 4px solid var(--secondary); }
+        .fin-card { background: #eceff1; padding: 15px; border-radius: 6px; border-left: 4px solid var(--secondary); font-weight: bold; }
         .fin-card.plus { border-left-color: var(--success); background: #e8f5e9; }
         .fin-card.minus { border-left-color: #d32f2f; background: #ffebee; }
-        @media print { .no-print, nav, button, .delete-row-btn { display: none !important; } body { background: white; color: black; padding: 0; } .card { box-shadow: none; border: none; } }
+        
+        @media print { .no-print, nav, button { display: none !important; } body { background: white; color: black; padding: 0; } .card { box-shadow: none; border: none; } }
     </style>
 </head>
 <body>
 
 <nav class="no-print">
-    <div class="logo">FIX HOUSE ERP v5.3</div>
+    <div class="logo">FIX HOUSE ERP</div>
     <button class="nav-link active" onclick="switchTab('order-entry-tab', this)">🆕 Sipariş Girişi</button>
     <button class="nav-link" onclick="switchTab('active-pool-tab', this)">📋 Canlı Üretim Havuzu</button>
     <button class="nav-link" onclick="switchTab('potential-tab', this)">🔮 Potansiyel Müşteriler</button>
     <button class="nav-link" onclick="switchTab('archive-tab', this)">🗄️ Akıllı Arşiv</button>
     <button class="nav-link" onclick="switchTab('settings-tab', this)" style="background:#37474f;">⚙️ Ayarlar</button>
-    <div id="connection-status">● Buluta Bağlanıyor...</div>
+    
+    <!-- Geliştirilmiş Canlı Saat Yapısı -->
+    <div class="status-bar-container">
+        <div id="live-clock">00:00:00</div>
+        <div id="connection-status">● Buluta Bağlanıyor...</div>
+    </div>
 </nav>
 
-<!-- 1. SEKME: SİPARİŞ GİRİŞİ -->
+<!-- 1. SEKME: SİPARİŞ GİRİŞİ (YENİ SEPETLİ MİMARİ) -->
 <div id="order-entry-tab" class="tab-content active">
     <div class="grid-layout">
-        <div class="card" id="formCardContainer">
-            <h2>🛠️ Ölçü ve Sipariş Kayıt Formu
-                <div style="display:flex; gap:10px;" class="no-print">
-                    <button class="print-btn" onclick="window.print()">🖨️ Sayfayı Yazdır / PDF</button>
-                    <button class="action-btn" onclick="addNewOrderRow()">➕ Yeni Ölçü Ekle</button>
-                </div>
-            </h2>
+        <!-- Sol Taraf: Ölçü Giriş ve Hesaplama Paneli -->
+        <div class="card">
+            <h2>🛠️ Ölçü Giriş Tezgahı <button class="print-btn no-print" onclick="window.print()">🖨️ Yazdır / PDF</button></h2>
+            
             <div class="row-grid" style="grid-template-columns: 2fr 1fr 1fr;">
-                <div class="form-group"><label>Müşteri Adı Soyadı</label><input type="text" id="mainCustomerName" placeholder="Müşteri Adı"></div>
+                <div class="form-group"><label>Müşteri Adı Soyadı</label><input type="text" id="mainCustomerName" placeholder="Müşteri Adı Soyadı"></div>
                 <div class="form-group"><label>Müşteri Telefonu</label><input type="text" id="mainCustomerPhone" placeholder="0533..."></div>
                 <div class="form-group"><label>Montaj Adresi</label><input type="text" id="mainCustomerAddress" placeholder="Sürsürü Mah."></div>
             </div>
-            <div id="dynamicOrderRowsContainer" style="margin-top:15px;"></div>
-            <div class="row-grid" style="grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px;">
-                <div class="form-group"><label>Montaj Tarihi</label><input type="date" id="mainMontajTarihi"></div>
-                <div class="form-group"><label>Alınan Kapora (TL)</label><input type="number" id="mainKapora" value="0" oninput="liveRecalculateAll()"></div>
+
+            <!-- Tekli Ölçü Giriş Alanı -->
+            <div style="background: #f7f9fa; border: 2px solid var(--border); padding: 15px; border-radius: 6px; margin-top: 15px;">
+                <div class="row-grid" style="grid-template-columns: 1.2fr 1.2fr 1.2fr;">
+                    <div class="form-group"><label>Ürün Grubu</label><select id="f_grp" onchange="handleGroupChangeDirect()"><option value="Sineklik">Sineklik</option><option value="Plise Perde">Plise Perde</option></select></div>
+                    <div class="form-group" id="box-sys-direct"><label>Sistem Tipi</label><select id="f_sys" onchange="liveRecalculateAll()"></select></div>
+                    <div class="form-group" id="box-mnt-direct" style="display:none;"><label>Montaj Türü</label><select id="f_mnt" onchange="liveRecalculateAll()"><option value="VİDALI">VİDALI</option><option value="KANCALI">KANCALI</option><option value="PORTRAYLI">PORTRAYLI</option><option value="YAPIŞKAN">YAPIŞKAN</option></select></div>
+                    <div class="form-group" id="box-kms-direct" style="display:none;"><label>Kumaş / Seri</label><select id="f_kms" onchange="liveRecalculateAll()"></select></div>
+                    <div class="form-group"><label>Profil Rengi</label><select id="f_clr"><option value="Beyaz">Beyaz</option><option value="Antrasit Gri">Antrasit Gri</option><option value="Altın Meşe">Altın Meşe</option><option value="Kahverengi">Kahverengi</option></select></div>
+                </div>
+                
+                <div class="row-grid" style="grid-template-columns: 1fr 1fr 2fr;">
+                    <div class="form-group"><label>En (cm)</label><input type="number" id="f_w" placeholder="En" oninput="liveRecalculateAll()"></div>
+                    <div class="form-group"><label>Boy (cm)</label><input type="number" id="f_h" placeholder="Boy" oninput="liveRecalculateAll()"></div>
+                    <div class="form-group"><label>Özel İmalat Notu</label><input type="text" id="f_not" placeholder="Örn: Sol kanat açılır"></div>
+                </div>
+
+                <div class="price-display-bar">
+                    <span>Maliyet: <b id="lbl_m">0.00</b> TL</span><span>KDV (%20): <b id="lbl_k">0.00</b> TL</span><span>Montaj: <b id="lbl_i">0.00</b> TL</span><span style="color:var(--primary); margin-left:auto;">Satış Toplamı: <b id="lbl_t">0.00</b> TL</span>
+                </div>
+                
+                <button class="main-btn" style="margin-top:15px; background:var(--secondary);" onclick="addCurrentItemToSepet()">🛒 ÖLÇÜYÜ SEPETE EKLE</button>
             </div>
-            <br class="no-print">
-            <div class="row-grid no-print" style="grid-template-columns: 1.2fr 0.8fr; gap: 15px;">
-                <button class="main-btn" onclick="calculateAllRowsEngine()">📐 Listeyi Kilitle ve Havuz Raporu Al</button>
-                <button class="main-btn" style="background:#7b1fa2;" onclick="saveToPotentialPool()">🔮 Potansiyel Olarak Kaydet (Teklif)</button>
+
+            <div class="row-grid" style="grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px;">
+                <div class="form-group"><label>Montaj Tarihi</label><input type="date" id="mainMontajTarihi"></div>
+                <div class="form-group"><label>Alınan Kapora (TL)</label><input type="number" id="mainKapora" value="0" oninput="liveRecalculateSepetTotals()"></div>
             </div>
         </div>
-        <div class="card" id="calculationAnalysisCard" style="display:none; background:#fff3e0; border-color:#ffe0b2;">
-            <h2>📊 Finansal Analiz Önizleme</h2>
-            <div id="analysisResultText" style="font-size:14px; line-height:1.6;"></div><br>
-            <button class="main-btn" style="background:var(--success);" onclick="sendCalculatedListToFirebase()">🛒 Siparişi Canlı Üretim Havuzuna Gönder</button>
+
+        <!-- Sağ Taraf: Müşteri Bazlı Ölçü Sepeti ve Havuzlama -->
+        <div class="card" style="background:#fffde7; border-color:#fbc02d;">
+            <h2>🧺 Müşteri Ölçü Sepeti</h2>
+            <div style="overflow-x:auto;">
+                <table class="sepet-table">
+                    <thead>
+                        <tr><th>Ürün / Seri</th><th>Ölçü</th><th>Renk / Not</th><th>Fiyat</th><th>İşlem</th></tr>
+                    </thead>
+                    <tbody id="sepetTableBody">
+                        <tr><td colspan="5" style="text-align:center; color:#78909c; padding:20px;">Sepetiniz henüz boş usta. Ölçü ekleyin.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div id="sepetSummaryZone" style="margin-top:20px; font-size:15px; line-height:1.8; font-weight:bold; display:none; border-top:2px dashed var(--border); padding-top:15px;">
+                <div>📦 Toplam Ölçü Adedi: <span id="summaryCount">0</span> Adet</div>
+                <div>💰 Toplam Satış Tutarı: <span id="summaryGenelToplam" style="color:var(--primary); font-size:18px;">0.00</span> TL</div>
+                <div>📉 Alınan Kapora: <span id="summaryKapora">0.00</span> TL | 🏁 Kalan Alacak: <span id="summaryBakiye" style="color:var(--success);">0.00</span> TL</div>
+                
+                <div class="row-grid" style="grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 15px;" class="no-print">
+                    <button class="main-btn" style="background:var(--success);" onclick="submitSepetToFirebase('siparisler')">🛒 Canlı Havuza Gönder</button>
+                    <button class="main-btn" style="background:#7b1fa2;" onclick="submitSepetToFirebase('potansiyel_musteriler')">🔮 Teklif Olarak Sakla</button>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -144,29 +209,27 @@
                 <button class="set-link" onclick="switchSettingsPane('pane-gider', this)">📉 Gider Yönetimi</button>
             </div>
             <div class="settings-main">
-                <!-- SİNEKLİK MANUEL MALZEME EKLEME PANELİ -->
                 <div id="pane-sineklik" class="settings-pane active">
-                    <h3>🪟 Sineklik Sistem/Malzeme Ekleme Paneli</h3><br>
+                    <h3>🪟 Sineklik Malzeme Ekleme Paneli</h3><br>
                     <div class="row-grid" style="grid-template-columns: 2fr 1fr 1fr; margin-bottom: 20px;">
-                        <input type="text" id="newSineklikName" placeholder="Örn: Menteşeli Kedi Sinekliği">
+                        <input type="text" id="newSineklikName" placeholder="Örn: Plise Sineklik">
                         <input type="number" id="newSineklikPrice" placeholder="Maliyet (TL/m²)">
                         <button class="action-btn" style="background:var(--success);" onclick="addCustomMaterial('sineklik')">➕ Malzeme Ekle</button>
                     </div>
-                    <table id="tblSineklikMat"><thead><tr><th>Sistem / Malzeme Adı</th><th>Birim Maliyet (TL)</th><th>İşlem</th></tr></thead><tbody id="bodySineklikMat"></tbody></table>
+                    <table class="settings-table"><thead><tr><th>Sistem / Malzeme Adı</th><th>Birim Maliyet (TL)</th><th>İşlem</th></tr></thead><tbody id="bodySineklikMat"></tbody></table>
                 </div>
-                <!-- PERDE MANUEL MALZEME EKLEME PANELİ -->
                 <div id="pane-perde" class="settings-pane">
-                    <h3>🎴 Plise Perde Kumaş/Seri Ekleme Paneli</h3><br>
-                    <div class="row-grid" style="margin-bottom:15px;">
-                        <div class="form-group"><label>💵 Güncel Dolar Kuru (USD/TRY)</label><input type="number" id="cfg_dolar_kuru" value="33.50" step="0.01" oninput="updateGlobalParam('dolar', this.value)"></div>
+                    <h3>🎴 Plise Perde Döviz ve Kumaş Ayarları</h3><br>
+                    <div class="row-grid">
+                        <div class="form-group"><label>💵 Dolar Kuru (USD/TRY)</label><input type="number" id="cfg_dolar_kuru" value="33.50" step="0.01" oninput="updateGlobalParam('dolar', this.value)"></div>
                         <div class="form-group"><label>📦 Aksesuar/Aparat Sabit Maliyeti (TL)</label><input type="number" id="cfg_perde_aparat" value="40" oninput="updateGlobalParam('aparat', this.value)"></div>
                     </div>
                     <div class="row-grid" style="grid-template-columns: 2fr 1fr 1fr; margin-bottom:20px;">
-                        <input type="text" id="newPerdeName" placeholder="Örn: BLACKOUT - ANTRASİT">
+                        <input type="text" id="newPerdeName" placeholder="Örn: ARDA - 01">
                         <input type="number" id="newPerdePrice" placeholder="Alış Fiyatı (USD/m²)">
                         <button class="action-btn" style="background:var(--accent);" onclick="addCustomMaterial('perde')">➕ Kumaş Ekle</button>
                     </div>
-                    <table id="perdeKumasTable" style="max-height: 250px; overflow-y: scroll; display: block;"><thead><tr><th>Kumaş / Seri Adı</th><th>Alış Fiyatı (USD)</th><th>İşlem</th></tr></thead><tbody id="perdeKumasTableBody"></tbody></table>
+                    <table class="settings-table" style="max-height: 250px; overflow-y: scroll; display: block;"><thead><tr><th>Kumaş / Seri Adı</th><th>Alış Fiyatı (USD)</th><th>İşlem</th></tr></thead><tbody id="perdeKumasTableBody"></tbody></table>
                 </div>
                 <div id="pane-finans" class="settings-pane">
                     <h3>💰 Finansal Kasa Durumu</h3><br>
@@ -180,7 +243,7 @@
                 <div id="pane-gider" class="settings-pane">
                     <h3>📉 Gider Kayıt Girişi</h3><br>
                     <div class="row-grid" style="grid-template-columns: 2fr 1fr 1fr;"><input type="text" id="giderAciklama" placeholder="Açıklama"><input type="number" id="giderTutar" placeholder="Tutar"><button class="action-btn" onclick="addGiderToFirebase()">Ekle</button></div>
-                    <table><thead><tr><th>Tarih</th><th>Açıklama</th><th>Tutar</th><th>İşlem</th></tr></thead><tbody id="giderListTableBody"></tbody></table>
+                    <table class="settings-table"><thead><tr><th>Tarih</th><th>Açıklama</th><th>Tutar</th><th>İşlem</th></tr></thead><tbody id="giderListTableBody"></tbody></table>
                 </div>
             </div>
         </div>
@@ -196,55 +259,37 @@
     };
     firebase.initializeApp(firebaseConfig); const database = firebase.database();
 
-    // Global Hafıza Nesnesi
     let currentParams = { dolar: 33.50, aparat: 40, kar: 100 };
-    let sineklikListesi = [];
-    let perdeListesi = [];
+    let sineklikListesi = []; let perdeListesi = [];
+    let sepetSiparisElemanlari = []; // Müşteri Bazlı Ölçü Sepeti Dizisi
 
-    document.getElementById('mainMontajTarihi').value = new Date().toISOString().substring(0, 10);
+    // 🕒 Anlık Canlı Saat ve Tarih Motoru (Milisaniyelik Senkronizasyon)
+    setInterval(() => {
+        const simdi = new Date();
+        document.getElementById('live-clock').innerText = simdi.toLocaleDateString('tr-TR') + ' | ' + simdi.toLocaleTimeString('tr-TR');
+    }, 1000);
 
-    // Veritabanından Dinamik Malzemeleri ve Fiyatları Çekme Sürücüsü
+    database.ref('.info/connected').on('value', snap => {
+        const s = document.getElementById('connection-status');
+        s.innerHTML = snap.val() === true ? '● Buluta Bağlı (Canlı)' : '● Bağlantı Kesildi';
+        s.style.color = snap.val() === true ? '#81c784' : '#e53935';
+    });
+
     database.ref('ayarlar/sineklik_malzemeleri').on('value', snap => {
-        sineklikListesi = [];
-        const data = snap.val();
-        if(data) {
-            Object.keys(data).forEach(key => { sineklikListesi.push({ id: key, ad: data[key].ad, fiyat: parseFloat(data[key].fiyat) }); });
-        } else {
-            // Varsayılan İlksel Veriler
-            sineklikListesi = [{ad:"Plise Sineklik", fiyat:250}, {ad:"Kedi Sinekliği", fiyat:400}];
-        }
-        loadSettingsTables(); updateAllDropdowns(); liveRecalculateAll();
+        sineklikListesi = []; const data = snap.val();
+        if(data) { Object.keys(data).forEach(k => { sineklikListesi.push({ id: k, ad: data[k].ad, fiyat: parseFloat(data[k].fiyat) }); }); }
+        else { sineklikListesi = [{ad:"Plise Sineklik", fiyat:250}, {ad:"Kedi Sinekliği", fiyat:400}]; }
+        loadSettingsTables(); handleGroupChangeDirect();
     });
 
     database.ref('ayarlar/perde_malzemeleri').on('value', snap => {
-        perdeListesi = [];
-        const data = snap.val();
-        if(data) {
-            Object.keys(data).forEach(key => { perdeListesi.push({ id: key, ad: data[key].ad, usd: parseFloat(data[key].usd) }); });
-        } else {
-            // image_c0e326.png Görselindeki 94 Satırlık Ana Liste Başlangıcı
-            perdeListesi = [
-                {ad:"ARDA - 01", usd:6.70}, {ad:"ARDA - 02", usd:6.70}, {ad:"ARDA - 03", usd:6.70}, {ad:"ARDA - 04", usd:6.70}, {ad:"ARDA - 05", usd:6.70},
-                {ad:"ASEL - 01", usd:7.20}, {ad:"ASEL - 02", usd:7.20}, {ad:"ASEL - 03", usd:7.20}, {ad:"ASEL - 04", usd:7.20}, {ad:"ASEL - 05", usd:7.20},
-                {ad:"BAMBU 6001", usd:6.60}, {ad:"BAMBU 6003", usd:6.60}, {ad:"BAMBU 6004", usd:6.60}, {ad:"BAMBU 6005", usd:6.60},
-                {ad:"BLACKOUT - ANTRASİT", usd:12.00}, {ad:"BLACKOUT - GRİ", usd:12.00}, {ad:"DARK 5001 ANTRASİT", usd:8.00}, {ad:"DIAMOND - BEYA", usd:5.70},
-                {ad:"DIAMOND - ANTRASİT", usd:5.70}, {ad:"HONEYCOMB 001 BEYAZ", usd:12.50}, {ad:"HONEYCOMB 004 ANTRASİT", usd:12.50}, {ad:"TULLE 500", usd:5.80}
-            ];
-        }
-        loadSettingsTables(); updateAllDropdowns(); liveRecalculateAll();
+        perdeListesi = []; const data = snap.val();
+        if(data) { Object.keys(data).forEach(k => { perdeListesi.push({ id: k, ad: data[k].ad, usd: parseFloat(data[k].usd) }); }); }
+        else { perdeListesi = [{ad:"ARDA - 01", usd:6.70}, {ad:"BLACKOUT - ANTRASİT", usd:12.00}, {ad:"DIAMOND - BEYA", usd:5.70}, {ad:"TULLE 500", usd:5.80}]; }
+        loadSettingsTables(); handleGroupChangeDirect();
     });
 
-    // Döviz Kuru API Çekimi
-    fetch('https://open.er-api.com/v6/latest/USD').then(res => res.json()).then(data => {
-        if(data && data.rates && data.rates.TRY) {
-            currentParams.dolar = data.rates.TRY;
-            const el = document.getElementById('cfg_dolar_kuru'); if(el) el.value = data.rates.TRY.toFixed(2);
-            liveRecalculateAll();
-        }
-    }).catch(e => console.log("Yedek Kur Modu."));
-
     function updateGlobalParam(key, value) { currentParams[key] = parseFloat(value || 0); liveRecalculateAll(); }
-
     function switchTab(tId, btn) {
         document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
         document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active'));
@@ -255,7 +300,6 @@
         document.querySelectorAll('.set-link').forEach(el => el.classList.remove('active'));
         document.getElementById(pId).classList.add('active'); btn.classList.add('active');
     }
-
     function unlockSettings() {
         if(document.getElementById('settingsPasswordInput').value === "1234") {
             document.getElementById('lockScreen').style.display = "none";
@@ -263,176 +307,158 @@
         } else { alert("Şifre Hatalı!"); }
     }
 
-    // Manuel Malzeme ve Fiyat Ekleme Fonksiyonu
     function addCustomMaterial(type) {
         if(type === 'sineklik') {
-            const ad = document.getElementById('newSineklikName').value;
-            const fiyat = document.getElementById('newSineklikPrice').value;
-            if(!ad || !fiyat) return;
-            database.ref('ayarlar/sineklik_malzemeleri').push({ ad: ad, fiyat: fiyat }).then(() => {
-                document.getElementById('newSineklikName').value = ''; document.getElementById('newSineklikPrice').value = '';
-            });
+            const ad = document.getElementById('newSineklikName').value; const fiyat = document.getElementById('newSineklikPrice').value; if(!ad || !fiyat) return;
+            database.ref('ayarlar/sineklik_malzemeleri').push({ ad: ad, fiyat: fiyat }).then(() => { document.getElementById('newSineklikName').value = ''; document.getElementById('newSineklikPrice').value = ''; });
         } else {
-            const ad = document.getElementById('newPerdeName').value;
-            const usd = document.getElementById('newPerdePrice').value;
-            if(!ad || !usd) return;
-            database.ref('ayarlar/perde_malzemeleri').push({ ad: ad, usd: usd }).then(() => {
-                document.getElementById('newPerdeName').value = ''; document.getElementById('newPerdePrice').value = '';
-            });
+            const ad = document.getElementById('newPerdeName').value; const usd = document.getElementById('newPerdePrice').value; if(!ad || !usd) return;
+            database.ref('ayarlar/perde_malzemeleri').push({ ad: ad, usd: usd }).then(() => { document.getElementById('newPerdeName').value = ''; document.getElementById('newPerdePrice').value = ''; });
         }
     }
-
     function deleteMaterial(type, id) {
-        if(!id) { alert("Varsayılan listeler silinemez, yeni eklediklerinizi silebilirsiniz usta."); return; }
-        if(confirm("Bu malzemeyi silmek istediğinize emin misiniz?")) {
-            const path = type === 'sineklik' ? 'ayarlar/sineklik_malzemeleri/' : 'ayarlar/perde_malzemeleri/';
-            database.ref(path + id).remove();
-        }
+        if(!id) { alert("Varsayılan listeler silinemez usta."); return; }
+        if(confirm("Silinsin mi?")) { database.ref((type === 'sineklik' ? 'ayarlar/sineklik_malzemeleri/' : 'ayarlar/perde_malzemeleri/') + id).remove(); }
     }
-
     function loadSettingsTables() {
         const ts = document.getElementById('bodySineklikMat'); if(ts) { ts.innerHTML = ''; sineklikListesi.forEach(s => { ts.innerHTML += `<tr><td><b>${s.ad}</b></td><td>${s.fiyat} TL</td><td><button class="action-btn" style="background:#e53935;" onclick="deleteMaterial('sineklik', '${s.id || ''}')">Sil</button></td></tr>`; }); }
         const tp = document.getElementById('perdeKumasTableBody'); if(tp) { tp.innerHTML = ''; perdeListesi.forEach(k => { tp.innerHTML += `<tr><td><b>${k.ad}</b></td><td>$${k.usd.toFixed(2)}</td><td><button class="action-btn" style="background:#e53935;" onclick="deleteMaterial('perde', '${k.id || ''}')">Sil</button></td></tr>`; }); }
     }
 
-    // Sipariş Ekranındaki Açılır Menüleri (Dropdown) Dinamik Güncelleyen Motor
-    function updateAllDropdowns() {
-        document.querySelectorAll('.order-row').forEach(row => {
-            const grp = row.querySelector('.sel-grp').value;
-            if(grp === 'Sineklik') {
-                const selSys = row.querySelector('.sel-sys'); const curr = selSys.value; selSys.innerHTML = '';
-                sineklikListesi.forEach(s => { selSys.innerHTML += `<option value="${s.ad}">${s.ad}</option>`; });
-                if(curr) selSys.value = curr;
-            } else {
-                const selKms = row.querySelector('.sel-kms'); const curr = selKms.value; selKms.innerHTML = '';
-                perdeListesi.forEach(p => { selKms.innerHTML += `<option value="${p.ad}">${p.ad}</option>`; });
-                if(curr) selKms.value = curr;
-            }
-        });
-    }
-
-    function addNewOrderRow() {
-        localRowIdCounter++; const container = document.getElementById('dynamicOrderRowsContainer');
-        let lastGrp = "Sineklik", lastSys = "", lastClr = "Beyaz", lastMnt = "VİDALI", lastKms = "", lastNot = "";
+    function handleGroupChangeDirect() {
+        const g = document.getElementById('f_grp').value;
+        document.getElementById('box-sys-direct').style.display = g === "Sineklik" ? "flex" : "none";
+        document.getElementById('box-mnt-direct').style.display = g === "Sineklik" ? "none" : "flex";
+        document.getElementById('box-kms-direct').style.display = g === "Sineklik" ? "none" : "flex";
         
-        const existing = container.querySelectorAll('.order-row');
-        if(existing.length > 0) {
-            const lr = existing[existing.length - 1]; lastGrp = lr.querySelector('.sel-grp').value;
-            lastSys = lr.querySelector('.sel-sys')?.value || ""; lastClr = lr.querySelector('.sel-clr').value;
-            lastMnt = lr.querySelector('.sel-mnt')?.value || "VİDALI"; lastKms = lr.querySelector('.sel-kms')?.value || ""; lastNot = lr.querySelector('.inp-not').value;
-        }
-        
-        const div = document.createElement('div'); div.id = `or_row_${localRowIdCounter}`;
-        div.className = `order-row ${lastGrp === 'Plise Perde' ? 'perde' : ''}`;
-        div.innerHTML = `
-            <button class="delete-row-btn no-print" onclick="document.getElementById('${div.id}').remove(); liveRecalculateAll();">✕ Sil</button>
-            <div class="row-grid">
-                <div class="form-group"><label>Ürün Grubu</label><select class="sel-grp" onchange="handleGroupChange('${div.id}')"><option value="Sineklik" ${lastGrp==='Sineklik'?'selected':''}>Sineklik</option><option value="Plise Perde" ${lastGrp==='Plise Perde'?'selected':''}>Plise Perde</option></select></div>
-                <div class="form-group box-sys"><label>Sistem Tipi</label><select class="sel-sys" onchange="liveRecalculateAll()"></select></div>
-                <div class="form-group box-mnt" style="display:none;"><label>Montaj Türü</label><select class="sel-mnt" onchange="liveRecalculateAll()"><option value="KANCALI" ${lastMnt==='KANCALI'?'selected':''}>KANCALI</option><option value="PORTRAYLI" ${lastMnt==='PORTRAYLI'?'selected':''}>PORTRAYLI</option><option value="VİDALI" ${lastMnt==='VİDALI'?'selected':''}>VİDALI</option><option value="YAPIŞKAN" ${lastMnt==='YAPIŞKAN'?'selected':''}>YAPIŞKAN</option></select></div>
-                <div class="form-group box-kms" style="display:none;"><label>Kumaş / Seri</label><select class="sel-kms" onchange="liveRecalculateAll()"></select></div>
-                <div class="form-group"><label>En (cm)</label><input type="number" class="inp-w" step="0.1" placeholder="En" oninput="liveRecalculateAll()"></div>
-                <div class="form-group"><label>Boy (cm)</label><input type="number" class="inp-h" step="0.1" placeholder="Boy" oninput="liveRecalculateAll()"></div>
-                <div class="form-group"><label>Profil Rengi</label><select class="sel-clr" onchange="liveRecalculateAll()"><option value="Beyaz" ${lastClr==='Beyaz'?'selected':''}>Beyaz</option><option value="Antrasit Gri" ${lastClr==='Antrasit Gri'?'selected':''}>Antrasit Gri</option><option value="Altın Meşe" ${lastClr==='Altın Meşe'?'selected':''}>Altın Meşe</option><option value="Kahverengi" ${lastClr==='Kahverengi'?'selected':''}>Kahverengi</option></select></div>
-            </div>
-            <div class="form-group"><label>Özel İmalat / Montaj Notu</label><input type="text" class="inp-not" value="${lastNot}"></div>
-            <div class="row-live-price">
-                <span>Maliyet: <b class="lbl-row-m">0.00</b> TL</span><span>KDV (%20): <b class="lbl-row-k">0.00</b> TL</span><span>Montaj: <b class="lbl-row-i">0.00</b> TL</span><span style="color:var(--primary);">Toplam: <b class="lbl-row-t">0.00</b> TL</span>
-                <button class="zebra-btn no-print" style="margin-left:auto;" onclick="printZebraLabel('${div.id}')">🏷️ Zebra Bas</button>
-            </div>
-        `;
-        container.appendChild(div); handleGroupChange(div.id);
-    }
-
-    function handleGroupChange(rId) {
-        const r = document.getElementById(rId); const g = r.querySelector('.sel-grp').value;
-        r.querySelector('.box-sys').style.display = g === "Sineklik" ? "flex" : "none";
-        r.querySelector('.box-mnt').style.display = g === "Sineklik" ? "none" : "flex";
-        r.querySelector('.box-kms').style.display = g === "Sineklik" ? "none" : "flex";
-        if(g === "Sineklik") r.classList.remove('perde'); else r.classList.add('perde');
-        
-        // Eleman listelerini doldur
-        const selSys = r.querySelector('.sel-sys'); selSys.innerHTML = ''; sineklikListesi.forEach(s => { selSys.innerHTML += `<option value="${s.ad}">${s.ad}</option>`; });
-        const selKms = r.querySelector('.sel-kms'); selKms.innerHTML = ''; perdeListesi.forEach(p => { selKms.innerHTML += `<option value="${p.ad}">${p.ad}</option>`; });
-        
+        const sys = document.getElementById('f_sys'); sys.innerHTML = ''; sineklikListesi.forEach(s => { sys.innerHTML += `<option value="${s.ad}">${s.ad}</option>`; });
+        const kms = document.getElementById('f_kms'); kms.innerHTML = ''; perdeListesi.forEach(p => { kms.innerHTML += `<option value="${p.ad}">${p.ad}</option>`; });
         liveRecalculateAll();
     }
 
-    // Girdiğiniz Fiyatlara Göre Anlık Canlı Hesaplama Motoru
+    // Stabil Hesaplama Motoru
     function liveRecalculateAll() {
-        const rows = document.querySelectorAll('.order-row'); if(rows.length === 0) return;
-        const cd = currentParams.dolar; const ca = currentParams.aparat; const cr = currentParams.kar / 100;
-
-        rows.forEach(r => {
-            const g = r.querySelector('.sel-grp').value; const w = parseFloat(r.querySelector('.inp-w').value || 0); const h = parseFloat(r.querySelector('.inp-h').value || 0);
-            if(w <= 0 || h <= 0) { r.querySelector('.lbl-row-m').innerText = "0.00"; r.querySelector('.lbl-row-k').innerText = "0.00"; r.querySelector('.lbl-row-i').innerText = "0.00"; r.querySelector('.lbl-row-t').innerText = "0.00"; return; }
-            
-            const sqm = (w * h) / 10000; const finalSqm = sqm < 0.5 ? 0.5 : sqm;
-            let maliyet = 0;
-            
-            if(g === "Sineklik") {
-                const sysName = r.querySelector('.sel-sys').value;
-                const matchObj = sineklikListesi.find(s => s.ad === sysName);
-                maliyet = finalSqm * (matchObj ? matchObj.fiyat : 250);
-            } else {
-                const kmName = r.querySelector('.sel-kms').value;
-                const matchObj = perdeListesi.find(p => p.ad === kmName);
-                maliyet = finalSqm * ((matchObj ? matchObj.usd : 6.70) * cd);
-                if(r.querySelector('.sel-mnt').value !== "VİDALI") maliyet += ca;
-            }
-            
-            const matrah = maliyet + (maliyet * cr); const kdv = matrah * 0.20; const montaj = matrah * 0.20; const tot = matrah + kdv + montaj;
-            r.querySelector('.lbl-row-m').innerText = maliyet.toFixed(2); r.querySelector('.lbl-row-k').innerText = kdv.toFixed(2);
-            r.querySelector('.lbl-row-i').innerText = montaj.toFixed(2); r.querySelector('.lbl-row-t').innerText = tot.toFixed(2);
-        });
+        const g = document.getElementById('f_grp').value;
+        const w = parseFloat(document.getElementById('f_w').value || 0);
+        const h = parseFloat(document.getElementById('f_h').value || 0);
+        
+        if(w <= 0 || h <= 0) {
+            document.getElementById('lbl_m').innerText="0.00"; document.getElementById('lbl_k').innerText="0.00";
+            document.getElementById('lbl_i').innerText="0.00"; document.getElementById('lbl_t').innerText="0.00"; return;
+        }
+        
+        const sqm = (w * h) / 10000; const finalSqm = sqm < 0.5 ? 0.5 : sqm;
+        let maliyet = 0;
+        
+        if(g === "Sineklik") {
+            const sysName = document.getElementById('f_sys').value; const match = sineklikListesi.find(s => s.ad === sysName);
+            maliyet = finalSqm * (match ? match.fiyat : 250);
+        } else {
+            const kmName = document.getElementById('f_kms').value; const match = perdeListesi.find(p => p.ad === kmName);
+            maliyet = finalSqm * ((match ? match.usd : 6.70) * currentParams.dolar);
+            if(document.getElementById('f_mnt').value !== "VİDALI") maliyet += currentParams.aparat;
+        }
+        
+        const matrah = maliyet + (maliyet * (currentParams.kar / 100)); const kdv = matrah * 0.20; const montaj = matrah * 0.20; const tot = matrah + kdv + montaj;
+        document.getElementById('lbl_m').innerText = maliyet.toFixed(2); document.getElementById('lbl_k').innerText = kdv.toFixed(2);
+        document.getElementById('lbl_i').innerText = montaj.toFixed(2); document.getElementById('lbl_t').innerText = tot.toFixed(2);
     }
 
-    function printZebraLabel(rId) {
-        const r = document.getElementById(rId); const name = document.getElementById('mainCustomerName').value || "Fix House";
-        const grp = r.querySelector('.sel-grp').value; const w = r.querySelector('.inp-w').value; const h = r.querySelector('.inp-h').value;
-        if(!w || !h) { alert("Ölçü Eksik!"); return; }
+    // Ölçüyü Sepete Ekleme Fonksiyonu
+    function addCurrentItemToSepet() {
+        const w = document.getElementById('f_w').value; const h = document.getElementById('f_h').value;
+        if(!w || !h) { alert("Lütfen En ve Boy ölçülerini giriniz usta!"); return; }
+        
+        const grp = document.getElementById('f_grp').value;
+        const uName = grp === "Sineklik" ? document.getElementById('f_sys').value : document.getElementById('f_kms').value;
+        const clr = document.getElementById('f_clr').value; const note = document.getElementById('f_not').value;
+        
+        const mal = parseFloat(document.getElementById('lbl_m').innerText);
+        const tot = parseFloat(document.getElementById('lbl_t').innerText);
+        
         let kEn = grp === "Sineklik" ? (w - 2) : w; let kBoy = grp === "Sineklik" ? (h - 4) : h;
-        const zpl = `^XA^CF0,30^FO50,50^FDMus: ${name}^FS^FO50,90^FDOlcu: ${w}x${h}^FS^FO50,130^FDKesim: ${kEn}x${kBoy}^FS^XZ`;
-        const wnd = window.open('', '_blank'); wnd.document.write('<pre>' + zpl + '</pre><script>window.print();<\/script>'); wnd.document.close();
-    }
-
-    function calculateAllRowsEngine() {
-        const rows = document.querySelectorAll('.order-row'); if(rows.length === 0) return;
-        let totM = 0; let items = [];
-        rows.forEach(r => {
-            const g = r.querySelector('.sel-grp').value; const w = r.querySelector('.inp-w').value; const h = r.querySelector('.inp-h').value;
-            const clr = r.querySelector('.sel-clr').value; const n = r.querySelector('.inp-not').value;
-            const m = parseFloat(r.querySelector('.lbl-row-m').innerText || 0); totM += m;
-            let uName = g === "Sineklik" ? r.querySelector('.sel-sys').value : r.querySelector('.sel-kms').value;
-            let kEn = g === "Sineklik" ? (w - 2) : w; let kBoy = g === "Sineklik" ? (h - 4) : h;
-            items.push({grp:g, urunAdi:uName, en:w, boy:h, renk:clr, not:n, kesim:`En: ${kEn} | Boy: ${kBoy}`});
+        
+        sepetSiparisElemanlari.push({
+            grp: grp, urunAdi: uName, en: w, boy: h, renk: clr, not: note,
+            maliyet: mal, toplam: tot, kesim: `En: ${kEn} | Boy: ${kBoy}`
         });
-        const cr = currentParams.kar / 100;
-        const matrah = totM + (totM * cr); const kdv = matrah * 0.20; const isc = matrah * 0.20; const genTot = matrah + kdv + isc;
-        const kap = parseFloat(document.getElementById('mainKapora').value || 0);
-        globalLastCalculationResult = {
-            musteri: document.getElementById('mainCustomerName').value || "İsimsiz", telefon: document.getElementById('mainCustomerPhone').value || "-",
-            adres: document.getElementById('mainCustomerAddress').value || "-", montajTarihi: document.getElementById('mainMontajTarihi').value,
-            kapora: kap.toFixed(2), maliyet: totM.toFixed(2), kdv: kdv.toFixed(2), iscilik: isc.toFixed(2), toplam: genTot.toFixed(2), bakiye: (genTot-kap).toFixed(2),
-            urunler: items, tarih: new Date().toLocaleString('tr-TR')
-        };
-        document.getElementById('analysisResultText').innerHTML = `<b>👤 Müşteri:</b> ${globalLastCalculationResult.musteri}<br><b>💰 Toplam Tutar:</b> ${globalLastCalculationResult.toplam} TL<br><b>📉 Kalan Bakiye:</b> ${globalLastCalculationResult.bakiye} TL`;
-        document.getElementById('calculationAnalysisCard').style.display = "block";
+        
+        // Kutuları temizle ama kolaylık olsun diye grup ve rengi tut
+        document.getElementById('f_w').value = ''; document.getElementById('f_h').value = ''; document.getElementById('f_not').value = '';
+        liveRecalculateAll(); renderSepetTable();
     }
 
-    function sendCalculatedListToFirebase() {
-        if(!globalLastCalculationResult) return;
-        database.ref('siparisler').push(globalLastCalculationResult).then(() => { alert("Sipariş Havuza Gönderildi!"); clearFormAndAnalysis(); });
+    function removeSepetItem(index) {
+        sepetSiparisElemanlari.splice(index, 1); renderSepetTable();
     }
-    function saveToPotentialPool() {
-        calculateAllRowsEngine(); if(!globalLastCalculationResult) return;
-        database.ref('potansiyel_musteriler').push(globalLastCalculationResult).then(() => { alert("Teklif Saklandı."); clearFormAndAnalysis(); });
+
+    // Sepetten Geri Çağırıp Düzenleme Sihirbazı
+    function editSepetItem(index) {
+        const item = sepetSiparisElemanlari[index];
+        document.getElementById('f_grp').value = item.grp; handleGroupChangeDirect();
+        if(item.grp === 'Sineklik') document.getElementById('f_sys').value = item.urunAdi; else document.getElementById('f_kms').value = item.urunAdi;
+        document.getElementById('f_w').value = item.en; document.getElementById('f_h').value = item.boy;
+        document.getElementById('f_clr').value = item.renk; document.getElementById('f_not').value = item.not;
+        
+        sepetSiparisElemanlari.splice(index, 1); renderSepetTable(); liveRecalculateAll();
     }
-    function clearFormAndAnalysis() {
-        document.getElementById('mainCustomerName').value = ''; document.getElementById('mainCustomerPhone').value = '';
-        document.getElementById('mainCustomerAddress').value = ''; document.getElementById('mainKapora').value = '0';
-        document.getElementById('dynamicOrderRowsContainer').innerHTML = ''; document.getElementById('calculationAnalysisCard').style.display = "none";
-        globalLastCalculationResult = null; addNewOrderRow();
+
+    function renderSepetTable() {
+        const tbody = document.getElementById('sepetTableBody'); tbody.innerHTML = '';
+        if(sepetSiparisElemanlari.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#78909c; padding:20px;">Sepetiniz henüz boş usta. Ölçü ekleyin.</td></tr>';
+            document.getElementById('sepetSummaryZone').style.display = "none"; return;
+        }
+        
+        sepetSiparisElemanlari.forEach((item, index) => {
+            tbody.innerHTML += `
+                <tr>
+                    <td>[${item.grp}]<br><b>${item.urunAdi}</b></td>
+                    <td>${item.en} x ${item.boy} cm<br><small style="color:var(--primary);">${item.kesim}</small></td>
+                    <td>Renk: ${item.renk}<br><small>${item.not || '-'}</small></td>
+                    <td>${item.toplam.toFixed(2)} TL</td>
+                    <td>
+                        <button class="action-btn" style="background:var(--accent); padding:4px 8px; font-size:12px;" onclick="editSepetItem(${index})">✏️ Düzenle</button>
+                        <button class="action-btn" style="background:#e53935; padding:4px 8px; font-size:12px;" onclick="removeSepetItem(${index})">✕ Sil</button>
+                    </td>
+                </tr>
+            `;
+        });
+        document.getElementById('sepetSummaryZone').style.display = "block"; liveRecalculateSepetTotals();
+    }
+
+    function liveRecalculateSepetTotals() {
+        let totalSales = 0; sepetSiparisElemanlari.forEach(item => totalSales += item.toplam);
+        const kapora = parseFloat(document.getElementById('mainKapora').value || 0);
+        
+        document.getElementById('summaryCount').innerText = sepetSiparisElemanlari.length;
+        document.getElementById('summaryGenelToplam').innerText = totalSales.toFixed(2);
+        document.getElementById('summaryKapora').innerText = kapora.toFixed(2);
+        document.getElementById('summaryBakiye').innerText = (totalSales - kapora).toFixed(2);
+    }
+
+    // Sepeti Firebase Üretim / Teklif Havuzuna Gönderme Motoru
+    function submitSepetToFirebase(targetNode) {
+        if(sepetSiparisElemanlari.length === 0) return;
+        let totM = 0; sepetSiparisElemanlari.forEach(i => totM += i.maliyet);
+        let totT = parseFloat(document.getElementById('summaryGenelToplam').innerText);
+        const kap = parseFloat(document.getElementById('mainKapora').value || 0);
+        
+        const payload = {
+            musteri: document.getElementById('mainCustomerName').value || "İsimsiz Müşteri",
+            telefon: document.getElementById('mainCustomerPhone').value || "-",
+            adres: document.getElementById('mainCustomerAddress').value || "-",
+            montajTarihi: document.getElementById('mainMontajTarihi').value,
+            kapora: kap.toFixed(2), maliyet: totM.toFixed(2), toplam: totT.toFixed(2), bakiye: (totT - kap).toFixed(2),
+            urunler: sepetSiparisElemanlari, tarih: new Date().toLocaleString('tr-TR')
+        };
+        
+        database.ref(targetNode).push(payload).then(() => {
+            alert(targetNode === 'siparisler' ? "Tüm sepet imalat akış havuzuna gönderildi usta!" : "Teklif formları başarıyla saklandı!");
+            sepetSiparisElemanlari = []; document.getElementById('mainCustomerName').value='';
+            document.getElementById('mainCustomerPhone').value=''; document.getElementById('mainCustomerAddress').value='';
+            document.getElementById('mainKapora').value='0'; renderSepetTable();
+        });
     }
 
     function restoreOrderToForm(obj) {
@@ -440,21 +466,15 @@
         document.getElementById('mainCustomerName').value = obj.musteri; document.getElementById('mainCustomerPhone').value = obj.telefon;
         document.getElementById('mainCustomerAddress').value = obj.adres; document.getElementById('mainMontajTarihi').value = obj.montajTarihi;
         document.getElementById('mainKapora').value = obj.kapora;
-        const container = document.getElementById('dynamicOrderRowsContainer'); container.innerHTML = '';
-        obj.urunler?.forEach(u => {
-            addNewOrderRow(); const lr = container.lastChild; lr.querySelector('.sel-grp').value = u.grp; handleGroupChange(lr.id);
-            if(u.grp === 'Sineklik') lr.querySelector('.sel-sys').value = u.urunAdi; else lr.querySelector('.sel-kms').value = u.urunAdi;
-            lr.querySelector('.inp-w').value = u.en; lr.querySelector('.inp-h').value = u.boy; lr.querySelector('.sel-clr').value = u.renk; lr.querySelector('.inp-not').value = u.not || "";
-        });
-        liveRecalculateAll();
+        sepetSiparisElemanlari = [...obj.urunler]; renderSepetTable();
     }
 
-    // FIREBASE AKIŞ DİNLEYİCİLERİ
+    // FIREBASE AKIŞ DINLEYICILERI
     database.ref('siparisler').on('value', snap => {
         const c = document.getElementById('activePoolContainer'); c.innerHTML = ''; const data = snap.val(); if(!data) return;
         Object.keys(data).reverse().forEach(k => {
-            const op = data[k]; let sHtml = ''; op.urunler?.forEach(u => { sHtml += `<li>${u.grp} - <b>${u.urunAdi}</b> [${u.en}x${u.boy}] (${u.renk}) - Kesim: ${u.kesim}</li>`; });
-            c.innerHTML += `<li class="pool-item"><h3>👤 ${op.musteri} | Tel: ${op.telefon} <span style="float:right;">${op.toplam} TL</span></h3><p>Adres: ${op.adres}</p><ul>${sHtml}</ul><br><button class="action-btn" style="background:var(--success);" onclick="moveOrderToArchive('${k}')">✅ İmalat Bitti Arşivle</button> <button class="action-btn" style="background:var(--accent);" onclick='restoreOrderToForm(${JSON.stringify(op)}); database.ref("siparisler/${k}").remove();'>✏️ Düzenle</button> <button class="action-btn" style="background:#e53935;" onclick="database.ref('siparisler/${k}').remove()">✕ Sil</button></li>`;
+            const op = data[k]; let sHtml = ''; op.urunler?.forEach(u => { sHtml += `<li>• ${u.grp} - <b>${u.urunAdi}</b> [${u.en}x${u.boy} cm] (${u.renk}) - Kesim Payı: <b style="color:var(--primary);">${u.kesim}</b></li>`; });
+            c.innerHTML += `<li class="pool-item"><h3>👤 Müşteri: ${op.musteri} | 📞 Tlf: ${op.telefon} <span style="float:right; color:var(--success);">${op.toplam} TL</span></h3><p>📍 Adres: ${op.adres} | Teslim: ${op.montajTarihi}</p><ul>${sHtml}</ul><br><button class="action-btn" style="background:var(--success);" onclick="moveOrderToArchive('${k}')">✅ İmalat Bitti Arşivle</button> <button class="action-btn" style="background:var(--accent);" onclick='restoreOrderToForm(${JSON.stringify(op)}); database.ref("siparisler/${k}").remove();'>✏️ Sepete Çek/Düzenle</button> <button class="action-btn" style="background:#e53935;" onclick="database.ref('siparisler/${k}').remove()">✕ İptal Et</button></li>`;
         });
     });
 
@@ -462,7 +482,7 @@
         const c = document.getElementById('potentialPoolContainer'); c.innerHTML = ''; const data = snap.val(); if(!data) return;
         Object.keys(data).reverse().forEach(k => {
             const op = data[k];
-            c.innerHTML += `<li class="pool-item"><h3>🔮 Teklif: ${op.musteri} | Tutar: ${op.toplam} TL</h3><p>Telefon: ${op.telefon}</p><br><button class="action-btn" onclick="database.ref('siparisler').push(${JSON.stringify(op)}); database.ref('potansiyel_musteriler/${k}').remove();">🚀 Üretime Al</button> <button class="action-btn" onclick='restoreOrderToForm(${JSON.stringify(op)}); database.ref("potansiyel_musteriler/${k}").remove();'>✏️ Düzenle</button></li>`;
+            c.innerHTML += `<li class="pool-item"><h3>🔮 Teklif: ${op.musteri} | Tutar: ${op.toplam} TL</h3><p>Tlf: ${op.telefon} | Kayıt: ${op.tarih}</p><br><button class="action-btn" style="background:var(--primary);" onclick="database.ref('siparisler').push(${JSON.stringify(op)}); database.ref('potansiyel_musteriler/${k}').remove();">🚀 Onayla Üretime Al</button> <button class="action-btn" style="background:var(--accent);" onclick='restoreOrderToForm(${JSON.stringify(op)}); database.ref("potansiyel_musteriler/${k}").remove();'>✏️ İncele/Düzenle</button></li>`;
         });
     });
 
@@ -471,7 +491,7 @@
         const c = document.getElementById('archivePoolContainer'); c.innerHTML = ''; totCiro = 0; const data = snap.val(); if(!data) return;
         Object.keys(data).reverse().forEach(k => {
             const op = data[k]; totCiro += parseFloat(op.toplam || 0);
-            c.innerHTML += `<li class="pool-item" style="background:#f1f8e9;" dblclick='restoreOrderToForm(${JSON.stringify(op)})'><h3>✅ Teslim Edildi: ${op.musteri} <span style="float:right;">+${op.toplam} TL</span></h3><p>Arşivlenme: ${op.arsivlenmeTarihi}</p><br><button class="action-btn" style="background:var(--secondary);" onclick='restoreOrderToForm(${JSON.stringify(op)})'>🗂️ Detayları Gör / Forma At</button></li>`;
+            c.innerHTML += `<li class="pool-item" style="background:#f1f8e9;"><h3>✅ Teslim Edildi: ${op.musteri} <span style="float:right; color:var(--success);">+${op.toplam} TL</span></h3><p>Adres: ${op.adres} | Arşivlenme: ${op.arsivlenmeTarihi}</p><br><button class="action-btn" style="background:var(--secondary);" onclick='restoreOrderToForm(${JSON.stringify(op)})'>🗂️ Detayları Sepete Geri Yükle</button></li>`;
         });
         document.getElementById('statTotalCiro').innerText = totCiro.toFixed(2) + " TL"; recalculateNetBalance();
     });
@@ -494,10 +514,8 @@
     }
     function addGiderToFirebase() {
         const desc = document.getElementById('giderAciklama').value; const tutar = parseFloat(document.getElementById('giderTutar').value); if(!desc || !tutar) return;
-        database.ref('giderler').push({aciklama: desc, tutar: tutar, tarih: new Date().toLocaleDateString('tr-TR')}).then(() => { document.getElementById('giderAciklama').value = ''; document.getElementById('giderTutar').value = ''; });
+        database.ref('giderler').push({aciklama: desc, tutar: tutar, date: new Date().toLocaleDateString('tr-TR')}).then(() => { document.getElementById('giderAciklama').value = ''; document.getElementById('giderTutar').value = ''; });
     }
-
-    addNewOrderRow();
 </script>
 </body>
 </html>
