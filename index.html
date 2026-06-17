@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fix House - Endüstriyel Atölye Sepetli ERP v5.4</title>
-    <!-- Firebase Altyapısı -->
+    <title>Fix House - Üst Düzey Fabrikasyon ERP v5.5</title>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
     <style>
@@ -12,50 +11,42 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, sans-serif; }
         body { background: var(--bg); color: var(--text); padding: 20px; }
         
-        /* Geliştirilmiş Üst Menü */
         nav { display: flex; background: var(--secondary); padding: 12px 20px; border-radius: 8px; margin-bottom: 20px; gap: 12px; border-bottom: 4px solid var(--primary); align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        nav .logo { color: white; font-weight: 800; font-size: 22px; letter-spacing: 1px; margin-right: 20px; text-shadow: 1px 1px 2px rgba(0,0,0,0.5); }
+        nav .logo { color: white; font-weight: 800; font-size: 22px; letter-spacing: 1px; margin-right: 20px; }
         nav button { background: rgba(255,255,255,0.08); color: white; border: none; padding: 12px 22px; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 14px; transition: all 0.2s ease; }
         nav button:hover { background: rgba(255,255,255,0.2); transform: translateY(-1px); }
         nav button.active { background: var(--primary); box-shadow: inset 0 2px 4px rgba(0,0,0,0.2); }
         
-        /* Canlı Saat ve Durum Çubuğu */
         .status-bar-container { margin-left: auto; display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
-        #live-clock { color: #ffffff; font-size: 15px; font-weight: bold; background: rgba(0,0,0,0.2); padding: 3px 10px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.1); letter-spacing: 0.5px; }
-        #connection-status { color: #ffcc80; font-size: 12px; font-weight: bold; display: flex; align-items: center; gap: 5px; }
+        #live-clock { color: #ffffff; font-size: 15px; font-weight: bold; background: rgba(0,0,0,0.2); padding: 3px 10px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.1); }
+        #connection-status { color: #ffcc80; font-size: 12px; font-weight: bold; }
         
         .tab-content { display: none; } .tab-content.active { display: block; }
         .grid-layout { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 25px; }
         @media (max-width: 1100px) { .grid-layout { grid-template-columns: 1fr; } }
         
-        /* Büyük Kart Tasarımı */
         .card { background: var(--surface); padding: 25px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.06); border: 1px solid var(--border); margin-bottom: 25px; }
         h2 { color: var(--secondary); font-size: 18px; margin-bottom: 18px; border-bottom: 3px solid #cfd8dc; padding-bottom: 8px; display: flex; justify-content: space-between; align-items: center; font-weight: 700; }
         
-        /* Büyütülmüş Rahat Giriş Kutucukları */
         .row-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; margin-bottom: 15px; }
         .form-group { display: flex; flex-direction: column; }
-        label { font-size: 12px; font-weight: 700; margin-bottom: 6px; color: #455a64; text-transform: uppercase; letter-spacing: 0.3px; }
-        input, select { padding: 12px 14px; border: 2px solid var(--border); border-radius: 6px; font-size: 15px; font-weight: 600; color: #2c3e50; outline: none; background: #ffffff; transition: border-color 0.2s ease; }
+        label { font-size: 12px; font-weight: 700; margin-bottom: 6px; color: #455a64; text-transform: uppercase; }
+        input, select { padding: 12px 14px; border: 2px solid var(--border); border-radius: 6px; font-size: 15px; font-weight: 600; color: #2c3e50; outline: none; background: #ffffff; }
         input:focus, select:focus { border-color: var(--primary); background: #fffde7; }
         
-        /* Sepet ve Anlık Fiyat Çubuğu */
-        .price-display-bar { background: #efebe9; padding: 12px 15px; border-radius: 6px; font-size: 14px; font-weight: bold; margin-top: 10px; display: flex; gap: 20px; color: #4e342e; align-items: center; border-left: 5px solid var(--primary); }
-        .price-display-bar b { font-size: 16px; color: #d84315; }
+        .price-display-bar { background: #efebe9; padding: 12px 15px; border-radius: 6px; font-size: 13px; font-weight: bold; margin-top: 10px; display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 10px; color: #4e342e; border-left: 5px solid var(--primary); }
+        .price-display-bar b { font-size: 15px; color: #d84315; }
         
-        /* Büyük Butonlar */
-        button.main-btn { background: var(--primary); color: white; border: none; padding: 14px 20px; border-radius: 6px; font-weight: 800; font-size: 15px; cursor: pointer; width: 100%; text-transform: uppercase; letter-spacing: 0.5px; box-shadow: 0 3px 6px rgba(0,0,0,0.1); transition: all 0.2s ease; }
-        button.main-btn:hover { background: #bf360c; transform: translateY(-1px); }
-        button.action-btn { background: #455a64; color: white; border: none; padding: 10px 16px; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 700; transition: background 0.2s ease; }
+        button.main-btn { background: var(--primary); color: white; border: none; padding: 14px 20px; border-radius: 6px; font-weight: 800; font-size: 15px; cursor: pointer; width: 100%; text-transform: uppercase; box-shadow: 0 3px 6px rgba(0,0,0,0.1); }
+        button.main-btn:hover { background: #bf360c; }
+        button.action-btn { background: #455a64; color: white; border: none; padding: 10px 16px; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 700; }
         button.action-btn:hover { background: #37474f; }
         button.print-btn { background: #00897b; color: white; border: none; padding: 8px 16px; border-radius: 5px; cursor: pointer; font-weight: 700; font-size: 13px; }
-        button.zebra-btn { background: #7e57c2; color: white; border: none; padding: 6px 12px; border-radius: 4px; font-size: 12px; cursor: pointer; font-weight: bold; }
         
-        /* Sepet Tablosu Görseli */
-        .sepet-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 14px; font-weight: 600; }
-        .sepet-table th { background: var(--secondary); color: white; padding: 10px; text-transform: uppercase; font-size: 11px; }
-        .sepet-table td { padding: 10px; border-bottom: 2px solid #eceff1; background: #ffffff; }
-        .sepet-table tr:hover td { background: #f5f5f5; }
+        .sepet-table, .settings-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 14px; font-weight: 600; }
+        .sepet-table th, .settings-table th { background: var(--secondary); color: white; padding: 10px; text-transform: uppercase; font-size: 11px; text-align: left; }
+        .sepet-table td, .settings-table td { padding: 10px; border-bottom: 2px solid #eceff1; background: #ffffff; }
+        .sepet-table tr:hover td, .settings-table tr:hover td { background: #f5f5f5; }
         
         .order-pool-list { list-style: none; }
         .pool-item { background: white; border: 1px solid var(--border); padding: 18px; border-radius: 8px; margin-bottom: 15px; border-left: 5px solid var(--secondary); box-shadow: 0 2px 6px rgba(0,0,0,0.03); }
@@ -67,8 +58,6 @@
         .settings-sidebar button { background: none; color: var(--text); border: none; text-align: left; padding: 12px; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 14px; }
         .settings-sidebar button.active { background: #eceff1; color: var(--primary); }
         .settings-pane { display: none; } .settings-pane.active { display: block; }
-        table.settings-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; }
-        table.settings-table th, table.settings-table td { border: 1px solid var(--border); padding: 10px; }
         
         .finance-summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; }
         .fin-card { background: #eceff1; padding: 15px; border-radius: 6px; border-left: 4px solid var(--secondary); font-weight: bold; }
@@ -88,434 +77,13 @@
     <button class="nav-link" onclick="switchTab('archive-tab', this)">🗄️ Akıllı Arşiv</button>
     <button class="nav-link" onclick="switchTab('settings-tab', this)" style="background:#37474f;">⚙️ Ayarlar</button>
     
-    <!-- Geliştirilmiş Canlı Saat Yapısı -->
     <div class="status-bar-container">
         <div id="live-clock">00:00:00</div>
         <div id="connection-status">● Buluta Bağlanıyor...</div>
     </div>
 </nav>
 
-<!-- 1. SEKME: SİPARİŞ GİRİŞİ (YENİ SEPETLİ MİMARİ) -->
 <div id="order-entry-tab" class="tab-content active">
     <div class="grid-layout">
-        <!-- Sol Taraf: Ölçü Giriş ve Hesaplama Paneli -->
         <div class="card">
-            <h2>🛠️ Ölçü Giriş Tezgahı <button class="print-btn no-print" onclick="window.print()">🖨️ Yazdır / PDF</button></h2>
-            
-            <div class="row-grid" style="grid-template-columns: 2fr 1fr 1fr;">
-                <div class="form-group"><label>Müşteri Adı Soyadı</label><input type="text" id="mainCustomerName" placeholder="Müşteri Adı Soyadı"></div>
-                <div class="form-group"><label>Müşteri Telefonu</label><input type="text" id="mainCustomerPhone" placeholder="0533..."></div>
-                <div class="form-group"><label>Montaj Adresi</label><input type="text" id="mainCustomerAddress" placeholder="Sürsürü Mah."></div>
-            </div>
-
-            <!-- Tekli Ölçü Giriş Alanı -->
-            <div style="background: #f7f9fa; border: 2px solid var(--border); padding: 15px; border-radius: 6px; margin-top: 15px;">
-                <div class="row-grid" style="grid-template-columns: 1.2fr 1.2fr 1.2fr;">
-                    <div class="form-group"><label>Ürün Grubu</label><select id="f_grp" onchange="handleGroupChangeDirect()"><option value="Sineklik">Sineklik</option><option value="Plise Perde">Plise Perde</option></select></div>
-                    <div class="form-group" id="box-sys-direct"><label>Sistem Tipi</label><select id="f_sys" onchange="liveRecalculateAll()"></select></div>
-                    <div class="form-group" id="box-mnt-direct" style="display:none;"><label>Montaj Türü</label><select id="f_mnt" onchange="liveRecalculateAll()"><option value="VİDALI">VİDALI</option><option value="KANCALI">KANCALI</option><option value="PORTRAYLI">PORTRAYLI</option><option value="YAPIŞKAN">YAPIŞKAN</option></select></div>
-                    <div class="form-group" id="box-kms-direct" style="display:none;"><label>Kumaş / Seri</label><select id="f_kms" onchange="liveRecalculateAll()"></select></div>
-                    <div class="form-group"><label>Profil Rengi</label><select id="f_clr"><option value="Beyaz">Beyaz</option><option value="Antrasit Gri">Antrasit Gri</option><option value="Altın Meşe">Altın Meşe</option><option value="Kahverengi">Kahverengi</option></select></div>
-                </div>
-                
-                <div class="row-grid" style="grid-template-columns: 1fr 1fr 2fr;">
-                    <div class="form-group"><label>En (cm)</label><input type="number" id="f_w" placeholder="En" oninput="liveRecalculateAll()"></div>
-                    <div class="form-group"><label>Boy (cm)</label><input type="number" id="f_h" placeholder="Boy" oninput="liveRecalculateAll()"></div>
-                    <div class="form-group"><label>Özel İmalat Notu</label><input type="text" id="f_not" placeholder="Örn: Sol kanat açılır"></div>
-                </div>
-
-                <div class="price-display-bar">
-                    <span>Maliyet: <b id="lbl_m">0.00</b> TL</span><span>KDV (%20): <b id="lbl_k">0.00</b> TL</span><span>Montaj: <b id="lbl_i">0.00</b> TL</span><span style="color:var(--primary); margin-left:auto;">Satış Toplamı: <b id="lbl_t">0.00</b> TL</span>
-                </div>
-                
-                <button class="main-btn" style="margin-top:15px; background:var(--secondary);" onclick="addCurrentItemToSepet()">🛒 ÖLÇÜYÜ SEPETE EKLE</button>
-            </div>
-
-            <div class="row-grid" style="grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px;">
-                <div class="form-group"><label>Montaj Tarihi</label><input type="date" id="mainMontajTarihi"></div>
-                <div class="form-group"><label>Alınan Kapora (TL)</label><input type="number" id="mainKapora" value="0" oninput="liveRecalculateSepetTotals()"></div>
-            </div>
-        </div>
-
-        <!-- Sağ Taraf: Müşteri Bazlı Ölçü Sepeti ve Havuzlama -->
-        <div class="card" style="background:#fffde7; border-color:#fbc02d;">
-            <h2>🧺 Müşteri Ölçü Sepeti</h2>
-            <div style="overflow-x:auto;">
-                <table class="sepet-table">
-                    <thead>
-                        <tr><th>Ürün / Seri</th><th>Ölçü</th><th>Renk / Not</th><th>Fiyat</th><th>İşlem</th></tr>
-                    </thead>
-                    <tbody id="sepetTableBody">
-                        <tr><td colspan="5" style="text-align:center; color:#78909c; padding:20px;">Sepetiniz henüz boş usta. Ölçü ekleyin.</td></tr>
-                    </tbody>
-                </table>
-            </div>
-            
-            <div id="sepetSummaryZone" style="margin-top:20px; font-size:15px; line-height:1.8; font-weight:bold; display:none; border-top:2px dashed var(--border); padding-top:15px;">
-                <div>📦 Toplam Ölçü Adedi: <span id="summaryCount">0</span> Adet</div>
-                <div>💰 Toplam Satış Tutarı: <span id="summaryGenelToplam" style="color:var(--primary); font-size:18px;">0.00</span> TL</div>
-                <div>📉 Alınan Kapora: <span id="summaryKapora">0.00</span> TL | 🏁 Kalan Alacak: <span id="summaryBakiye" style="color:var(--success);">0.00</span> TL</div>
-                
-                <div class="row-grid" style="grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 15px;" class="no-print">
-                    <button class="main-btn" style="background:var(--success);" onclick="submitSepetToFirebase('siparisler')">🛒 Canlı Havuza Gönder</button>
-                    <button class="main-btn" style="background:#7b1fa2;" onclick="submitSepetToFirebase('potansiyel_musteriler')">🔮 Teklif Olarak Sakla</button>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- 2. SEKME: CANLI ÜRETİM HAVUZU -->
-<div id="active-pool-tab" class="tab-content">
-    <div class="card">
-        <h2>📋 Atölye İmalat Akış Havuzu <button class="print-btn no-print" style="float:right;" onclick="window.print()">🖨️ Yazdır / PDF</button></h2><br>
-        <ul id="activePoolContainer" class="order-pool-list"></ul>
-    </div>
-</div>
-
-<!-- 3. SEKME: POTANSİYEL MÜŞTERİLER -->
-<div id="potential-tab" class="tab-content">
-    <div class="card">
-        <h2>🔮 Potansiyel Teklif Listesi <button class="print-btn no-print" style="float:right;" onclick="window.print()">🖨️ Yazdır / PDF</button></h2><br>
-        <ul id="potentialPoolContainer" class="order-pool-list"></ul>
-    </div>
-</div>
-
-<!-- 4. SEKME: AKILLI ARŞİV -->
-<div id="archive-tab" class="tab-content">
-    <div class="card">
-        <h2>🗄️ Tamamlanan İşler Arşivi <button class="print-btn no-print" style="float:right;" onclick="window.print()">🖨️ Yazdır / PDF</button></h2><br>
-        <ul id="archivePoolContainer" class="order-pool-list"></ul>
-    </div>
-</div>
-
-<!-- 5. SEKME: YÖNETİCİ AYARLARI -->
-<div id="settings-tab" class="tab-content no-print">
-    <div class="card" id="lockScreen">
-        <h2>🔒 Güvenlik Kilidi</h2>
-        <p style="font-size:13px; margin-bottom:10px;">Ayarlara erişmek için şifreyi giriniz.</p>
-        <div style="display:flex; gap:10px; max-width:300px;">
-            <input type="password" id="settingsPasswordInput" placeholder="Şifre Giriniz">
-            <button class="action-btn" onclick="unlockSettings()">Giriş Yap</button>
-        </div>
-    </div>
-    <div class="card" id="settingsMainContent" style="display:none;">
-        <h2>⚙️ Fix House Yönetim Paneli</h2>
-        <div class="settings-layout">
-            <div class="settings-sidebar">
-                <button class="set-link active" onclick="switchSettingsPane('pane-sineklik', this)">🪟 Sineklik Ayarları</button>
-                <button class="set-link" onclick="switchSettingsPane('pane-perde', this)">🎴 Plise Perde Ayarları</button>
-                <button class="set-link" onclick="switchSettingsPane('pane-finans', this)">💰 Finansal Yönetim</button>
-                <button class="set-link" onclick="switchSettingsPane('pane-gider', this)">📉 Gider Yönetimi</button>
-            </div>
-            <div class="settings-main">
-                <div id="pane-sineklik" class="settings-pane active">
-                    <h3>🪟 Sineklik Malzeme Ekleme Paneli</h3><br>
-                    <div class="row-grid" style="grid-template-columns: 2fr 1fr 1fr; margin-bottom: 20px;">
-                        <input type="text" id="newSineklikName" placeholder="Örn: Plise Sineklik">
-                        <input type="number" id="newSineklikPrice" placeholder="Maliyet (TL/m²)">
-                        <button class="action-btn" style="background:var(--success);" onclick="addCustomMaterial('sineklik')">➕ Malzeme Ekle</button>
-                    </div>
-                    <table class="settings-table"><thead><tr><th>Sistem / Malzeme Adı</th><th>Birim Maliyet (TL)</th><th>İşlem</th></tr></thead><tbody id="bodySineklikMat"></tbody></table>
-                </div>
-                <div id="pane-perde" class="settings-pane">
-                    <h3>🎴 Plise Perde Döviz ve Kumaş Ayarları</h3><br>
-                    <div class="row-grid">
-                        <div class="form-group"><label>💵 Dolar Kuru (USD/TRY)</label><input type="number" id="cfg_dolar_kuru" value="33.50" step="0.01" oninput="updateGlobalParam('dolar', this.value)"></div>
-                        <div class="form-group"><label>📦 Aksesuar/Aparat Sabit Maliyeti (TL)</label><input type="number" id="cfg_perde_aparat" value="40" oninput="updateGlobalParam('aparat', this.value)"></div>
-                    </div>
-                    <div class="row-grid" style="grid-template-columns: 2fr 1fr 1fr; margin-bottom:20px;">
-                        <input type="text" id="newPerdeName" placeholder="Örn: ARDA - 01">
-                        <input type="number" id="newPerdePrice" placeholder="Alış Fiyatı (USD/m²)">
-                        <button class="action-btn" style="background:var(--accent);" onclick="addCustomMaterial('perde')">➕ Kumaş Ekle</button>
-                    </div>
-                    <table class="settings-table" style="max-height: 250px; overflow-y: scroll; display: block;"><thead><tr><th>Kumaş / Seri Adı</th><th>Alış Fiyatı (USD)</th><th>İşlem</th></tr></thead><tbody id="perdeKumasTableBody"></tbody></table>
-                </div>
-                <div id="pane-finans" class="settings-pane">
-                    <h3>💰 Finansal Kasa Durumu</h3><br>
-                    <div class="form-group" style="max-width:200px;"><label>📈 Hedef Kâr Oranı (%)</label><input type="number" id="cfg_kar_orani" value="100" oninput="updateGlobalParam('kar', this.value)"></div><br>
-                    <div class="finance-summary">
-                        <div class="fin-card plus"><h4>Toplam Ciro</h4><p id="statTotalCiro">0.00 TL</p></div>
-                        <div class="fin-card minus"><h4>Toplam Gider</h4><p id="statTotalGider">0.00 TL</p></div>
-                        <div class="fin-card"><h4>Net Kasa</h4><p id="statNetDenge">0.00 TL</p></div>
-                    </div>
-                </div>
-                <div id="pane-gider" class="settings-pane">
-                    <h3>📉 Gider Kayıt Girişi</h3><br>
-                    <div class="row-grid" style="grid-template-columns: 2fr 1fr 1fr;"><input type="text" id="giderAciklama" placeholder="Açıklama"><input type="number" id="giderTutar" placeholder="Tutar"><button class="action-btn" onclick="addGiderToFirebase()">Ekle</button></div>
-                    <table class="settings-table"><thead><tr><th>Tarih</th><th>Açıklama</th><th>Tutar</th><th>İşlem</th></tr></thead><tbody id="giderListTableBody"></tbody></table>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<script>
-    const firebaseConfig = {
-        apiKey: "AIzaSyB4jTIAo0pAcNVXZEc7bzBHi4wRKBdZWs0", authDomain: "fixhouse-f2f29.firebaseapp.com",
-        projectId: "fixhouse-f2f29", storageBucket: "fixhouse-f2f29.firebasestorage.app",
-        messagingSenderId: "21162414048", appId: "1:21162414048:web:b9ce3c4341de63fbf46585",
-        measurementId: "G-T4PJC735X2", databaseURL: "https://fixhouse-f2f29-default-rtdb.firebaseio.com"
-    };
-    firebase.initializeApp(firebaseConfig); const database = firebase.database();
-
-    let currentParams = { dolar: 33.50, aparat: 40, kar: 100 };
-    let sineklikListesi = []; let perdeListesi = [];
-    let sepetSiparisElemanlari = []; // Müşteri Bazlı Ölçü Sepeti Dizisi
-
-    // 🕒 Anlık Canlı Saat ve Tarih Motoru (Milisaniyelik Senkronizasyon)
-    setInterval(() => {
-        const simdi = new Date();
-        document.getElementById('live-clock').innerText = simdi.toLocaleDateString('tr-TR') + ' | ' + simdi.toLocaleTimeString('tr-TR');
-    }, 1000);
-
-    database.ref('.info/connected').on('value', snap => {
-        const s = document.getElementById('connection-status');
-        s.innerHTML = snap.val() === true ? '● Buluta Bağlı (Canlı)' : '● Bağlantı Kesildi';
-        s.style.color = snap.val() === true ? '#81c784' : '#e53935';
-    });
-
-    database.ref('ayarlar/sineklik_malzemeleri').on('value', snap => {
-        sineklikListesi = []; const data = snap.val();
-        if(data) { Object.keys(data).forEach(k => { sineklikListesi.push({ id: k, ad: data[k].ad, fiyat: parseFloat(data[k].fiyat) }); }); }
-        else { sineklikListesi = [{ad:"Plise Sineklik", fiyat:250}, {ad:"Kedi Sinekliği", fiyat:400}]; }
-        loadSettingsTables(); handleGroupChangeDirect();
-    });
-
-    database.ref('ayarlar/perde_malzemeleri').on('value', snap => {
-        perdeListesi = []; const data = snap.val();
-        if(data) { Object.keys(data).forEach(k => { perdeListesi.push({ id: k, ad: data[k].ad, usd: parseFloat(data[k].usd) }); }); }
-        else { perdeListesi = [{ad:"ARDA - 01", usd:6.70}, {ad:"BLACKOUT - ANTRASİT", usd:12.00}, {ad:"DIAMOND - BEYA", usd:5.70}, {ad:"TULLE 500", usd:5.80}]; }
-        loadSettingsTables(); handleGroupChangeDirect();
-    });
-
-    function updateGlobalParam(key, value) { currentParams[key] = parseFloat(value || 0); liveRecalculateAll(); }
-    function switchTab(tId, btn) {
-        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-        document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active'));
-        document.getElementById(tId).classList.add('active'); btn.classList.add('active');
-    }
-    function switchSettingsPane(pId, btn) {
-        document.querySelectorAll('.settings-pane').forEach(el => el.classList.remove('active'));
-        document.querySelectorAll('.set-link').forEach(el => el.classList.remove('active'));
-        document.getElementById(pId).classList.add('active'); btn.classList.add('active');
-    }
-    function unlockSettings() {
-        if(document.getElementById('settingsPasswordInput').value === "1234") {
-            document.getElementById('lockScreen').style.display = "none";
-            document.getElementById('settingsMainContent').style.display = "block"; loadSettingsTables();
-        } else { alert("Şifre Hatalı!"); }
-    }
-
-    function addCustomMaterial(type) {
-        if(type === 'sineklik') {
-            const ad = document.getElementById('newSineklikName').value; const fiyat = document.getElementById('newSineklikPrice').value; if(!ad || !fiyat) return;
-            database.ref('ayarlar/sineklik_malzemeleri').push({ ad: ad, fiyat: fiyat }).then(() => { document.getElementById('newSineklikName').value = ''; document.getElementById('newSineklikPrice').value = ''; });
-        } else {
-            const ad = document.getElementById('newPerdeName').value; const usd = document.getElementById('newPerdePrice').value; if(!ad || !usd) return;
-            database.ref('ayarlar/perde_malzemeleri').push({ ad: ad, usd: usd }).then(() => { document.getElementById('newPerdeName').value = ''; document.getElementById('newPerdePrice').value = ''; });
-        }
-    }
-    function deleteMaterial(type, id) {
-        if(!id) { alert("Varsayılan listeler silinemez usta."); return; }
-        if(confirm("Silinsin mi?")) { database.ref((type === 'sineklik' ? 'ayarlar/sineklik_malzemeleri/' : 'ayarlar/perde_malzemeleri/') + id).remove(); }
-    }
-    function loadSettingsTables() {
-        const ts = document.getElementById('bodySineklikMat'); if(ts) { ts.innerHTML = ''; sineklikListesi.forEach(s => { ts.innerHTML += `<tr><td><b>${s.ad}</b></td><td>${s.fiyat} TL</td><td><button class="action-btn" style="background:#e53935;" onclick="deleteMaterial('sineklik', '${s.id || ''}')">Sil</button></td></tr>`; }); }
-        const tp = document.getElementById('perdeKumasTableBody'); if(tp) { tp.innerHTML = ''; perdeListesi.forEach(k => { tp.innerHTML += `<tr><td><b>${k.ad}</b></td><td>$${k.usd.toFixed(2)}</td><td><button class="action-btn" style="background:#e53935;" onclick="deleteMaterial('perde', '${k.id || ''}')">Sil</button></td></tr>`; }); }
-    }
-
-    function handleGroupChangeDirect() {
-        const g = document.getElementById('f_grp').value;
-        document.getElementById('box-sys-direct').style.display = g === "Sineklik" ? "flex" : "none";
-        document.getElementById('box-mnt-direct').style.display = g === "Sineklik" ? "none" : "flex";
-        document.getElementById('box-kms-direct').style.display = g === "Sineklik" ? "none" : "flex";
-        
-        const sys = document.getElementById('f_sys'); sys.innerHTML = ''; sineklikListesi.forEach(s => { sys.innerHTML += `<option value="${s.ad}">${s.ad}</option>`; });
-        const kms = document.getElementById('f_kms'); kms.innerHTML = ''; perdeListesi.forEach(p => { kms.innerHTML += `<option value="${p.ad}">${p.ad}</option>`; });
-        liveRecalculateAll();
-    }
-
-    // Stabil Hesaplama Motoru
-    function liveRecalculateAll() {
-        const g = document.getElementById('f_grp').value;
-        const w = parseFloat(document.getElementById('f_w').value || 0);
-        const h = parseFloat(document.getElementById('f_h').value || 0);
-        
-        if(w <= 0 || h <= 0) {
-            document.getElementById('lbl_m').innerText="0.00"; document.getElementById('lbl_k').innerText="0.00";
-            document.getElementById('lbl_i').innerText="0.00"; document.getElementById('lbl_t').innerText="0.00"; return;
-        }
-        
-        const sqm = (w * h) / 10000; const finalSqm = sqm < 0.5 ? 0.5 : sqm;
-        let maliyet = 0;
-        
-        if(g === "Sineklik") {
-            const sysName = document.getElementById('f_sys').value; const match = sineklikListesi.find(s => s.ad === sysName);
-            maliyet = finalSqm * (match ? match.fiyat : 250);
-        } else {
-            const kmName = document.getElementById('f_kms').value; const match = perdeListesi.find(p => p.ad === kmName);
-            maliyet = finalSqm * ((match ? match.usd : 6.70) * currentParams.dolar);
-            if(document.getElementById('f_mnt').value !== "VİDALI") maliyet += currentParams.aparat;
-        }
-        
-        const matrah = maliyet + (maliyet * (currentParams.kar / 100)); const kdv = matrah * 0.20; const montaj = matrah * 0.20; const tot = matrah + kdv + montaj;
-        document.getElementById('lbl_m').innerText = maliyet.toFixed(2); document.getElementById('lbl_k').innerText = kdv.toFixed(2);
-        document.getElementById('lbl_i').innerText = montaj.toFixed(2); document.getElementById('lbl_t').innerText = tot.toFixed(2);
-    }
-
-    // Ölçüyü Sepete Ekleme Fonksiyonu
-    function addCurrentItemToSepet() {
-        const w = document.getElementById('f_w').value; const h = document.getElementById('f_h').value;
-        if(!w || !h) { alert("Lütfen En ve Boy ölçülerini giriniz usta!"); return; }
-        
-        const grp = document.getElementById('f_grp').value;
-        const uName = grp === "Sineklik" ? document.getElementById('f_sys').value : document.getElementById('f_kms').value;
-        const clr = document.getElementById('f_clr').value; const note = document.getElementById('f_not').value;
-        
-        const mal = parseFloat(document.getElementById('lbl_m').innerText);
-        const tot = parseFloat(document.getElementById('lbl_t').innerText);
-        
-        let kEn = grp === "Sineklik" ? (w - 2) : w; let kBoy = grp === "Sineklik" ? (h - 4) : h;
-        
-        sepetSiparisElemanlari.push({
-            grp: grp, urunAdi: uName, en: w, boy: h, renk: clr, not: note,
-            maliyet: mal, toplam: tot, kesim: `En: ${kEn} | Boy: ${kBoy}`
-        });
-        
-        // Kutuları temizle ama kolaylık olsun diye grup ve rengi tut
-        document.getElementById('f_w').value = ''; document.getElementById('f_h').value = ''; document.getElementById('f_not').value = '';
-        liveRecalculateAll(); renderSepetTable();
-    }
-
-    function removeSepetItem(index) {
-        sepetSiparisElemanlari.splice(index, 1); renderSepetTable();
-    }
-
-    // Sepetten Geri Çağırıp Düzenleme Sihirbazı
-    function editSepetItem(index) {
-        const item = sepetSiparisElemanlari[index];
-        document.getElementById('f_grp').value = item.grp; handleGroupChangeDirect();
-        if(item.grp === 'Sineklik') document.getElementById('f_sys').value = item.urunAdi; else document.getElementById('f_kms').value = item.urunAdi;
-        document.getElementById('f_w').value = item.en; document.getElementById('f_h').value = item.boy;
-        document.getElementById('f_clr').value = item.renk; document.getElementById('f_not').value = item.not;
-        
-        sepetSiparisElemanlari.splice(index, 1); renderSepetTable(); liveRecalculateAll();
-    }
-
-    function renderSepetTable() {
-        const tbody = document.getElementById('sepetTableBody'); tbody.innerHTML = '';
-        if(sepetSiparisElemanlari.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#78909c; padding:20px;">Sepetiniz henüz boş usta. Ölçü ekleyin.</td></tr>';
-            document.getElementById('sepetSummaryZone').style.display = "none"; return;
-        }
-        
-        sepetSiparisElemanlari.forEach((item, index) => {
-            tbody.innerHTML += `
-                <tr>
-                    <td>[${item.grp}]<br><b>${item.urunAdi}</b></td>
-                    <td>${item.en} x ${item.boy} cm<br><small style="color:var(--primary);">${item.kesim}</small></td>
-                    <td>Renk: ${item.renk}<br><small>${item.not || '-'}</small></td>
-                    <td>${item.toplam.toFixed(2)} TL</td>
-                    <td>
-                        <button class="action-btn" style="background:var(--accent); padding:4px 8px; font-size:12px;" onclick="editSepetItem(${index})">✏️ Düzenle</button>
-                        <button class="action-btn" style="background:#e53935; padding:4px 8px; font-size:12px;" onclick="removeSepetItem(${index})">✕ Sil</button>
-                    </td>
-                </tr>
-            `;
-        });
-        document.getElementById('sepetSummaryZone').style.display = "block"; liveRecalculateSepetTotals();
-    }
-
-    function liveRecalculateSepetTotals() {
-        let totalSales = 0; sepetSiparisElemanlari.forEach(item => totalSales += item.toplam);
-        const kapora = parseFloat(document.getElementById('mainKapora').value || 0);
-        
-        document.getElementById('summaryCount').innerText = sepetSiparisElemanlari.length;
-        document.getElementById('summaryGenelToplam').innerText = totalSales.toFixed(2);
-        document.getElementById('summaryKapora').innerText = kapora.toFixed(2);
-        document.getElementById('summaryBakiye').innerText = (totalSales - kapora).toFixed(2);
-    }
-
-    // Sepeti Firebase Üretim / Teklif Havuzuna Gönderme Motoru
-    function submitSepetToFirebase(targetNode) {
-        if(sepetSiparisElemanlari.length === 0) return;
-        let totM = 0; sepetSiparisElemanlari.forEach(i => totM += i.maliyet);
-        let totT = parseFloat(document.getElementById('summaryGenelToplam').innerText);
-        const kap = parseFloat(document.getElementById('mainKapora').value || 0);
-        
-        const payload = {
-            musteri: document.getElementById('mainCustomerName').value || "İsimsiz Müşteri",
-            telefon: document.getElementById('mainCustomerPhone').value || "-",
-            adres: document.getElementById('mainCustomerAddress').value || "-",
-            montajTarihi: document.getElementById('mainMontajTarihi').value,
-            kapora: kap.toFixed(2), maliyet: totM.toFixed(2), toplam: totT.toFixed(2), bakiye: (totT - kap).toFixed(2),
-            urunler: sepetSiparisElemanlari, tarih: new Date().toLocaleString('tr-TR')
-        };
-        
-        database.ref(targetNode).push(payload).then(() => {
-            alert(targetNode === 'siparisler' ? "Tüm sepet imalat akış havuzuna gönderildi usta!" : "Teklif formları başarıyla saklandı!");
-            sepetSiparisElemanlari = []; document.getElementById('mainCustomerName').value='';
-            document.getElementById('mainCustomerPhone').value=''; document.getElementById('mainCustomerAddress').value='';
-            document.getElementById('mainKapora').value='0'; renderSepetTable();
-        });
-    }
-
-    function restoreOrderToForm(obj) {
-        switchTab('order-entry-tab', document.querySelector('.nav-link'));
-        document.getElementById('mainCustomerName').value = obj.musteri; document.getElementById('mainCustomerPhone').value = obj.telefon;
-        document.getElementById('mainCustomerAddress').value = obj.adres; document.getElementById('mainMontajTarihi').value = obj.montajTarihi;
-        document.getElementById('mainKapora').value = obj.kapora;
-        sepetSiparisElemanlari = [...obj.urunler]; renderSepetTable();
-    }
-
-    // FIREBASE AKIŞ DINLEYICILERI
-    database.ref('siparisler').on('value', snap => {
-        const c = document.getElementById('activePoolContainer'); c.innerHTML = ''; const data = snap.val(); if(!data) return;
-        Object.keys(data).reverse().forEach(k => {
-            const op = data[k]; let sHtml = ''; op.urunler?.forEach(u => { sHtml += `<li>• ${u.grp} - <b>${u.urunAdi}</b> [${u.en}x${u.boy} cm] (${u.renk}) - Kesim Payı: <b style="color:var(--primary);">${u.kesim}</b></li>`; });
-            c.innerHTML += `<li class="pool-item"><h3>👤 Müşteri: ${op.musteri} | 📞 Tlf: ${op.telefon} <span style="float:right; color:var(--success);">${op.toplam} TL</span></h3><p>📍 Adres: ${op.adres} | Teslim: ${op.montajTarihi}</p><ul>${sHtml}</ul><br><button class="action-btn" style="background:var(--success);" onclick="moveOrderToArchive('${k}')">✅ İmalat Bitti Arşivle</button> <button class="action-btn" style="background:var(--accent);" onclick='restoreOrderToForm(${JSON.stringify(op)}); database.ref("siparisler/${k}").remove();'>✏️ Sepete Çek/Düzenle</button> <button class="action-btn" style="background:#e53935;" onclick="database.ref('siparisler/${k}').remove()">✕ İptal Et</button></li>`;
-        });
-    });
-
-    database.ref('potansiyel_musteriler').on('value', snap => {
-        const c = document.getElementById('potentialPoolContainer'); c.innerHTML = ''; const data = snap.val(); if(!data) return;
-        Object.keys(data).reverse().forEach(k => {
-            const op = data[k];
-            c.innerHTML += `<li class="pool-item"><h3>🔮 Teklif: ${op.musteri} | Tutar: ${op.toplam} TL</h3><p>Tlf: ${op.telefon} | Kayıt: ${op.tarih}</p><br><button class="action-btn" style="background:var(--primary);" onclick="database.ref('siparisler').push(${JSON.stringify(op)}); database.ref('potansiyel_musteriler/${k}').remove();">🚀 Onayla Üretime Al</button> <button class="action-btn" style="background:var(--accent);" onclick='restoreOrderToForm(${JSON.stringify(op)}); database.ref("potansiyel_musteriler/${k}").remove();'>✏️ İncele/Düzenle</button></li>`;
-        });
-    });
-
-    let totCiro = 0;
-    database.ref('arsiv').on('value', snap => {
-        const c = document.getElementById('archivePoolContainer'); c.innerHTML = ''; totCiro = 0; const data = snap.val(); if(!data) return;
-        Object.keys(data).reverse().forEach(k => {
-            const op = data[k]; totCiro += parseFloat(op.toplam || 0);
-            c.innerHTML += `<li class="pool-item" style="background:#f1f8e9;"><h3>✅ Teslim Edildi: ${op.musteri} <span style="float:right; color:var(--success);">+${op.toplam} TL</span></h3><p>Adres: ${op.adres} | Arşivlenme: ${op.arsivlenmeTarihi}</p><br><button class="action-btn" style="background:var(--secondary);" onclick='restoreOrderToForm(${JSON.stringify(op)})'>🗂️ Detayları Sepete Geri Yükle</button></li>`;
-        });
-        document.getElementById('statTotalCiro').innerText = totCiro.toFixed(2) + " TL"; recalculateNetBalance();
-    });
-
-    let totGider = 0;
-    database.ref('giderler').on('value', snap => {
-        const tb = document.getElementById('giderListTableBody'); tb.innerHTML = ''; totGider = 0; const data = snap.val(); if(!data) return;
-        Object.keys(data).forEach(k => {
-            const g = data[k]; totGider += parseFloat(g.tutar || 0);
-            tb.innerHTML += `<tr><td>${g.tarih}</td><td>${g.aciklama}</td><td>-${g.tutar} TL</td><td><button class="delete-row-btn" style="position:static;" onclick="database.ref('giderler/${k}').remove()">Sil</button></td></tr>`;
-        });
-        document.getElementById('statTotalGider').innerText = totGider.toFixed(2) + " TL"; recalculateNetBalance();
-    });
-
-    function recalculateNetBalance() { document.getElementById('statNetDenge').innerText = (totCiro - totGider).toFixed(2) + " TL"; }
-    function moveOrderToArchive(key) {
-        database.ref('siparisler/' + key).once('value', snap => {
-            const d = snap.val(); if(d) { d.arsivlenmeTarihi = new Date().toLocaleString('tr-TR'); database.ref('arsiv').push(d).then(() => database.ref('siparisler/' + key).remove()); }
-        });
-    }
-    function addGiderToFirebase() {
-        const desc = document.getElementById('giderAciklama').value; const tutar = parseFloat(document.getElementById('giderTutar').value); if(!desc || !tutar) return;
-        database.ref('giderler').push({aciklama: desc, tutar: tutar, date: new Date().toLocaleDateString('tr-TR')}).then(() => { document.getElementById('giderAciklama').value = ''; document.getElementById('giderTutar').value = ''; });
-    }
-</script>
-</body>
-</html>
+            <h2>🛠️ Ölçü Giriş Tezgahı <button class="print-btn no-print" onclick="window.print()">🖨️ Yazdır / PDF</button
