@@ -3,177 +3,120 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fix House - Gelişmiş Atölye ERP & Canlı İmalat Otomasyonu v4</title>
-    <!-- Firebase SDK -->
+    <title>Fix House - Profesyonel Fabrikasyon ERP v5</title>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
     <style>
-        :root {
-            --primary-color: #e65100;
-            --secondary-color: #263238;
-            --bg-color: #f8f9fa;
-            --surface-color: #ffffff;
-            --text-color: #37474f;
-            --border-color: #cfd8dc;
-            --success-color: #2e7d32;
-            --accent-color: #0288d1;
-        }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background-color: var(--bg-color); color: var(--text-color); padding: 15px; }
-        
-        nav { display: flex; background: var(--secondary-color); padding: 10px; border-radius: 6px; margin-bottom: 15px; gap: 10px; border-bottom: 4px solid var(--primary-color); flex-wrap: wrap; }
-        nav .logo { color: white; font-weight: bold; font-size: 18px; display: flex; align-items: center; margin-right: 15px; padding-left: 5px; }
-        nav button { width: auto; background: rgba(255,255,255,0.1); color: white; border: none; padding: 10px 18px; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 14px; transition: all 0.2s; }
-        nav button:hover { background: rgba(255,255,255,0.2); }
-        nav button.active { background: var(--primary-color); }
-        #connection-status { margin-left: auto; color: #ffcc80; display: flex; align-items: center; font-size: 13px; font-weight: bold; padding-right: 10px; }
-
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
+        :root { --primary: #e65100; --secondary: #263238; --bg: #f8f9fa; --surface: #ffffff; --text: #37474f; --border: #cfd8dc; --success: #2e7d32; --accent: #0288d1; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, sans-serif; }
+        body { background: var(--bg); color: var(--text); padding: 15px; }
+        nav { display: flex; background: var(--secondary); padding: 10px; border-radius: 6px; margin-bottom: 15px; gap: 10px; border-bottom: 4px solid var(--primary); }
+        nav .logo { color: white; font-weight: bold; font-size: 18px; display: flex; align-items: center; margin-right: 15px; }
+        nav button { background: rgba(255,255,255,0.1); color: white; border: none; padding: 10px 18px; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 14px; }
+        nav button.active { background: var(--primary); }
+        #connection-status { margin-left: auto; color: #ffcc80; display: flex; align-items: center; font-size: 13px; font-weight: bold; }
+        .tab-content { display: none; } .tab-content.active { display: block; }
         .grid-layout { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 20px; }
         @media (max-width: 1000px) { .grid-layout { grid-template-columns: 1fr; } }
-        
-        .card { background: var(--surface-color); padding: 20px; border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border: 1px solid var(--border-color); margin-bottom: 20px; height: fit-content; }
-        h2 { color: var(--secondary-color); font-size: 16px; margin-bottom: 15px; border-bottom: 2px solid var(--bg-color); padding-bottom: 6px; display: flex; justify-content: space-between; align-items: center; }
-        
-        .order-row { background: #fafafa; border: 1px solid var(--border-color); padding: 15px; border-radius: 6px; margin-bottom: 15px; position: relative; border-left: 4px solid var(--primary-color); }
-        .order-row.perde { border-left-color: var(--accent-color); }
-        .row-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; margin-bottom: 10px; }
+        .card { background: var(--surface); padding: 20px; border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border: 1px solid var(--border); margin-bottom: 20px; }
+        h2 { color: var(--secondary); font-size: 16px; margin-bottom: 15px; border-bottom: 2px solid var(--bg); padding-bottom: 6px; display: flex; justify-content: space-between; align-items: center; }
+        .order-row { background: #fafafa; border: 1px solid var(--border); padding: 15px; border-radius: 6px; margin-bottom: 15px; position: relative; border-left: 4px solid var(--primary); }
+        .order-row.perde { border-left-color: var(--accent); }
+        .row-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 10px; margin-bottom: 10px; }
         .form-group { display: flex; flex-direction: column; }
         label { font-size: 11px; font-weight: 600; margin-bottom: 4px; color: #546e7a; }
-        input, select { padding: 8px 10px; border: 1px solid var(--border-color); border-radius: 4px; font-size: 13px; outline: none; background: white; }
-        
-        button.main-btn { background: var(--primary-color); color: white; border: none; padding: 10px 15px; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 14px; width: 100%; }
-        button.main-btn:hover { background: #bf360c; }
-        button.action-btn { background: #455a64; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: 600; width: auto; }
-        button.print-btn { background: #00897b; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 13px; margin-bottom: 10px; }
+        input, select { padding: 8px 10px; border: 1px solid var(--border); border-radius: 4px; font-size: 13px; outline: none; }
+        .row-live-price { background: #efebe9; padding: 6px 10px; border-radius: 4px; font-size: 12px; font-weight: bold; margin-top: 5px; display: flex; gap: 15px; color: #4e342e; align-items: center; }
+        button.main-btn { background: var(--primary); color: white; border: none; padding: 10px 15px; border-radius: 4px; font-weight: bold; cursor: pointer; width: 100%; }
+        button.action-btn { background: #455a64; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 13px; }
+        button.print-btn { background: #00897b; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 12px; }
+        button.zebra-btn { background: #7e57c2; color: white; border: none; padding: 4px 8px; border-radius: 3px; font-size: 11px; cursor: pointer; }
         button.delete-row-btn { position: absolute; right: 10px; top: 10px; background: #e53935; color: white; border: none; padding: 3px 8px; border-radius: 4px; font-size: 11px; cursor: pointer; }
-        
         .order-pool-list { list-style: none; }
-        .pool-item { background: white; border: 1px solid var(--border-color); padding: 15px; border-radius: 6px; margin-bottom: 12px; border-left: 4px solid var(--secondary-color); position: relative; cursor: pointer; transition: background 0.1s; }
-        .pool-item:hover { background: #fcfcfc; }
+        .pool-item { background: white; border: 1px solid var(--border); padding: 15px; border-radius: 6px; margin-bottom: 12px; border-left: 4px solid var(--secondary); }
         .pool-item.perde { border-left-color: #7b1fa2; }
-        .pool-item h3 { font-size: 15px; color: var(--secondary-color); margin-bottom: 6px; }
-        .pool-item p { font-size: 13px; margin-bottom: 4px; line-height: 1.4; }
-        .pool-badge { background: #fff8e1; color: #f57c00; font-weight: bold; padding: 3px 6px; border-radius: 3px; font-size: 12px; display: inline-block; margin-top: 5px; }
-        
-        .settings-layout { display: grid; grid-template-columns: 200px 1fr; gap: 20px; min-height: 400px; }
-        .settings-sidebar { display: flex; flex-direction: column; gap: 8px; border-right: 1px solid var(--border-color); padding-right: 15px; }
-        .settings-sidebar button { background: none; color: var(--text-color); border: 1px solid transparent; text-align: left; padding: 10px; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 13px; }
-        .settings-sidebar button.active { background: #eceff1; color: var(--primary-color); }
-        .settings-pane { display: none; }
-        .settings-pane.active { display: block; }
-        
+        .pool-item h3 { font-size: 15px; color: var(--secondary); margin-bottom: 6px; }
+        .pool-item ul { padding-left: 20px; font-size: 13px; margin: 8px 0; }
+        .settings-layout { display: grid; grid-template-columns: 200px 1fr; gap: 20px; }
+        .settings-sidebar { display: flex; flex-direction: column; gap: 8px; border-right: 1px solid var(--border); padding-right: 15px; }
+        .settings-sidebar button { background: none; color: var(--text); border: none; text-align: left; padding: 10px; border-radius: 4px; cursor: pointer; font-weight: 600; }
+        .settings-sidebar button.active { background: #eceff1; color: var(--primary); }
+        .settings-pane { display: none; } .settings-pane.active { display: block; }
         table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; }
-        table th, table td { border: 1px solid var(--border-color); padding: 8px 10px; text-align: left; }
-        table th { background: #f5f7f8; }
-        
-        .finance-summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 20px; }
-        .fin-card { background: #eceff1; padding: 15px; border-radius: 6px; border-left: 4px solid var(--secondary-color); }
-        .fin-card.plus { border-left-color: var(--success-color); background: #e8f5e9; }
+        table th, table td { border: 1px solid var(--border); padding: 8px 10px; }
+        .finance-summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; }
+        .fin-card { background: #eceff1; padding: 15px; border-radius: 6px; border-left: 4px solid var(--secondary); }
+        .fin-card.plus { border-left-color: var(--success); background: #e8f5e9; }
         .fin-card.minus { border-left-color: #d32f2f; background: #ffebee; }
-        .fin-card h4 { font-size: 12px; color: #546e7a; margin-bottom: 5px; }
-        .fin-card p { font-size: 20px; font-weight: bold; }
-
-        /* Baskı Şablonu Düzenlemeleri */
-        @media print {
-            body * { visibility: hidden; }
-            #printArea, #printArea * { visibility: visible; }
-            #printArea { position: absolute; left: 0; top: 0; width: 100%; font-size: 12px; color: #000; }
-            .no-print { display: none !important; }
-        }
+        @media print { .no-print, nav, button { display: none !important; } body { background: white; color: black; padding: 0; } .card { box-shadow: none; border: none; } }
     </style>
 </head>
 <body>
 
-<div id="printArea" style="display:none;"></div>
-
 <nav class="no-print">
-    <div class="logo">FIX HOUSE v4</div>
+    <div class="logo">FIX HOUSE ERP v5</div>
     <button class="nav-link active" onclick="switchTab('order-entry-tab', this)">🆕 Sipariş Girişi</button>
     <button class="nav-link" onclick="switchTab('active-pool-tab', this)">📋 Canlı Üretim Havuzu</button>
     <button class="nav-link" onclick="switchTab('potential-tab', this)">🔮 Potansiyel Müşteriler</button>
     <button class="nav-link" onclick="switchTab('archive-tab', this)">🗄️ Akıllı Arşiv</button>
-    <button class="nav-link" onclick="switchTab('settings-tab', this)" style="background:#37474f;">⚙️ Yönetici Ayarları</button>
+    <button class="nav-link" onclick="switchTab('settings-tab', this)" style="background:#37474f;">⚙️ Ayarlar</button>
     <div id="connection-status">● Buluta Bağlanıyor...</div>
 </nav>
 
 <!-- 1. SEKME: SİPARİŞ GİRİŞİ -->
-<div id="order-entry-tab" class="tab-content active no-print">
+<div id="order-entry-tab" class="tab-content active">
     <div class="grid-layout">
-        <div class="card">
-            <h2>🛠️ Akıllı Ölçü ve Kayıt Formu
-                <button class="action-btn" onclick="addNewOrderRow()">➕ Yeni Ölçü/Satır Ekle</button>
+        <div class="card" id="formCardContainer">
+            <h2>🛠️ Ölçü ve Sipariş Kayıt Formu
+                <div style="display:flex; gap:10px;" class="no-print">
+                    <button class="print-btn" onclick="window.print()">🖨️ Sayfayı Yazdır / PDF</button>
+                    <button class="action-btn" onclick="addNewOrderRow()">➕ Yeni Ölçü Ekle</button>
+                </div>
             </h2>
             <div class="row-grid" style="grid-template-columns: 2fr 1fr 1fr;">
-                <div class="form-group">
-                    <label>Müşteri Adı Soyadı</label>
-                    <input type="text" id="mainCustomerName" placeholder="Örn: Kadir Yıldırım">
-                </div>
-                <div class="form-group">
-                    <label>Müşteri Telefon Numarası</label>
-                    <input type="text" id="mainCustomerPhone" placeholder="Örn: 0533...">
-                </div>
-                <div class="form-group">
-                    <label>Montaj Adresi / Proje Notu</label>
-                    <input type="text" id="mainCustomerAddress" placeholder="Örn: Sürsürü Mah.">
-                </div>
+                <div class="form-group"><label>Müşteri Adı Soyadı</label><input type="text" id="mainCustomerName" placeholder="Müşteri Adı"></div>
+                <div class="form-group"><label>Müşteri Telefonu</label><input type="text" id="mainCustomerPhone" placeholder="0533..."></div>
+                <div class="form-group"><label>Montaj Adresi</label><input type="text" id="mainCustomerAddress" placeholder="Sürsürü Mah."></div>
             </div>
-            
             <div id="dynamicOrderRowsContainer" style="margin-top:15px;"></div>
-            
             <div class="row-grid" style="grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px;">
-                <div class="form-group">
-                    <label>Montaj Tarihi</label>
-                    <input type="date" id="mainMontajTarihi">
-                </div>
-                <div class="form-group">
-                    <label>Alınan Kapora (TL)</label>
-                    <input type="number" id="mainKapora" value="0">
-                </div>
+                <div class="form-group"><label>Montaj Tarihi</label><input type="date" id="mainMontajTarihi"></div>
+                <div class="form-group"><label>Alınan Kapora (TL)</label><input type="number" id="mainKapora" value="0" oninput="liveRecalculateAll()"></div>
             </div>
-            <br>
-            <div class="row-grid" style="grid-template-columns: 1.2fr 0.8fr; gap: 15px;">
-                <button class="main-btn" onclick="calculateAllRows()">📐 Tüm Listeyi Hesapla ve Önizle</button>
+            <br class="no-print">
+            <div class="row-grid no-print" style="grid-template-columns: 1.2fr 0.8fr; gap: 15px;">
+                <button class="main-btn" onclick="calculateAllRowsEngine()">📐 Listeyi Kilitle ve Havuz Raporu Al</button>
                 <button class="main-btn" style="background:#7b1fa2;" onclick="saveToPotentialPool()">🔮 Potansiyel Olarak Kaydet (Teklif)</button>
             </div>
         </div>
-
         <div class="card" id="calculationAnalysisCard" style="display:none; background:#fff3e0; border-color:#ffe0b2;">
-            <h2>📊 Maliyet ve KDV Finansal Analizi</h2>
-            <div id="analysisResultText" style="font-size:14px; line-height:1.6;"></div>
-            <br>
-            <button class="main-btn" style="background:var(--success-color);" onclick="sendCalculatedListToFirebase()">🛒 Siparişleri Canlı Üretim Havuzuna Gönder</button>
+            <h2>📊 Finansal Analiz Önizleme</h2>
+            <div id="analysisResultText" style="font-size:14px; line-height:1.6;"></div><br>
+            <button class="main-btn" style="background:var(--success);" onclick="sendCalculatedListToFirebase()">🛒 Siparişi Canlı Üretim Havuzuna Gönder</button>
         </div>
     </div>
 </div>
 
 <!-- 2. SEKME: CANLI ÜRETİM HAVUZU -->
-<div id="active-pool-tab" class="tab-content no-print">
+<div id="active-pool-tab" class="tab-content">
     <div class="card">
-        <h2>📋 Atölye Ortak Sipariş Havuzu 
-            <button class="print-btn" style="float:right;" onclick="printDiv('activePoolContainer', 'Canlı İmalat Havuzu')">🖨️ Havuz A4 Çıktısı Al</button>
-        </h2>
+        <h2>📋 Atölye İmalat Akış Havuzu <button class="print-btn no-print" style="float:right;" onclick="window.print()">🖨️ Yazdır / PDF</button></h2><br>
         <ul id="activePoolContainer" class="order-pool-list"></ul>
     </div>
 </div>
 
 <!-- 3. SEKME: POTANSİYEL MÜŞTERİLER -->
-<div id="potential-tab" class="tab-content no-print">
+<div id="potential-tab" class="tab-content">
     <div class="card">
-        <h2>🔮 Potansiyel Müşteriler & Bekleyen Ölçü Listesi
-            <button class="print-btn" style="float:right;" onclick="printDiv('potentialPoolContainer', 'Potansiyel Teklif Havuzu')">🖨️ Teklifler A4 Çıktısı Al</button>
-        </h2>
+        <h2>🔮 Potansiyel Teklif Listesi <button class="print-btn no-print" style="float:right;" onclick="window.print()">🖨️ Yazdır / PDF</button></h2><br>
         <ul id="potentialPoolContainer" class="order-pool-list"></ul>
     </div>
 </div>
 
 <!-- 4. SEKME: AKILLI ARŞİV -->
-<div id="archive-tab" class="tab-content no-print">
+<div id="archive-tab" class="tab-content">
     <div class="card">
-        <h2>🗄️ Tamamlanan İşler Arşivi (Çift Tıklayarak Siparişe Geri Gönderebilirsiniz)
-            <button class="print-btn" style="float:right;" onclick="printDiv('archivePoolContainer', 'Arşiv Raporu')">🖨️ Arşiv A4 Çıktısı Al</button>
-        </h2>
+        <h2>🗄️ Tamamlanan İşler Arşivi <button class="print-btn no-print" style="float:right;" onclick="window.print()">🖨️ Yazdır / PDF</button></h2><br>
         <ul id="archivePoolContainer" class="order-pool-list"></ul>
     </div>
 </div>
@@ -182,13 +125,12 @@
 <div id="settings-tab" class="tab-content no-print">
     <div class="card" id="lockScreen">
         <h2>🔒 Güvenlik Kilidi</h2>
-        <p style="font-size:13px; margin-bottom:10px;">Maliyet panellerine ve fiyat ayarlarına erişmek için yetki şifresini giriniz.</p>
+        <p style="font-size:13px; margin-bottom:10px;">Ayarlara erişmek için şifreyi giriniz.</p>
         <div style="display:flex; gap:10px; max-width:300px;">
             <input type="password" id="settingsPasswordInput" placeholder="Şifre Giriniz">
             <button class="action-btn" onclick="unlockSettings()">Giriş Yap</button>
         </div>
     </div>
-
     <div class="card" id="settingsMainContent" style="display:none;">
         <h2>⚙️ Fix House Yönetim Paneli</h2>
         <div class="settings-layout">
@@ -198,79 +140,32 @@
                 <button class="set-link" onclick="switchSettingsPane('pane-finans', this)">💰 Finansal Yönetim</button>
                 <button class="set-link" onclick="switchSettingsPane('pane-gider', this)">📉 Gider Yönetimi</button>
             </div>
-            
             <div class="settings-main">
-                <!-- SİNEKLİK AYARLARI -->
                 <div id="pane-sineklik" class="settings-pane active">
-                    <h3>🪟 Sineklik Maliyet Parametreleri ve Dinamik Aksesuar Girişi</h3>
-                    <br>
-                    <div class="row-grid" style="grid-template-columns: 2fr 1fr 1fr;">
-                        <input type="text" id="addSineklikMatName" placeholder="Örn: Köşe Takozu veya Alüminyum Çıta">
-                        <input type="number" id="addSineklikMatPrice" placeholder="Fiyat (TL/Birim)">
-                        <button class="action-btn" onclick="addNewMaterialItem('sineklik')">Ekle</button>
-                    </div>
-                    <table id="tblSineklikMat">
-                        <thead><tr><th>Aksesuar/Malzeme Adı</th><th>Birim Fiyat (TL)</th><th>İşlem</th></tr></thead>
-                        <tbody id="bodySineklikMat"></tbody>
-                    </table>
+                    <h3>🪟 Sineklik Maliyet Listesi</h3>
+                    <table id="tblSineklikMat"><thead><tr><th>Malzeme Adı</th><th>Birim Fiyat (TL)</th></tr></thead><tbody id="bodySineklikMat"></tbody></table>
                 </div>
-
-                <!-- PLİSE PERDE AYARLARI -->
                 <div id="pane-perde" class="settings-pane">
-                    <h3>🎴 Plise Perde Döviz ve Dinamik Kumaş Listesi</h3>
-                    <br>
-                    <div class="row-grid" style="grid-template-columns: 1fr 1fr;">
-                        <div class="form-group">
-                            <label>💵 Canlı/Manuel Dolar Kuru (USD/TRY)</label>
-                            <input type="number" id="cfg_dolar_kuru" value="33.50" step="0.01">
-                        </div>
-                        <div class="form-group">
-                            <label style="color:var(--success-color); font-weight:bold;">🔄 Canlı Entegrasyon Durumu</label>
-                            <input type="text" id="dolar_status_text" value="Bağlantı Kuruldu (Güncel)" disabled style="background:#e8f5e9; font-weight:bold; color:var(--success-color);">
-                        </div>
-                    </div>
-                    <br>
-                    <div class="row-grid" style="grid-template-columns: 2fr 1fr 1fr;">
-                        <input type="text" id="addPerdeMatName" placeholder="Örn: Yeni Özel Kumaş Serisi">
-                        <input type="number" id="addPerdeMatPrice" placeholder="Alış Fiyatı (USD/M²)">
-                        <button class="action-btn" onclick="addNewMaterialItem('perde')">Kataloğa Ekle</button>
-                    </div>
-                    <table id="perdeKumasTable">
-                        <thead><tr><th>Ürün / Seri Adı</th><th>Kategori</th><th>Alış Fiyatı ($)</th><th>İşlem</th></tr></thead>
-                        <tbody id="perdeKumasTableBody"></tbody>
-                    </table>
-                </div>
-
-                <!-- FİNANSAL YÖNETİM -->
-                <div id="pane-finans" class="settings-pane">
-                    <h3>💰 Finansal Yönetim & Ciro Kasası</h3>
-                    <br>
+                    <h3>🎴 Plise Perde Döviz ve Kumaş Ayarları</h3><br>
                     <div class="row-grid">
-                        <div class="form-group"><label>📈 Hedef Kâr Oranı (%) [Manuel Değiştirilebilir]</label><input type="number" id="cfg_kar_orani" value="100"></div>
-                        <div class="form-group"><label>🛠️ Sabit İşçilik/Montaj Oranı (%)</label><input type="number" id="cfg_iscilik_orani" value="20" disabled></div>
+                        <div class="form-group"><label>💵 Dolar Kuru (USD/TRY)</label><input type="number" id="cfg_dolar_kuru" value="33.50" step="0.01" oninput="liveRecalculateAll()"></div>
+                        <div class="form-group"><label>📦 Aksesuar Ek Maliyeti (TL)</label><input type="number" id="cfg_perde_aparat" value="40" oninput="liveRecalculateAll()"></div>
                     </div>
-                    <br><hr><br>
+                    <table id="perdeKumasTable" style="max-height: 300px; overflow-y: scroll; display: block;"><thead><tr><th>Ürün / Seri Adı</th><th>USD Fiyatı</th></tr></thead><tbody id="perdeKumasTableBody"></tbody></table>
+                </div>
+                <div id="pane-finans" class="settings-pane">
+                    <h3>💰 Finansal Kasa Durumu</h3><br>
+                    <div class="form-group" style="max-width:200px;"><label>📈 Hedef Kâr Oranı (%)</label><input type="number" id="cfg_kar_orani" value="100" oninput="liveRecalculateAll()"></div><br>
                     <div class="finance-summary">
-                        <div class="fin-card plus"><h4>Arşivlenen Toplam Ciro</h4><p id="statTotalCiro">0.00 TL</p></div>
-                        <div class="fin-card minus"><h4>Toplam İşletme Gideri</h4><p id="statTotalGider">0.00 TL</p></div>
-                        <div class="fin-card"><h4>Net Kasa Dengesi</h4><p id="statNetDenge">0.00 TL</p></div>
+                        <div class="fin-card plus"><h4>Toplam Ciro</h4><p id="statTotalCiro">0.00 TL</p></div>
+                        <div class="fin-card minus"><h4>Toplam Gider</h4><p id="statTotalGider">0.00 TL</p></div>
+                        <div class="fin-card"><h4>Net Kasa</h4><p id="statNetDenge">0.00 TL</p></div>
                     </div>
                 </div>
-
-                <!-- GİDER YÖNETİMİ -->
                 <div id="pane-gider" class="settings-pane">
-                    <h3>📉 İşletme Gider Kalemleri</h3>
-                    <br>
-                    <div class="row-grid" style="grid-template-columns: 2fr 1fr 1fr;">
-                        <input type="text" id="giderAciklama" placeholder="Örn: Sürsürü Mağaza Kirası">
-                        <input type="number" id="giderTutar" placeholder="Tutar (TL)">
-                        <button class="action-btn" onclick="addGiderToFirebase()">Gider İşle</button>
-                    </div>
-                    <br>
-                    <table>
-                        <thead><tr><th>Tarih</th><th>Açıklama</th><th>Tutar (TL)</th><th>İşlem</th></tr></thead>
-                        <tbody id="giderListTableBody"></tbody>
-                    </table>
+                    <h3>📉 Gider Kayıt Girişi</h3><br>
+                    <div class="row-grid" style="grid-template-columns: 2fr 1fr 1fr;"><input type="text" id="giderAciklama" placeholder="Açıklama"><input type="number" id="giderTutar" placeholder="Tutar"><button class="action-btn" onclick="addGiderToFirebase()">Ekle</button></div>
+                    <table><thead><tr><th>Tarih</th><th>Açıklama</th><th>Tutar</th><th>İşlem</th></tr></thead><tbody id="giderListTableBody"></tbody></table>
                 </div>
             </div>
         </div>
@@ -278,627 +173,224 @@
 </div>
 
 <script>
-    // Firebase Yapılandırması
     const firebaseConfig = {
-        apiKey: "AIzaSyB4jTIAo0pAcNVXZEc7bzBHi4wRKBdZWs0",
-        authDomain: "fixhouse-f2f29.firebaseapp.com",
-        projectId: "fixhouse-f2f29",
-        storageBucket: "fixhouse-f2f29.firebasestorage.app",
-        messagingSenderId: "21162414048",
-        appId: "1:21162414048:web:b9ce3c4341de63fbf46585",
-        measurementId: "G-T4PJC735X2",
-        databaseURL: "https://fixhouse-f2f29-default-rtdb.firebaseio.com"
+        apiKey: "AIzaSyB4jTIAo0pAcNVXZEc7bzBHi4wRKBdZWs0", authDomain: "fixhouse-f2f29.firebaseapp.com",
+        projectId: "fixhouse-f2f29", storageBucket: "fixhouse-f2f29.firebasestorage.app",
+        messagingSenderId: "21162414048", appId: "1:21162414048:web:b9ce3c4341de63fbf46585",
+        measurementId: "G-T4PJC735X2", databaseURL: "https://fixhouse-f2f29-default-rtdb.firebaseio.com"
     };
+    firebase.initializeApp(firebaseConfig); const database = firebase.database();
 
-    firebase.initializeApp(firebaseConfig);
-    const database = firebase.database();
-
-    // Otomatik Tarih Atama (Günün Tarihi)
-    document.getElementById('mainMontajTarihi').value = new Date().toISOString().substring(0, 10);
-
-    // Canlı Döviz Kuru Entegrasyonu (TCMB Tabanlı Ücretsiz API Verisi)
-    fetch('https://open.er-api.com/v6/latest/USD')
-        .then(response => response.json())
-        .then(data => {
-            if(data && data.rates && data.rates.TRY) {
-                const trRate = data.rates.TRY;
-                document.getElementById('cfg_dolar_kuru').value = trRate.toFixed(2);
-                document.getElementById('dolar_status_text').value = "Canlı Kur Çekildi: " + trRate.toFixed(2);
-            }
-        }).catch(err => {
-            document.getElementById('dolar_status_text').value = "Manuel Mod Aktif (API Sınırı)";
-            document.getElementById('dolar_status_text').style.color = "#e53935";
-        });
-
-    // 94 Satırlık image_c0e326.png Kataloğu
     let kumasKatalogu = [
-        {ad:"ARDA - 01", kat:"PLİSE PERDE GECE", usd:6.70},
-        {ad:"ARDA - 02", kat:"PLİSE PERDE GECE", usd:6.70},
-        {ad:"ARDA - 03", kat:"PLİSE PERDE GECE", usd:6.70},
-        {ad:"ARDA - 04", kat:"PLİSE PERDE GECE", usd:6.70},
-        {ad:"ARDA - 05", kat:"PLİSE PERDE GECE", usd:6.70},
-        {ad:"ASEL - 01", kat:"PLİSE PERDE GECE", usd:7.20},
-        {ad:"ASEL - 02", kat:"PLİSE PERDE GECE", usd:7.20},
-        {ad:"ASEL - 03", kat:"PLİSE PERDE GECE", usd:7.20},
-        {ad:"ASEL - 04", kat:"PLİSE PERDE GECE", usd:7.20},
-        {ad:"ASEL - 05", kat:"PLİSE PERDE GECE", usd:7.20},
-        {ad:"BAMBU 6001", kat:"PLİSE PERDE GECE", usd:6.60},
-        {ad:"BAMBU 6003", kat:"PLİSE PERDE GECE", usd:6.60},
-        {ad:"BAMBU 6004", kat:"PLİSE PERDE GECE", usd:6.60},
-        {ad:"BAMBU 6005", kat:"PLİSE PERDE GECE", usd:6.60},
-        {ad:"BAMBU 6006", kat:"PLİSE PERDE GECE", usd:6.60},
-        {ad:"BAMBU 6007", kat:"PLİSE PERDE GECE", usd:6.60},
-        {ad:"BAMBU.6002. SERİ.", kat:"PLİSE PERDE GECE", usd:6.60},
-        {ad:"BLACKOUT - ANTRASİT", kat:"PLİSE PERDE GECE", usd:12.00},
-        {ad:"BLACKOUT - GRİ", kat:"PLİSE PERDE GECE", usd:12.00},
-        {ad:"BLACKOUT - KAHVE", kat:"PLİSE PERDE GECE", usd:12.00},
-        {ad:"BLACKOUT - KREM", kat:"PLİSE PERDE GECE", usd:12.00},
-        {ad:"BLACKOUT - SİYAH", kat:"PLİSE PERDE GECE", usd:12.00},
-        {ad:"DARK 5001 ANTRASİT", kat:"PLİSE PERDE GECE", usd:8.00},
-        {ad:"DARK 5002 KREM", kat:"PLİSE PERDE GECE", usd:8.00},
-        {ad:"DARK 5003 GRİ", kat:"PLİSE PERDE GECE", usd:8.00},
-        {ad:"DARK 5004 KAHVE", kat:"PLİSE PERDE GECE", usd:8.00},
-        {ad:"DIAMOND - BEYA", kat:"PLİSE PERDE GECE", usd:5.70},
-        {ad:"DIAMOND - 001 KREM", kat:"PLİSE PERDE GECE", usd:5.70},
-        {ad:"DIAMOND - 002 KREM", kat:"PLİSE PERDE GECE", usd:5.70},
-        {ad:"DIAMOND - 001 GRİ", kat:"PLİSE PERDE GECE", usd:5.70},
-        {ad:"DIAMOND - ANTRASİT", kat:"PLİSE PERDE GECE", usd:5.70},
-        {ad:"DIAMOND - AÇIK GRİ", kat:"PLİSE PERDE GECE", usd:5.70},
-        {ad:"DIAMOND - ARA GRİ", kat:"PLİSE PERDE GECE", usd:5.70},
-        {ad:"DIAMOND - BEJ", kat:"PLİSE PERDE GECE", usd:5.70},
-        {ad:"DIAMOND - SİYAH", kat:"PLİSE PERDE GECE", usd:5.70},
-        {ad:"DIAMOND - BRONZ", kat:"PLİSE PERDE GECE", usd:5.70},
-        {ad:"DIAMOND - KAHVE", kat:"PLİSE PERDE GECE", usd:5.70},
-        {ad:"DIAMOND - PUDRA", kat:"PLİSE PERDE GECE", usd:5.70},
-        {ad:"DIAMOND - MAVİ", kat:"PLİSE PERDE GECE", usd:5.70},
-        {ad:"DIAMOND - YEŞİL", kat:"PLİSE PERDE GECE", usd:5.70},
-        {ad:"DIAMOND - MUDANYA", kat:"PLİSE PERDE GECE", usd:5.70},
-        {ad:"DIAMOND - KIRMIZI", kat:"PLİSE PERDE GECE", usd:5.70},
-        {ad:"ECE 4001", kat:"PLİSE PERDE GECE", usd:6.20},
-        {ad:"ECE 4002", kat:"PLİSE PERDE GECE", usd:6.20},
-        {ad:"ECE 4003", kat:"PLİSE PERDE GECE", usd:6.20},
-        {ad:"EFE 3001", kat:"PLİSE PERDE GECE", usd:6.30},
-        {ad:"EFE 3002", kat:"PLİSE PERDE GECE", usd:6.30},
-        {ad:"EFE 3003", kat:"PLİSE PERDE GECE", usd:6.30},
-        {ad:"GOLD 8001", kat:"PLİSE PERDE GECE", usd:6.80},
-        {ad:"GOLD 8002", kat:"PLİSE PERDE GECE", usd:6.80},
-        {ad:"GOLD 8003", kat:"PLİSE PERDE GECE", usd:6.80},
-        {ad:"GOLD 8004", kat:"PLİSE PERDE GECE", usd:6.80},
-        {ad:"GOLD 8005", kat:"PLİSE PERDE GECE", usd:6.80},
-        {ad:"HONEYCOMB 001 BEYAZ", kat:"HONEYCOMB", usd:12.50},
-        {ad:"HONEYCOMB 002 KREM", kat:"HONEYCOMB", usd:12.50},
-        {ad:"HONEYCOMB 003 GRİ", kat:"HONEYCOMB", usd:12.50},
-        {ad:"HONEYCOMB 004 ANTRASİT", kat:"HONEYCOMB", usd:12.50},
-        {ad:"HONEYCOMB 005 KAHVE", kat:"HONEYCOMB", usd:12.50},
-        {ad:"NEW 2001", kat:"PLİSE PERDE GECE", usd:6.40},
-        {ad:"NEW 2002", kat:"PLİSE PERDE GECE", usd:6.40},
-        {ad:"NEW 2003", kat:"PLİSE PERDE GECE", usd:6.40},
-        {ad:"NEW 2004", kat:"PLİSE PERDE GECE", usd:6.40},
-        {ad:"NEW 2005", kat:"PLİSE PERDE GECE", usd:6.40},
-        {ad:"PARS - 01", kat:"PLİSE PERDE GECE", usd:6.10},
-        {ad:"PARS - 02", kat:"PLİSE PERDE GECE", usd:6.10},
-        {ad:"PARS - 03", kat:"PLİSE PERDE GECE", usd:6.10},
-        {ad:"PARS - 04", kat:"PLİSE PERDE GECE", usd:6.10},
-        {ad:"PARS - 05", kat:"PLİSE PERDE GECE", usd:6.10},
-        {ad:"REINA - 01", kat:"PLİSE PERDE GECE", usd:6.60},
-        {ad:"REINA - 02", kat:"PLİSE PERDE GECE", usd:6.60},
-        {ad:"REINA - 03", kat:"PLİSE PERDE GECE", usd:6.60},
-        {ad:"REINA - 04", kat:"PLİSE PERDE GECE", usd:6.60},
-        {ad:"REINA - 05", kat:"PLİSE PERDE GECE", usd:6.60},
-        {ad:"REINA - 06", kat:"PLİSE PERDE GECE", usd:6.60},
-        {ad:"REINA - 07", kat:"PLİSE PERDE GECE", usd:6.60},
-        {ad:"SILVER 7001", kat:"PLİSE PERDE GECE", usd:7.00},
-        {ad:"SILVER 7002", kat:"PLİSE PERDE GECE", usd:7.00},
-        {ad:"SILVER 7003", kat:"PLİSE PERDE GECE", usd:7.00},
-        {ad:"SILVER 7004", kat:"PLİSE PERDE GECE", usd:7.00},
-        {ad:"SILVER 7005", kat:"PLİSE PERDE GECE", usd:7.00},
-        {ad:"TOUCH 1001", kat:"PLİSE PERDE GECE", usd:6.60},
-        {ad:"TOUCH 1002", kat:"PLİSE PERDE GECE", usd:6.60},
-        {ad:"TOUCH 1003", kat:"PLİSE PERDE GECE", usd:6.60},
-        {ad:"TOUCH 1004", kat:"PLİSE PERDE GECE", usd:6.60},
-        {ad:"TULLE 500", kat:"PLİSE PERDE GÜNDÜZ TÜL", usd:5.80},
-        {ad:"TULLE 501", kat:"PLİSE PERDE GÜNDÜZ TÜL", usd:5.80},
-        {ad:"TULLE 502", kat:"PLİSE PERDE GÜNDÜZ TÜL", usd:5.80},
-        {ad:"TULLE 503", kat:"PLİSE PERDE GÜNDÜZ TÜL", usd:5.80},
-        {ad:"TULLE 504", kat:"PLİSE PERDE GÜNDÜZ TÜL", usd:5.80}
+        {ad:"ARDA - 01", usd:6.70}, {ad:"ARDA - 02", usd:6.70}, {ad:"ARDA - 03", usd:6.70}, {ad:"ARDA - 04", usd:6.70}, {ad:"ARDA - 05", usd:6.70},
+        {ad:"ASEL - 01", usd:7.20}, {ad:"ASEL - 02", usd:7.20}, {ad:"ASEL - 03", usd:7.20}, {ad:"ASEL - 04", usd:7.20}, {ad:"ASEL - 05", usd:7.20},
+        {ad:"BAMBU 6001", usd:6.60}, {ad:"BAMBU 6003", usd:6.60}, {ad:"BAMBU 6004", usd:6.60}, {ad:"BAMBU 6005", usd:6.60},
+        {ad:"BLACKOUT - ANTRASİT", usd:12.00}, {ad:"BLACKOUT - GRİ", usd:12.00}, {ad:"DARK 5001 ANTRASİT", usd:8.00}, {ad:"DIAMOND - BEYA", usd:5.70},
+        {ad:"DIAMOND - ANTRASİT", usd:5.70}, {ad:"HONEYCOMB 001 BEYAZ", usd:12.50}, {ad:"HONEYCOMB 004 ANTRASİT", usd:12.50}, {ad:"TULLE 500", usd:5.80}
     ];
+    let sineklikMalzemeListesi = [{ad:"Plise Sineklik Tülü", fiyat:250}, {ad:"Kedi Sinekliği Tülü", fiyat:400}, {ad:"Alüminyum Profil Kasa", fiyat:60}];
+    let localRowIdCounter = 0; let globalLastCalculationResult = null;
 
-    let sineklikAksesuarListesi = [
-        {ad: "Plise Tül Maliyeti", fiyat: 250},
-        {ad: "Kedi Tül İskelet", fiyat: 400},
-        {ad: "Köşe Takozu Alüminyum", fiyat: 15}
-    ];
-
-    let localRowIdCounter = 0;
-    let globalLastCalculationResult = null;
-
-    database.ref('.info/connected').on('value', function(snapshot) {
+    database.ref('.info/connected').on('value', snap => {
         const s = document.getElementById('connection-status');
-        if (snapshot.val() === true) { s.innerHTML = '● Buluta Bağlı (Canlı)'; s.style.color = '#81c784'; }
-        else { s.innerHTML = '● Bağlantı Koptu'; s.style.color = '#e53935'; }
+        s.innerHTML = snap.val() === true ? '● Buluta Bağlı (Canlı)' : '● Bağlantı Kesildi';
+        s.style.color = snap.val() === true ? '#81c784' : '#e53935';
     });
 
-    function switchTab(tabId, btn) {
+    function switchTab(tId, btn) {
         document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
         document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active'));
-        document.getElementById(tabId).classList.add('active');
-        if(btn) btn.classList.add('active');
+        document.getElementById(tId).classList.add('active'); btn.classList.add('active');
     }
-
-    function switchSettingsPane(paneId, btn) {
+    function switchSettingsPane(pId, btn) {
         document.querySelectorAll('.settings-pane').forEach(el => el.classList.remove('active'));
         document.querySelectorAll('.set-link').forEach(el => el.classList.remove('active'));
-        document.getElementById(paneId).classList.add('active');
-        btn.classList.add('active');
+        document.getElementById(pId).classList.add('active'); btn.classList.add('active');
     }
-
     function unlockSettings() {
         if(document.getElementById('settingsPasswordInput').value === "1234") {
             document.getElementById('lockScreen').style.display = "none";
-            document.getElementById('settingsMainContent').style.display = "block";
-            loadSettingsTables();
-        } else { alert("Hatalı Yetki Şifresi!"); }
+            document.getElementById('settingsMainContent').style.display = "block"; loadSettingsTables();
+        } else { alert("Şifre Hatalı!"); }
     }
-
     function loadSettingsTables() {
-        const tbodyPerde = document.getElementById('perdeKumasTableBody');
-        tbodyPerde.innerHTML = '';
-        kumasKatalogu.forEach((k, index) => {
-            tbodyPerde.innerHTML += `<tr><td><b>${k.ad}</b></td><td>${k.kat}</td><td>$${k.usd.toFixed(2)}</td><td><button class="delete-row-btn" style="position:static;" onclick="removeKatalogItem('perde', ${index})">Sil</button></td></tr>`;
-        });
-
-        const tbodySineklik = document.getElementById('bodySineklikMat');
-        tbodySineklik.innerHTML = '';
-        sineklikAksesuarListesi.forEach((s, index) => {
-            tbodySineklik.innerHTML += `<tr><td><b>${s.ad}</b></td><td>${s.fiyat} TL</td><td><button class="delete-row-btn" style="position:static;" onclick="removeKatalogItem('sineklik', ${index})">Sil</button></td></tr>`;
-        });
-    }
-
-    function addNewMaterialItem(type) {
-        if(type === 'sineklik') {
-            const name = document.getElementById('addSineklikMatName').value;
-            const price = parseFloat(document.getElementById('addSineklikMatPrice').value);
-            if(!name || !price) return;
-            sineklikAksesuarListesi.push({ad: name, fiyat: price});
-            document.getElementById('addSineklikMatName').value = '';
-            document.getElementById('addSineklikMatPrice').value = '';
-        } else {
-            const name = document.getElementById('addPerdeMatName').value;
-            const price = parseFloat(document.getElementById('addPerdeMatPrice').value);
-            if(!name || !price) return;
-            kumasKatalogu.push({ad: name, kat: "PLİSE PERDE GECE", usd: price});
-            document.getElementById('addPerdeMatName').value = '';
-            document.getElementById('addPerdeMatPrice').value = '';
-        }
-        loadSettingsTables();
-        updateAllActiveDropdowns();
-    }
-
-    function removeKatalogItem(type, index) {
-        if(type === 'sineklik') sineklikAksesuarListesi.splice(index, 1);
-        else kumasKatalogu.splice(index, 1);
-        loadSettingsTables();
-        updateAllActiveDropdowns();
-    }
-
-    function updateAllActiveDropdowns() {
-        document.querySelectorAll('.order-row').forEach(row => {
-            const grp = row.querySelector('.sel-grp').value;
-            if(grp === 'Plise Perde') {
-                const selKms = row.querySelector('.sel-kms');
-                const currVal = selKms.value;
-                selKms.innerHTML = '';
-                kumasKatalogu.forEach(k => {
-                    selKms.innerHTML += `<option value="${k.ad}">${k.ad}</option>`;
-                });
-                selKms.value = currVal;
-            }
-        });
+        const tp = document.getElementById('perdeKumasTableBody'); tp.innerHTML = '';
+        kumasKatalogu.forEach(k => { tp.innerHTML += `<tr><td><b>${k.ad}</b></td><td>$${k.usd.toFixed(2)}</td></tr>`; });
+        const ts = document.getElementById('bodySineklikMat'); ts.innerHTML = '';
+        sineklikMalzemeListesi.forEach(s => { ts.innerHTML += `<tr><td><b>${s.ad}</b></td><td>${s.fiyat} TL</td></tr>`; });
     }
 
     function addNewOrderRow() {
-        localRowIdCounter++;
-        const container = document.getElementById('dynamicOrderRowsContainer');
-        
-        let lastGrp = "Sineklik";
-        let lastSys = "Plise Sineklik";
-        let lastClr = "Beyaz";
-        let lastMnt = "VİDALI";
-        let lastKms = kumasKatalogu[0].ad;
-        let lastNot = "";
-
-        const existingRows = container.querySelectorAll('.order-row');
-        if(existingRows.length > 0) {
-            const lastRow = existingRows[existingRows.length - 1];
-            lastGrp = lastRow.querySelector('.sel-grp').value;
-            lastSys = lastRow.querySelector('.sel-sys').value;
-            lastClr = lastRow.querySelector('.sel-clr').value;
-            lastMnt = lastRow.querySelector('.sel-mnt').value;
-            lastKms = lastRow.querySelector('.sel-kms').value;
-            lastNot = lastRow.querySelector('.inp-not').value;
+        localRowIdCounter++; const container = document.getElementById('dynamicOrderRowsContainer');
+        let lastGrp = "Sineklik", lastSys = "Plise Sineklik", lastClr = "Beyaz", lastMnt = "VİDALI", lastKms = kumasKatalogu[0].ad, lastNot = "";
+        const existing = container.querySelectorAll('.order-row');
+        if(existing.length > 0) {
+            const lr = existing[existing.length - 1]; lastGrp = lr.querySelector('.sel-grp').value;
+            lastSys = lr.querySelector('.sel-sys').value; lastClr = lr.querySelector('.sel-clr').value;
+            lastMnt = lr.querySelector('.sel-mnt').value; lastKms = lr.querySelector('.sel-kms').value; lastNot = lr.querySelector('.inp-not').value;
         }
-
-        const div = document.createElement('div');
-        div.id = `or_row_${localRowIdCounter}`;
+        const div = document.createElement('div'); div.id = `or_row_${localRowIdCounter}`;
         div.className = `order-row ${lastGrp === 'Plise Perde' ? 'perde' : ''}`;
-        
         div.innerHTML = `
-            <button class="delete-row-btn" onclick="document.getElementById('${div.id}').remove()">✕ Sil</button>
+            <button class="delete-row-btn no-print" onclick="document.getElementById('${div.id}').remove(); liveRecalculateAll();">✕ Sil</button>
             <div class="row-grid">
-                <div class="form-group">
-                    <label>Ürün Grubu</label>
-                    <select class="sel-grp" onchange="handleGroupChange('${div.id}')">
-                        <option value="Sineklik" ${lastGrp==='Sineklik'?'selected':''}>Sineklik</option>
-                        <option value="Plise Perde" ${lastGrp==='Plise Perde'?'selected':''}>Plise Perde</option>
-                    </select>
-                </div>
-                <div class="form-group box-sys">
-                    <label>Sistem Tipi</label>
-                    <select class="sel-sys">
-                        <option value="Plise Sineklik" ${lastSys==='Plise Sineklik'?'selected':''}>Plise Sineklik</option>
-                        <option value="Kedi Sinekliği" ${lastSys==='Kedi Sinekliği'?'selected':''}>Kedi Sinekliği</option>
-                    </select>
-                </div>
-                <div class="form-group box-mnt" style="display:none;">
-                    <label>Montaj Türü</label>
-                    <select class="sel-mnt">
-                        <option value="KANCALI" ${lastMnt==='KANCALI'?'selected':''}>KANCALI</option>
-                        <option value="PORTRAYLI" ${lastMnt==='PORTRAYLI'?'selected':''}>PORTRAYLI</option>
-                        <option value="VİDALI" ${lastMnt==='VİDALI'?'selected':''}>VİDALI</option>
-                        <option value="YAPIŞKAN" ${lastMnt==='YAPIŞKAN'?'selected':''}>YAPIŞKAN</option>
-                    </select>
-                </div>
-                <div class="form-group box-kms" style="display:none;">
-                    <label>Kumaş / Ürün Serisi</label>
-                    <select class="sel-kms"></select>
-                </div>
-                <div class="form-group">
-                    <label>Genişlik En (cm)</label>
-                    <input type="number" class="inp-w" step="0.1" placeholder="En">
-                </div>
-                <div class="form-group">
-                    <label>Yükseklik Boy (cm)</label>
-                    <input type="number" class="inp-h" step="0.1" placeholder="Boy">
-                </div>
-                <div class="form-group">
-                    <label>Profil Rengi</label>
-                    <select class="sel-clr">
-                        <option value="Beyaz" ${lastClr==='Beyaz'?'selected':''}>Beyaz</option>
-                        <option value="Antrasit Gri" ${lastClr==='Antrasit Gri'?'selected':''}>Antrasit Gri</option>
-                        <option value="Altın Meşe" ${lastClr==='Altın Meşe'?'selected':''}>Altın Meşe</option>
-                        <option value="Kahverengi" ${lastClr==='Kahverengi'?'selected':''}>Kahverengi</option>
-                    </select>
-                </div>
+                <div class="form-group"><label>Ürün Grubu</label><select class="sel-grp" onchange="handleGroupChange('${div.id}')"><option value="Sineklik" ${lastGrp==='Sineklik'?'selected':''}>Sineklik</option><option value="Plise Perde" ${lastGrp==='Plise Perde'?'selected':''}>Plise Perde</option></select></div>
+                <div class="form-group box-sys"><label>Sistem Tipi</label><select class="sel-sys" onchange="liveRecalculateAll()"><option value="Plise Sineklik" ${lastSys==='Plise Sineklik'?'selected':''}>Plise Sineklik</option><option value="Kedi Sinekliği" ${lastSys==='Kedi Sinekliği'?'selected':''}>Kedi Sinekliği</option></select></div>
+                <div class="form-group box-mnt" style="display:none;"><label>Montaj Türü</label><select class="sel-mnt" onchange="liveRecalculateAll()"><option value="KANCALI" ${lastMnt==='KANCALI'?'selected':''}>KANCALI</option><option value="VİDALI" ${lastMnt==='VİDALI'?'selected':''}>VİDALI</option><option value="YAPIŞKAN" ${lastMnt==='YAPIŞKAN'?'selected':''}>YAPIŞKAN</option></select></div>
+                <div class="form-group box-kms" style="display:none;"><label>Kumaş / Seri</label><select class="sel-kms" onchange="liveRecalculateAll()"></select></div>
+                <div class="form-group"><label>En (cm)</label><input type="number" class="inp-w" step="0.1" placeholder="En" oninput="liveRecalculateAll()"></div>
+                <div class="form-group"><label>Boy (cm)</label><input type="number" class="inp-h" step="0.1" placeholder="Boy" oninput="liveRecalculateAll()"></div>
+                <div class="form-group"><label>Profil Rengi</label><select class="sel-clr" onchange="liveRecalculateAll()"><option value="Beyaz" ${lastClr==='Beyaz'?'selected':''}>Beyaz</option><option value="Antrasit" ${lastClr==='Antrasit'?'selected':''}>Antrasit</option></select></div>
             </div>
-            <div class="form-group">
-                <label>Özel İmalat / Ölçü Notu</label>
-                <input type="text" class="inp-not" value="${lastNot}">
+            <div class="form-group"><label>Özel Not</label><input type="text" class="inp-not" value="${lastNot}"></div>
+            <div class="row-live-price">
+                <span>Maliyet: <b class="lbl-row-m":>0.00</b> TL</span><span>KDV (%20): <b class="lbl-row-k">0.00</b> TL</span><span>Montaj: <b class="lbl-row-i">0.00</b> TL</span><span style="color:var(--primary);">Toplam: <b class="lbl-row-t">0.00</b> TL</span>
+                <button class="zebra-btn no-print" style="margin-left:auto;" onclick="printZebraLabel('${div.id}')">🏷️ Zebra Bas</button>
             </div>
         `;
-        
-        container.appendChild(div);
-        const kmsSelect = div.querySelector('.sel-kms');
-        kumasKatalogu.forEach(k => {
-            kmsSelect.innerHTML += `<option value="${k.ad}" ${k.ad===lastKms?'selected':''}>${k.ad}</option>`;
-        });
-        handleGroupChange(div.id, false);
+        container.appendChild(div); const sk = div.querySelector('.sel-kms');
+        kumasKatalogu.forEach(k => { sk.innerHTML += `<option value="${k.ad}" ${k.ad===lastKms?'selected':''}>${k.ad}</option>`; });
+        handleGroupChange(div.id);
     }
 
-    function handleGroupChange(rowId, resetValues = true) {
-        const row = document.getElementById(rowId);
-        const grp = row.querySelector('.sel-grp').value;
-        const bSys = row.querySelector('.box-sys');
-        const bMnt = row.querySelector('.box-mnt');
-        const bKms = row.querySelector('.box-kms');
-
-        if(grp === "Sineklik") {
-            row.classList.remove('perde');
-            bSys.style.display = "flex";
-            bMnt.style.display = "none";
-            bKms.style.display = "none";
-        } else {
-            row.classList.add('perde');
-            bSys.style.display = "none";
-            bMnt.style.display = "flex";
-            bKms.style.display = "flex";
-        }
+    function handleGroupChange(rId) {
+        const r = document.getElementById(rId); const g = r.querySelector('.sel-grp').value;
+        r.querySelector('.box-sys').style.display = g === "Sineklik" ? "flex" : "none";
+        r.querySelector('.box-mnt').style.display = g === "Sineklik" ? "none" : "flex";
+        r.querySelector('.box-kms').style.display = g === "Sineklik" ? "none" : "flex";
+        if(g === "Sineklik") r.classList.remove('perde'); else r.classList.add('perde'); liveRecalculateAll();
     }
 
-    function calculateAllRows() {
-        const container = document.getElementById('dynamicOrderRowsContainer');
-        const rows = container.querySelectorAll('.order-row');
-        if(rows.length === 0) { alert("Ölçü girilmemiş usta!"); return; }
+    function liveRecalculateAll() {
+        const rows = document.querySelectorAll('.order-row'); if(rows.length === 0) return;
+        const cp = parseFloat(document.getElementById('cfg_m_plise').value || 250);
+        const ck = parseFloat(document.getElementById('cfg_m_kedi').value || 400);
+        const cd = parseFloat(document.getElementById('cfg_dolar_kuru').value || 33.50);
+        const ca = parseFloat(document.getElementById('cfg_perde_aparat').value || 40);
+        const cr = parseFloat(document.getElementById('cfg_kar_orani').value || 100) / 100;
 
-        const mainCustomer = document.getElementById('mainCustomerName').value || "İsimsiz Müşteri";
-        const mainPhone = document.getElementById('mainCustomerPhone').value || "-";
-        const mainAddress = document.getElementById('mainCustomerAddress').value || "-";
-        const montajTarihi = document.getElementById('mainMontajTarihi').value || "-";
-        const kapora = parseFloat(document.getElementById('mainKapora').value || 0);
-
-        const cfg_m_plise = sineklikAksesuarListesi[0]?.fiyat || 250;
-        const cfg_m_kedi = sineklikAksesuarListesi[1]?.fiyat || 400;
-        const cfg_dolar = parseFloat(document.getElementById('cfg_dolar_kuru').value);
-        const cfg_aparat = parseFloat(document.getElementById('cfg_perde_aparat').value);
-        const cfg_kar = parseFloat(document.getElementById('cfg_kar_orani').value) / 100;
-        const cfg_iscilik_oran = parseFloat(document.getElementById('cfg_iscilik_orani').value) / 100;
-
-        let totalMalzemeMaliyeti = 0;
-        let detayliUretimKartlari = [];
-
-        for (let r of rows) {
-            const grp = r.querySelector('.sel-grp').value;
-            const w = parseFloat(r.querySelector('.inp-w').value);
-            const h = parseFloat(r.querySelector('.inp-h').value);
-            const clr = r.querySelector('.sel-clr').value;
-            const not = r.querySelector('.inp-not').value;
-
-            if(!w || !h) { alert("Lütfen boş ölçüleri doldurun!"); return; }
-
-            const sqm = (w * h) / 10000;
-            const finalSqm = sqm < 0.5 ? 0.5 : sqm;
+        rows.forEach(r => {
+            const g = r.querySelector('.sel-grp').value; const w = parseFloat(r.querySelector('.inp-w').value || 0); const h = parseFloat(r.querySelector('.inp-h').value || 0);
+            if(w <= 0 || h <= 0) return; const sqm = (w * h) / 10000; const finalSqm = sqm < 0.5 ? 0.5 : sqm;
+            let maliyet = 0;
+            if(g === "Sineklik") { maliyet = r.querySelector('.sel-sys').value === "Plise Sineklik" ? finalSqm * cp : finalSqm * ck; }
+            else { const km = r.querySelector('.sel-kms').value; const ko = kumasKatalogu.find(k => k.ad === km) || kumasKatalogu[0]; maliyet = finalSqm * (ko.usd * cd); if(r.querySelector('.sel-mnt').value !== "VİDALI") maliyet += ca; }
             
-            let satirMalzemeMaliyeti = 0;
-            let kesimNotu = "";
-            let urunDetayAdi = "";
+            const matrah = maliyet + (maliyet * cr); const kdv = matrah * 0.20; const montaj = matrah * 0.20; const tot = matrah + kdv + montaj;
+            r.querySelector('.lbl-row-m').innerText = maliyet.toFixed(2); r.querySelector('.lbl-row-k').innerText = kdv.toFixed(2);
+            r.querySelector('.lbl-row-i').innerText = montaj.toFixed(2); r.querySelector('.lbl-row-t').innerText = tot.toFixed(2);
+        });
+    }
 
-            if(grp === "Sineklik") {
-                const sys = r.querySelector('.sel-sys').value;
-                urunDetayAdi = sys;
-                if(sys === "Plise Sineklik") {
-                    satirMalzemeMaliyeti = finalSqm * cfg_m_plise;
-                    kesimNotu = `Atölye Kesimi -> En: ${(w - 2).toFixed(1)} cm | Boy: ${(h - 4).toFixed(1)} cm`;
-                } else {
-                    satirMalzemeMaliyeti = finalSqm * cfg_m_kedi;
-                    kesimNotu = `Kedi Sinekliği İskeleti -> En: ${w} cm | Boy: ${h} cm`;
-                }
-            } else {
-                const mnt = r.querySelector('.sel-mnt').value;
-                const kms = r.querySelector('.sel-kms').value;
-                urunDetayAdi = `Plise Perde (${mnt})`;
+    function printZebraLabel(rId) {
+        const r = document.getElementById(rId); const name = document.getElementById('mainCustomerName').value || "Fix House";
+        const w = r.querySelector('.inp-w').value; const h = r.querySelector('.inp-h').value;
+        if(!w || !h) { alert("Ölçü Eksik!"); return; }
+        const zpl = `^XA^CF0,30^FO50,50^FDMus: ${name}^FS^FO50,90^FDOlcu: ${w}x${h}^FS^XZ`;
+        const wnd = window.open('', '_blank'); wnd.document.write('<pre>' + zpl + '</pre><script>window.print();<\/script>'); wnd.document.close();
+    }
 
-                const kumasObj = kumasKatalogu.find(k => k.ad === kms) || kumasKatalogu[0];
-                const kumasTlMaliyeti = kumasObj.usd * cfg_dolar;
-                
-                satirMalzemeMaliyeti = finalSqm * kumasTlMaliyeti;
-                if(mnt === "KANCALI" || mnt === "YAPIŞKAN") { satirMalzemeMaliyeti += cfg_aparat; }
-
-                kesimNotu = `Üst/Alt Çıta ve Çift Açılır Profil Ölçüsü -> En: ${w} cm | Boy: ${h} cm`;
-            }
-
-            totalMalzemeMaliyeti += satirMalzemeMaliyeti;
-
-            detayliUretimKartlari.push({
-                grp: grp, urunAdi: urunDetayAdi, en: w, boy: h, renk: clr, not: not, sqm: finalSqm.toFixed(2), kesim: kesimNotu
-            });
-        }
-
-        const karTutari = totalMalzemeMaliyeti * cfg_kar;
-        const kdvMatrahi = totalMalzemeMaliyeti + karTutari;
-        const kdvTutari = kdvMatrahi * 0.20;
-        const netIscilikMontaj = kdvMatrahi * cfg_iscilik_oran;
-        const genelToplamSatis = kdvMatrahi + kdvTutari + netIscilikMontaj;
-        const kalanBakiye = genelToplamSatis - kapora;
-
+    function calculateAllRowsEngine() {
+        const rows = document.querySelectorAll('.order-row'); if(rows.length === 0) return;
+        let totM = 0; let items = [];
+        rows.forEach(r => {
+            const g = r.querySelector('.sel-grp').value; const w = r.querySelector('.inp-w').value; const h = r.querySelector('.inp-h').value;
+            const clr = r.querySelector('.sel-clr').value; const n = r.querySelector('.inp-not').value;
+            const m = parseFloat(r.querySelector('.lbl-row-m').innerText || 0); totM += m;
+            let uName = g === "Sineklik" ? r.querySelector('.sel-sys').value : r.querySelector('.sel-kms').value;
+            items.push({grp:g, urunAdi:uName, en:w, boy:h, renk:clr, not:n, kesim:`En: ${w} Boy: ${h}`});
+        });
+        const cr = parseFloat(document.getElementById('cfg_kar_orani').value || 100) / 100;
+        const matrah = totM + (totM * cr); const kdv = matrah * 0.20; const isc = matrah * 0.20; const genTot = matrah + kdv + isc;
+        const kap = parseFloat(document.getElementById('mainKapora').value || 0);
         globalLastCalculationResult = {
-            musteri: mainCustomer, telefon: mainPhone, adres: mainAddress, montajTarihi: montajTarihi,
-            kapora: kapora.toFixed(2), maliyet: totalMalzemeMaliyeti.toFixed(2), kdv: kdvTutari.toFixed(2),
-            iscilik: netIscilikMontaj.toFixed(2), toplam: genelToplamSatis.toFixed(2), bakiye: kalanBakiye.toFixed(2),
-            urunler: detayliUretimKartlari, tarih: new Date().toLocaleString('tr-TR')
+            musteri: document.getElementById('mainCustomerName').value || "İsimsiz", telefon: document.getElementById('mainCustomerPhone').value || "-",
+            adres: document.getElementById('mainCustomerAddress').value || "-", montajTarihi: document.getElementById('mainMontajTarihi').value,
+            kapora: kap.toFixed(2), maliyet: totM.toFixed(2), kdv: kdv.toFixed(2), iscilik: isc.toFixed(2), toplam: genTot.toFixed(2), bakiye: (genTot-kap).toFixed(2),
+            urunler: items, tarih: new Date().toLocaleString('tr-TR')
         };
-
-        document.getElementById('analysisResultText').innerHTML = `
-            <b>👤 Müşteri:</b> ${globalLastCalculationResult.musteri} | 📞 ${globalLastCalculationResult.telefon}<br>
-            <b>📍 Adres:</b> ${globalLastCalculationResult.adres}<br>
-            <b>📅 İmalat/Montaj Hedefi:</b> ${globalLastCalculationResult.montajTarihi}<br><br>
-            <table style="background:white;">
-                <tr><td>Yalın Malzeme Maliyeti</td><td><b>${globalLastCalculationResult.maliyet} TL</b></td></tr>
-                <tr><td>Malzeme KDV'si (%20)</td><td><b>${globalLastCalculationResult.kdv} TL</b></td></tr>
-                <tr><td>İşçilik & Montaj Bedeli (KDV Muaf)</td><td style="color:var(--accent-color);"><b>${globalLastCalculationResult.iscilik} TL</b></td></tr>
-                <tr style="background:#e8f5e9; font-size:15px;"><td><b>Genel Satış Toplamı</b></td><td style="color:var(--success-color);"><b>${globalLastCalculationResult.toplam} TL</b></td></tr>
-                <tr><td>Alınan Önden Kapora</td><td style="color:blue;"><b>${globalLastCalculationResult.kapora} TL</b></td></tr>
-                <tr style="background:#ffebee;"><td><b>Kalan Atölye Alacağı</b></td><td style="color:#c62828;"><b>${globalLastCalculationResult.bakiye} TL</b></td></tr>
-            </table>
-        `;
+        document.getElementById('analysisResultText').innerHTML = `<b>Müşteri:</b> ${globalLastCalculationResult.musteri}<br><b>Toplam Tutar:</b> ${globalLastCalculationResult.toplam} TL<br><b>Kalan Bakiye:</b> ${globalLastCalculationResult.bakiye} TL`;
         document.getElementById('calculationAnalysisCard').style.display = "block";
     }
 
     function sendCalculatedListToFirebase() {
         if(!globalLastCalculationResult) return;
-        database.ref('siparisler').push(globalLastCalculationResult).then(() => {
-            alert("Sipariş Canlı İmalat Havuzuna Gönderildi!");
-            clearFormAndAnalysis();
-        });
+        database.ref('siparisler').push(globalLastCalculationResult).then(() => { alert("Sipariş Havuza Gönderildi!"); clearFormAndAnalysis(); });
     }
-
     function saveToPotentialPool() {
-        calculateAllRows();
-        if(!globalLastCalculationResult) return;
-        database.ref('potansiyel_musteriler').push(globalLastCalculationResult).then(() => {
-            alert("Sipariş Teklif Olarak Saklandı.");
-            clearFormAndAnalysis();
-        });
+        calculateAllRowsEngine(); if(!globalLastCalculationResult) return;
+        database.ref('potansiyel_musteriler').push(globalLastCalculationResult).then(() => { alert("Teklif Kaydedildi."); clearFormAndAnalysis(); });
     }
-
     function clearFormAndAnalysis() {
-        document.getElementById('mainCustomerName').value = '';
-        document.getElementById('mainCustomerPhone').value = '';
-        document.getElementById('mainCustomerAddress').value = '';
-        document.getElementById('mainKapora').value = '0';
-        document.getElementById('dynamicOrderRowsContainer').innerHTML = '';
-        document.getElementById('calculationAnalysisCard').style.display = "none";
-        globalLastCalculationResult = null;
-        addNewOrderRow();
+        document.getElementById('mainCustomerName').value = ''; document.getElementById('mainCustomerPhone').value = '';
+        document.getElementById('mainCustomerAddress').value = ''; document.getElementById('mainKapora').value = '0';
+        document.getElementById('dynamicOrderRowsContainer').innerHTML = ''; document.getElementById('calculationAnalysisCard').style.display = "none";
+        globalLastCalculationResult = null; addNewOrderRow();
     }
 
-    // Geri Yükleme / Düzenleme Fonksiyonu (Gelen Sipariş Verilerini Form Alanına Geri Atar)
-    function restoreOrderToForm(orderObj) {
+    function restoreOrderToForm(obj) {
         switchTab('order-entry-tab', document.querySelector('.nav-link'));
-        document.getElementById('mainCustomerName').value = orderObj.musteri || "";
-        document.getElementById('mainCustomerPhone').value = orderObj.telefon || "";
-        document.getElementById('mainCustomerAddress').value = orderObj.adres || "";
-        document.getElementById('mainMontajTarihi').value = orderObj.montajTarihi || "";
-        document.getElementById('mainKapora').value = orderObj.kapora || "0";
-        
-        const container = document.getElementById('dynamicOrderRowsContainer');
-        container.innerHTML = '';
-        
-        if(orderObj.urunler) {
-            orderObj.urunler.forEach(u => {
-                addNewOrderRow();
-                const lastRow = container.lastChild;
-                lastRow.querySelector('.sel-grp').value = u.grp;
-                handleGroupChange(lastRow.id, false);
-                if(u.grp === 'Sineklik') {
-                    lastRow.querySelector('.sel-sys').value = u.urunAdi;
-                } else {
-                    lastRow.querySelector('.sel-kms').value = u.urunAdi.includes('(') ? kumasKatalogu[0].ad : u.urunAdi;
-                }
-                lastRow.querySelector('.inp-w').value = u.en;
-                lastRow.querySelector('.inp-h').value = u.boy;
-                lastRow.querySelector('.sel-clr').value = u.renk;
-                lastRow.querySelector('.inp-not').value = u.not || "";
-            });
-        }
-        alert("Sipariş verileri düzenleme ve imalat paneline geri yüklendi usta.");
+        document.getElementById('mainCustomerName').value = obj.musteri; document.getElementById('mainCustomerPhone').value = obj.telefon;
+        document.getElementById('mainCustomerAddress').value = obj.adres; document.getElementById('mainMontajTarihi').value = obj.montajTarihi;
+        document.getElementById('mainKapora').value = obj.kapora;
+        const container = document.getElementById('dynamicOrderRowsContainer'); container.innerHTML = '';
+        obj.urunler?.forEach(u => {
+            addNewOrderRow(); const lr = container.lastChild; lr.querySelector('.sel-grp').value = u.grp; handleGroupChange(lr.id);
+            if(u.grp === 'Sineklik') lr.querySelector('.sel-sys').value = u.urunAdi; else lr.querySelector('.sel-kms').value = u.urunAdi;
+            lr.querySelector('.inp-w').value = u.en; lr.querySelector('.inp-h').value = u.boy; lr.querySelector('.sel-clr').value = u.renk; lr.querySelector('.inp-not').value = u.not || "";
+        });
+        liveRecalculateAll();
     }
 
-    // VERİ TABANI CANLI AKIŞ DİNLEYİCİLERİ
-    database.ref('siparisler').on('value', function(snapshot) {
-        const container = document.getElementById('activePoolContainer');
-        container.innerHTML = '';
-        const data = snapshot.val();
-        if(!data) { container.innerHTML = '<li>İmalat havuzunda bekleyen iş yok.</li>'; return; }
-        
-        Object.keys(data).reverse().forEach(key => {
-            const op = data[key];
-            let urunListesiHtml = '';
-            op.urunler?.forEach(u => {
-                urunListesiHtml += `<li>• [${u.grp}] <b>${u.urunAdi}</b> - ${u.en}x${u.boy} cm (${u.renk}) | ✂️ <span style="color:var(--primary-color);">${u.kesim}</span></li>`;
-            });
-            
-            container.innerHTML += `
-                <li class="pool-item" dblclick="restoreOrderToForm(JSON.parse(this.dataset.obj))" data-obj='${JSON.stringify(op)}'>
-                    <h3>👤 Müşteri: ${op.musteri} | 📞 Tlf: ${op.telefon} <span style="float:right; color:var(--success-color);">${op.toplam} TL</span></h3>
-                    <p>📍 <b>Adres:</b> ${op.adres} | 📅 <b>Montaj:</b> ${op.montajTarihi}</p>
-                    <ul style="list-style:none; padding-left:15px; font-size:13px; margin:5px 0;">${urunListesiHtml}</ul>
-                    <button class="action-btn" style="background:var(--success-color);" onclick="moveOrderToArchive('${key}')">✅ İmalat Bitti Arşivle</button>
-                    <button class="action-btn" style="background:var(--accent-color);" onclick='restoreOrderToForm(${JSON.stringify(op)}); database.ref("siparisler/${key}").remove();'>✏️ Düzenle / Düzelterek Yenile</button>
-                    <button class="action-btn" style="background:#e53935;" onclick="database.ref('siparisler/${key}').remove()">✕ İptal/Sil</button>
-                </li>
-            `;
+    // FIREBASE AKIŞ DİNLEYİCİLERİ
+    database.ref('siparisler').on('value', snap => {
+        const c = document.getElementById('activePoolContainer'); c.innerHTML = ''; const data = snap.val(); if(!data) return;
+        Object.keys(data).reverse().forEach(k => {
+            const op = data[k]; let sHtml = ''; op.urunler?.forEach(u => { sHtml += `<li>${u.grp} - <b>${u.urunAdi}</b> [${u.en}x${u.boy}] (${u.renk}) - Kesim: ${u.kesim}</li>`; });
+            c.innerHTML += `<li class="pool-item"><h3>👤 ${op.musteri} | 📞 ${op.telefon} <span style="float:right;">${op.toplam} TL</span></h3><p>📍 Adres: ${op.adres}</p><ul>${sHtml}</ul><br><button class="action-btn" style="background:var(--success);" onclick="moveOrderToArchive('${k}')">✅ Tamamlandı</button> <button class="action-btn" onclick='restoreOrderToForm(${JSON.stringify(op)}); database.ref("siparisler/${k}").remove();'>✏️ Düzenle</button></li>`;
         });
     });
 
-    database.ref('potansiyel_musteriler').on('value', function(snapshot) {
-        const container = document.getElementById('potentialPoolContainer');
-        container.innerHTML = '';
-        const data = snapshot.val();
-        if(!data) { container.innerHTML = '<li>Bekleyen teklif kaydı yok.</li>'; return; }
-
-        Object.keys(data).reverse().forEach(key => {
-            const op = data[key];
-            container.innerHTML += `
-                <li class="pool-item" style="border-left-color:var(--accent-color);">
-                    <h3>🔮 ${op.musteri} | 📞 ${op.telefon} <span style="float:right;">${op.toplam} TL</span></h3>
-                    <p>📍 Adres: ${op.adres} | Teklif Tarihi: ${op.tarih}</p>
-                    <button class="action-btn" style="background:var(--primary-color);" onclick="activatePotentialOrder('${key}')">🚀 Siparişi Onayla Üretime Al</button>
-                    <button class="action-btn" style="background:var(--accent-color);" onclick='restoreOrderToForm(${JSON.stringify(op)}); database.ref("potansiyel_musteriler/${key}").remove();'>✏️ Teklifi İncele/Düzenle</button>
-                    <button class="action-btn" style="background:#e53935;" onclick="database.ref('potansiyel_musteriler/${key}').remove()">✕ Sil</button>
-                </li>
-            `;
+    database.ref('potansiyel_musteriler').on('value', snap => {
+        const c = document.getElementById('potentialPoolContainer'); c.innerHTML = ''; const data = snap.val(); if(!data) return;
+        Object.keys(data).reverse().forEach(k => {
+            const op = data[k];
+            c.innerHTML += `<li class="pool-item"><h3>🔮 Teklif: ${op.musteri} | Tutar: ${op.toplam} TL</h3><p>Tarih: ${op.tarih}</p><br><button class="action-btn" onclick="database.ref('siparisler').push(${JSON.stringify(op)}); database.ref('potansiyel_musteriler/${k}').remove();">🚀 Üretime Al</button> <button class="action-btn" onclick='restoreOrderToForm(${JSON.stringify(op)}); database.ref("potansiyel_musteriler/${k}").remove();'>✏️ İncele/Düzenle</button></li>`;
         });
     });
 
-    let globalTotalCiroMiktarı = 0;
-    database.ref('arsiv').on('value', function(snapshot) {
-        const container = document.getElementById('archivePoolContainer');
-        container.innerHTML = '';
-        globalTotalCiroMiktarı = 0;
-        const data = snapshot.val();
-        if(!data) { container.innerHTML = '<li>Arşiv henüz boş.</li>'; return; }
-
-        Object.keys(data).reverse().forEach(key => {
-            const op = data[key];
-            globalTotalCiroMiktarı += parseFloat(op.toplam || 0);
-            container.innerHTML += `
-                <li class="pool-item" style="border-left-color:var(--success-color); background:#f1f8e9;">
-                    <h3>✅ Müşteri: ${op.musteri} | Tel: ${op.telefon} <span style="float:right; color:var(--success-color);">+${op.toplam} TL</span></h3>
-                    <p>📍 Adres: ${op.adres} | Arşivlenme Zamanı: ${op.arsivlenmeTarihi}</p>
-                    <button class="action-btn" style="background:var(--secondary-color);" onclick='restoreOrderToForm(${JSON.stringify(op)})'>🗂️ Tüm İmalat Detaylarını Gör / Forma At</button>
-                </li>
-            `;
+    let totCiro = 0;
+    database.ref('arsiv').on('value', snap => {
+        const c = document.getElementById('archivePoolContainer'); c.innerHTML = ''; totCiro = 0; const data = snap.val(); if(!data) return;
+        Object.keys(data).reverse().forEach(k => {
+            const op = data[k]; totCiro += parseFloat(op.toplam || 0);
+            c.innerHTML += `<li class="pool-item" style="background:#f1f8e9;" dblclick='restoreOrderToForm(${JSON.stringify(op)})'><h3>✅ Teslim Edildi: ${op.musteri} <span style="float:right;">+${op.toplam} TL</span></h3><p>Arşivlenme: ${op.arsivlenmeTarihi}</p><br><button class="action-btn" style="background:var(--secondary);" onclick='restoreOrderToForm(${JSON.stringify(op)})'>🗂️ Tüm İmalat Detaylarını İncele</button></li>`;
         });
-        document.getElementById('statTotalCiro').innerText = globalTotalCiroMiktarı.toFixed(2) + " TL";
-        recalculateNetBalance();
+        document.getElementById('statTotalCiro').innerText = totCiro.toFixed(2) + " TL"; recalculateNetBalance();
     });
 
-    let globalTotalGiderMiktarı = 0;
-    database.ref('giderler').on('value', function(snapshot) {
-        const tbody = document.getElementById('giderListTableBody');
-        tbody.innerHTML = '';
-        globalTotalGiderMiktarı = 0;
-        const data = snapshot.val();
-        if(!data) { tbody.innerHTML = '<tr><td colspan="4">Kayıtlı dükkan gideri yok.</td></tr>'; return; }
-
-        Object.keys(data).forEach(key => {
-            const g = data[key];
-            globalTotalGiderMiktarı += parseFloat(g.tutar || 0);
-            tbody.innerHTML += `<tr><td>${g.tarih}</td><td><b>${g.aciklama}</b></td><td>-${parseFloat(g.tutar).toFixed(2)} TL</td><td><button class="delete-row-btn" style="position:static;" onclick="database.ref('giderler/${key}').remove()">Sil</button></td></tr>`;
+    let totGider = 0;
+    database.ref('giderler').on('value', snap => {
+        const tb = document.getElementById('giderListTableBody'); tb.innerHTML = ''; totGider = 0; const data = snap.val(); if(!data) return;
+        Object.keys(data).forEach(k => {
+            const g = data[k]; totGider += parseFloat(g.tutar || 0);
+            tb.innerHTML += `<tr><td>${g.tarih}</td><td>${g.aciklama}</td><td>-${g.tutar} TL</td><td><button class="delete-row-btn" style="position:static;" onclick="database.ref('giderler/${k}').remove()">Sil</button></td></tr>`;
         });
-        document.getElementById('statTotalGider').innerText = globalTotalGiderMiktarı.toFixed(2) + " TL";
-        recalculateNetBalance();
+        document.getElementById('statTotalGider').innerText = totGider.toFixed(2) + " TL"; recalculateNetBalance();
     });
 
-    function recalculateNetBalance() {
-        const net = globalTotalCiroMiktarı - globalTotalGiderMiktarı;
-        document.getElementById('statNetDenge').innerText = net.toFixed(2) + " TL";
-    }
-
+    function recalculateNetBalance() { document.getElementById('statNetDenge').innerText = (totCiro - totGider).toFixed(2) + " TL"; }
     function moveOrderToArchive(key) {
-        database.ref('siparisler/' + key).once('value', function(snap) {
-            const data = snap.val();
-            if(data) {
-                data.arsivlenmeTarihi = new Date().toLocaleString('tr-TR');
-                database.ref('arsiv').push(data).then(() => {
-                    database.ref('siparisler/' + key).remove();
-                });
-            }
+        database.ref('siparisler/' + key).once('value', snap => {
+            const d = snap.val(); if(d) { d.arsivlenmeTarihi = new Date().toLocaleString('tr-TR'); database.ref('arsiv').push(d).then(() => database.ref('siparisler/' + key).remove()); }
         });
     }
-
-    function activatePotentialOrder(key) {
-        database.ref('potansiyel_musteriler/' + key).once('value', function(snap) {
-            const data = snap.val();
-            if(data) {
-                database.ref('siparisler').push(data).then(() => {
-                    database.ref('potansiyel_musteriler/' + key).remove();
-                });
-            }
-        });
-    }
-
     function addGiderToFirebase() {
-        const desc = document.getElementById('giderAciklama').value;
-        const tutar = parseFloat(document.getElementById('giderTutar').value);
-        if(!desc || !tutar) return;
-        database.ref('giderler').push({aciklama: desc, tutar: tutar, tarih: new Date().toLocaleDateString('tr-TR')}).then(() => {
-            document.getElementById('giderAciklama').value = '';
-            document.getElementById('giderTutar').value = '';
-        });
-    }
-
-    // A4 Baskı Motoru (Her Sekmede Temiz İş Emri Çıktısı Verir)
-    function printDiv(divId, title) {
-        const printContents = document.getElementById(divId).innerHTML;
-        const printArea = document.getElementById('printArea');
-        printArea.innerHTML = `<h1>⚙️ FIX HOUSE ATÖLYE İŞ EMİRİ RAPORU - ${title}</h1><hr><br>` + printContents;
-        printArea.style.display = "block";
-        window.print();
-        printArea.style.display = "none";
+        const desc = document.getElementById('giderAciklama').value; const tutar = parseFloat(document.getElementById('giderTutar').value); if(!desc || !tutar) return;
+        database.ref('giderler').push({aciklama: desc, tutar: tutar, tarih: new Date().toLocaleDateString('tr-TR')}).then(() => { document.getElementById('giderAciklama').value = ''; document.getElementById('giderTutar').value = ''; });
     }
 
     addNewOrderRow();
 </script>
-
 </body>
 </html>
