@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fix House - Canlı Bulut Otomasyonu v3.5</title>
+    <title>Fix House - Canlı Bulut Otomasyonu v3.6</title>
     
     <!-- FIREBASE İNTERNET BAĞLANTI MOTORLARI -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -104,7 +104,7 @@
         <header>
             <div>
                 <h1>FIX HOUSE</h1>
-                <p class="sub-title">Sineklik İmalat ve Şifre Korumalı Canlı Bulut Otomasyonu (v3.5 Tam Güvenlikli)</p>
+                <p class="sub-title">Sineklik İmalat ve Şifre Korumalı Canlı Bulut Otomasyonu (v3.6 Kesin Veri Kurtarma Sürümü)</p>
             </div>
             <div style="display: flex; gap: 8px; flex-wrap: wrap;">
                 <button type="button" onclick="sepetiAc()" class="btn btn-gray" style="padding: 6px 12px; font-size: 12px;">🛒 Aktif Sepet <span id="sepet_adet" class="badge">0</span></button>
@@ -325,11 +325,12 @@
         let siparisHavuzu = [];
         let duzenlenenSiparisId = null;
 
-        // KADİR BEY'İN ÖZEL YÖNETİCİ ŞİFRESİ
         const ADMIN_SIFRE = "1234";
 
         window.onload = function() {
             fiyatlariYukle();
+            
+            // CANLI BULUT VERİ DİNLEME MOTORU (Açılış hatası tamamen giderildi)
             db.ref('canli_siparisler').on('value', (snapshot) => {
                 const data = snapshot.val();
                 siparisHavuzu = data ? Object.values(data) : [];
@@ -338,7 +339,6 @@
             satirEkle(); 
         };
 
-        // GÜVENLİK KİLİT MOTORU
         function yetkiKontrolu() {
             const girilen = prompt("⚠️ DÜKKAN GÜVENLİK KİLİDİ\nLütfen Yönetici Şifresini Giriniz:");
             if (girilen === ADMIN_SIFRE) {
@@ -411,7 +411,7 @@
                     <div class="flex-wrap-gap">
                         <select id="plise_yon_${satirSayaci}" class="small-select" onchange="anaHesaplamaDöngüsü()">
                             <option value="yatay" ${varsayilanVeri && varsayilanVeri.opsiyonlar && varsayilanVeri.opsiyonlar.yon === 'yatay' ? 'selected' : ''}>Yatay (Sağa-Sola)</option>
-                            <option value="dikey" ${varsayilanVeri && varsayilanVeri.opsiyonlar && varsavilanVeri.opsiyonlar.yon === 'dikey' ? 'selected' : ''}>Dikey (Yukarı-Aşağı)</option>
+                            <option value="dikey" ${varsayilanVeri && varsayilanVeri.opsiyonlar && varsayilanVeri.opsiyonlar.yon === 'dikey' ? 'selected' : ''}>Dikey (Yukarı-Aşağı)</option>
                         </select>
                         
                         <select id="mentese_model_${satirSayaci}" class="small-select hidden" onchange="anaHesaplamaDöngüsü()">
@@ -443,7 +443,6 @@
             sineklikTuruArayuzYonet(satirSayaci, varsayilanVeri);
         }
 
-        // Ana ekrandaki şifresiz satır silme (Buluta zarar vermez)
         function anaEkranSatirSil(id) {
             const element = document.getElementById(`satir_${id}`);
             if (element) { element.remove(); anaHesaplamaDöngüsü(); }
@@ -721,7 +720,6 @@
         function arsivAc() { document.getElementById('arsivModal').classList.remove('hidden'); }
         function arsivKapat() { document.getElementById('arsivModal').classList.add('hidden'); }
         
-        // BULUT HAVUZUNDAN GÜVENLİ SİLME MOTORU (KESİNLİKLE ŞİFRE İSTER)
         function siparisSilHavuz(id) { 
             if (yetkiKontrolu()) {
                 if (confirm("Bu siparişi buluttan kalıcı olarak silmek istediğinize emin misiniz?")) { 
@@ -810,7 +808,6 @@
             const checkboxes = document.querySelectorAll('.aktif-sec-box:checked');
             if (checkboxes.length === 0) { alert("Lütfen basılacak siparişleri seçin."); return; }
             
-            // Arşive taşımak bulut üstünde veri değiştirdiği için kesinlikle şifre ister
             if (!yetkiKontrolu()) return;
 
             let secilenIds = Array.from(checkboxes).map(cb => cb.value);
