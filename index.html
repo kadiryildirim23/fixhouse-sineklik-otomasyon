@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fix House - Canlı Bulut Otomasyonu v3.2</title>
+    <title>Fix House - Güvenli Bulut Otomasyonu v3.4</title>
     
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f3f4f6; color: #1f2937; margin: 0; padding: 15px; line-height: 1.5; }
-        .container { max-width: 1200px; margin: 0 auto; }
-        header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #e5e7eb; padding-bottom: 12px; margin-bottom: 20px; }
+        .container { max-width: 98%; margin: 0 auto; }
+        header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #e5e7eb; padding-bottom: 12px; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
         h1 { margin: 0; color: #2563eb; font-size: 26px; font-weight: 800; }
         .sub-title { margin: 3px 0 0 0; font-size: 12px; color: #6b7280; }
         .card { background: #ffffff; padding: 18px; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); border: 1px solid #e5e7eb; margin-bottom: 20px; }
@@ -19,29 +19,30 @@
         
         .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
         .grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 15px; }
-        label { font-size: 11px; font-weight: 600; color: #4b5563; margin-bottom: 4px; display: block; }
-        input[type="text"], input[type="number"], select { width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 8px; box-sizing: border-box; font-size: 13px; outline: none; transition: border 0.2s; }
+        label { font-size: 12px; font-weight: 600; color: #4b5563; margin-bottom: 4px; display: block; }
+        
+        input[type="text"], input[type="number"], select { width: 100%; padding: 10px 12px; border: 1px solid #d1d5db; border-radius: 8px; box-sizing: border-box; font-size: 14px; outline: none; transition: border 0.2s; }
         input:focus, select:focus { border-color: #2563eb; }
         input:disabled { background-color: #f3f4f6; color: #9ca3af; font-weight: bold; text-align: center; cursor: not-allowed; }
         
         .table-container { overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 12px; }
-        th { background-color: #f9fafb; border-bottom: 2px solid #e5e7eb; color: #4b5563; font-weight: 600; padding: 10px 6px; }
-        td { padding: 8px 6px; border-bottom: 1px solid #f3f4f6; vertical-align: middle; }
-        .flex-wrap-gap { display: flex; flex-wrap: wrap; gap: 4px; }
-        .small-select { padding: 4px; font-size: 11px; border: 1px solid #cbd5e1; border-radius: 6px; background: #fff; width: auto; min-width: 75px; }
+        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; }
+        th { background-color: #f9fafb; border-bottom: 2px solid #e5e7eb; color: #4b5563; font-weight: 600; padding: 12px 8px; }
+        td { padding: 10px 8px; border-bottom: 1px solid #f3f4f6; vertical-align: middle; }
+        .flex-wrap-gap { display: flex; flex-wrap: wrap; gap: 6px; }
+        .small-select { padding: 6px; font-size: 12px; border: 1px solid #cbd5e1; border-radius: 6px; background: #fff; width: auto; min-width: 90px; }
         
         .summary-box { background-color: #0f172a; color: #ffffff; padding: 15px; border-radius: 12px; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; align-items: center; }
-        .summary-box p { margin: 0; font-size: 10px; color: #94a3b8; }
-        .summary-box span { font-size: 15px; font-weight: bold; color: #e2e8f0; display: block; margin-top: 2px; }
-        .summary-box .total-price { font-size: 24px; font-weight: 800; color: #38bdf8; }
+        .summary-box p { margin: 0; font-size: 11px; color: #94a3b8; }
+        .summary-box span { font-size: 16px; font-weight: bold; color: #e2e8f0; display: block; margin-top: 2px; }
+        .summary-box .total-price { font-size: 26px; font-weight: 800; color: #38bdf8; }
 
         .archive-summary { display: flex; gap: 20px; background: #f8fafc; border: 1px solid #cbd5e1; padding: 12px; border-radius: 8px; margin-bottom: 15px; }
         .archive-summary-item { flex: 1; text-align: center; }
-        .archive-summary-item label { font-size: 10px; color: #64748b; text-transform: uppercase; }
-        .archive-summary-item val { font-size: 18px; font-weight: bold; color: #0f172a; display: block; }
+        .archive-summary-item label { font-size: 11px; color: #64748b; text-transform: uppercase; }
+        .archive-summary-item val { font-size: 20px; font-weight: bold; color: #0f172a; display: block; }
         
-        .btn { padding: 10px 18px; border-radius: 8px; font-weight: bold; font-size: 13px; cursor: pointer; border: none; transition: all 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+        .btn { padding: 12px 20px; border-radius: 8px; font-weight: bold; font-size: 14px; cursor: pointer; border: none; transition: all 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
         .btn-blue { background-color: #2563eb; color: white; }
         .btn-blue:hover { background-color: #1d4ed8; }
         .btn-gray { background-color: #1f2937; color: white; }
@@ -50,10 +51,10 @@
         .btn-emerald:hover { background-color: #047857; }
         .btn-orange { background-color: #ea580c; color: white; }
         .btn-orange:hover { background-color: #c2410c; }
-        .btn-add { background-color: #2563eb; color: white; padding: 5px 10px; font-size: 11px; border-radius: 6px; }
-        .btn-delete { color: #ef4444; background: none; font-weight: bold; font-size: 11px; border: none; cursor: pointer;}
+        .btn-add { background-color: #2563eb; color: white; padding: 6px 12px; font-size: 12px; border-radius: 6px; }
+        .btn-delete { color: #ef4444; background: none; font-weight: bold; font-size: 12px; border: none; cursor: pointer;}
         .btn-delete:hover { color: #b91c1c; }
-        .btn-sec { background-color: #e5e7eb; color: #374151; padding: 5px 10px; font-size: 11px; border-radius: 6px; }
+        .btn-sec { background-color: #e5e7eb; color: #374151; padding: 6px 12px; font-size: 12px; border-radius: 6px; }
         .btn-sec:hover { background-color: #d1d5db; }
         .actions-row { display: flex; flex-direction: column; gap: 8px; margin-top: 15px; }
         @media (min-width: 640px) { .actions-row { flex-direction: row; } .btn-flex { flex: 1; } }
@@ -62,12 +63,37 @@
         .modal-content { background: white; width: 100%; max-width: 950px; border-radius: 12px; padding: 18px; max-height: 85vh; overflow-y: auto; }
         .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e5e7eb; padding-bottom: 8px; margin-bottom: 12px; }
         .modal-close { background: none; border: none; font-size: 18px; cursor: pointer; color: #9ca3af; }
-        .modal-section-title { font-weight: bold; color: #2563eb; border-bottom: 1px solid #f3f4f6; padding-bottom: 2px; margin-top: 12px; margin-bottom: 8px; font-size: 12px; }
-        .badge { background: #ef4444; color: white; border-radius: 50%; padding: 2px 6px; font-size: 10px; font-weight: bold; margin-left: 4px; }
-        .btn-edit { background: #eab308; color: black; border: none; padding: 3px 8px; font-weight: bold; font-size: 10px; border-radius: 4px; cursor: pointer; margin-right: 4px; }
-        .btn-edit:hover { background: #ca8a04; }
+        .badge { background: #ef4444; color: white; border-radius: 50%; padding: 2px 6px; font-size: 11px; font-weight: bold; margin-left: 4px; }
+        .btn-edit { background: #eab308; color: black; border: none; padding: 4px 10px; font-weight: bold; font-size: 11px; border-radius: 4px; cursor: pointer; margin-right: 4px; }
 
         .hidden { display: none !important; }
+
+        /* 📱 CEP TELEFONLARI İÇİN DİKEY FORM DÜZENİ */
+        @media (max-width: 768px) {
+            header { flex-direction: column; align-items: flex-start; }
+            header div { width: 100%; }
+            #olcuTablosu thead { display: none; }
+            #olcuTablosu, #olcuTablosu tbody, #olcuTablosu tr, #olcuTablosu td { display: block; width: 100%; box-sizing: border-box; }
+            
+            #olcuTablosu tr { background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 10px; padding: 12px; margin-bottom: 15px; position: relative; }
+            #olcuTablosu td { border: none; padding: 6px 0; display: flex; flex-direction: column; align-items: flex-start; }
+            
+            #olcuTablosu td::before { font-size: 11px; font-weight: bold; color: #4b5563; margin-bottom: 4px; text-transform: uppercase; }
+            #olcuTablosu td:nth-of-type(1)::before { content: "Ölçü Tipi"; }
+            #olcuTablosu td:nth-of-type(2)::before { content: "Mahal / Konum"; }
+            #olcuTablosu td:nth-of-type(3)::before { content: "Sineklik Türü"; }
+            #olcuTablosu td:nth-of-type(4)::before { content: "Kasa Rengi"; }
+            #olcuTablosu td:nth-of-type(5)::before { content: "Model / Yön / Kasa Seçenekleri"; }
+            #olcuTablosu td:nth-of-type(6)::before { content: "Tül Tipi"; }
+            #olcuTablosu td:nth-of-type(7)::before { content: "En (cm)"; }
+            #olcuTablosu td:nth-of-type(8)::before { content: "Boy (cm)"; }
+            #olcuTablosu td:nth-of-type(9)::before { content: "Adet"; }
+            #olcuTablosu td:nth-of-type(10) { align-items: center; border-top: 1px dashed #cbd5e1; margin-top: 8px; padding-top: 10px; }
+            #olcuTablosu td:nth-of-type(10)::before { content: ""; }
+            
+            .small-select { width: 100% !important; min-width: 100%; padding: 10px; }
+            .flex-wrap-gap { width: 100%; display: flex; flex-direction: column; gap: 6px; }
+        }
     </style>
 </head>
 <body>
@@ -76,11 +102,11 @@
         <header>
             <div>
                 <h1>FIX HOUSE</h1>
-                <p class="sub-title">Sineklik İmalat ve Canlı Bulut Sipariş Otomasyonu (v3.2 Gelişmiş Üretim Baskılı)</p>
+                <p class="sub-title">Sineklik İmalat ve Şifre Korumalı Güvenli Bulut Otomasyonu (v3.4 Sürümü)</p>
             </div>
-            <div style="display: flex; gap: 8px;">
-                <button type="button" onclick="sepetiAc()" class="btn btn-gray" style="padding: 5px 12px; font-size: 11px;">🛒 Aktif Sepet <span id="sepet_adet" class="badge">0</span></button>
-                <button type="button" onclick="arsivAc()" class="btn btn-sec" style="background-color: #374151; color: white; padding: 5px 12px; font-size: 11px;">🗄️ Üretim Arşivi</button>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                <button type="button" onclick="sepetiAc()" class="btn btn-gray" style="padding: 6px 12px; font-size: 12px;">🛒 Aktif Sepet <span id="sepet_adet" class="badge">0</span></button>
+                <button type="button" onclick="arsivAc()" class="btn btn-sec" style="background-color: #374151; color: white; padding: 6px 12px; font-size: 12px;">🗄️ Üretim Arşivi</button>
                 <button type="button" onclick="fiyatPaneliniAc()" class="btn btn-sec">⚙️ Fiyat Ayarları</button>
             </div>
         </header>
@@ -118,10 +144,10 @@
                             <th style="width: 90px;">Renk</th>
                             <th>Seçenekler / Yön / Model</th>
                             <th style="width: 110px;">Tül Tipi</th>
-                            <th style="width: 75px;">En (cm)</th>
-                            <th style="width: 75px;">Boy (cm)</th>
-                            <th style="width: 65px;">Adet</th>
-                            <th style="text-align: center; width: 45px;">İşlem</th>
+                            <th style="width: 85px;">En (cm)</th>
+                            <th style="width: 85px;">Boy (cm)</th>
+                            <th style="width: 75px;">Adet</th>
+                            <th style="text-align: center; width: 55px;">İşlem</th>
                         </tr>
                     </thead>
                     <tbody id="tabloGövde"></tbody>
@@ -173,14 +199,14 @@
 
             <div class="card-title" style="margin-top: 15px; font-size:13px; color:#4b5563;">
                 <span>Toplam İmalat Sarfiyatı:</span>
-                <input type="text" id="fin_toplamMetraj" value="0.00 Atölye Birimi" style="width:200px; display:inline-block; margin-left:10px; font-weight:bold;" disabled>
+                <input type="text" id="fin_toplamMetraj" value="0.00 Atölye Birimi" style="width:230px; display:inline-block; margin-left:10px; font-weight:bold;" disabled>
             </div>
 
             <div class="actions-row">
                 <button type="button" onclick="anaHesaplamaDöngüsü()" class="btn btn-blue btn-flex">🔄 Fiyatı Hesapla</button>
                 <button type="button" onclick="sepeteEkle()" class="btn btn-orange btn-flex">🛒 Siparişi Buluta/Sepete At</button>
                 <button type="button" onclick="anaEkranDoğrudanYazdir()" class="btn btn-gray btn-flex">🖨️ Doğrudan Yazdır (A4)</button>
-                <button type="button" onclick="dogrudanEpostaGonder()" class="btn btn-emerald btn-flex">📧 Kadir Bey'e Mail At</button>
+                <button type="button" onclick="dogrudanEpostaGonder()" class="btn btn-emerald btn-flex">📧 Mail At</button>
             </div>
         </div>
     </div>
@@ -232,7 +258,7 @@
                 </table>
             </div>
             <div style="display: flex; gap: 10px; margin-top: 15px;">
-                <button type="button" onclick="secilenleriYazdir()" class="btn btn-gray">🖨️ Seçilenlerin Çıktısını Al ve Arşive Gönder</button>
+                <button type="button" onclick="secilenleriYazdir()" class="btn btn-gray">🖨️ Seçilenleri Çıktısını Al ve Arşive Gönder (Şifreli)</button>
             </div>
         </div>
     </div>
@@ -291,6 +317,9 @@
         let siparisHavuzu = [];
         let duzenlenenSiparisId = null;
 
+        // YÖNETİCİ ŞİFRESİ (Burayı dilediğiniz gibi değiştirebilirsiniz)
+        const ADMIN_SIFRE = "1234";
+
         window.onload = function() {
             fiyatlariYukle();
             db.ref('canli_siparisler').on('value', (snapshot) => {
@@ -301,19 +330,33 @@
             satirEkle(); 
         };
 
-        function fiyatPaneliniAc() {
-            const sifre = prompt("Sistem şifresini girin:");
-            if (sifre === "1234") document.getElementById('fiyatModal').classList.remove('hidden');
+        function yetkiKontrolu() {
+            const girilen = prompt("⚠️ Bu işlem için Yönetici Şifresini giriniz:");
+            if (girilen === ADMIN_SIFRE) {
+                return true;
+            } else {
+                alert("❌ Hatalı şifre! Erişim reddedildi.");
+                return false;
+            }
         }
+
+        function fiyatPaneliniAc() {
+            if (yetkiKontrolu()) {
+                document.getElementById('fiyatModal').classList.remove('hidden');
+            }
+        }
+        
         function fiyatPaneliniKapat() { document.getElementById('fiyatModal').classList.add('hidden'); }
 
         function fiyatlariYukle() {
-            const sakliFiyatlar = localStorage.getItem('fixhouse_prices_v2');
-            if (sakliFiyatlar) {
-                const f = JSON.parse(sakliFiyatlar);
-                if(f.p_montajFiyat) document.getElementById('p_montajFiyat').value = f.p_montajFiyat;
-                if(f.p_perakendeFiyat) document.getElementById('p_perakendeFiyat').value = f.p_perakendeFiyat;
-            }
+            db.ref('sistem_ayarlari/fiyatlar').once('value').then((snapshot) => {
+                const f = snapshot.val();
+                if (f) {
+                    if(f.p_montajFiyat) document.getElementById('p_montajFiyat').value = f.p_montajFiyat;
+                    if(f.p_perakendeFiyat) document.getElementById('p_perakendeFiyat').value = f.p_perakendeFiyat;
+                    anaHesaplamaDöngüsü();
+                }
+            });
         }
 
         function fiyatlariKaydet() {
@@ -321,10 +364,11 @@
                 p_montajFiyat: parseFloat(document.getElementById('p_montajFiyat').value) || 0,
                 p_perakendeFiyat: parseFloat(document.getElementById('p_perakendeFiyat').value) || 0
             };
-            localStorage.setItem('fixhouse_prices_v2', JSON.stringify(fiyatlar));
-            alert('Fiyat tarifeleri güncellendi.');
-            fiyatPaneliniKapat();
-            anaHesaplamaDöngüsü();
+            db.ref('sistem_ayarlari/fiyatlar').set(fiyatlar).then(() => {
+                alert('Fiyat tarifeleri bulut üzerinde güncellendi.');
+                fiyatPaneliniKapat();
+                anaHesaplamaDöngüsü();
+            });
         }
 
         function satirEkle(varsayilanVeri = null) {
@@ -340,7 +384,7 @@
                         <option value="ic" ${varsayilanVeri && varsayilanVeri.tip === 'ic' ? 'selected' : ''}>İç Ölçü</option>
                     </select>
                 </td>
-                <td><input type="text" id="mahal_${satirSayaci}" value="${varsayilanVeri ? varsayilanVeri.mahal : ''}" placeholder="Örn: Mutfak" oninput="anaHesaplamaDöngüsü()"></td>
+                <td><input type="text" id="mahal_${satirSayaci}" value="${varsayilanVeri ? varsayilanVeri.mahal : ''}" placeholder="Mutfak" oninput="anaHesaplamaDöngüsü()"></td>
                 <td>
                     <select id="tur_${satirSayaci}" onchange="sineklikTuruArayuzYonet(${satirSayaci})">
                         <option value="plise" ${varsayilanVeri && varsayilanVeri.tur === 'plise' ? 'selected' : ''}>Plise (Sürgülü)</option>
@@ -586,7 +630,7 @@
             };
 
             bulutaKaydet(yeniSiparis);
-            alert(`Sipariş internete yüklendi. Tüm cihazlarda güncellendi.`);
+            alert(`Sipariş sisteme başarıyla işlendi.`);
             
             duzenlenenSiparisId = null;
             document.getElementById('m_adi').value = "";
@@ -613,7 +657,7 @@
                         <td style="font-size:11px;">${urunOzet}</td>
                         <td style="text-align:right; font-weight:bold; color:#059669;">${s.toplamTutar}</td>
                         <td style="text-align:center;">
-                            <button type="button" onclick="siparisDuzenleGeriCagır('${s.id}')" class="btn-edit">⚙️</button>
+                            <button type="button" onclick="siparisDuzenleGeriCagır('${s.id}')" class="btn-edit">⚙️ Düzenle</button>
                             <button type="button" onclick="siparisSilHavuz('${s.id}')" class="btn-delete">Sil</button>
                         </td>
                     </tr>`;
@@ -666,10 +710,17 @@
         function sepetiKapat() { document.getElementById('sepetModal').classList.add('hidden'); }
         function arsivAc() { document.getElementById('arsivModal').classList.remove('hidden'); }
         function arsivKapat() { document.getElementById('arsivModal').classList.add('hidden'); }
-        function siparisSilHavuz(id) { if (confirm("Silmek istiyor musunuz?")) { buluttanSil(id); } }
+        
+        function siparisSilHavuz(id) { 
+            if (yetkiKontrolu()) {
+                if (confirm("Bu siparişi kalıcı olarak silmek istediğinize emin misiniz?")) { 
+                    buluttanSil(id); 
+                } 
+            }
+        }
+        
         function tumunuSec(source) { document.querySelectorAll('.aktif-sec-box').forEach(cb => cb.checked = source.checked); }
 
-        // ANA EKRANDAN GİRİLEN ANLIK ÖLÇÜLERİ DOĞRUDAN FABRİKASYON BASKI FORMATINDA YAZDIRMA FONKSİYONU
         function anaEkranDoğrudanYazdir() {
             anaHesaplamaDöngüsü();
             const m_adi = document.getElementById('m_adi').value.trim() || "İsimsiz Müşteri";
@@ -723,12 +774,12 @@
                 tSatirlar += `<tr><td>${idx++}</td><td>${mahal}</td><td>${tur.toUpperCase()}</td><td>${ozellik}</td><td>${fMetni}</td><td>${en}x${boy} (${tip.toUpperCase()})</td><td style="background:#f1f5f9; font-weight:bold; color:#000;">${kesim}</td><td style="background:#f0fdf4;">${tMetni}</td><td>${adet}</td></tr>`;
             });
 
-            if (tSatirlar === "") { alert("Yazdırmak için en az bir satıra geçerli ölçü girmelisiniz!"); return; }
+            if (tSatirlar === "") { alert("Yazdırmak için geçerli ölçü girmelisiniz!"); return; }
 
             let simdi = new Date().toLocaleString('tr-TR');
             let basimHtml = `
                 <div style="padding:10px; font-family:sans-serif;">
-                    <h2 style="margin:0; border-bottom:2px solid #000; padding-bottom:5px;">FIX HOUSE İMALAT FIŞI (DOĞRUDAN BASKI)</h2>
+                    <h2 style="margin:0; border-bottom:2px solid #000; padding-bottom:5px;">FIX HOUSE İMALAT FIŞI</h2>
                     <p style="margin:8px 0;">Müşteri: <b>${m_adi}</b> | Tel: ${m_tel} | Adres: ${m_adres}</p>
                     <p style="margin:4px 0; font-size:11px; color:#555;">Baskı Tarihi: ${simdi}</p>
                     <table style="width:100%; border-collapse:collapse; font-size:11px; margin-top:15px;" border="1" cellpadding="5">
@@ -739,14 +790,17 @@
                 </div>`;
 
             const p = window.open('', '_blank');
-            p.document.write(`<html><head><title>Anlık İş Emri</title><style>table{width:100%;border-collapse:collapse;} th,td{padding:6px;text-align:left;}</style></head><body>${basimHtml}</body></html>`);
+            p.document.write(`<html><head><title>İş Emri</title></head><body>${basimHtml}</body></html>`);
             p.document.close(); p.focus(); setTimeout(() => p.print(), 500);
         }
 
-        // SEPETTEN SEÇİLENLERİ ARŞİVE ATARAK YAZDIRMA
         function secilenleriYazdir() {
             const checkboxes = document.querySelectorAll('.aktif-sec-box:checked');
-            if (checkboxes.length === 0) { alert("Sipariş seçin."); return; }
+            if (checkboxes.length === 0) { alert("Lütfen basılacak siparişleri seçin."); return; }
+            
+            // Üretimi onaylayıp arşive taşımak için şifre kontrolü tetikliyoruz
+            if (!yetkiKontrolu()) return;
+
             let secilenIds = Array.from(checkboxes).map(cb => cb.value);
             let basimHtml = "", simdi = new Date().toLocaleString('tr-TR');
 
@@ -778,7 +832,7 @@
                             fMetni = `${e}+${e}+${b}+${b} = ${((e*2)+(b*2))/100} mt`;
                         }
                         ozellik = `Renk: <b>${u.renk}</b><br>Menteşeli (${mdl.toUpperCase()})<br>${ksa === 'kasali' ? 'Kasalı' : 'Kasasız'}<br>Tül: ${u.tulTipi.toUpperCase()}`;
-                        kesim = `En: <b>${e - 5} cm</b><br>Boy: <b>${b - 5} cm</b>`;
+                        kesim = `En: <b>${u.en - 5} cm</b><br>Boy: <b>${u.boy - 5} cm</b>`;
                         tMetni = u.tulTipi === 'kedi' ? "KEDİ TÜLÜ" : (e <= 78 ? "80 cm Rulo" : "140 cm Rulo");
                     }
 
