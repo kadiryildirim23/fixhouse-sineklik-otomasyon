@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fix House - Canlı Bulut Otomasyonu v3.7</title>
+    <title>Fix House - Canlı Bulut Otomasyonu v3.8</title>
     
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
@@ -101,7 +101,7 @@
         <header>
             <div>
                 <h1>FIX HOUSE</h1>
-                <p class="sub-title">Sineklik İmalat ve Şifre Korumalı Canlı Bulut Otomasyonu (v3.7 Çift Havuz Güvenceli Sürüm)</p>
+                <p class="sub-title">Sineklik İmalat ve Şifre Korumalı Canlı Bulut Otomasyonu (v3.8 Hibrit Veri Çözümlü)</p>
             </div>
             <div style="display: flex; gap: 8px; flex-wrap: wrap;">
                 <button type="button" onclick="sepetiAc()" class="btn btn-gray" style="padding: 6px 12px; font-size: 12px;">🛒 Aktif Sepet <span id="sepet_adet" class="badge">0</span></button>
@@ -321,22 +321,24 @@
         window.onload = function() {
             fiyatlariYukle();
             
-            // KESİN ÇÖZÜM: Hem "canli_siparisler" hem de eski "siparisler" düğümünü eşzamanlı dinler!
             db.ref('canli_siparisler').on('value', (snapshot) => {
-                verileriBirlestir(snapshot.val(), 'canli');
+                verileriBirlestir(snapshot.val());
             });
 
             db.ref('siparisler').on('value', (snapshot) => {
-                verileriBirlestir(snapshot.val(), 'eski');
+                verileriBirlestir(snapshot.val());
             });
 
             satirEkle(); 
         };
 
-        function verileriBirlestir(data, kaynakTipi) {
+        function verileriBirlestir(data) {
             if (data) {
                 Object.keys(data).forEach(key => {
-                    siparisHavuzuMap[key] = data[key];
+                    let item = data[key];
+                    // HİBRİT UYUMLULUK: Eğer gelen kayıtta benzersiz ID yoksa veritabanı anahtarını ID yapar
+                    if (!item.id) item.id = key;
+                    siparisHavuzuMap[key] = item;
                 });
             }
             sepetArayuzGuncelle();
@@ -400,7 +402,7 @@
                 <td>
                     <select id="renk_${satirSayaci}" onchange="anaHesaplamaDöngüsü()">
                         <option value="Antrasit" ${varsayilanVeri && varsayilanVeri.renk === 'Antrasit' ? 'selected' : ''}>Antrasit</option>
-                        <option value="Beyaz" ${varsayilanVeri && varsayilanVeri.renk === 'Beyaz' ? 'selected' : ''}>Beyaz</option>
+                        <option value="Beyaz" ${varsayilanVeri && varsavilanVeri.renk === 'Beyaz' ? 'selected' : ''}>Beyaz</option>
                         <option value="Kahve" ${varsayilanVeri && varsayilanVeri.renk === 'Kahve' ? 'selected' : ''}>Kahve</option>
                     </select>
                 </td>
@@ -421,7 +423,7 @@
                             <option value="kasali" ${varsayilanVeri && varsayilanVeri.opsiyonlar && varsayilanVeri.opsiyonlar.kasa === 'kasali' ? 'selected' : ''}>Kasalı</option>
                         </select>
                         <select id="mentese_yon_${satirSayaci}" class="small-select hidden" onchange="anaHesaplamaDöngüsü()">
-                            <option value="sag" ${varsayilanVeri && varsayilanVeri.opsiyonlar && varsayilanVeri.opsiyonlar.yon === 'sag' ? 'selected' : ''}>Sağ</option>
+                            <option value="sag" ${varsayilanVeri && varsavilanVeri.opsiyonlar && varsayilanVeri.opsiyonlar.yon === 'sag' ? 'selected' : ''}>Sağ</option>
                             <option value="sol" ${varsayilanVeri && varsayilanVeri.opsiyonlar && varsayilanVeri.opsiyonlar.yon === 'sol' ? 'selected' : ''}>Sol</option>
                         </select>
                         <select id="mentese_kilit_${satirSayaci}" class="small-select hidden" onchange="anaHesaplamaDöngüsü()">
@@ -652,23 +654,47 @@
 
         function sepetArayuzGuncelle() {
             const list = Object.values(siparisHavuzuMap);
-            const aktifler = list.filter(s => s.durum === "aktif" || !s.durum);
+            // Durumu aktif olan veya durumu hiç belirtilmemiş (eski kayıtlardan) siparişleri çeker
+            const aktifler = list.filter(s => s.durum === "aktif" || s.durum === undefined || s.durum === null);
             const arsivdekiler = list.filter(s => s.durum === "bitti");
             document.getElementById('sepet_adet').innerText = aktifler.length;
 
             let aktifHtml = "";
             aktifler.forEach(s => {
-                let urunOzet = s.urunler ? s.urunler.map(u => `• [${u.tip === 'ic' ? 'İç' : 'Dış'}] ${u.mahal || 'Mahal'}: ${u.en}x${u.boy} cm ${u.tur ? u.tur.toUpperCase() : ''} [${u.tulTipi ? u.tulTipi.toUpperCase() : ''}] (${u.adet || 1} Adet)`).join('<br>') : 'Ürün detayı yok';
+                let urunOzet = "";
+                
+                // 🔍 HİBRİT OKUMA MOTORU: Eğer veri yeni format dizi ise döngü kurar, eski format düz metinse doğrudan basar
+                if (s.urunler && Array.isArray(s.urunler)) {
+                    urunOzet = s.urunler.map(u => `• [${u.tip === 'ic' ? 'İç' : 'Dış'}] ${u.mahal || 'Mahal'}: ${u.en}x${u.boy} cm ${u.tur ? u.tur.toUpperCase() : ''} (${u.adet || 1} Adet)`).join('<br>');
+                } else if (s.Ürün || s.urun) {
+                    // Excel tablosu gibi düz satır olan eski kayıtları kurtarma alanı
+                    let urunAdi = s.Ürün || s.urun || "Sineklik";
+                    let renk = s.Renk || s.renk || "";
+                    let en = s.En || s.en || "-";
+                    let boy = s.Boy || s.boy || "-";
+                    let adet = s.Adet || s.adet || "1";
+                    let detay = s.Detaylar || s.detaylar || "";
+                    urunOzet = `• ${urunAdi} [${renk}] ${en}x${boy} cm (${adet} Adet) <small>${detay}</small>`;
+                } else {
+                    urunOzet = "Ürün detayı ayrıştırılamadı";
+                }
+
+                let siparisNo = s.id || "Bilinmeyen No";
+                let tarihText = s.Tarih || s.tarih || "";
+                let musteriAdi = s["Müşteri Adı"] || (s.musteri ? s.musteri.adi : "") || "İsimsiz";
+                let tel = s.Telefon || s.telefon || (s.musteri ? s.musteri.tel : "") || "";
+                let tutar = s["Toplam Tutar"] || s.toplamTutar || "0.00 TL";
+
                 aktifHtml += `
                     <tr>
-                        <td style="text-align:center;"><input type="checkbox" class="aktif-sec-box" value="${s.id}"></td>
-                        <td style="font-weight:bold; color:#2563eb;">${s.id}<br><small style="color:#6b7280;">${s.tarih || ''}</small></td>
-                        <td><b>${s.musteri ? s.musteri.adi : 'İsimsiz'}</b><br><small>${s.musteri ? s.musteri.tel : ''}</small></td>
+                        <td style="text-align:center;"><input type="checkbox" class="aktif-sec-box" value="${siparisNo}"></td>
+                        <td style="font-weight:bold; color:#2563eb;">${siparisNo}<br><small style="color:#6b7280;">${tarihText}</small></td>
+                        <td><b>${musteriAdi}</b><br><small>${tel}</small></td>
                         <td style="font-size:11px;">${urunOzet}</td>
-                        <td style="text-align:right; font-weight:bold; color:#059669;">${s.toplamTutar || '0.00 TL'}</td>
+                        <td style="text-align:right; font-weight:bold; color:#059669;">${tutar}</td>
                         <td style="text-align:center;">
-                            <button type="button" onclick="siparisDuzenleGeriCagır('${s.id}')" class="btn-edit">⚙️ Düzenle</button>
-                            <button type="button" onclick="siparisSilHavuz('${s.id}')" class="btn-delete">Sil</button>
+                            <button type="button" onclick="siparisDuzenleGeriCagır('${siparisNo}')" class="btn-edit">⚙️ Düzenle</button>
+                            <button type="button" onclick="siparisSilHavuz('${siparisNo}')" class="btn-delete">Sil</button>
                         </td>
                     </tr>`;
             });
@@ -678,14 +704,25 @@
             let arsivHtml = "";
             arsivdekiler.forEach(s => {
                 totalArsivMetraj += (s.metraj || 0);
-                totalArsivCiro += parseFloat((s.toplamTutar || "0").replace(" TL", "").replace(/,/g, "")) || 0;
-                let urunOzet = s.urunler ? s.urunler.map(u => `• ${u.mahal || 'Mahal'}: ${u.en}x${u.boy} cm`).join('<br>') : '';
+                let tutarStr = s["Toplam Tutar"] || s.toplamTutar || "0";
+                totalArsivCiro += parseFloat(tutarStr.replace(" TL", "").replace(/,/g, "")) || 0;
+                
+                let urunOzet = "";
+                if (s.urunler && Array.isArray(s.urunler)) {
+                    urunOzet = s.urunler.map(u => `• ${u.mahal || 'Mahal'}: ${u.en}x${u.boy} cm`).join('<br>');
+                } else {
+                    urunOzet = `• ${s.Ürün || 'Sineklik'}: ${s.En || '-'}x${s.Boy || '-'}`;
+                }
+
+                let musteriAdi = s["Müşteri Adı"] || (s.musteri ? s.musteri.adi : "") || "İsimsiz";
+                let tarihText = s.Tarih || s.tarih || "";
+
                 arsivHtml += `
                     <tr>
                         <td style="font-weight:bold; color:#6b7280;">${s.id}</td>
-                        <td><b>${s.musteri ? s.musteri.adi : 'İsimsiz'}</b><br><small>${s.tarih || ''}</small></td>
+                        <td><b>${musteriAdi}</b><br><small>${tarihText}</small></td>
                         <td style="font-size:11px;">${urunOzet}</td>
-                        <td style="text-align:right; font-weight:bold;">${s.toplamTutar || '0.00 TL'}</td>
+                        <td style="text-align:right; font-weight:bold;">${tutarStr}</td>
                         <td style="text-align:center;">
                             <button type="button" onclick="siparisSilHavuz('${s.id}')" class="btn-delete">Sil</button>
                         </td>
@@ -700,17 +737,31 @@
             let s = siparisHavuzuMap[id];
             if (!s) return;
             duzenlenenSiparisId = s.id;
-            document.getElementById('m_adi').value = s.musteri ? s.musteri.adi : '';
-            document.getElementById('m_tel').value = s.musteri ? s.musteri.tel : '';
-            document.getElementById('m_adres').value = s.musteri ? s.musteri.adres : '';
+            
+            document.getElementById('m_adi').value = s["Müşteri Adı"] || (s.musteri ? s.musteri.adi : "");
+            document.getElementById('m_tel').value = s.Telefon || (s.musteri ? s.musteri.tel : "");
+            document.getElementById('m_adres').value = s.Adres || (s.musteri ? s.musteri.adres : "");
             document.getElementById('fin_satistipi').value = s.satisTipi || 'montaj';
             document.getElementById('fin_iscilik').value = s.ekIscilik || 0;
             document.getElementById('fin_kar').value = s.karOrani || 0;
             document.getElementById('fin_kdv_durum').value = s.kdvDurum || 'haric';
+            
             document.getElementById('tabloGövde').innerHTML = "";
             satirSayaci = 0;
-            if (s.urunler) {
+            
+            if (s.urunler && Array.isArray(s.urunler)) {
                 s.urunler.forEach(u => { satirEkle(u); });
+            } else {
+                // Eski format kaydı tabloya geri yükleme esnekliği
+                satirEkle({
+                    tip: 'dis',
+                    mahal: s.Ürün || 'Mutfak',
+                    tur: 'plise',
+                    renk: s.Renk || 'Antrasit',
+                    en: s.En || '',
+                    boy: s.Boy || '',
+                    adet: s.Adet || 1
+                });
             }
             sepetiKapat();
             window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -819,10 +870,13 @@
                 if (!s) return;
                 s.durum = "bitti";
                 s.baskiTarihi = simdi;
-                bulutaKaydet(s);
+                
+                // Güncelleme yaparken hangi düğümdeyse oraya kaydeder
+                db.ref('canli_siparisler/' + id).set(s);
+                db.ref('siparisler/' + id).set(s);
 
                 let tSatirlar = ""; let idx = 1;
-                if(s.urunler) {
+                if (s.urunler && Array.isArray(s.urunler)) {
                     s.urunler.forEach(u => {
                         let ozellik = "", kesim = "", tMetni = "", fMetni = "";
                         let e = u.en, b = u.boy;
@@ -846,16 +900,27 @@
                             kesim = `En: <b>${u.en - 5} cm</b><br>Boy: <b>${u.boy - 5} cm</b>`;
                             tMetni = u.tulTipi === 'kedi' ? "KEDİ TÜLÜ" : (e <= 78 ? "80 cm Rulo" : "140 cm Rulo");
                         }
-
                         tSatirlar += `<tr><td>${idx++}</td><td>${u.mahal || ''}</td><td>${u.tur ? u.tur.toUpperCase() : ''}</td><td>${ozellik}</td><td>${fMetni}</td><td>${u.en}x${u.boy}</td><td style="background:#f1f5f9; font-weight:bold;">${kesim}</td><td style="background:#f0fdf4;">${tMetni}</td><td>${u.adet || 1}</td></tr>`;
                     });
+                } else {
+                    // Eski format düz veriler için imalat satırı üretimi
+                    let urunAdi = s.Ürün || s.urun || "Sineklik";
+                    let en = parseFloat(s.En) || 0;
+                    let boy = parseFloat(s.Boy) || 0;
+                    tSatirlar += `<tr><td>1</td><td>Giriş</td><td>${urunAdi.toUpperCase()}</td><td>Renk: ${s.Renk || ''}<br>${s.Detaylar || ''}</td><td>-</td><td>${en}x${boy}</td><td style="background:#f1f5f9; font-weight:bold;">En: ${en-4} cm<br>Boy: ${boy-8} cm</td><td style="background:#f0fdf4;">Standart Rulo</td><td>${s.Adet || 1}</td></tr>`;
                 }
+
+                let musteriAdi = s["Müşteri Adı"] || (s.musteri ? s.musteri.adi : "") || "İsimsiz";
+                let tel = s.Telefon || (s.musteri ? s.musteri.tel : "") || "";
+                let adres = s.Adres || (s.musteri ? s.musteri.adres : "") || "";
+                let tarihText = s.Tarih || s.tarih || "";
+                let tutarText = s["Toplam Tutar"] || s.toplamTutar || "0.00 TL";
 
                 basimHtml += `
                     <div style="page-break-after:always; margin-bottom:30px; border-bottom:2px dashed #000; padding-bottom:20px; font-family:sans-serif;">
-                        <h2>FIX HOUSE İMALAT FIŞI (No: ${s.id})</h2>
-                        <p>Müşteri: <b>${s.musteri ? s.musteri.adi : 'İsimsiz'}</b> | Tel: ${s.musteri ? s.musteri.tel : ''} | Adres: ${s.musteri ? s.musteri.adres : ''}</p>
-                        <p style="font-size:11px; color:#555;">Giriş: ${s.tarih || ''} | Baskı: ${s.baskiTarihi}</p>
+                        <h2>FIX HOUSE İMALAT FIŞI (No: ${id})</h2>
+                        <p>Müşteri: <b>${musteriAdi}</b> | Tel: ${tel} | Adres: ${adres}</p>
+                        <p style="font-size:11px; color:#555;">Giriş: ${tarihText} | Baskı: ${simdi} | Tutar: ${tutarText}</p>
                         <table style="width:100%; border-collapse:collapse; font-size:11px;" border="1" cellpadding="5">
                             <thead><tr style="background:#1e293b; color:#fff;"><th>Sıra</th><th>Mahal</th><th>Tür</th><th>Özellik</th><th>Formül</th><th>Girilen Ölçü</th><th style="background:#cbd5e1; color:#000;">İMALAT NET KESİM</th><th>TÜL/KALIP</th><th>Adet</th></tr></thead>
                             <tbody>${tSatirlar}</tbody>
