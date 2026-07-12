@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fix House - Canlı Bulut Otomasyonu v3.6</title>
+    <title>Fix House - Canlı Bulut Otomasyonu v3.7</title>
     
-    <!-- FIREBASE İNTERNET BAĞLANTI MOTORLARI -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
@@ -69,7 +68,6 @@
 
         .hidden { display: none !important; }
 
-        /* 📱 CEP TELEFONLARI İÇİN DİKEY FORM DÜZENİ */
         @media (max-width: 768px) {
             header { flex-direction: column; align-items: flex-start; }
             header div { width: 100%; }
@@ -100,11 +98,10 @@
 <body>
 
     <div class="container">
-        <!-- HEADER -->
         <header>
             <div>
                 <h1>FIX HOUSE</h1>
-                <p class="sub-title">Sineklik İmalat ve Şifre Korumalı Canlı Bulut Otomasyonu (v3.6 Kesin Veri Kurtarma Sürümü)</p>
+                <p class="sub-title">Sineklik İmalat ve Şifre Korumalı Canlı Bulut Otomasyonu (v3.7 Çift Havuz Güvenceli Sürüm)</p>
             </div>
             <div style="display: flex; gap: 8px; flex-wrap: wrap;">
                 <button type="button" onclick="sepetiAc()" class="btn btn-gray" style="padding: 6px 12px; font-size: 12px;">🛒 Aktif Sepet <span id="sepet_adet" class="badge">0</span></button>
@@ -113,17 +110,16 @@
             </div>
         </header>
 
-        <!-- MÜŞTERİ KARTI -->
         <div class="card">
             <div class="card-title">👤 Müşteri Bilgileri</div>
             <div class="grid-3">
                 <div>
                     <label>Adı Soyadı <span style="color:red;">*</span></label>
-                    <input type="text" id="m_adi" placeholder="Kadir Yıldırım">
+                    <input type="text" id="m_adi" placeholder="Müşteri Adı">
                 </div>
                 <div>
                     <label>Telefon Numarası <span style="color:red;">*</span></label>
-                    <input type="text" id="m_tel" placeholder="0533 443 32 23">
+                    <input type="text" id="m_tel" placeholder="05xx xxx xx xx">
                 </div>
                 <div>
                     <label>Adres / Konum</label>
@@ -132,7 +128,6 @@
             </div>
         </div>
 
-        <!-- ÖLÇÜ LİSTESİ -->
         <div class="card">
             <div class="card-title" style="justify-content: space-between;">
                 <span>📏 Ölçü Giriş Havuzu</span>
@@ -159,7 +154,6 @@
             </div>
         </div>
 
-        <!-- FINANS PANELI -->
         <div class="card">
             <div class="card-title">💰 Satış ve Finans Yönetimi</div>
             <div class="grid-4">
@@ -216,7 +210,6 @@
         </div>
     </div>
 
-    <!-- TARİFE MODAL -->
     <div id="fiyatModal" class="modal-backdrop hidden">
         <div class="modal-content" style="max-width: 500px;">
             <div class="modal-header">
@@ -242,7 +235,6 @@
         </div>
     </div>
 
-    <!-- SEPET MODAL -->
     <div id="sepetModal" class="modal-backdrop hidden">
         <div class="modal-content">
             <div class="modal-header">
@@ -270,7 +262,6 @@
         </div>
     </div>
 
-    <!-- ARŞİV MODAL -->
     <div id="arsivModal" class="modal-backdrop hidden">
         <div class="modal-content">
             <div class="modal-header">
@@ -322,7 +313,7 @@
         let satirSayaci = 0;
         let sonHesaplananToplamMetraj = 0;
         let sonHesaplananBirimFiyatTutar = 0;
-        let siparisHavuzu = [];
+        let siparisHavuzuMap = {}; 
         let duzenlenenSiparisId = null;
 
         const ADMIN_SIFRE = "1234";
@@ -330,31 +321,37 @@
         window.onload = function() {
             fiyatlariYukle();
             
-            // CANLI BULUT VERİ DİNLEME MOTORU (Açılış hatası tamamen giderildi)
+            // KESİN ÇÖZÜM: Hem "canli_siparisler" hem de eski "siparisler" düğümünü eşzamanlı dinler!
             db.ref('canli_siparisler').on('value', (snapshot) => {
-                const data = snapshot.val();
-                siparisHavuzu = data ? Object.values(data) : [];
-                sepetArayuzGuncelle();
+                verileriBirlestir(snapshot.val(), 'canli');
             });
+
+            db.ref('siparisler').on('value', (snapshot) => {
+                verileriBirlestir(snapshot.val(), 'eski');
+            });
+
             satirEkle(); 
         };
 
+        function verileriBirlestir(data, kaynakTipi) {
+            if (data) {
+                Object.keys(data).forEach(key => {
+                    siparisHavuzuMap[key] = data[key];
+                });
+            }
+            sepetArayuzGuncelle();
+        }
+
         function yetkiKontrolu() {
             const girilen = prompt("⚠️ DÜKKAN GÜVENLİK KİLİDİ\nLütfen Yönetici Şifresini Giriniz:");
-            if (girilen === ADMIN_SIFRE) {
-                return true;
-            } else {
-                alert("❌ Hatalı Şifre! Bulut veritabanına erişim engellendi.");
-                return false;
-            }
+            if (girilen === ADMIN_SIFRE) return true;
+            alert("❌ Hatalı Şifre! Bulut veritabanına erişim engellendi.");
+            return false;
         }
 
         function fiyatPaneliniAc() {
-            if (yetkiKontrolu()) {
-                document.getElementById('fiyatModal').classList.remove('hidden');
-            }
+            if (yetkiKontrolu()) document.getElementById('fiyatModal').classList.remove('hidden');
         }
-        
         function fiyatPaneliniKapat() { document.getElementById('fiyatModal').classList.add('hidden'); }
 
         function fiyatlariYukle() {
@@ -574,6 +571,9 @@
 
         function buluttanSil(siparisId) {
             db.ref('canli_siparisler/' + siparisId).remove();
+            db.ref('siparisler/' + siparisId).remove();
+            delete siparisHavuzuMap[siparisId];
+            sepetArayuzGuncelle();
         }
 
         function sepeteEkle() {
@@ -651,20 +651,21 @@
         }
 
         function sepetArayuzGuncelle() {
-            const aktifler = siparisHavuzu.filter(s => s.durum === "aktif");
-            const arsivdekiler = siparisHavuzu.filter(s => s.durum === "bitti");
+            const list = Object.values(siparisHavuzuMap);
+            const aktifler = list.filter(s => s.durum === "aktif" || !s.durum);
+            const arsivdekiler = list.filter(s => s.durum === "bitti");
             document.getElementById('sepet_adet').innerText = aktifler.length;
 
             let aktifHtml = "";
             aktifler.forEach(s => {
-                let urunOzet = s.urunler.map(u => `• [${u.tip === 'ic' ? 'İç' : 'Dış'}] ${u.mahal}: ${u.en}x${u.boy} cm ${u.tur.toUpperCase()} (${u.opsiyonlar.model ? u.opsiyonlar.model.toUpperCase() : ''}) [${u.tulTipi.toUpperCase()}] (${u.adet} Adet)`).join('<br>');
+                let urunOzet = s.urunler ? s.urunler.map(u => `• [${u.tip === 'ic' ? 'İç' : 'Dış'}] ${u.mahal || 'Mahal'}: ${u.en}x${u.boy} cm ${u.tur ? u.tur.toUpperCase() : ''} [${u.tulTipi ? u.tulTipi.toUpperCase() : ''}] (${u.adet || 1} Adet)`).join('<br>') : 'Ürün detayı yok';
                 aktifHtml += `
                     <tr>
                         <td style="text-align:center;"><input type="checkbox" class="aktif-sec-box" value="${s.id}"></td>
-                        <td style="font-weight:bold; color:#2563eb;">${s.id}<br><small style="color:#6b7280;">${s.tarih}</small></td>
-                        <td><b>${s.musteri.adi}</b><br><small>${s.musteri.tel}</small></td>
+                        <td style="font-weight:bold; color:#2563eb;">${s.id}<br><small style="color:#6b7280;">${s.tarih || ''}</small></td>
+                        <td><b>${s.musteri ? s.musteri.adi : 'İsimsiz'}</b><br><small>${s.musteri ? s.musteri.tel : ''}</small></td>
                         <td style="font-size:11px;">${urunOzet}</td>
-                        <td style="text-align:right; font-weight:bold; color:#059669;">${s.toplamTutar}</td>
+                        <td style="text-align:right; font-weight:bold; color:#059669;">${s.toplamTutar || '0.00 TL'}</td>
                         <td style="text-align:center;">
                             <button type="button" onclick="siparisDuzenleGeriCagır('${s.id}')" class="btn-edit">⚙️ Düzenle</button>
                             <button type="button" onclick="siparisSilHavuz('${s.id}')" class="btn-delete">Sil</button>
@@ -677,14 +678,14 @@
             let arsivHtml = "";
             arsivdekiler.forEach(s => {
                 totalArsivMetraj += (s.metraj || 0);
-                totalArsivCiro += parseFloat(s.toplamTutar.replace(" TL", "").replace(/,/g, "")) || 0;
-                let urunOzet = s.urunler.map(u => `• ${u.mahal}: ${u.en}x${u.boy} cm`).join('<br>');
+                totalArsivCiro += parseFloat((s.toplamTutar || "0").replace(" TL", "").replace(/,/g, "")) || 0;
+                let urunOzet = s.urunler ? s.urunler.map(u => `• ${u.mahal || 'Mahal'}: ${u.en}x${u.boy} cm`).join('<br>') : '';
                 arsivHtml += `
                     <tr>
                         <td style="font-weight:bold; color:#6b7280;">${s.id}</td>
-                        <td><b>${s.musteri.adi}</b><br><small>${s.tarih}</small></td>
+                        <td><b>${s.musteri ? s.musteri.adi : 'İsimsiz'}</b><br><small>${s.tarih || ''}</small></td>
                         <td style="font-size:11px;">${urunOzet}</td>
-                        <td style="text-align:right; font-weight:bold;">${s.toplamTutar}</td>
+                        <td style="text-align:right; font-weight:bold;">${s.toplamTutar || '0.00 TL'}</td>
                         <td style="text-align:center;">
                             <button type="button" onclick="siparisSilHavuz('${s.id}')" class="btn-delete">Sil</button>
                         </td>
@@ -696,21 +697,21 @@
         }
 
         function siparisDuzenleGeriCagır(id) {
-            let s = siparisHavuzu.find(sp => sp.id === id);
+            let s = siparisHavuzuMap[id];
             if (!s) return;
             duzenlenenSiparisId = s.id;
-            document.getElementById('m_adi').value = s.musteri.adi;
-            document.getElementById('m_tel').value = s.musteri.tel;
-            document.getElementById('m_adres').value = s.musteri.adres;
+            document.getElementById('m_adi').value = s.musteri ? s.musteri.adi : '';
+            document.getElementById('m_tel').value = s.musteri ? s.musteri.tel : '';
+            document.getElementById('m_adres').value = s.musteri ? s.musteri.adres : '';
             document.getElementById('fin_satistipi').value = s.satisTipi || 'montaj';
             document.getElementById('fin_iscilik').value = s.ekIscilik || 0;
             document.getElementById('fin_kar').value = s.karOrani || 0;
             document.getElementById('fin_kdv_durum').value = s.kdvDurum || 'haric';
             document.getElementById('tabloGövde').innerHTML = "";
             satirSayaci = 0;
-            s.urunler.forEach(u => {
-                satirEkle(u);
-            });
+            if (s.urunler) {
+                s.urunler.forEach(u => { satirEkle(u); });
+            }
             sepetiKapat();
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
@@ -814,45 +815,47 @@
             let basimHtml = "", simdi = new Date().toLocaleString('tr-TR');
 
             secilenIds.forEach(id => {
-                let s = siparisHavuzu.find(sp => sp.id === id);
+                let s = siparisHavuzuMap[id];
                 if (!s) return;
                 s.durum = "bitti";
                 s.baskiTarihi = simdi;
                 bulutaKaydet(s);
 
                 let tSatirlar = ""; let idx = 1;
-                s.urunler.forEach(u => {
-                    let ozellik = "", kesim = "", tMetni = "", fMetni = "";
-                    let e = u.en, b = u.boy;
-                    if(u.tip === 'ic') { e += 4; b += 8; }
+                if(s.urunler) {
+                    s.urunler.forEach(u => {
+                        let ozellik = "", kesim = "", tMetni = "", fMetni = "";
+                        let e = u.en, b = u.boy;
+                        if(u.tip === 'ic') { e += 4; b += 8; }
 
-                    if(u.tur === 'plise') {
-                        let y = u.opsiyonlar.yon || 'yatay';
-                        fMetni = y === 'dikey' ? `${e}+${e}+${e}+${b}+${b} = ${((e*3)+(b*2))/100} mt` : `${e}+${e}+${b}+${b}+${b} = ${((e*2)+(b*3))/100} mt`;
-                        ozellik = `Renk: <b>${u.renk}</b><br>Plise (${y.toUpperCase()})<br>Tül: ${u.tulTipi.toUpperCase()}`;
-                        kesim = `Kasa En: <b>${e - 4} cm</b><br>Kasa Boy: <b>${b - 8} cm</b>`;
-                        tMetni = `Tepe: <b>${y === 'yatay' ? Math.ceil(e / 1.6) : Math.ceil(b / 1.6)} Kat</b>`;
-                    } else {
-                        let mdl = u.opsiyonlar.model || 'pencere';
-                        let ksa = u.opsiyonlar.kasa || 'kasasiz';
-                        if (mdl === 'kapi') {
-                            fMetni = `${e}+${e}+${e}+${e}+${b}+${b} = ${((e*4)+(b*2))/100} mt`;
+                        if(u.tur === 'plise') {
+                            let y = u.opsiyonlar ? (u.opsiyonlar.yon || 'yatay') : 'yatay';
+                            fMetni = y === 'dikey' ? `${e}+${e}+${e}+${b}+${b} = ${((e*3)+(b*2))/100} mt` : `${e}+${e}+${b}+${b}+${b} = ${((e*2)+(b*3))/100} mt`;
+                            ozellik = `Renk: <b>${u.renk}</b><br>Plise (${y.toUpperCase()})<br>Tül: ${u.tulTipi ? u.tulTipi.toUpperCase() : ''}`;
+                            kesim = `Kasa En: <b>${e - 4} cm</b><br>Kasa Boy: <b>${b - 8} cm</b>`;
+                            tMetni = `Tepe: <b>${y === 'yatay' ? Math.ceil(e / 1.6) : Math.ceil(b / 1.6)} Kat</b>`;
                         } else {
-                            fMetni = `${e}+${e}+${b}+${b} = ${((e*2)+(b*2))/100} mt`;
+                            let mdl = u.opsiyonlar ? (u.opsiyonlar.model || 'pencere') : 'pencere';
+                            let ksa = u.opsiyonlar ? (u.opsiyonlar.kasa || 'kasasiz') : 'kasasiz';
+                            if (mdl === 'kapi') {
+                                fMetni = `${e}+${e}+${e}+${e}+${b}+${b} = ${((e*4)+(b*2))/100} mt`;
+                            } else {
+                                fMetni = `${e}+${e}+${b}+${b} = ${((e*2)+(b*2))/100} mt`;
+                            }
+                            ozellik = `Renk: <b>${u.renk}</b><br>Menteşeli (${mdl.toUpperCase()})<br>${ksa === 'kasali' ? 'Kasalı' : 'Kasasız'}<br>Tül: ${u.tulTipi ? u.tulTipi.toUpperCase() : ''}`;
+                            kesim = `En: <b>${u.en - 5} cm</b><br>Boy: <b>${u.boy - 5} cm</b>`;
+                            tMetni = u.tulTipi === 'kedi' ? "KEDİ TÜLÜ" : (e <= 78 ? "80 cm Rulo" : "140 cm Rulo");
                         }
-                        ozellik = `Renk: <b>${u.renk}</b><br>Menteşeli (${mdl.toUpperCase()})<br>${ksa === 'kasali' ? 'Kasalı' : 'Kasasız'}<br>Tül: ${u.tulTipi.toUpperCase()}`;
-                        kesim = `En: <b>${u.en - 5} cm</b><br>Boy: <b>${u.boy - 5} cm</b>`;
-                        tMetni = u.tulTipi === 'kedi' ? "KEDİ TÜLÜ" : (e <= 78 ? "80 cm Rulo" : "140 cm Rulo");
-                    }
 
-                    tSatirlar += `<tr><td>${idx++}</td><td>${u.mahal}</td><td>${u.tur.toUpperCase()}</td><td>${ozellik}</td><td>${fMetni}</td><td>${u.en}x${u.boy}</td><td style="background:#f1f5f9; font-weight:bold;">${kesim}</td><td style="background:#f0fdf4;">${tMetni}</td><td>${u.adet}</td></tr>`;
-                });
+                        tSatirlar += `<tr><td>${idx++}</td><td>${u.mahal || ''}</td><td>${u.tur ? u.tur.toUpperCase() : ''}</td><td>${ozellik}</td><td>${fMetni}</td><td>${u.en}x${u.boy}</td><td style="background:#f1f5f9; font-weight:bold;">${kesim}</td><td style="background:#f0fdf4;">${tMetni}</td><td>${u.adet || 1}</td></tr>`;
+                    });
+                }
 
                 basimHtml += `
                     <div style="page-break-after:always; margin-bottom:30px; border-bottom:2px dashed #000; padding-bottom:20px; font-family:sans-serif;">
                         <h2>FIX HOUSE İMALAT FIŞI (No: ${s.id})</h2>
-                        <p>Müşteri: <b>${s.musteri.adi}</b> | Tel: ${s.musteri.tel} | Adres: ${s.musteri.adres}</p>
-                        <p style="font-size:11px; color:#555;">Giriş: ${s.tarih} | Baskı: ${s.baskiTarihi}</p>
+                        <p>Müşteri: <b>${s.musteri ? s.musteri.adi : 'İsimsiz'}</b> | Tel: ${s.musteri ? s.musteri.tel : ''} | Adres: ${s.musteri ? s.musteri.adres : ''}</p>
+                        <p style="font-size:11px; color:#555;">Giriş: ${s.tarih || ''} | Baskı: ${s.baskiTarihi}</p>
                         <table style="width:100%; border-collapse:collapse; font-size:11px;" border="1" cellpadding="5">
                             <thead><tr style="background:#1e293b; color:#fff;"><th>Sıra</th><th>Mahal</th><th>Tür</th><th>Özellik</th><th>Formül</th><th>Girilen Ölçü</th><th style="background:#cbd5e1; color:#000;">İMALAT NET KESİM</th><th>TÜL/KALIP</th><th>Adet</th></tr></thead>
                             <tbody>${tSatirlar}</tbody>
