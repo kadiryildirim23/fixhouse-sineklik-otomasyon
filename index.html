@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fix House - Güvenli Bulut Otomasyonu v3.4</title>
+    <title>Fix House - Canlı Bulut Otomasyonu v3.5</title>
     
+    <!-- FIREBASE İNTERNET BAĞLANTI MOTORLARI -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
@@ -99,10 +100,11 @@
 <body>
 
     <div class="container">
+        <!-- HEADER -->
         <header>
             <div>
                 <h1>FIX HOUSE</h1>
-                <p class="sub-title">Sineklik İmalat ve Şifre Korumalı Güvenli Bulut Otomasyonu (v3.4 Sürümü)</p>
+                <p class="sub-title">Sineklik İmalat ve Şifre Korumalı Canlı Bulut Otomasyonu (v3.5 Tam Güvenlikli)</p>
             </div>
             <div style="display: flex; gap: 8px; flex-wrap: wrap;">
                 <button type="button" onclick="sepetiAc()" class="btn btn-gray" style="padding: 6px 12px; font-size: 12px;">🛒 Aktif Sepet <span id="sepet_adet" class="badge">0</span></button>
@@ -111,6 +113,7 @@
             </div>
         </header>
 
+        <!-- MÜŞTERİ KARTI -->
         <div class="card">
             <div class="card-title">👤 Müşteri Bilgileri</div>
             <div class="grid-3">
@@ -129,6 +132,7 @@
             </div>
         </div>
 
+        <!-- ÖLÇÜ LİSTESİ -->
         <div class="card">
             <div class="card-title" style="justify-content: space-between;">
                 <span>📏 Ölçü Giriş Havuzu</span>
@@ -155,6 +159,7 @@
             </div>
         </div>
 
+        <!-- FINANS PANELI -->
         <div class="card">
             <div class="card-title">💰 Satış ve Finans Yönetimi</div>
             <div class="grid-4">
@@ -211,6 +216,7 @@
         </div>
     </div>
 
+    <!-- TARİFE MODAL -->
     <div id="fiyatModal" class="modal-backdrop hidden">
         <div class="modal-content" style="max-width: 500px;">
             <div class="modal-header">
@@ -236,6 +242,7 @@
         </div>
     </div>
 
+    <!-- SEPET MODAL -->
     <div id="sepetModal" class="modal-backdrop hidden">
         <div class="modal-content">
             <div class="modal-header">
@@ -263,6 +270,7 @@
         </div>
     </div>
 
+    <!-- ARŞİV MODAL -->
     <div id="arsivModal" class="modal-backdrop hidden">
         <div class="modal-content">
             <div class="modal-header">
@@ -317,7 +325,7 @@
         let siparisHavuzu = [];
         let duzenlenenSiparisId = null;
 
-        // YÖNETİCİ ŞİFRESİ (Burayı dilediğiniz gibi değiştirebilirsiniz)
+        // KADİR BEY'İN ÖZEL YÖNETİCİ ŞİFRESİ
         const ADMIN_SIFRE = "1234";
 
         window.onload = function() {
@@ -330,12 +338,13 @@
             satirEkle(); 
         };
 
+        // GÜVENLİK KİLİT MOTORU
         function yetkiKontrolu() {
-            const girilen = prompt("⚠️ Bu işlem için Yönetici Şifresini giriniz:");
+            const girilen = prompt("⚠️ DÜKKAN GÜVENLİK KİLİDİ\nLütfen Yönetici Şifresini Giriniz:");
             if (girilen === ADMIN_SIFRE) {
                 return true;
             } else {
-                alert("❌ Hatalı şifre! Erişim reddedildi.");
+                alert("❌ Hatalı Şifre! Bulut veritabanına erişim engellendi.");
                 return false;
             }
         }
@@ -402,7 +411,7 @@
                     <div class="flex-wrap-gap">
                         <select id="plise_yon_${satirSayaci}" class="small-select" onchange="anaHesaplamaDöngüsü()">
                             <option value="yatay" ${varsayilanVeri && varsayilanVeri.opsiyonlar && varsayilanVeri.opsiyonlar.yon === 'yatay' ? 'selected' : ''}>Yatay (Sağa-Sola)</option>
-                            <option value="dikey" ${varsayilanVeri && varsayilanVeri.opsiyonlar && varsayilanVeri.opsiyonlar.yon === 'dikey' ? 'selected' : ''}>Dikey (Yukarı-Aşağı)</option>
+                            <option value="dikey" ${varsayilanVeri && varsayilanVeri.opsiyonlar && varsavilanVeri.opsiyonlar.yon === 'dikey' ? 'selected' : ''}>Dikey (Yukarı-Aşağı)</option>
                         </select>
                         
                         <select id="mentese_model_${satirSayaci}" class="small-select hidden" onchange="anaHesaplamaDöngüsü()">
@@ -428,13 +437,14 @@
                 <td><input type="number" id="en_${satirSayaci}" value="${varsayilanVeri ? varsayilanVeri.en : ''}" style="text-align:center;" oninput="anaHesaplamaDöngüsü()"></td>
                 <td><input type="number" id="boy_${satirSayaci}" value="${varsayilanVeri ? varsayilanVeri.boy : ''}" style="text-align:center;" oninput="anaHesaplamaDöngüsü()"></td>
                 <td><input type="number" id="adet_${satirSayaci}" value="${varsayilanVeri ? varsayilanVeri.adet : '1'}" min="1" style="text-align:center;" oninput="anaHesaplamaDöngüsü()"></td>
-                <td style="text-align:center;"><button type="button" onclick="satirSil(${satirSayaci})" class="btn-delete">Sil</button></td>
+                <td style="text-align:center;"><button type="button" onclick="anaEkranSatirSil(${satirSayaci})" class="btn-delete">Sil</button></td>
             `;
             tbody.appendChild(tr);
             sineklikTuruArayuzYonet(satirSayaci, varsayilanVeri);
         }
 
-        function satirSil(id) {
+        // Ana ekrandaki şifresiz satır silme (Buluta zarar vermez)
+        function anaEkranSatirSil(id) {
             const element = document.getElementById(`satir_${id}`);
             if (element) { element.remove(); anaHesaplamaDöngüsü(); }
         }
@@ -711,10 +721,12 @@
         function arsivAc() { document.getElementById('arsivModal').classList.remove('hidden'); }
         function arsivKapat() { document.getElementById('arsivModal').classList.add('hidden'); }
         
+        // BULUT HAVUZUNDAN GÜVENLİ SİLME MOTORU (KESİNLİKLE ŞİFRE İSTER)
         function siparisSilHavuz(id) { 
             if (yetkiKontrolu()) {
-                if (confirm("Bu siparişi kalıcı olarak silmek istediğinize emin misiniz?")) { 
+                if (confirm("Bu siparişi buluttan kalıcı olarak silmek istediğinize emin misiniz?")) { 
                     buluttanSil(id); 
+                    alert("Sipariş veritabanından tamamen silindi.");
                 } 
             }
         }
@@ -798,7 +810,7 @@
             const checkboxes = document.querySelectorAll('.aktif-sec-box:checked');
             if (checkboxes.length === 0) { alert("Lütfen basılacak siparişleri seçin."); return; }
             
-            // Üretimi onaylayıp arşive taşımak için şifre kontrolü tetikliyoruz
+            // Arşive taşımak bulut üstünde veri değiştirdiği için kesinlikle şifre ister
             if (!yetkiKontrolu()) return;
 
             let secilenIds = Array.from(checkboxes).map(cb => cb.value);
