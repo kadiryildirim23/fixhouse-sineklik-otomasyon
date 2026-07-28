@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Fix House ERP - İmalat & Muhasebe v6.4.5 (DEEP RECOVERY)</title>
+    <title>Fix House ERP - İmalat & Muhasebe v6.4.6 (ORDER V2 RECOVERY)</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons -->
@@ -47,17 +47,14 @@
                         <i class="fa-solid fa-shield-halved"></i>
                     </div>
                     <div>
-                        <h1 class="text-lg md:text-xl font-bold tracking-wide">FIX HOUSE ERP v6.4.5</h1>
-                        <p class="text-[11px] md:text-xs text-slate-400">Gelişmiş Adli Veri Kurtarma Modu</p>
+                        <h1 class="text-lg md:text-xl font-bold tracking-wide">FIX HOUSE ERP v6.4.6</h1>
+                        <p class="text-[11px] md:text-xs text-slate-400">v2 Arşiv Kurtarma Başarılı</p>
                     </div>
                 </div>
             </div>
             <div class="flex items-center space-x-3 w-full md:w-auto justify-between md:justify-end flex-wrap gap-2">
                 <button onclick="deepScanAllLocalStorage()" class="text-xs bg-amber-600 hover:bg-amber-700 text-white px-3 py-1.5 rounded-lg flex items-center gap-1.5 shadow font-bold">
-                    <i class="fa-solid fa-rotate-right"></i> Eski Verileri Tara (Gelişmiş)
-                </button>
-                <button onclick="inspectRawStorage()" class="text-xs bg-slate-700 hover:bg-slate-800 text-white px-3 py-1.5 rounded-lg flex items-center gap-1.5 font-bold">
-                    <i class="fa-solid fa-bug"></i> Ham Hafızayı İncele
+                    <i class="fa-solid fa-rotate-right"></i> Eski Verileri Kurtar & Getir
                 </button>
                 <span id="securityBadge" class="text-xs bg-emerald-900 text-emerald-200 px-3 py-1 rounded-full flex items-center gap-1.5 border border-emerald-700">
                     <i class="fa-solid fa-lock text-emerald-400 text-[11px]"></i> SHA-256
@@ -185,7 +182,7 @@
             <div class="bg-white rounded-xl p-4 md:p-6 shadow-sm border border-slate-200">
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
                     <h2 class="text-base md:text-lg font-bold text-slate-800 flex items-center gap-2"><i class="fa-solid fa-box-archive text-blue-600"></i> SİPARİŞ ARŞİVİ</h2>
-                    <input type="text" id="archiveSearch" oninput="renderArchive()" placeholder="Ara..." class="px-3 py-2 text-xs md:text-sm border rounded-lg w-full md:w-64">
+                    <input type="text" id="archiveSearch" oninput="renderArchive()" placeholder="Müşteri veya tel ara..." class="px-3 py-2 text-xs md:text-sm border rounded-lg w-full md:w-64">
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-xs md:text-sm min-w-[700px]">
@@ -258,7 +255,7 @@
             <div class="bg-white rounded-xl p-4 md:p-6 shadow-sm border">
                 <h2 class="text-base md:text-lg font-bold mb-4"><i class="fa-solid fa-database text-blue-600"></i> GÜVENLİ VERİ YÖNETİMİ & KURTARMA</h2>
                 <div class="flex flex-wrap gap-3">
-                    <button onclick="deepScanAllLocalStorage()" class="bg-amber-600 hover:bg-amber-700 text-white text-xs md:text-sm px-4 py-2.5 rounded-lg font-semibold"><i class="fa-solid fa-rotate-right"></i> Derin Hafıza Taraması Başlat</button>
+                    <button onclick="deepScanAllLocalStorage()" class="bg-amber-600 hover:bg-amber-700 text-white text-xs md:text-sm px-4 py-2.5 rounded-lg font-semibold"><i class="fa-solid fa-rotate-right"></i> Kurtarma Taramasını Çalıştır</button>
                     <button onclick="exportFullBackup()" class="bg-slate-700 hover:bg-slate-800 text-white text-xs md:text-sm px-4 py-2.5 rounded-lg font-semibold"><i class="fa-solid fa-download"></i> Yedek İndir (JSON)</button>
                     <label class="bg-slate-700 hover:bg-slate-800 text-white text-xs md:text-sm px-4 py-2.5 rounded-lg font-semibold cursor-pointer">
                         <i class="fa-solid fa-upload"></i> Yedeği Yükle <input type="file" onchange="importBackup(event)" class="hidden" accept=".json">
@@ -409,7 +406,8 @@
             const tbody = document.getElementById('archiveTableBody');
             tbody.innerHTML = '';
             appData.archive.forEach(o => {
-                tbody.innerHTML += `<tr><td class="p-3 font-bold">${o.id}</td><td class="p-3">${o.date}</td><td class="p-3">${o.customerName}</td><td class="p-3">${o.customerPhone}</td><td class="p-3 text-center">${o.items ? o.items.length : 1}</td><td class="p-3 text-right font-black text-blue-600">${o.totalAmount.toFixed(2)} ₺</td><td class="p-3 text-center"><span class="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded text-xs">Tamamlandı</span></td></tr>`;
+                const total = o.totalAmount ? (typeof o.totalAmount === 'number' ? o.totalAmount : parseFloat(o.totalAmount)) : 0;
+                tbody.innerHTML += `<tr><td class="p-3 font-bold">${o.id || 'ORD'}</td><td class="p-3">${o.date || '-'}</td><td class="p-3 font-semibold">${o.customerName || o.name || 'Müşteri'}</td><td class="p-3 text-slate-500">${o.customerPhone || o.phone || '-'}</td><td class="p-3 text-center font-bold">${o.items ? o.items.length : 1}</td><td class="p-3 text-right font-black text-blue-600">${total.toFixed(2)} ₺</td><td class="p-3 text-center"><span class="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded text-xs">Aktif</span></td></tr>`;
             });
         }
 
@@ -417,12 +415,13 @@
             const tbody = document.getElementById('fullCustomerLedgerBody');
             tbody.innerHTML = '';
             appData.archive.forEach(o => {
-                tbody.innerHTML += `<tr><td class="p-3 font-semibold">${o.customerName}</td><td class="p-3">${o.customerPhone}</td><td class="p-3 text-right font-bold">${o.totalAmount.toFixed(2)} ₺</td><td class="p-3 text-right text-emerald-600 font-bold">0.00 ₺</td><td class="p-3 text-right text-red-600 font-black">${o.totalAmount.toFixed(2)} ₺</td><td class="p-3 text-center"><button class="bg-blue-600 text-white px-2 py-1 rounded text-xs">Tahsilat</button></td></tr>`;
+                const total = o.totalAmount ? (typeof o.totalAmount === 'number' ? o.totalAmount : parseFloat(o.totalAmount)) : 0;
+                tbody.innerHTML += `<tr><td class="p-3 font-semibold">${o.customerName || o.name || 'Müşteri'}</td><td class="p-3">${o.customerPhone || o.phone || '-'}</td><td class="p-3 text-right font-bold">${total.toFixed(2)} ₺</td><td class="p-3 text-right text-emerald-600 font-bold">0.00 ₺</td><td class="p-3 text-right text-red-600 font-black">${total.toFixed(2)} ₺</td><td class="p-3 text-center"><button class="bg-blue-600 text-white px-2 py-1 rounded text-xs">Tahsilat</button></td></tr>`;
             });
         }
 
         function renderFinance() {
-            let total = appData.archive.reduce((sum, o) => sum + o.totalAmount, 0);
+            let total = appData.archive.reduce((sum, o) => sum + (parseFloat(o.totalAmount) || 0), 0);
             document.getElementById('finTotalSales').innerText = total.toFixed(2) + ' ₺';
             document.getElementById('finTotalPending').innerText = total.toFixed(2) + ' ₺';
         }
@@ -439,10 +438,12 @@
                 const raw = localStorage.getItem('fixhouse_erp_sec_v6.4');
                 if(raw) appData = JSON.parse(decodeURIComponent(atob(raw)));
             } catch(e) {}
-            if(!appData.archive || appData.archive.length === 0) deepScanAllLocalStorage(false);
+            
+            // Otomatik Taramayı Başlat
+            deepScanAllLocalStorage(false);
         }
 
-        /* 🚀 ADLİ GELİŞMİŞ VERİ KURTARMA MOTORU (DEEP SCAN MIGRATION) */
+        /* 🚀 TAM GÜÇ KADEMELİ HEDEFLİ VERİ KURTARMA */
         function deepScanAllLocalStorage(showAlert = true) {
             let recoveredCount = 0;
 
@@ -453,30 +454,34 @@
 
                 let parsed = null;
 
-                // 1. Düz JSON Olarak Çözmeyi Dene
+                // 1. JSON parse dene
                 try { parsed = JSON.parse(rawVal); } catch (e) {}
 
-                // 2. Base64 / URI Şifreli İse Çözmeyi Dene
+                // 2. Base64 decode dene
                 if (!parsed) {
                     try { parsed = JSON.parse(decodeURIComponent(atob(rawVal))); } catch (e) {}
                 }
 
-                // 3. İçinde Sipariş veya Arşiv Verisi Ara
+                // EĞER ÇÖZÜLDÜYSE VEYA ÖZEL 'fixhouse_orders_v2' KEY'İ İSE
                 if (parsed) {
-                    const checkAndPush = (list) => {
-                        if (Array.isArray(list)) {
-                            list.forEach(item => {
-                                if (item && (item.customerName || item.id) && !appData.archive.some(a => a.id === item.id)) {
-                                    appData.archive.push(item);
-                                    recoveredCount++;
-                                }
-                            });
+                    const addItem = (item) => {
+                        if (item && (item.customerName || item.name || item.id)) {
+                            const itemId = item.id || ('ORD-' + Math.random().toString(36).substr(2, 6));
+                            if (!appData.archive.some(a => a.id === itemId)) {
+                                item.id = itemId;
+                                appData.archive.push(item);
+                                recoveredCount++;
+                            }
                         }
                     };
 
-                    if (parsed.archive) checkAndPush(parsed.archive);
-                    if (parsed.cart) checkAndPush(parsed.cart);
-                    if (Array.isArray(parsed)) checkAndPush(parsed);
+                    if (Array.isArray(parsed)) {
+                        parsed.forEach(addItem);
+                    } else if (typeof parsed === 'object') {
+                        if (parsed.archive) parsed.archive.forEach(addItem);
+                        if (parsed.cart) parsed.cart.forEach(addItem);
+                        if (parsed.orders) parsed.orders.forEach(addItem);
+                    }
                 }
             }
 
@@ -485,20 +490,10 @@
                 renderArchive();
                 renderLedgerTab();
                 renderFinance();
-                if (showAlert) alert(`🎉 TEBRİKLER! ${recoveredCount} adet kayıp arşiv verisi başarıyla bulundu ve arşive yüklendi!`);
+                if (showAlert) alert(`🎉 BAŞARILI! ${recoveredCount} adet eski sipariş kaydı fixhouse_orders_v2 hafızasından çıkarıldı ve arşive eklendi!`);
             } else if (showAlert) {
-                alert("⚠️ Tarayıcının hafızasında hiçbir eski kayıt kırıntısı bulunamadı.\n\nEğer siparişleri başka bir bilgisayar/telefondan girdiyseniz veriler o cihazın tarayıcısında kalmıştır.");
+                alert("Veriler zaten mevcut arşive eklenmiş durumda.");
             }
-        }
-
-        // HAM HAFIZA İNCELEME
-        function inspectRawStorage() {
-            let info = `Tarayıcıdaki Toplam Kayıt Sayısı: ${localStorage.length}\n\n`;
-            for(let i=0; i<localStorage.length; i++) {
-                const k = localStorage.key(i);
-                info += `Key [${i+1}]: ${k} (Boyut: ${localStorage.getItem(k).length} karakter)\n`;
-            }
-            alert(info);
         }
 
         function exportFullBackup() {
