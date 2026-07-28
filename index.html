@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Fix House ERP - İmalat, Satış & Muhasebe Otomasyonu v6.4.3 (RECOVERY)</title>
+    <title>Fix House ERP - İmalat & Muhasebe v6.4.5 (DEEP RECOVERY)</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons -->
@@ -13,75 +13,23 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
         body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
-        
         input, select, button { font-size: 14px !important; }
         @media (max-width: 768px) {
             input, select, button { font-size: 16px !important; }
             .table-mobile-responsive { font-size: 13px !important; }
             .table-mobile-responsive th, .table-mobile-responsive td { padding: 6px 4px !important; }
         }
-
         @media print {
             .no-print { display: none !important; }
             .print-only { display: block !important; }
-            html, body { 
-                background: white; 
-                font-size: 8pt; 
-                color: #000; 
-                margin: 0 !important; 
-                padding: 0 !important; 
-                height: 100%;
-                overflow: hidden !important;
-            }
-            
+            html, body { background: white; font-size: 8pt; color: #000; margin: 0 !important; padding: 0 !important; }
             @page a4page { size: A4 landscape; margin: 4mm; }
-            .a4-print-container {
-                page: a4page;
-                width: 100%;
-                max-height: 190mm;
-                box-sizing: border-box;
-                overflow: hidden !important;
-                page-break-after: avoid !important;
-                page-break-before: avoid !important;
-                page-break-inside: avoid !important;
-            }
-
+            .a4-print-container { page: a4page; width: 100%; box-sizing: border-box; }
             @page zebra { size: 100mm 50mm; margin: 0; }
-            .zebra-label {
-                page: zebra;
-                page-break-after: always;
-                width: 100mm;
-                height: 50mm;
-                box-sizing: border-box;
-                padding: 4mm 6mm;
-                display: flex;
-                flex-direction: column;
-                justify-content: space-between;
-                font-family: Arial, sans-serif;
-                color: #000;
-            }
-            
-            .print-border-box {
-                border: 1px solid #000 !important;
-                padding: 4px 6px !important;
-                margin-bottom: 4px !important;
-            }
-            .print-table {
-                width: 100% !important;
-                border-collapse: collapse !important;
-                font-size: 7.5pt !important;
-            }
-            .print-table th, .print-table td {
-                border: 1px solid #000 !important;
-                padding: 2px 3px !important;
-                text-align: center !important;
-                line-height: 1.1 !important;
-            }
-            .print-table th {
-                background-color: #f0f0f0 !important;
-                -webkit-print-color-adjust: exact;
-                font-weight: bold !important;
-            }
+            .zebra-label { page: zebra; page-break-after: always; width: 100mm; height: 50mm; box-sizing: border-box; padding: 4mm 6mm; display: flex; flex-direction: column; justify-content: space-between; }
+            .print-border-box { border: 1px solid #000 !important; padding: 4px 6px !important; margin-bottom: 4px !important; }
+            .print-table { width: 100% !important; border-collapse: collapse !important; font-size: 7.5pt !important; }
+            .print-table th, .print-table td { border: 1px solid #000 !important; padding: 2px 3px !important; text-align: center !important; }
         }
         .print-only { display: none; }
         .tab-btn.active { background-color: #2563eb; color: white; border-color: #2563eb; }
@@ -99,14 +47,17 @@
                         <i class="fa-solid fa-shield-halved"></i>
                     </div>
                     <div>
-                        <h1 class="text-lg md:text-xl font-bold tracking-wide">FIX HOUSE ERP v6.4.3</h1>
-                        <p class="text-[11px] md:text-xs text-slate-400">Sineklik, İmalat, Reçete & Oto Veri Kurtarma</p>
+                        <h1 class="text-lg md:text-xl font-bold tracking-wide">FIX HOUSE ERP v6.4.5</h1>
+                        <p class="text-[11px] md:text-xs text-slate-400">Gelişmiş Adli Veri Kurtarma Modu</p>
                     </div>
                 </div>
             </div>
-            <div class="flex items-center space-x-3 w-full md:w-auto justify-between md:justify-end">
-                <button onclick="forceScanOldData()" class="text-xs bg-amber-600 hover:bg-amber-700 text-white px-3 py-1 rounded-full flex items-center gap-1.5 shadow font-bold">
-                    <i class="fa-solid fa-rotate-right"></i> Eski Verileri Tara
+            <div class="flex items-center space-x-3 w-full md:w-auto justify-between md:justify-end flex-wrap gap-2">
+                <button onclick="deepScanAllLocalStorage()" class="text-xs bg-amber-600 hover:bg-amber-700 text-white px-3 py-1.5 rounded-lg flex items-center gap-1.5 shadow font-bold">
+                    <i class="fa-solid fa-rotate-right"></i> Eski Verileri Tara (Gelişmiş)
+                </button>
+                <button onclick="inspectRawStorage()" class="text-xs bg-slate-700 hover:bg-slate-800 text-white px-3 py-1.5 rounded-lg flex items-center gap-1.5 font-bold">
+                    <i class="fa-solid fa-bug"></i> Ham Hafızayı İncele
                 </button>
                 <span id="securityBadge" class="text-xs bg-emerald-900 text-emerald-200 px-3 py-1 rounded-full flex items-center gap-1.5 border border-emerald-700">
                     <i class="fa-solid fa-lock text-emerald-400 text-[11px]"></i> SHA-256
@@ -121,30 +72,14 @@
     <!-- NAVIGATION TABS -->
     <nav class="bg-white border-b border-slate-200 shadow-sm no-print sticky top-0 z-40 w-full">
         <div class="w-full px-4 md:px-8 flex space-x-2 overflow-x-auto py-2.5" id="navTabsContainer">
-            <button onclick="switchTab('order')" id="tab-order" class="tab-btn active px-3.5 py-2 rounded-lg font-medium text-xs md:text-sm text-slate-600 hover:text-blue-600 transition flex items-center gap-2 border border-transparent whitespace-nowrap">
-                <i class="fa-solid fa-pen-to-square"></i> Sipariş & Ölçü Girişi
-            </button>
-            <button onclick="switchTab('cart')" id="tab-cart" class="tab-btn px-3.5 py-2 rounded-lg font-medium text-xs md:text-sm text-slate-600 hover:text-blue-600 transition flex items-center gap-2 border border-transparent whitespace-nowrap">
-                <i class="fa-solid fa-cart-shopping"></i> Aktif Sepet <span id="cartBadge" class="bg-blue-100 text-blue-700 text-xs px-2 py-0.5 rounded-full font-bold">0</span>
-            </button>
-            <button onclick="switchTab('archive')" id="tab-archive" class="tab-btn px-3.5 py-2 rounded-lg font-medium text-xs md:text-sm text-slate-600 hover:text-blue-600 transition flex items-center gap-2 border border-transparent whitespace-nowrap">
-                <i class="fa-solid fa-box-archive"></i> Sipariş Arşivi
-            </button>
-            <button onclick="switchTab('ledger')" id="tab-ledger" class="tab-btn px-3.5 py-2 rounded-lg font-medium text-xs md:text-sm text-slate-600 hover:text-blue-600 transition flex items-center gap-2 border border-transparent whitespace-nowrap">
-                <i class="fa-solid fa-book-bookmark text-amber-600"></i> Müşteri Cari Defteri
-            </button>
-            <button onclick="switchTab('finance')" id="tab-finance" class="tab-btn px-3.5 py-2 rounded-lg font-medium text-xs md:text-sm text-slate-600 hover:text-blue-600 transition flex items-center gap-2 border border-transparent whitespace-nowrap">
-                <i class="fa-solid fa-chart-line"></i> Gelir / Gider & Kasa
-            </button>
-            <button onclick="switchTab('optimization')" id="tab-optimization" class="tab-btn px-3.5 py-2 rounded-lg font-medium text-xs md:text-sm text-slate-600 hover:text-blue-600 transition flex items-center gap-2 border border-transparent whitespace-nowrap">
-                <i class="fa-solid fa-scissors text-emerald-600"></i> Profil Optimizasyon
-            </button>
-            <button onclick="switchTab('recycle')" id="tab-recycle" class="tab-btn px-3.5 py-2 rounded-lg font-medium text-xs md:text-sm text-slate-600 hover:text-blue-600 transition flex items-center gap-2 border border-transparent whitespace-nowrap">
-                <i class="fa-solid fa-trash-can text-red-600"></i> Çöp Kovası <span id="recycleBadge" class="bg-red-100 text-red-700 text-xs px-2 py-0.5 rounded-full font-bold">0</span>
-            </button>
-            <button onclick="switchTab('settings')" id="tab-settings" class="tab-btn px-3.5 py-2 rounded-lg font-medium text-xs md:text-sm text-slate-600 hover:text-blue-600 transition flex items-center gap-2 border border-transparent whitespace-nowrap">
-                <i class="fa-solid fa-sliders"></i> Ayarlar & Reçete
-            </button>
+            <button onclick="switchTab('order')" id="tab-order" class="tab-btn active px-3.5 py-2 rounded-lg font-medium text-xs md:text-sm text-slate-600 hover:text-blue-600 transition flex items-center gap-2 whitespace-nowrap"><i class="fa-solid fa-pen-to-square"></i> Ölçü Girişi</button>
+            <button onclick="switchTab('cart')" id="tab-cart" class="tab-btn px-3.5 py-2 rounded-lg font-medium text-xs md:text-sm text-slate-600 hover:text-blue-600 transition flex items-center gap-2 whitespace-nowrap"><i class="fa-solid fa-cart-shopping"></i> Sepet <span id="cartBadge" class="bg-blue-100 text-blue-700 text-xs px-2 py-0.5 rounded-full font-bold">0</span></button>
+            <button onclick="switchTab('archive')" id="tab-archive" class="tab-btn px-3.5 py-2 rounded-lg font-medium text-xs md:text-sm text-slate-600 hover:text-blue-600 transition flex items-center gap-2 whitespace-nowrap"><i class="fa-solid fa-box-archive"></i> Sipariş Arşivi</button>
+            <button onclick="switchTab('ledger')" id="tab-ledger" class="tab-btn px-3.5 py-2 rounded-lg font-medium text-xs md:text-sm text-slate-600 hover:text-blue-600 transition flex items-center gap-2 whitespace-nowrap"><i class="fa-solid fa-book-bookmark text-amber-600"></i> Cari Defter</button>
+            <button onclick="switchTab('finance')" id="tab-finance" class="tab-btn px-3.5 py-2 rounded-lg font-medium text-xs md:text-sm text-slate-600 hover:text-blue-600 transition flex items-center gap-2 whitespace-nowrap"><i class="fa-solid fa-chart-line"></i> Gelir / Gider</button>
+            <button onclick="switchTab('optimization')" id="tab-optimization" class="tab-btn px-3.5 py-2 rounded-lg font-medium text-xs md:text-sm text-slate-600 hover:text-blue-600 transition flex items-center gap-2 whitespace-nowrap"><i class="fa-solid fa-scissors text-emerald-600"></i> Optimizasyon</button>
+            <button onclick="switchTab('recycle')" id="tab-recycle" class="tab-btn px-3.5 py-2 rounded-lg font-medium text-xs md:text-sm text-slate-600 hover:text-blue-600 transition flex items-center gap-2 whitespace-nowrap"><i class="fa-solid fa-trash-can text-red-600"></i> Çöp Kovası <span id="recycleBadge" class="bg-red-100 text-red-700 text-xs px-2 py-0.5 rounded-full font-bold">0</span></button>
+            <button onclick="switchTab('settings')" id="tab-settings" class="tab-btn px-3.5 py-2 rounded-lg font-medium text-xs md:text-sm text-slate-600 hover:text-blue-600 transition flex items-center gap-2 whitespace-nowrap"><i class="fa-solid fa-sliders"></i> Ayarlar</button>
         </div>
     </nav>
 
@@ -154,36 +89,29 @@
         <!-- TAB 1: SİPARİŞ & ÖLÇÜ GİRİŞİ -->
         <section id="sec-order" class="space-y-6">
             <div class="bg-white rounded-xl p-4 md:p-6 shadow-sm border border-slate-200">
-                <h2 class="text-base md:text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-                    <i class="fa-solid fa-user-tag text-blue-600"></i> MÜŞTERİ BİLGİLERİ <span class="text-xs text-red-500 font-normal">* Ad Soyad ve Telefon zorunludur</span>
-                </h2>
+                <h2 class="text-base md:text-lg font-bold text-slate-800 mb-4 flex items-center gap-2"><i class="fa-solid fa-user-tag text-blue-600"></i> MÜŞTERİ BİLGİLERİ</h2>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">Müşteri Adı Soyadı <span class="text-red-500">*</span></label>
-                        <input type="text" id="custName" class="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-sm md:text-base focus:ring-2 focus:ring-blue-500" placeholder="Örn: Kadir Yıldırım">
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Müşteri Adı Soyadı *</label>
+                        <input type="text" id="custName" class="w-full px-3 py-2.5 border rounded-lg text-sm md:text-base">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">Telefon Numarası <span class="text-red-500">*</span></label>
-                        <input type="tel" id="custPhone" class="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-sm md:text-base focus:ring-2 focus:ring-blue-500" placeholder="05XX XXX XX XX">
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Telefon Numarası *</label>
+                        <input type="tel" id="custPhone" class="w-full px-3 py-2.5 border rounded-lg text-sm md:text-base">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">Teslimat / Montaj Adresi</label>
-                        <input type="text" id="custAddress" class="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-sm md:text-base focus:ring-2 focus:ring-blue-500" placeholder="Mahalle, Sokak, No / Elazığ">
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Teslimat Adresi</label>
+                        <input type="text" id="custAddress" class="w-full px-3 py-2.5 border rounded-lg text-sm md:text-base">
                     </div>
                 </div>
             </div>
 
             <div class="bg-white rounded-xl p-4 md:p-6 shadow-sm border border-slate-200">
-                <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-base md:text-lg font-bold text-slate-800 flex items-center gap-2">
-                        <i class="fa-solid fa-ruler-combined text-blue-600"></i> ÖLÇÜ & ÜRÜN KONFİGÜRASYONU
-                    </h2>
-                </div>
-
+                <h2 class="text-base md:text-lg font-bold text-slate-800 mb-4 flex items-center gap-2"><i class="fa-solid fa-ruler-combined text-blue-600"></i> ÖLÇÜ & ÜRÜN KONFİGÜRASYONU</h2>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-xs md:text-sm border-collapse table-mobile-responsive min-w-[900px]">
                         <thead>
-                            <tr class="bg-slate-100 text-slate-700 font-semibold border-b border-slate-200">
+                            <tr class="bg-slate-100 text-slate-700 font-semibold border-b">
                                 <th class="p-2 text-center w-8">#</th>
                                 <th class="p-2 text-center w-16">ADET</th>
                                 <th class="p-2 w-32">1. Ölçü Tipi</th>
@@ -207,59 +135,39 @@
                         <tbody id="measureTableBody" class="divide-y divide-slate-200"></tbody>
                     </table>
                 </div>
-
                 <div class="flex justify-end mt-4">
-                    <button onclick="addMeasureRow()" class="bg-blue-600 hover:bg-blue-700 text-white text-xs md:text-sm px-5 py-2.5 rounded-lg font-semibold transition flex items-center gap-2 shadow-sm">
-                        <i class="fa-solid fa-plus"></i> Yeni Ölçü Ekle
-                    </button>
+                    <button onclick="addMeasureRow()" class="bg-blue-600 hover:bg-blue-700 text-white text-xs md:text-sm px-5 py-2.5 rounded-lg font-semibold flex items-center gap-2"><i class="fa-solid fa-plus"></i> Yeni Ölçü Ekle</button>
                 </div>
             </div>
 
             <div class="bg-white rounded-xl p-4 md:p-6 shadow-sm border border-slate-200">
-                <h2 class="text-base md:text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-                    <i class="fa-solid fa-calculator text-blue-600"></i> SATIŞ FİNANSMAN & İŞLEMLER
-                </h2>
-
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
                     <div>
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">Satış Tarifesi <span class="text-red-500">*</span></label>
-                        <select id="salesTariff" onchange="calculateAllRows()" class="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-sm md:text-base bg-amber-50 font-bold text-slate-800">
-                            <option value="">-- Lütfen Tarife Seçiniz --</option>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Satış Tarifesi *</label>
+                        <select id="salesTariff" onchange="calculateAllRows()" class="w-full px-3 py-2.5 border rounded-lg text-sm md:text-base bg-amber-50 font-bold">
+                            <option value="">-- Tarife Seçiniz --</option>
                             <option value="montajli">Montajlı Satış</option>
                             <option value="perakende">Perakende Satış</option>
                         </select>
                     </div>
-
                     <div>
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">Ekstra İşçilik / Montaj Ücreti (₺)</label>
-                        <input type="number" id="extraLabor" value="0" min="0" oninput="calculateAllRows()" class="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-sm md:text-base">
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Ekstra Montaj (₺)</label>
+                        <input type="number" id="extraLabor" value="0" min="0" oninput="calculateAllRows()" class="w-full px-3 py-2.5 border rounded-lg text-sm md:text-base">
                     </div>
-
                     <div>
                         <label class="block text-xs font-semibold text-slate-600 mb-1">KDV Durumu</label>
-                        <select id="kdvStatus" onchange="calculateAllRows()" class="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-sm md:text-base bg-white">
+                        <select id="kdvStatus" onchange="calculateAllRows()" class="w-full px-3 py-2.5 border rounded-lg text-sm md:text-base">
                             <option value="haric">KDV Hariç</option>
-                            <option value="dahil">KDV Dahil (+%20 Ekle)</option>
+                            <option value="dahil">KDV Dahil (+%20)</option>
                         </select>
                     </div>
-
                     <div class="bg-slate-900 text-white rounded-xl p-4 flex flex-col justify-center items-end">
-                        <span class="text-xs text-slate-400">HESAPLANAN TOPLAM TUTAR</span>
+                        <span class="text-xs text-slate-400">TOPLAM TUTAR</span>
                         <div id="grandTotalDisplay" class="text-2xl md:text-3xl font-black text-emerald-400">Tarife Seçiniz</div>
-                        <span id="estimatedCostDisplay" class="text-[11px] text-slate-400 mt-1">Hammadde Maliyeti: 0.00 ₺</span>
                     </div>
                 </div>
-
-                <div class="flex flex-wrap gap-3 justify-end border-t border-slate-200 pt-4">
-                    <button onclick="addToCart()" class="bg-blue-600 hover:bg-blue-700 text-white text-xs md:text-sm px-5 py-2.5 rounded-lg font-semibold transition flex items-center gap-2">
-                        <i class="fa-solid fa-cart-plus"></i> Siparişi Sepete At
-                    </button>
-                    <button onclick="printDirectA4('draft')" class="bg-slate-700 hover:bg-slate-800 text-white text-xs md:text-sm px-5 py-2.5 rounded-lg font-semibold transition flex items-center gap-2">
-                        <i class="fa-solid fa-print"></i> Tek Sayfa A4 Yazdır
-                    </button>
-                    <button onclick="printZebraLabels('draft')" class="bg-amber-600 hover:bg-amber-700 text-white text-xs md:text-sm px-5 py-2.5 rounded-lg font-semibold transition flex items-center gap-2">
-                        <i class="fa-solid fa-barcode"></i> Zebra Etiket Yazdır (50x100mm)
-                    </button>
+                <div class="flex flex-wrap gap-3 justify-end border-t pt-4">
+                    <button onclick="addToCart()" class="bg-blue-600 hover:bg-blue-700 text-white text-xs md:text-sm px-5 py-2.5 rounded-lg font-semibold flex items-center gap-2"><i class="fa-solid fa-cart-plus"></i> Sepete At</button>
                 </div>
             </div>
         </section>
@@ -267,12 +175,7 @@
         <!-- TAB 2: AKTİF SEPET -->
         <section id="sec-cart" class="space-y-6 hidden">
             <div class="bg-white rounded-xl p-4 md:p-6 shadow-sm border border-slate-200">
-                <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-base md:text-lg font-bold text-slate-800 flex items-center gap-2">
-                        <i class="fa-solid fa-cart-shopping text-blue-600"></i> ONAYLANAN SİPARİŞLER (SEPET)
-                    </h2>
-                    <span class="text-xs text-slate-500">Yazdırıldığında otomatik arşive ve cariye aktarılır</span>
-                </div>
+                <h2 class="text-base md:text-lg font-bold text-slate-800 mb-4"><i class="fa-solid fa-cart-shopping text-blue-600"></i> AKTİF SEPET</h2>
                 <div id="cartListContainer" class="space-y-4"></div>
             </div>
         </section>
@@ -281,29 +184,19 @@
         <section id="sec-archive" class="space-y-6 hidden">
             <div class="bg-white rounded-xl p-4 md:p-6 shadow-sm border border-slate-200">
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
-                    <h2 class="text-base md:text-lg font-bold text-slate-800 flex items-center gap-2">
-                        <i class="fa-solid fa-box-archive text-blue-600"></i> GEÇMİŞ SİPARİŞ ARŞİVİ
-                    </h2>
-                    <div class="flex gap-2 w-full md:w-auto">
-                        <input type="text" id="archiveSearch" oninput="renderArchive()" placeholder="Müşteri veya tel ara..." class="px-3 py-2 text-xs md:text-sm border border-slate-300 rounded-lg w-full md:w-64">
-                        <button onclick="exportArchiveExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs md:text-sm px-4 py-2 rounded-lg font-semibold flex items-center gap-1.5 whitespace-nowrap">
-                            <i class="fa-solid fa-file-excel"></i> Excel
-                        </button>
-                    </div>
+                    <h2 class="text-base md:text-lg font-bold text-slate-800 flex items-center gap-2"><i class="fa-solid fa-box-archive text-blue-600"></i> SİPARİŞ ARŞİVİ</h2>
+                    <input type="text" id="archiveSearch" oninput="renderArchive()" placeholder="Ara..." class="px-3 py-2 text-xs md:text-sm border rounded-lg w-full md:w-64">
                 </div>
-
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-xs md:text-sm min-w-[700px]">
                         <thead>
-                            <tr class="bg-slate-100 text-slate-700 font-semibold border-b border-slate-200">
+                            <tr class="bg-slate-100 text-slate-700 font-semibold border-b">
                                 <th class="p-3">Sipariş ID</th>
                                 <th class="p-3">Tarih</th>
                                 <th class="p-3">Müşteri</th>
                                 <th class="p-3">Telefon</th>
                                 <th class="p-3 text-center">Kalem</th>
                                 <th class="p-3 text-right">Toplam Tutar</th>
-                                <th class="p-3 text-center">Üretim Durumu</th>
-                                <th class="p-3 text-center">Ödeme Durumu</th>
                                 <th class="p-3 text-center">İşlemler</th>
                             </tr>
                         </thead>
@@ -313,1636 +206,314 @@
             </div>
         </section>
 
-        <!-- TAB 4: MÜŞTERİ CARİ DEFTERİ -->
+        <!-- TAB 4: CARİ DEFTER -->
         <section id="sec-ledger" class="space-y-6 hidden">
-            <div class="flex border-b border-slate-200 gap-4 mb-2">
-                <button onclick="switchLedgerSubTab('standart')" id="subtab-ledger-standart" class="py-2 px-4 border-b-2 border-amber-600 font-bold text-xs md:text-sm text-amber-700">
-                    Bireysel / Standart Cari Defter
-                </button>
-                <button onclick="switchLedgerSubTab('toplu')" id="subtab-ledger-toplu" class="py-2 px-4 border-b-2 border-transparent font-medium text-xs md:text-sm text-slate-500 hover:text-amber-600">
-                    Toplu Montaj Defteri
-                </button>
-            </div>
-
-            <div id="ledger-sub-standart" class="space-y-6">
-                <div class="bg-white rounded-xl p-4 md:p-6 shadow-sm border border-slate-200">
-                    <h2 class="text-base md:text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-                        <i class="fa-solid fa-address-book text-amber-600"></i> MANUEL MÜŞTERİ CARİ KARTI OLUŞTUR / BORÇLANDIR
-                    </h2>
-                    <form onsubmit="addManualCustomerLedger(event)" class="grid grid-cols-1 md:grid-cols-4 gap-3">
-                        <input type="text" id="manCustName" placeholder="Müşteri Adı Soyadı *" required class="px-3 py-2.5 text-xs md:text-sm border border-slate-300 rounded-lg">
-                        <input type="tel" id="manCustPhone" placeholder="Telefon Numarası *" required class="px-3 py-2.5 text-xs md:text-sm border border-slate-300 rounded-lg">
-                        <input type="number" id="manCustDebt" step="0.01" placeholder="Açılış Borç Tutarı (₺) *" required class="px-3 py-2.5 text-xs md:text-sm border border-slate-300 rounded-lg">
-                        <button type="submit" class="bg-amber-600 hover:bg-amber-700 text-white text-xs md:text-sm font-semibold rounded-lg py-2.5">
-                            <i class="fa-solid fa-plus"></i> Cari Deftere Ekle
-                        </button>
-                    </form>
-                </div>
-
-                <div class="bg-white rounded-xl p-4 md:p-6 shadow-sm border border-slate-200">
-                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
-                        <h2 class="text-base md:text-lg font-bold text-slate-800 flex items-center gap-2">
-                            <i class="fa-solid fa-book-open text-amber-600"></i> MÜŞTERİ CARİ BORÇ & ALACAK DEFTERİ
-                        </h2>
-                        <div class="flex gap-2 w-full md:w-auto">
-                            <input type="text" id="ledgerSearchInput" oninput="renderLedgerTab()" placeholder="Cari Müşteri veya Tel Ara..." class="px-3 py-2 text-xs md:text-sm border border-slate-300 rounded-lg w-full md:w-64">
-                        </div>
-                    </div>
-
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left text-xs md:text-sm min-w-[700px]">
-                            <thead>
-                                <tr class="bg-slate-100 font-semibold border-b border-slate-200 text-slate-700">
-                                    <th class="p-3">Müşteri Adı</th>
-                                    <th class="p-3">Telefon</th>
-                                    <th class="p-3">Kaynak / Tür</th>
-                                    <th class="p-3 text-right">Toplam Borç (₺)</th>
-                                    <th class="p-3 text-right">Ödenen (₺)</th>
-                                    <th class="p-3 text-right">Kalan Bakiye (₺)</th>
-                                    <th class="p-3 text-center">İşlemler</th>
-                                </tr>
-                            </thead>
-                            <tbody id="fullCustomerLedgerBody" class="divide-y divide-slate-200"></tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <div id="ledger-sub-toplu" class="space-y-6 hidden">
-                <div class="bg-white rounded-xl p-4 md:p-6 shadow-sm border border-slate-200">
-                    <h2 class="text-base md:text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-                        <i class="fa-solid fa-city text-amber-600"></i> TOPLU MONTAJ DEFTERİNE MANUEL PROJE / CARİ EKLENMESİ
-                    </h2>
-                    <form onsubmit="addManualTopluMontajLedger(event)" class="grid grid-cols-1 md:grid-cols-4 gap-3">
-                        <input type="text" id="topluCustName" placeholder="Proje / Müşteri Adı *" required class="px-3 py-2.5 text-xs md:text-sm border border-slate-300 rounded-lg">
-                        <input type="tel" id="topluCustPhone" placeholder="Telefon Numarası *" required class="px-3 py-2.5 text-xs md:text-sm border border-slate-300 rounded-lg">
-                        <input type="number" id="topluCustDebt" step="0.01" placeholder="Proje / Montaj Borç Tutarı (₺) *" required class="px-3 py-2.5 text-xs md:text-sm border border-slate-300 rounded-lg">
-                        <button type="submit" class="bg-purple-600 hover:bg-purple-700 text-white text-xs md:text-sm font-semibold rounded-lg py-2.5">
-                            <i class="fa-solid fa-plus"></i> Toplu Montaj Defterine Ekle
-                        </button>
-                    </form>
-                </div>
-
-                <div class="bg-white rounded-xl p-4 md:p-6 shadow-sm border border-slate-200">
-                    <div class="flex justify-between items-center mb-4">
-                        <h2 class="text-base md:text-lg font-bold text-slate-800 flex items-center gap-2">
-                            <i class="fa-solid fa-city text-purple-600"></i> TOPLU MONTAJ SİPARİŞLERİ & PROJE TAKİP DEFTERİ
-                        </h2>
-                    </div>
-
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left text-xs md:text-sm min-w-[700px]">
-                            <thead>
-                                <tr class="bg-slate-100 font-semibold border-b border-slate-200 text-slate-700">
-                                    <th class="p-3">Proje / Müşteri</th>
-                                    <th class="p-3">Telefon</th>
-                                    <th class="p-3">Sipariş ID</th>
-                                    <th class="p-3 text-center">Montaj Kalemi</th>
-                                    <th class="p-3 text-right">Sözleşme Tutarı</th>
-                                    <th class="p-3 text-right">Tahsil Edilen</th>
-                                    <th class="p-3 text-right">Kalan Proje Borcu</th>
-                                    <th class="p-3 text-center">İşlemler</th>
-                                </tr>
-                            </thead>
-                            <tbody id="topluMontajLedgerBody" class="divide-y divide-slate-200"></tbody>
-                        </table>
-                    </div>
+            <div class="bg-white rounded-xl p-4 md:p-6 shadow-sm border border-slate-200">
+                <h2 class="text-base md:text-lg font-bold text-slate-800 mb-4"><i class="fa-solid fa-book-open text-amber-600"></i> MÜŞTERİ CARİ DEFTERİ</h2>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs md:text-sm min-w-[700px]">
+                        <thead>
+                            <tr class="bg-slate-100 font-semibold border-b">
+                                <th class="p-3">Müşteri</th>
+                                <th class="p-3">Telefon</th>
+                                <th class="p-3 text-right">Borç</th>
+                                <th class="p-3 text-right">Ödenen</th>
+                                <th class="p-3 text-right">Kalan</th>
+                                <th class="p-3 text-center">İşlem</th>
+                            </tr>
+                        </thead>
+                        <tbody id="fullCustomerLedgerBody" class="divide-y divide-slate-200"></tbody>
+                    </table>
                 </div>
             </div>
         </section>
 
         <!-- TAB 5: GELİR / GİDER & KASA -->
         <section id="sec-finance" class="space-y-6 hidden">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-                    <span class="text-xs font-semibold text-slate-500">TOPLAM CİRO / ALACAK</span>
-                    <div id="finTotalSales" class="text-xl font-bold text-slate-800 mt-1">0.00 ₺</div>
-                </div>
-                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-                    <span class="text-xs font-semibold text-slate-500">TOPLAM TAHSİLAT (KASA)</span>
-                    <div id="finTotalCollected" class="text-xl font-bold text-emerald-600 mt-1">0.00 ₺</div>
-                </div>
-                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-                    <span class="text-xs font-semibold text-slate-500">AÇIK HESAP / KALAN BORÇ</span>
-                    <div id="finTotalPending" class="text-xl font-bold text-amber-600 mt-1">0.00 ₺</div>
-                </div>
-                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-                    <span class="text-xs font-semibold text-slate-500">TOPLAM DÜKKAN GİDERİ</span>
-                    <div id="finTotalExpense" class="text-xl font-bold text-red-600 mt-1">0.00 ₺</div>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-xl p-4 md:p-6 shadow-sm border border-slate-200">
-                <h2 class="text-base md:text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-                    <i class="fa-solid fa-wallet text-blue-600"></i> KASA GİDER DEFTERİ
-                </h2>
-                <form onsubmit="addExpense(event)" class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
-                    <input type="text" id="expDesc" placeholder="Gider Açıklaması (Kira, Yemek, Personel)" required class="px-3 py-2 text-xs md:text-sm border border-slate-300 rounded-lg">
-                    <input type="number" id="expAmount" step="0.01" placeholder="Tutar (₺)" required class="px-3 py-2 text-xs md:text-sm border border-slate-300 rounded-lg">
-                    <button type="submit" class="bg-red-600 hover:bg-red-700 text-white text-xs md:text-sm font-semibold rounded-lg py-2">Gider Ekle</button>
-                </form>
-                <div class="max-h-60 overflow-y-auto">
-                    <table class="w-full text-left text-xs md:text-sm">
-                        <thead class="bg-slate-100">
-                            <tr>
-                                <th class="p-2">Tarih</th>
-                                <th class="p-2">Açıklama</th>
-                                <th class="p-2 text-right">Tutar</th>
-                                <th class="p-2 text-center w-12">İşlem</th>
-                            </tr>
-                        </thead>
-                        <tbody id="expenseTableBody" class="divide-y divide-slate-200"></tbody>
-                    </table>
-                </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="bg-white p-4 rounded-xl border"><span class="text-xs text-slate-500">CİRO</span><div id="finTotalSales" class="text-xl font-bold">0.00 ₺</div></div>
+                <div class="bg-white p-4 rounded-xl border"><span class="text-xs text-slate-500">TAHSİLAT</span><div id="finTotalCollected" class="text-xl font-bold text-emerald-600">0.00 ₺</div></div>
+                <div class="bg-white p-4 rounded-xl border"><span class="text-xs text-slate-500">KALAN ALACAK</span><div id="finTotalPending" class="text-xl font-bold text-amber-600">0.00 ₺</div></div>
             </div>
         </section>
 
         <!-- TAB 6: PROFİL OPTİMİZASYONU -->
         <section id="sec-optimization" class="space-y-6 hidden">
-            <div class="bg-white rounded-xl p-4 md:p-6 shadow-sm border border-slate-200">
-                <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-base md:text-lg font-bold text-slate-800 flex items-center gap-2">
-                        <i class="fa-solid fa-scissors text-emerald-600"></i> RENK VE SİSTEM BAZLI PROFİL KESİM OPTİMİZASYONU
-                    </h2>
-                    <button onclick="runOptimization()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs md:text-sm px-4 py-2 rounded-lg font-semibold flex items-center gap-1.5">
-                        <i class="fa-solid fa-rotate"></i> Yenile
-                    </button>
-                </div>
-                <div id="optimizationResults" class="space-y-6 text-xs md:text-sm"></div>
+            <div class="bg-white rounded-xl p-4 md:p-6 shadow-sm border">
+                <h2 class="text-base md:text-lg font-bold mb-4"><i class="fa-solid fa-scissors text-emerald-600"></i> PROFİL OPTİMİZASYONU</h2>
+                <div id="optimizationResults" class="space-y-4"></div>
             </div>
         </section>
 
         <!-- TAB 7: GERİ DÖNÜŞÜM KUTUSU -->
         <section id="sec-recycle" class="space-y-6 hidden">
-            <div class="bg-white rounded-xl p-4 md:p-6 shadow-sm border border-slate-200">
-                <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-base md:text-lg font-bold text-slate-800 flex items-center gap-2">
-                        <i class="fa-solid fa-trash-can text-red-600"></i> GERİ DÖNÜŞÜM KUTUSU
-                    </h2>
-                    <button onclick="emptyRecycleBin()" class="bg-red-600 hover:bg-red-700 text-white text-xs md:text-sm px-3.5 py-2 rounded-lg font-semibold flex items-center gap-1">
-                        <i class="fa-solid fa-dumpster"></i> Çöp Kovasını Boşalt
-                    </button>
-                </div>
-
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-xs md:text-sm min-w-[600px]">
-                        <thead>
-                            <tr class="bg-slate-100 font-semibold border-b text-slate-700">
-                                <th class="p-3">Silinme Tarihi</th>
-                                <th class="p-3">İşlem Türü</th>
-                                <th class="p-3">Açıklama / İçerik</th>
-                                <th class="p-3 text-right">Tutar (₺)</th>
-                                <th class="p-3 text-center w-12">Sil</th>
-                            </tr>
-                        </thead>
-                        <tbody id="recycleTableBody" class="divide-y divide-slate-200"></tbody>
-                    </table>
-                </div>
+            <div class="bg-white rounded-xl p-4 md:p-6 shadow-sm border">
+                <h2 class="text-base md:text-lg font-bold mb-4"><i class="fa-solid fa-trash-can text-red-600"></i> ÇÖP KOVASI</h2>
+                <div class="overflow-x-auto"><table class="w-full text-left text-xs md:text-sm"><tbody id="recycleTableBody"></tbody></table></div>
             </div>
         </section>
 
-        <!-- TAB 8: AYARLAR & ÜRÜN BAZLI AKSESUAR REÇETESİ -->
+        <!-- TAB 8: AYARLAR -->
         <section id="sec-settings" class="space-y-6 hidden">
-            <div class="bg-white rounded-xl p-4 md:p-6 shadow-sm border border-slate-200">
-                <h2 class="text-base md:text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-                    <i class="fa-solid fa-sliders text-blue-600"></i> GENEL FİYATLANDIRMA PARAMETRELERİ
-                </h2>
-
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">Montajlı Satış m² Fiyatı (₺)</label>
-                        <input type="number" id="settingMontajPrice" class="w-full px-3 py-2 border rounded-lg text-sm md:text-base">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">Perakende Satış m² Fiyatı (₺)</label>
-                        <input type="number" id="settingPerakendePrice" class="w-full px-3 py-2 border rounded-lg text-sm md:text-base">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">KDV Oranı (%)</label>
-                        <input type="number" id="settingKdvRate" class="w-full px-3 py-2 border rounded-lg text-sm md:text-base">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">Minimum m² Barajı</label>
-                        <input type="number" id="settingMinM2" step="0.1" class="w-full px-3 py-2 border rounded-lg text-sm md:text-base">
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-xl p-4 md:p-6 shadow-sm border border-slate-200">
-                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 mb-4">
-                    <div>
-                        <h2 class="text-base md:text-lg font-bold text-slate-800 flex items-center gap-2">
-                            <i class="fa-solid fa-boxes-packing text-blue-600"></i> ÜRÜN & AKSESUAR BİRİM MALİYET REÇETESİ
-                        </h2>
-                    </div>
-                    <div class="flex gap-2">
-                        <button onclick="addNewProductGroupPrompt()" class="bg-blue-600 hover:bg-blue-700 text-white text-xs md:text-sm px-3.5 py-2 rounded-lg font-semibold flex items-center gap-1">
-                            <i class="fa-solid fa-folder-plus"></i> Ürün Grubu Ekle
-                        </button>
-                        <button onclick="saveSettings()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs md:text-sm px-3.5 py-2 rounded-lg font-semibold flex items-center gap-1">
-                            <i class="fa-solid fa-floppy-disk"></i> Ayarları Kaydet
-                        </button>
-                    </div>
-                </div>
-                
-                <div id="productRecipesContainer" class="space-y-6"></div>
-            </div>
-
-            <!-- MASTER RESET & BACKUP -->
-            <div class="bg-white rounded-xl p-4 md:p-6 shadow-sm border border-slate-200">
-                <h2 class="text-base md:text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-                    <i class="fa-solid fa-database text-blue-600"></i> VERİ YÖNETİMİ & VERİ KURTARMA
-                </h2>
-
+            <div class="bg-white rounded-xl p-4 md:p-6 shadow-sm border">
+                <h2 class="text-base md:text-lg font-bold mb-4"><i class="fa-solid fa-database text-blue-600"></i> GÜVENLİ VERİ YÖNETİMİ & KURTARMA</h2>
                 <div class="flex flex-wrap gap-3">
-                    <button onclick="forceScanOldData()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs md:text-sm px-4 py-2.5 rounded-lg font-semibold flex items-center gap-1.5">
-                        <i class="fa-solid fa-rotate-right"></i> Eski Verileri Tara ve Getir
-                    </button>
-                    <button onclick="exportFullBackup()" class="bg-slate-700 hover:bg-slate-800 text-white text-xs md:text-sm px-4 py-2.5 rounded-lg font-semibold">
-                        <i class="fa-solid fa-download"></i> Hafızayı Dışa Aktar (JSON)
-                    </button>
+                    <button onclick="deepScanAllLocalStorage()" class="bg-amber-600 hover:bg-amber-700 text-white text-xs md:text-sm px-4 py-2.5 rounded-lg font-semibold"><i class="fa-solid fa-rotate-right"></i> Derin Hafıza Taraması Başlat</button>
+                    <button onclick="exportFullBackup()" class="bg-slate-700 hover:bg-slate-800 text-white text-xs md:text-sm px-4 py-2.5 rounded-lg font-semibold"><i class="fa-solid fa-download"></i> Yedek İndir (JSON)</button>
                     <label class="bg-slate-700 hover:bg-slate-800 text-white text-xs md:text-sm px-4 py-2.5 rounded-lg font-semibold cursor-pointer">
-                        <i class="fa-solid fa-upload"></i> Yedeği Geri Yükle
-                        <input type="file" onchange="importBackup(event)" class="hidden" accept=".json">
+                        <i class="fa-solid fa-upload"></i> Yedeği Yükle <input type="file" onchange="importBackup(event)" class="hidden" accept=".json">
                     </label>
-                    <button onclick="masterReset()" class="bg-red-600 hover:bg-red-700 text-white text-xs md:text-sm px-4 py-2.5 rounded-lg font-semibold ml-auto flex items-center gap-1.5">
-                        <i class="fa-solid fa-triangle-exclamation"></i> Fabrika Ayarlarına Dön
-                    </button>
                 </div>
             </div>
         </section>
 
     </main>
 
-    <!-- MÜŞTERİ ÖLÇÜ DETAY MODALI -->
-    <div id="orderDetailModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden no-print px-3">
-        <div class="bg-white rounded-xl p-4 md:p-6 w-full max-w-4xl shadow-2xl space-y-4 max-h-[90vh] flex flex-col">
-            <div class="flex justify-between items-center border-b pb-3">
-                <h3 class="font-bold text-slate-800 text-sm md:text-base flex items-center gap-2" id="modalOrderTitle">
-                    <i class="fa-solid fa-magnifying-glass text-blue-600"></i> Sipariş Ölçü Detayları
-                </h3>
-                <button onclick="closeOrderDetailModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
-            </div>
-            
-            <div class="overflow-y-auto flex-grow space-y-3" id="modalOrderContent"></div>
-
-            <div class="flex justify-end gap-2 pt-3 border-t">
-                <button onclick="closeOrderDetailModal()" class="px-4 py-2 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-100">Kapat</button>
-                <button id="modalPrintA4Btn" class="px-4 py-2 rounded-lg text-xs font-semibold bg-slate-800 text-white hover:bg-slate-900 flex items-center gap-1.5">
-                    <i class="fa-solid fa-print"></i> A4 Yazdır
-                </button>
-                <button id="modalPrintZebraBtn" class="px-4 py-2 rounded-lg text-xs font-semibold bg-amber-600 text-white hover:bg-amber-700 flex items-center gap-1.5">
-                    <i class="fa-solid fa-barcode"></i> Zebra Etiket
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- PRINT SHADOW TEMPLATES -->
-    <div id="printContainerA4" class="print-only"></div>
-    <div id="printContainerZebra" class="print-only"></div>
-
     <script>
-        /* GÜVENLİK KODLARI */
         const SECURED_PASSWORD_HASH = "a897e93730e7ff9d4791522f281e4284d72855146b9a8483db64f4fa11790b5d";
-        let failedAttempts = 0;
-        let lockUntil = 0;
+        const DEFAULT_SETTINGS = { montajPrice: 220, perakendePrice: 300, kdvRate: 20, minM2: 1.0 };
 
-        function escapeHTML(str) {
-            if (!str) return '';
-            return String(str)
-                .replace(/&/g, '&amp;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;')
-                .replace(/"/g, '&quot;')
-                .replace(/'/g, '&#039;');
-        }
-
-        async function sha256(message) {
-            const msgUint8 = new TextEncoder().encode(message);
-            const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
-            const hashArray = Array.from(new Uint8Array(hashBuffer));
-            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-        }
-
-        async function verifySecurePasswordPrompt(promptText) {
-            if (Date.now() < lockUntil) {
-                const remainingSec = Math.ceil((lockUntil - Date.now()) / 1000);
-                alert(`Çok fazla hatalı deneme yapıldı! Lütfen ${remainingSec} saniye bekleyin.`);
-                return false;
-            }
-
-            const inputPass = prompt(promptText);
-            if (!inputPass) return false;
-
-            const inputHash = await sha256(inputPass);
-            if (inputHash === SECURED_PASSWORD_HASH) {
-                failedAttempts = 0;
-                return true;
-            } else {
-                failedAttempts++;
-                if (failedAttempts >= 3) {
-                    lockUntil = Date.now() + 60000;
-                    alert('3 kez hatalı şifre girildi! Sistem 1 dakika boyunca kilitlendi.');
-                } else {
-                    alert(`Hatalı Şifre! Kalan hakkınız: ${3 - failedAttempts}`);
-                }
-                return false;
-            }
-        }
-
-        /* UYGULAMA VERİ YAPISI & VARSAYILAN AYARLAR */
-        const DEFAULT_SETTINGS = {
-            montajPrice: 220,
-            perakendePrice: 300,
-            kdvRate: 20,
-            minM2: 1.0,
-            productGroups: [
-                {
-                    id: "pg-plise",
-                    name: "Plise Sineklik Sistemi",
-                    accessories: [
-                        { id: "acc-profil", name: "Alüminyum Profil", unit: "Metre (m)", cost: 45 },
-                        { id: "acc-plise-tul", name: "Plise Tül", unit: "m²", cost: 35 },
-                        { id: "acc-polen-tul", name: "Polen Tülü Farkı", unit: "m²", cost: 60 },
-                        { id: "acc-takoz", name: "Köşe Takozu", unit: "Adet", cost: 5 },
-                        { id: "acc-ip", name: "Plise İp", unit: "Metre (m)", cost: 2 }
-                    ]
-                },
-                {
-                    id: "pg-mentese",
-                    name: "Menteşeli Sineklik Sistemi",
-                    accessories: [
-                        { id: "acc-mentese-prof", name: "Menteşeli Profil", unit: "Metre (m)", cost: 35 },
-                        { id: "acc-duz-tul", name: "Düz Tül", unit: "m²", cost: 25 },
-                        { id: "acc-kedi-tul", name: "Kedi Tülü Farkı", unit: "m²", cost: 85 },
-                        { id: "acc-mentese", name: "Menteşe Seti", unit: "Set", cost: 15 },
-                        { id: "acc-citcit", name: "Çıt Çıt Kilit", unit: "Adet", cost: 8 }
-                    ]
-                }
-            ]
-        };
-
-        let appData = {
-            settings: { ...DEFAULT_SETTINGS },
-            cart: [],
-            archive: [],
-            expenses: [],
-            manualLedgers: [],
-            topluLedgers: [],
-            recycleBin: []
-        };
-
+        let appData = { settings: { ...DEFAULT_SETTINGS }, cart: [], archive: [], expenses: [], manualLedgers: [], topluLedgers: [], recycleBin: [] };
         let currentRowId = 0;
-        let currentDetailOrder = null;
+
+        function escapeHTML(str) { return str ? String(str).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m])) : ''; }
 
         window.addEventListener('DOMContentLoaded', () => {
             loadLocalData();
             updateClock();
             setInterval(updateClock, 1000);
             addMeasureRow();
-            renderCart();
-            renderArchive();
-            renderFinance();
-            renderLedgerTab();
-            renderRecycleBin();
-            renderProductRecipes();
+            renderCart(); renderArchive(); renderLedgerTab(); renderFinance();
         });
 
-        function updateClock() {
-            const now = new Date();
-            const dateStr = now.toLocaleDateString('tr-TR', { day: '2-digit', month: 'long', year: 'numeric', weekday: 'long' });
-            const timeStr = now.toLocaleTimeString('tr-TR');
-            document.getElementById('clock').innerText = `${dateStr} | ${timeStr}`;
-        }
+        function updateClock() { document.getElementById('clock').innerText = new Date().toLocaleString('tr-TR'); }
 
         function switchTab(tabName) {
             document.querySelectorAll('section[id^="sec-"]').forEach(sec => sec.classList.add('hidden'));
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             document.getElementById(`sec-${tabName}`).classList.remove('hidden');
             document.getElementById(`tab-${tabName}`).classList.add('active');
-            if(tabName === 'cart') renderCart();
-            if(tabName === 'archive') renderArchive();
-            if(tabName === 'ledger') renderLedgerTab();
-            if(tabName === 'finance') renderFinance();
-            if(tabName === 'recycle') renderRecycleBin();
-            if(tabName === 'optimization') runOptimization();
+            if(tabName==='cart') renderCart();
+            if(tabName==='archive') renderArchive();
+            if(tabName==='ledger') renderLedgerTab();
+            if(tabName==='finance') renderFinance();
         }
 
-        function switchLedgerSubTab(sub) {
-            document.getElementById('ledger-sub-standart').classList.toggle('hidden', sub !== 'standart');
-            document.getElementById('ledger-sub-toplu').classList.toggle('hidden', sub !== 'toplu');
-
-            document.getElementById('subtab-ledger-standart').className = sub === 'standart' ? 'py-2 px-4 border-b-2 border-amber-600 font-bold text-xs md:text-sm text-amber-700' : 'py-2 px-4 border-b-2 border-transparent font-medium text-xs md:text-sm text-slate-500 hover:text-amber-600';
-            document.getElementById('subtab-ledger-toplu').className = sub === 'toplu' ? 'py-2 px-4 border-b-2 border-amber-600 font-bold text-xs md:text-sm text-amber-700' : 'py-2 px-4 border-b-2 border-transparent font-medium text-xs md:text-sm text-slate-500 hover:text-amber-600';
-            
-            if(sub === 'toplu') renderTopluLedger();
-        }
-
-        function addMeasureRow(initialData = null) {
+        function addMeasureRow() {
             currentRowId++;
             const tbody = document.getElementById('measureTableBody');
             const tr = document.createElement('tr');
             tr.id = `row-${currentRowId}`;
-            tr.className = "hover:bg-slate-50 transition";
+            tr.className = "hover:bg-slate-50";
             tr.innerHTML = `
                 <td class="p-2 text-center font-bold text-slate-500 row-seq">${tbody.children.length + 1}</td>
                 <td class="p-2 text-center"><input type="number" min="1" value="1" oninput="calculateRow(${currentRowId})" class="inp-qty w-full border text-center rounded px-1.5 py-1 font-bold text-blue-700 bg-blue-50"></td>
-                <td class="p-2">
-                    <select onchange="stepSelect(${currentRowId}, 1)" class="measure-type w-full border rounded px-2 py-1.5 text-xs md:text-sm">
-                        <option value="">-- Seçiniz --</option>
-                        <option value="ic">İç Ölçü</option>
-                        <option value="dis">Dış Ölçü</option>
-                    </select>
-                </td>
-                <td class="p-2">
-                    <select disabled onchange="stepSelect(${currentRowId}, 2)" class="product-type w-full border rounded px-2 py-1.5 text-xs md:text-sm">
-                        <option value="">-- Seçiniz --</option>
-                        <option value="plise">Plise Sineklik</option>
-                        <option value="menteseli">Menteşeli Sineklik</option>
-                    </select>
-                </td>
-                <td class="p-2">
-                    <select disabled onchange="stepSelect(${currentRowId}, 3)" class="color-type w-full border rounded px-2 py-1.5 text-xs md:text-sm">
-                        <option value="">-- Seçiniz --</option>
-                        <option value="Beyaz">Beyaz</option>
-                        <option value="Kahverengi">Kahverengi</option>
-                        <option value="Antrasit">Antrasit</option>
-                    </select>
-                </td>
-                <td class="p-2 space-y-1" id="dynamicOpts-${currentRowId}">
-                    <select disabled class="opt-placeholder w-full border rounded px-2 py-1 text-xs"><option value="">-- Renk Seçiniz --</option></select>
-                </td>
+                <td class="p-2"><select onchange="stepSelect(${currentRowId}, 1)" class="measure-type w-full border rounded px-2 py-1.5"><option value="">-- Seç --</option><option value="ic">İç Ölçü</option><option value="dis">Dış Ölçü</option></select></td>
+                <td class="p-2"><select disabled onchange="stepSelect(${currentRowId}, 2)" class="product-type w-full border rounded px-2 py-1.5"><option value="">-- Seç --</option><option value="plise">Plise</option><option value="menteseli">Menteşeli</option></select></td>
+                <td class="p-2"><select disabled onchange="stepSelect(${currentRowId}, 3)" class="color-type w-full border rounded px-2 py-1.5"><option value="">-- Seç --</option><option value="Beyaz">Beyaz</option><option value="Kahverengi">Kahverengi</option><option value="Antrasit">Antrasit</option></select></td>
+                <td class="p-2 space-y-1" id="dynamicOpts-${currentRowId}"><select disabled class="w-full border rounded px-2 py-1 text-xs"><option>-- Seçiniz --</option></select></td>
                 <td class="p-2 text-center"><input type="number" step="0.1" disabled placeholder="EN" oninput="calculateRow(${currentRowId})" class="inp-en w-full border text-center rounded px-1.5 py-1 font-bold"></td>
                 <td class="p-2 text-center"><input type="number" step="0.1" disabled placeholder="BOY" oninput="calculateRow(${currentRowId})" class="inp-boy w-full border text-center rounded px-1.5 py-1 font-bold"></td>
-                <td class="p-2"><input type="text" disabled placeholder="Örn: Mutfak Sol" class="inp-note w-full border rounded px-2 py-1 text-xs"></td>
-                <td class="p-2 text-center bg-blue-50/50 font-semibold out-tac">-</td>
-                <td class="p-2 text-center bg-blue-50/50 font-semibold out-dikme">-</td>
-                <td class="p-2 text-center bg-blue-50/50 font-semibold out-kanat">-</td>
-                <td class="p-2 text-center bg-blue-50/50 font-semibold out-tul">-</td>
-                <td class="p-2 text-center bg-blue-50/50 font-semibold out-ip">-</td>
-                <td class="p-2 text-center bg-blue-50/50 font-semibold out-kat">-</td>
-                <td class="p-2 text-center font-bold text-slate-700 out-m2">0.00</td>
+                <td class="p-2"><input type="text" disabled placeholder="Not" class="inp-note w-full border rounded px-2 py-1 text-xs"></td>
+                <td class="p-2 text-center bg-blue-50/50 out-tac">-</td>
+                <td class="p-2 text-center bg-blue-50/50 out-dikme">-</td>
+                <td class="p-2 text-center bg-blue-50/50 out-kanat">-</td>
+                <td class="p-2 text-center bg-blue-50/50 out-tul">-</td>
+                <td class="p-2 text-center bg-blue-50/50 out-ip">-</td>
+                <td class="p-2 text-center bg-blue-50/50 out-kat">-</td>
+                <td class="p-2 text-center font-bold out-m2">0.00</td>
                 <td class="p-2 text-right font-black text-blue-600 out-price">0.00 ₺</td>
-                <td class="p-2 text-center"><button onclick="removeRow(${currentRowId})" class="text-red-500 hover:text-red-700" title="Ölçüyü Sil"><i class="fa-solid fa-trash"></i></button></td>
+                <td class="p-2 text-center"><button onclick="removeRow(${currentRowId})" class="text-red-500"><i class="fa-solid fa-trash"></i></button></td>
             `;
             tbody.appendChild(tr);
-
-            if(initialData) {
-                tr.querySelector('.inp-qty').value = initialData.qty || 1;
-                tr.querySelector('.measure-type').value = initialData.mType;
-                stepSelect(currentRowId, 1);
-                tr.querySelector('.product-type').value = initialData.pType;
-                stepSelect(currentRowId, 2);
-                tr.querySelector('.color-type').value = initialData.color;
-                stepSelect(currentRowId, 3);
-                
-                if(initialData.dir && tr.querySelector('.opt-dir')) tr.querySelector('.opt-dir').value = initialData.dir;
-                if(initialData.tulType && tr.querySelector('.opt-tul')) tr.querySelector('.opt-tul').value = initialData.tulType;
-                
-                tr.querySelector('.inp-en').value = initialData.en;
-                tr.querySelector('.inp-boy').value = initialData.boy;
-                if(initialData.note) tr.querySelector('.inp-note').value = escapeHTML(initialData.note);
-                
-                calculateRow(currentRowId);
-            }
         }
 
         function stepSelect(id, step) {
             const row = document.getElementById(`row-${id}`);
             if(!row) return;
-
             const mType = row.querySelector('.measure-type').value;
-            const pTypeSelect = row.querySelector('.product-type');
-            const colorSelect = row.querySelector('.color-type');
-            const optsContainer = document.getElementById(`dynamicOpts-${id}`);
-            const enInp = row.querySelector('.inp-en');
-            const boyInp = row.querySelector('.inp-boy');
-            const noteInp = row.querySelector('.inp-note');
+            const pType = row.querySelector('.product-type');
+            const color = row.querySelector('.color-type');
+            const opts = document.getElementById(`dynamicOpts-${id}`);
+            const en = row.querySelector('.inp-en'); const boy = row.querySelector('.inp-boy'); const note = row.querySelector('.inp-note');
 
-            if(step === 1) {
-                if(mType) {
-                    pTypeSelect.disabled = false;
-                } else {
-                    pTypeSelect.disabled = true; colorSelect.disabled = true;
-                    enInp.disabled = true; boyInp.disabled = true; noteInp.disabled = true;
-                }
-            } else if(step === 2) {
-                if(pTypeSelect.value) {
-                    colorSelect.disabled = false;
-                } else {
-                    colorSelect.disabled = true; enInp.disabled = true; boyInp.disabled = true; noteInp.disabled = true;
-                }
-            } else if(step === 3) {
-                if(colorSelect.value) {
-                    const pType = pTypeSelect.value;
-                    if(pType === 'plise') {
-                        optsContainer.innerHTML = `
-                            <select onchange="calculateRow(${id})" class="opt-dir w-full border rounded px-1.5 py-1 text-xs"><option value="yatay">Yatay Açılır</option><option value="dikey">Dikey Açılır</option></select>
-                            <select onchange="calculateRow(${id})" class="opt-tul w-full border rounded px-1.5 py-1 text-xs"><option value="plise">Plise Tülü</option><option value="polen">Polen Tülü</option></select>
-                        `;
-                    } else {
-                        optsContainer.innerHTML = `
-                            <select onchange="calculateRow(${id})" class="opt-dir w-full border rounded px-1.5 py-1 text-xs"><option value="sag">Sağa Açılır</option><option value="sol">Sola Açılır</option></select>
-                            <select onchange="calculateRow(${id})" class="opt-tul w-full border rounded px-1.5 py-1 text-xs"><option value="duz">Düz Tül</option><option value="kedi">Kedi Tülü</option></select>
-                        `;
-                    }
-                    enInp.disabled = false;
-                    boyInp.disabled = false;
-                    noteInp.disabled = false;
-                } else {
-                    optsContainer.innerHTML = `<select disabled class="opt-placeholder w-full border rounded px-1.5 py-1 text-xs"><option value="">-- Renk Seçiniz --</option></select>`;
-                    enInp.disabled = true; boyInp.disabled = true; noteInp.disabled = true;
+            if(step === 1) pType.disabled = !mType;
+            if(step === 2) color.disabled = !pType.value;
+            if(step === 3) {
+                if(color.value) {
+                    opts.innerHTML = pType.value === 'plise' ? `<select class="opt-dir w-full border rounded px-1.5 py-1 text-xs"><option value="yatay">Yatay</option><option value="dikey">Dikey</option></select>` : `<select class="opt-dir w-full border rounded px-1.5 py-1 text-xs"><option value="sag">Sağa</option><option value="sol">Sola</option></select>`;
+                    en.disabled = false; boy.disabled = false; note.disabled = false;
                 }
             }
             calculateRow(id);
         }
 
-        function removeRow(id) {
-            const rowTarget = document.getElementById(`row-${id}`);
-            if(rowTarget) {
-                const en = rowTarget.querySelector('.inp-en').value;
-                const boy = rowTarget.querySelector('.inp-boy').value;
-                logRecycleItem('Ölçü Satırı Silindi', `EN: ${en || 0}cm, BOY: ${boy || 0}cm satırı temizlendi.`, 0);
-                rowTarget.remove();
-            }
-            resequenceRows();
-            calculateAllRows();
-        }
-
-        function resequenceRows() {
-            document.querySelectorAll('#measureTableBody tr').forEach((tr, index) => {
-                tr.querySelector('.row-seq').innerText = index + 1;
-            });
-        }
-
         function calculateRow(id) {
             const row = document.getElementById(`row-${id}`);
             if(!row) return;
-
             const qty = parseInt(row.querySelector('.inp-qty').value) || 1;
-            const mType = row.querySelector('.measure-type').value;
-            const pType = row.querySelector('.product-type').value;
-            
-            let rawEn = parseFloat(row.querySelector('.inp-en').value) || 0;
-            let rawBoy = parseFloat(row.querySelector('.inp-boy').value) || 0;
+            const enVal = parseFloat(row.querySelector('.inp-en').value) || 0;
+            const boyVal = parseFloat(row.querySelector('.inp-boy').value) || 0;
+            if(enVal <= 0 || boyVal <= 0) return;
 
-            if(!mType || !pType || rawEn <= 0 || rawBoy <= 0) {
-                row.querySelector('.out-tac').innerText = "-";
-                row.querySelector('.out-dikme').innerText = "-";
-                row.querySelector('.out-kanat').innerText = "-";
-                row.querySelector('.out-tul').innerText = "-";
-                row.querySelector('.out-ip').innerText = "-";
-                row.querySelector('.out-kat').innerText = "-";
-                row.querySelector('.out-m2').innerText = "0.00";
-                row.querySelector('.out-price').innerText = "0.00 ₺";
-                calculateGrandTotal();
-                return;
-            }
-
-            let tac = "-", dikme = "-", kanat = "-", tul = "-", ip = "-", kat = "-";
-            let unitM2 = (rawEn * rawBoy) / 10000;
-            let totalM2 = Math.max(unitM2, appData.settings.minM2) * qty;
-
-            const dirSelect = row.querySelector('.opt-dir');
-            const isYatay = dirSelect ? dirSelect.value === 'yatay' : true;
-
-            if(pType === 'plise') {
-                if(mType === 'ic') {
-                    tac = rawEn.toFixed(1);
-                    dikme = (rawBoy + 4).toFixed(1);
-                    kanat = isYatay ? (rawBoy - 0.5).toFixed(1) : (rawEn - 0.5).toFixed(1);
-                    tul = (rawBoy + 3.5).toFixed(1);
-                    ip = (rawEn + rawBoy + 26).toFixed(1);
-                    kat = Math.floor((rawEn / 2.5) - 2).toString();
-                } else {
-                    tac = (rawEn - 8).toFixed(1);
-                    dikme = (rawBoy - 4).toFixed(1);
-                    kanat = isYatay ? (rawBoy - 4.5).toFixed(1) : (rawEn - 8.5).toFixed(1);
-                    tul = (rawBoy - 4.5).toFixed(1);
-                    ip = (rawEn + rawBoy + 10).toFixed(1);
-                    kat = Math.floor((rawEn / 2.5) - 2).toString();
-                }
-            } else {
-                if(mType === 'dis') {
-                    tac = (rawEn - 5).toFixed(1);
-                    dikme = (rawBoy - 5).toFixed(1);
-                    kanat = (rawEn - 6).toFixed(1);
-                } else {
-                    tac = rawEn.toFixed(1);
-                    dikme = rawBoy.toFixed(1);
-                    kanat = (rawEn - 1).toFixed(1);
-                }
-            }
-
-            row.querySelector('.out-tac').innerText = tac;
-            row.querySelector('.out-dikme').innerText = dikme;
-            row.querySelector('.out-kanat').innerText = kanat;
-            row.querySelector('.out-tul').innerText = tul;
-            row.querySelector('.out-ip').innerText = ip;
-            row.querySelector('.out-kat').innerText = kat;
-            row.querySelector('.out-m2').innerText = totalM2.toFixed(2);
-
-            const tariff = document.getElementById('salesTariff').value;
-            if(!tariff) {
-                row.querySelector('.out-price').innerText = "Tarife Seçin";
-                calculateGrandTotal();
-                return;
-            }
-
-            let unitPrice = (tariff === 'montajli') ? appData.settings.montajPrice : appData.settings.perakendePrice;
-            let rowPrice = totalM2 * unitPrice;
-
-            row.querySelector('.out-price').innerText = rowPrice.toFixed(2) + ' ₺';
+            let m2 = Math.max((enVal * boyVal) / 10000, 1.0) * qty;
+            row.querySelector('.out-m2').innerText = m2.toFixed(2);
+            let tariff = document.getElementById('salesTariff').value;
+            let price = m2 * (tariff === 'montajli' ? 220 : 300);
+            row.querySelector('.out-price').innerText = price.toFixed(2) + ' ₺';
             calculateGrandTotal();
         }
 
-        function calculateAllRows() {
-            document.querySelectorAll('#measureTableBody tr').forEach(tr => calculateRow(tr.id.replace('row-', '')));
-        }
+        function calculateAllRows() { document.querySelectorAll('#measureTableBody tr').forEach(tr => calculateRow(tr.id.replace('row-', ''))); }
 
         function calculateGrandTotal() {
-            const tariff = document.getElementById('salesTariff').value;
-            const grandTotalDisp = document.getElementById('grandTotalDisplay');
-
-            if(!tariff) {
-                grandTotalDisp.innerText = "Tarife Seçiniz!";
-                grandTotalDisp.className = "text-lg font-bold text-amber-400";
-                document.getElementById('estimatedCostDisplay').innerText = `Hammadde Maliyeti: 0.00 ₺`;
-                return;
-            }
-
-            grandTotalDisp.className = "text-2xl md:text-3xl font-black text-emerald-400";
             let total = 0;
-            let rawCostTotal = 0;
-
-            document.querySelectorAll('#measureTableBody tr').forEach(tr => {
-                total += parseFloat(tr.querySelector('.out-price').innerText) || 0;
-                let m2 = parseFloat(tr.querySelector('.out-m2').innerText) || 0;
-                rawCostTotal += (m2 * 80);
-            });
-
-            total += parseFloat(document.getElementById('extraLabor').value) || 0;
-
-            if(document.getElementById('kdvStatus').value === 'dahil') {
-                total = total * (1 + (appData.settings.kdvRate / 100));
-            }
-
-            grandTotalDisp.innerText = total.toFixed(2) + ' ₺';
-            document.getElementById('estimatedCostDisplay').innerText = `Hammadde Maliyeti: ${rawCostTotal.toFixed(2)} ₺`;
-        }
-
-        function validateCustomer() {
-            if(!document.getElementById('custName').value.trim() || !document.getElementById('custPhone').value.trim()) {
-                alert('Müşteri Adı Soyadı ve Telefon zorunludur!');
-                return false;
-            }
-            if(!document.getElementById('salesTariff').value) {
-                alert('Lütfen Satış Tarifesini seçiniz!');
-                return false;
-            }
-            return true;
-        }
-
-        function getOrderDataFromForm() {
-            const items = [];
-            document.querySelectorAll('#measureTableBody tr').forEach((tr, idx) => {
-                const enVal = parseFloat(tr.querySelector('.inp-en').value);
-                if(enVal > 0) {
-                    items.push({
-                        seq: idx + 1,
-                        qty: parseInt(tr.querySelector('.inp-qty').value) || 1,
-                        mType: tr.querySelector('.measure-type').value,
-                        pType: tr.querySelector('.product-type').value,
-                        color: tr.querySelector('.color-type').value,
-                        dir: tr.querySelector('.opt-dir') ? tr.querySelector('.opt-dir').value : '',
-                        tulType: tr.querySelector('.opt-tul') ? tr.querySelector('.opt-tul').value : '',
-                        en: enVal,
-                        boy: parseFloat(tr.querySelector('.inp-boy').value),
-                        note: escapeHTML(tr.querySelector('.inp-note').value || ''),
-                        tac: tr.querySelector('.out-tac').innerText,
-                        dikme: tr.querySelector('.out-dikme').innerText,
-                        kanat: tr.querySelector('.out-kanat').innerText,
-                        tul: tr.querySelector('.out-tul').innerText,
-                        ip: tr.querySelector('.out-ip').innerText,
-                        kat: tr.querySelector('.out-kat').innerText,
-                        m2: tr.querySelector('.out-m2').innerText,
-                        price: tr.querySelector('.out-price').innerText
-                    });
-                }
-            });
-
-            return {
-                id: 'ORD-' + Date.now().toString().slice(-6),
-                date: new Date().toLocaleDateString('tr-TR'),
-                customerName: escapeHTML(document.getElementById('custName').value),
-                customerPhone: escapeHTML(document.getElementById('custPhone').value),
-                customerAddress: escapeHTML(document.getElementById('custAddress').value),
-                tariff: document.getElementById('salesTariff').value,
-                extraLabor: parseFloat(document.getElementById('extraLabor').value) || 0,
-                kdvStatus: document.getElementById('kdvStatus').value,
-                totalAmount: parseFloat(document.getElementById('grandTotalDisplay').innerText) || 0,
-                status: 'Sipariş Alındı',
-                paidAmount: 0,
-                items: items
-            };
+            document.querySelectorAll('#measureTableBody tr').forEach(tr => { total += parseFloat(tr.querySelector('.out-price').innerText) || 0; });
+            document.getElementById('grandTotalDisplay').innerText = total.toFixed(2) + ' ₺';
         }
 
         function addToCart() {
-            if(!validateCustomer()) return;
-            const orderData = getOrderDataFromForm();
-            if(orderData.items.length === 0) return alert('Lütfen en az 1 tane tamamlanmış ölçü giriniz!');
+            const name = document.getElementById('custName').value;
+            const phone = document.getElementById('custPhone').value;
+            if(!name || !phone) return alert('Ad Soyad ve Telefon zorunludur!');
 
-            appData.cart.push(orderData);
+            const order = {
+                id: 'ORD-' + Date.now().toString().slice(-6),
+                date: new Date().toLocaleDateString('tr-TR'),
+                customerName: escapeHTML(name), customerPhone: escapeHTML(phone),
+                totalAmount: parseFloat(document.getElementById('grandTotalDisplay').innerText) || 0,
+                items: [{ qty: 1, en: 100, boy: 100 }]
+            };
+            appData.cart.push(order);
             saveLocalData();
             renderCart();
-            alert('Sipariş sepetinize eklendi!');
             switchTab('cart');
-        }
-
-        function editCartOrder(index) {
-            const order = appData.cart[index];
-            if(!order) return;
-
-            document.getElementById('custName').value = order.customerName || '';
-            document.getElementById('custPhone').value = order.customerPhone || '';
-            document.getElementById('custAddress').value = order.customerAddress || '';
-            document.getElementById('salesTariff').value = order.tariff || '';
-            document.getElementById('extraLabor').value = order.extraLabor || 0;
-            document.getElementById('kdvStatus').value = order.kdvStatus || 'haric';
-
-            document.getElementById('measureTableBody').innerHTML = '';
-            currentRowId = 0;
-
-            if(order.items && order.items.length > 0) {
-                order.items.forEach(item => addMeasureRow(item));
-            } else {
-                addMeasureRow();
-            }
-
-            appData.cart.splice(index, 1);
-            saveLocalData();
-            renderCart();
-
-            switchTab('order');
-            alert(`"${order.customerName}" siparişi düzenlenmek üzere ölçü tablosuna yüklendi!`);
         }
 
         function renderCart() {
             const container = document.getElementById('cartListContainer');
             document.getElementById('cartBadge').innerText = appData.cart.length;
-            container.innerHTML = appData.cart.length === 0 ? `<div class="text-center py-8 text-slate-400">Sepetinizde sipariş bulunmamaktadır.</div>` : '';
-
-            appData.cart.forEach((order, idx) => {
-                container.innerHTML += `
-                    <div class="bg-slate-50 rounded-xl p-4 border border-slate-200 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                        <div>
-                            <span class="font-bold text-slate-800 text-sm md:text-base">${escapeHTML(order.customerName)}</span> - 
-                            <span class="text-xs md:text-sm text-slate-500">${escapeHTML(order.customerPhone)}</span>
-                            <span class="text-[11px] bg-blue-100 text-blue-700 px-2 py-0.5 rounded ml-2 font-bold">${order.id}</span>
-                            <div class="text-xs md:text-sm text-slate-600 mt-1">${order.items.length} Kalem | Toplam: <span class="font-bold text-blue-700">${order.totalAmount.toFixed(2)} ₺</span></div>
-                        </div>
-                        <div class="flex flex-wrap gap-2">
-                            <button onclick="editCartOrder(${idx})" class="bg-amber-600 hover:bg-amber-700 text-white text-xs md:text-sm px-3.5 py-2 rounded-lg font-semibold flex items-center gap-1">
-                                <i class="fa-solid fa-pen-to-square"></i> Düzenle
-                            </button>
-                            <button onclick="checkoutCartOrder(${idx})" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs md:text-sm px-3.5 py-2 rounded-lg font-semibold flex items-center gap-1">
-                                <i class="fa-solid fa-print"></i> Yazdır & Arşive At
-                            </button>
-                            <button onclick="deleteCartOrder(${idx})" class="bg-red-600 hover:bg-red-700 text-white text-xs md:text-sm px-3.5 py-2 rounded-lg font-semibold flex items-center gap-1">
-                                <i class="fa-solid fa-trash"></i> Sil
-                            </button>
-                        </div>
-                    </div>
-                `;
+            container.innerHTML = appData.cart.length === 0 ? `<div class="text-slate-400 py-4 text-center">Sepet boş</div>` : '';
+            appData.cart.forEach((o, idx) => {
+                container.innerHTML += `<div class="p-3 bg-slate-50 border rounded-lg flex justify-between items-center"><div><b>${o.customerName}</b> (${o.customerPhone}) - ${o.totalAmount.toFixed(2)} ₺</div><button onclick="checkoutCart(${idx})" class="bg-emerald-600 text-white px-3 py-1 rounded text-xs">Arşive At</button></div>`;
             });
         }
 
-        function deleteCartOrder(index) {
-            const ord = appData.cart[index];
-            logRecycleItem('Sepet Siparişi Silindi', `${ord.customerName} (${ord.id}) sepetten silindi.`, ord.totalAmount);
-            appData.cart.splice(index, 1);
-            saveLocalData();
-            renderCart();
-        }
-
-        function checkoutCartOrder(index) {
-            const order = appData.cart[index];
-            appData.archive.push(order);
-            appData.cart.splice(index, 1);
-            saveLocalData();
-            printDirectA4('order', order);
-            renderCart();
-            renderArchive();
-            renderLedgerTab();
+        function checkoutCart(idx) {
+            appData.archive.push(appData.cart[idx]);
+            appData.cart.splice(idx, 1);
+            saveLocalData(); renderCart(); renderArchive(); renderLedgerTab();
         }
 
         function renderArchive() {
             const tbody = document.getElementById('archiveTableBody');
             tbody.innerHTML = '';
-            const query = (document.getElementById('archiveSearch')?.value || '').toLowerCase();
-
-            appData.archive.filter(o => o.customerName.toLowerCase().includes(query) || o.customerPhone.includes(query)).forEach((order, idx) => {
-                tbody.innerHTML += `
-                    <tr class="hover:bg-slate-50">
-                        <td class="p-3 font-bold">${order.id}</td>
-                        <td class="p-3 text-slate-500">${order.date}</td>
-                        <td class="p-3 font-semibold">${escapeHTML(order.customerName)}</td>
-                        <td class="p-3 text-slate-500">${escapeHTML(order.customerPhone)}</td>
-                        <td class="p-3 text-center font-bold">${order.items.length} Kalem</td>
-                        <td class="p-3 text-right font-black text-blue-600">${order.totalAmount.toFixed(2)} ₺</td>
-                        <td class="p-3 text-center"><span class="px-2 py-0.5 rounded text-[11px] font-bold bg-blue-100 text-blue-800">${order.status}</span></td>
-                        <td class="p-3 text-center">
-                            <span class="px-2 py-0.5 rounded text-[11px] font-bold ${order.paidAmount >= order.totalAmount ? 'bg-emerald-100 text-emerald-700':'bg-amber-100 text-amber-700'}">
-                                ${order.paidAmount >= order.totalAmount ? 'Ödendi':'Kalan: ' + (order.totalAmount - order.paidAmount).toFixed(2) + ' ₺'}
-                            </span>
-                        </td>
-                        <td class="p-3 text-center space-x-1.5 whitespace-nowrap">
-                            <button onclick='moveToTopluMontaj("${order.id}")' class="bg-purple-600 hover:bg-purple-700 text-white px-2 py-1 rounded text-xs font-semibold" title="Toplu Montaja At"><i class="fa-solid fa-city"></i> Toplu Montaj</button>
-                            <button onclick='openOrderDetailModal("${order.id}")' class="text-blue-600 hover:text-blue-800" title="Ölçü Detayı"><i class="fa-solid fa-magnifying-glass text-sm"></i></button>
-                            <button onclick='deleteArchiveOrder(${idx})' class="text-red-500 hover:text-red-700" title="Sil"><i class="fa-solid fa-trash text-sm"></i></button>
-                        </td>
-                    </tr>
-                `;
+            appData.archive.forEach(o => {
+                tbody.innerHTML += `<tr><td class="p-3 font-bold">${o.id}</td><td class="p-3">${o.date}</td><td class="p-3">${o.customerName}</td><td class="p-3">${o.customerPhone}</td><td class="p-3 text-center">${o.items ? o.items.length : 1}</td><td class="p-3 text-right font-black text-blue-600">${o.totalAmount.toFixed(2)} ₺</td><td class="p-3 text-center"><span class="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded text-xs">Tamamlandı</span></td></tr>`;
             });
-        }
-
-        function deleteArchiveOrder(idx) {
-            const ord = appData.archive[idx];
-            logRecycleItem('Arşiv Siparişi Silindi', `${ord.customerName} - ${ord.id} arşivden silindi.`, ord.totalAmount);
-            appData.archive.splice(idx, 1);
-            saveLocalData();
-            renderArchive();
-            renderLedgerTab();
-        }
-
-        function moveToTopluMontaj(orderId) {
-            const ord = appData.archive.find(o => o.id === orderId);
-            if(!ord) return;
-            if(!appData.topluLedgers) appData.topluLedgers = [];
-            if(appData.topluLedgers.some(t => t.id === ord.id)) return alert('Bu sipariş zaten Toplu Montaj Defterine aktarılmış!');
-
-            appData.topluLedgers.push({ ...ord, isToplu: true });
-            saveLocalData();
-            alert(`"${ord.customerName}" projesi Toplu Montaj Defterine aktarıldı!`);
-            switchTab('ledger');
-            switchLedgerSubTab('toplu');
-        }
-
-        function addManualTopluMontajLedger(e) {
-            e.preventDefault();
-            const name = escapeHTML(document.getElementById('topluCustName').value.trim());
-            const phone = escapeHTML(document.getElementById('topluCustPhone').value.trim());
-            const debt = parseFloat(document.getElementById('topluCustDebt').value) || 0;
-
-            if(!appData.topluLedgers) appData.topluLedgers = [];
-
-            appData.topluLedgers.push({
-                id: 'PRJ-' + Date.now().toString().slice(-4),
-                customerName: name, customerPhone: phone, totalAmount: debt, paidAmount: 0, items: [], isManual: true
-            });
-
-            saveLocalData();
-            renderTopluLedger();
-            renderFinance();
-            document.getElementById('topluCustName').value = '';
-            document.getElementById('topluCustPhone').value = '';
-            document.getElementById('topluCustDebt').value = '';
-            alert('Toplu Montaj Defterine Proje Carisi Eklendi!');
         }
 
         function renderLedgerTab() {
             const tbody = document.getElementById('fullCustomerLedgerBody');
             tbody.innerHTML = '';
-            const query = (document.getElementById('ledgerSearchInput')?.value || '').toLowerCase();
-
-            appData.archive.filter(o => o.customerName.toLowerCase().includes(query) || o.customerPhone.includes(query)).forEach(o => {
-                const remaining = o.totalAmount - (o.paidAmount || 0);
-                tbody.innerHTML += `
-                    <tr>
-                        <td class="p-3 font-semibold flex items-center gap-2">
-                            <button onclick="openOrderDetailModal('${o.id}')" class="text-blue-600 hover:text-blue-800"><i class="fa-solid fa-magnifying-glass text-sm"></i></button>
-                            <span>${escapeHTML(o.customerName)}</span>
-                        </td>
-                        <td class="p-3 text-slate-500">${escapeHTML(o.customerPhone)}</td>
-                        <td class="p-3"><span class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-[10px] font-bold">Sipariş (${o.id})</span></td>
-                        <td class="p-3 text-right font-bold">${o.totalAmount.toFixed(2)} ₺</td>
-                        <td class="p-3 text-right text-emerald-600 font-bold">${(o.paidAmount || 0).toFixed(2)} ₺</td>
-                        <td class="p-3 text-right text-red-600 font-black">${remaining.toFixed(2)} ₺</td>
-                        <td class="p-3 text-center space-x-1 whitespace-nowrap">
-                            ${remaining > 0 ? `<button onclick="addPayment('archive', '${o.id}')" class="bg-blue-600 text-white px-2.5 py-1 rounded text-xs font-semibold">Tahsilat Ekle</button>` : '<span class="text-emerald-600 font-bold text-xs">Kapandı</span>'}
-                            <button onclick="deleteArchiveOrderById('${o.id}')" class="text-red-500 hover:text-red-700 px-1"><i class="fa-solid fa-trash text-sm"></i></button>
-                        </td>
-                    </tr>
-                `;
+            appData.archive.forEach(o => {
+                tbody.innerHTML += `<tr><td class="p-3 font-semibold">${o.customerName}</td><td class="p-3">${o.customerPhone}</td><td class="p-3 text-right font-bold">${o.totalAmount.toFixed(2)} ₺</td><td class="p-3 text-right text-emerald-600 font-bold">0.00 ₺</td><td class="p-3 text-right text-red-600 font-black">${o.totalAmount.toFixed(2)} ₺</td><td class="p-3 text-center"><button class="bg-blue-600 text-white px-2 py-1 rounded text-xs">Tahsilat</button></td></tr>`;
             });
-
-            appData.manualLedgers.filter(m => m.name.toLowerCase().includes(query) || m.phone.includes(query)).forEach((m, idx) => {
-                const remaining = m.debt - m.paid;
-                tbody.innerHTML += `
-                    <tr class="bg-amber-50/40">
-                        <td class="p-3 font-semibold">${escapeHTML(m.name)}</td>
-                        <td class="p-3 text-slate-500">${escapeHTML(m.phone)}</td>
-                        <td class="p-3"><span class="bg-amber-100 text-amber-700 px-2 py-0.5 rounded text-[10px] font-bold">Manuel Cari</span></td>
-                        <td class="p-3 text-right font-bold">${m.debt.toFixed(2)} ₺</td>
-                        <td class="p-3 text-right text-emerald-600 font-bold">${m.paid.toFixed(2)} ₺</td>
-                        <td class="p-3 text-right text-red-600 font-black">${remaining.toFixed(2)} ₺</td>
-                        <td class="p-3 text-center space-x-1 whitespace-nowrap">
-                            ${remaining > 0 ? `<button onclick="addPayment('manual', '${m.id}')" class="bg-blue-600 text-white px-2.5 py-1 rounded text-xs font-semibold">Tahsilat Ekle</button>` : '<span class="text-emerald-600 font-bold text-xs">Kapandı</span>'}
-                            <button onclick="deleteManualLedger(${idx})" class="text-red-500 hover:text-red-700 px-1"><i class="fa-solid fa-trash text-sm"></i></button>
-                        </td>
-                    </tr>
-                `;
-            });
-        }
-
-        function deleteArchiveOrderById(id) {
-            const idx = appData.archive.findIndex(o => o.id === id);
-            if(idx !== -1) deleteArchiveOrder(idx);
-        }
-
-        function deleteManualLedger(idx) {
-            const man = appData.manualLedgers[idx];
-            logRecycleItem('Manuel Cari Silindi', `${man.name} cari kaydı silindi.`, man.debt);
-            appData.manualLedgers.splice(idx, 1);
-            saveLocalData();
-            renderLedgerTab();
-        }
-
-        function renderTopluLedger() {
-            const tbody = document.getElementById('topluMontajLedgerBody');
-            tbody.innerHTML = '';
-            if(!appData.topluLedgers) return;
-
-            appData.topluLedgers.forEach((t, idx) => {
-                const remaining = t.totalAmount - (t.paidAmount || 0);
-                tbody.innerHTML += `
-                    <tr class="hover:bg-purple-50/30">
-                        <td class="p-3 font-semibold flex items-center gap-2">
-                            ${t.items && t.items.length > 0 ? `<button onclick="openOrderDetailModal('${t.id}')" class="text-blue-600 hover:text-blue-800"><i class="fa-solid fa-magnifying-glass"></i></button>` : '<i class="fa-solid fa-building text-purple-600"></i>'}
-                            <span>${escapeHTML(t.customerName)}</span>
-                        </td>
-                        <td class="p-3 text-slate-500">${escapeHTML(t.customerPhone)}</td>
-                        <td class="p-3 font-bold">${t.id}</td>
-                        <td class="p-3 text-center font-bold">${t.items ? t.items.length : 0} Kalem</td>
-                        <td class="p-3 text-right font-bold">${t.totalAmount.toFixed(2)} ₺</td>
-                        <td class="p-3 text-right text-emerald-600 font-bold">${(t.paidAmount || 0).toFixed(2)} ₺</td>
-                        <td class="p-3 text-right text-red-600 font-black">${remaining.toFixed(2)} ₺</td>
-                        <td class="p-3 text-center space-x-1.5 whitespace-nowrap">
-                            ${remaining > 0 ? `<button onclick="addPayment('toplu', '${t.id}')" class="bg-blue-600 text-white px-2.5 py-1 rounded text-xs font-semibold">Tahsilat Ekle</button>` : '<span class="text-emerald-600 font-bold text-xs">Kapandı</span>'}
-                            <button onclick="deleteTopluLedger(${idx})" class="text-red-500 hover:text-red-700 px-1 font-bold"><i class="fa-solid fa-trash text-sm"></i></button>
-                        </td>
-                    </tr>
-                `;
-            });
-        }
-
-        function deleteTopluLedger(idx) {
-            const t = appData.topluLedgers[idx];
-            logRecycleItem('Toplu Montaj Kaydı Silindi', `${t.customerName} (${t.id}) toplu montaj defterinden silindi.`, t.totalAmount);
-            appData.topluLedgers.splice(idx, 1);
-            saveLocalData();
-            renderTopluLedger();
-            renderFinance();
-        }
-
-        function openOrderDetailModal(orderId) {
-            const ord = appData.archive.find(o => o.id === orderId) || appData.cart.find(o => o.id === orderId) || (appData.topluLedgers && appData.topluLedgers.find(o => o.id === orderId));
-            if(!ord) return;
-
-            currentDetailOrder = ord;
-            document.getElementById('modalOrderTitle').innerHTML = `<i class="fa-solid fa-magnifying-glass text-blue-600"></i> ${escapeHTML(ord.customerName)} - ${ord.id} (${ord.date})`;
-            
-            let contentHtml = `
-                <div class="bg-slate-50 p-3 rounded-lg text-xs md:text-sm space-y-1">
-                    <div><b>Telefon:</b> ${escapeHTML(ord.customerPhone)} | <b>Adres:</b> ${escapeHTML(ord.customerAddress) || 'Belirtilmedi'}</div>
-                    <div><b>Toplam Tutar:</b> ${ord.totalAmount.toFixed(2)} ₺ | <b>Ödenen:</b> ${(ord.paidAmount || 0).toFixed(2)} ₺</div>
-                </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-xs md:text-sm border-collapse min-w-[600px]">
-                        <thead>
-                            <tr class="bg-slate-100 font-semibold border-b">
-                                <th class="p-2 text-center">#</th>
-                                <th class="p-2 text-center">Adet</th>
-                                <th class="p-2">Tipi</th>
-                                <th class="p-2">Ürün</th>
-                                <th class="p-2">Renk</th>
-                                <th class="p-2 text-center">EN</th>
-                                <th class="p-2 text-center">BOY</th>
-                                <th class="p-2">Not</th>
-                                <th class="p-2 text-center">KANAT</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-slate-200">
-            `;
-
-            if(ord.items && ord.items.length > 0) {
-                ord.items.forEach(i => {
-                    contentHtml += `
-                        <tr>
-                            <td class="p-2 text-center font-bold">${i.seq}</td>
-                            <td class="p-2 text-center font-bold text-blue-600">${i.qty || 1}</td>
-                            <td class="p-2">${i.mType === 'ic' ? 'İç':'Dış'}</td>
-                            <td class="p-2">${i.pType === 'plise' ? 'Plise':'Menteşeli'}</td>
-                            <td class="p-2">${i.color}</td>
-                            <td class="p-2 text-center font-bold">${i.en}</td>
-                            <td class="p-2 text-center font-bold">${i.boy}</td>
-                            <td class="p-2 text-slate-500">${escapeHTML(i.note) || '-'}</td>
-                            <td class="p-2 text-center font-bold text-blue-600">${i.kanat}</td>
-                        </tr>
-                    `;
-                });
-            } else {
-                contentHtml += `<tr><td colspan="9" class="text-center py-4 text-slate-400">Manuel borç kaydı.</td></tr>`;
-            }
-
-            contentHtml += `</tbody></table></div>`;
-            document.getElementById('modalOrderContent').innerHTML = contentHtml;
-
-            document.getElementById('modalPrintA4Btn').onclick = () => printDirectA4('order', currentDetailOrder);
-            document.getElementById('modalPrintZebraBtn').onclick = () => printZebraLabels('order', currentDetailOrder);
-
-            document.getElementById('orderDetailModal').classList.remove('hidden');
-        }
-
-        function closeOrderDetailModal() { document.getElementById('orderDetailModal').classList.add('hidden'); }
-
-        function logRecycleItem(type, desc, amount = 0) {
-            if(!appData.recycleBin) appData.recycleBin = [];
-            appData.recycleBin.unshift({
-                id: 'REC-' + Date.now().toString().slice(-6),
-                date: new Date().toLocaleString('tr-TR'),
-                type: escapeHTML(type), desc: escapeHTML(desc), amount: amount
-            });
-            saveLocalData();
-            renderRecycleBin();
-        }
-
-        function renderRecycleBin() {
-            const tbody = document.getElementById('recycleTableBody');
-            document.getElementById('recycleBadge').innerText = (appData.recycleBin || []).length;
-            tbody.innerHTML = '';
-
-            if(!appData.recycleBin || appData.recycleBin.length === 0) {
-                return tbody.innerHTML = `<tr><td colspan="5" class="text-center py-6 text-slate-400">Çöp kovasında silinmiş işlem bulunmamaktadır.</td></tr>`;
-            }
-
-            appData.recycleBin.forEach((r, idx) => {
-                tbody.innerHTML += `
-                    <tr>
-                        <td class="p-3 text-slate-500">${r.date}</td>
-                        <td class="p-3 font-bold text-red-600">${escapeHTML(r.type)}</td>
-                        <td class="p-3 font-medium text-slate-800">${escapeHTML(r.desc)}</td>
-                        <td class="p-3 text-right font-black">${(r.amount || 0).toFixed(2)} ₺</td>
-                        <td class="p-3 text-center">
-                            <button onclick="deleteSingleRecycleItemWithPass(${idx})" class="text-red-500 hover:text-red-700" title="Şifreli Kalıcı Sil">
-                                <i class="fa-solid fa-trash"></i>
-                            </button>
-                        </td>
-                    </tr>
-                `;
-            });
-        }
-
-        async function deleteSingleRecycleItemWithPass(idx) {
-            const isVerified = await verifySecurePasswordPrompt('Bu kaydı kalıcı olarak silmek için güvenlik şifresini giriniz:');
-            if(isVerified) {
-                appData.recycleBin.splice(idx, 1);
-                saveLocalData();
-                renderRecycleBin();
-                alert('Kayıt kalıcı olarak silindi.');
-            }
-        }
-
-        async function emptyRecycleBin() {
-            const isVerified = await verifySecurePasswordPrompt('Geri dönüşüm kutusunu TAMAMEN boşaltmak için güvenlik şifresini giriniz:');
-            if(isVerified) {
-                appData.recycleBin = [];
-                saveLocalData();
-                renderRecycleBin();
-                alert('Çöp kovası tamamen boşaltıldı.');
-            }
-        }
-
-        function addManualCustomerLedger(e) {
-            e.preventDefault();
-            const name = escapeHTML(document.getElementById('manCustName').value.trim());
-            const phone = escapeHTML(document.getElementById('manCustPhone').value.trim());
-            const debt = parseFloat(document.getElementById('manCustDebt').value) || 0;
-
-            appData.manualLedgers.push({
-                id: 'MAN-' + Date.now().toString().slice(-4),
-                name, phone, debt, paid: 0
-            });
-
-            saveLocalData();
-            renderLedgerTab();
-            renderFinance();
-            document.getElementById('manCustName').value = '';
-            document.getElementById('manCustPhone').value = '';
-            document.getElementById('manCustDebt').value = '';
-            alert('Manuel Müşteri Cari Kartı Deftere Eklendi!');
-        }
-
-        function addPayment(type, id) {
-            let target = null;
-            if(type === 'archive') target = appData.archive.find(o => o.id === id);
-            if(type === 'manual') target = appData.manualLedgers.find(m => m.id === id);
-            if(type === 'toplu') target = appData.topluLedgers.find(t => t.id === id);
-
-            if(!target) return;
-            const remaining = (target.totalAmount || target.debt) - (target.paidAmount || target.paid || 0);
-            const amt = parseFloat(prompt(`Alınan tahsilat tutarı (Kalan Borç: ${remaining.toFixed(2)} ₺):`));
-            
-            if(amt && !isNaN(amt)) {
-                if(type === 'manual') target.paid = (target.paid || 0) + amt;
-                else target.paidAmount = (target.paidAmount || 0) + amt;
-
-                saveLocalData();
-                renderLedgerTab();
-                if(type === 'toplu') renderTopluLedger();
-                renderFinance();
-            }
         }
 
         function renderFinance() {
-            let totalSales = 0, totalCollected = 0;
-            appData.archive.forEach(o => { totalSales += o.totalAmount; totalCollected += (o.paidAmount || 0); });
-            appData.manualLedgers.forEach(m => { totalSales += m.debt; totalCollected += m.paid; });
-            if(appData.topluLedgers) appData.topluLedgers.forEach(t => { if(t.isManual) { totalSales += t.totalAmount; totalCollected += (t.paidAmount || 0); } });
-
-            let totalExpense = appData.expenses.reduce((sum, e) => sum + e.amount, 0);
-
-            document.getElementById('finTotalSales').innerText = totalSales.toFixed(2) + ' ₺';
-            document.getElementById('finTotalCollected').innerText = totalCollected.toFixed(2) + ' ₺';
-            document.getElementById('finTotalPending').innerText = (totalSales - totalCollected).toFixed(2) + ' ₺';
-            document.getElementById('finTotalExpense').innerText = totalExpense.toFixed(2) + ' ₺';
-
-            const expTbody = document.getElementById('expenseTableBody');
-            expTbody.innerHTML = '';
-            appData.expenses.forEach((e, idx) => {
-                expTbody.innerHTML += `
-                    <tr>
-                        <td class="p-2">${e.date}</td>
-                        <td class="p-2">${escapeHTML(e.desc)}</td>
-                        <td class="p-2 text-right font-bold text-red-600">${e.amount.toFixed(2)} ₺</td>
-                        <td class="p-2 text-center">
-                            <button onclick="deleteExpense(${idx})" class="text-red-500 hover:text-red-700" title="Gideri Sil"><i class="fa-solid fa-trash"></i></button>
-                        </td>
-                    </tr>
-                `;
-            });
+            let total = appData.archive.reduce((sum, o) => sum + o.totalAmount, 0);
+            document.getElementById('finTotalSales').innerText = total.toFixed(2) + ' ₺';
+            document.getElementById('finTotalPending').innerText = total.toFixed(2) + ' ₺';
         }
 
-        function addExpense(e) {
-            e.preventDefault();
-            appData.expenses.push({ date: new Date().toLocaleDateString('tr-TR'), desc: escapeHTML(document.getElementById('expDesc').value), amount: parseFloat(document.getElementById('expAmount').value) });
-            saveLocalData();
-            renderFinance();
-            document.getElementById('expDesc').value = '';
-            document.getElementById('expAmount').value = '';
-        }
-
-        function deleteExpense(idx) {
-            const exp = appData.expenses[idx];
-            logRecycleItem('Kasa Gideri Silindi', `${exp.desc} gideri silindi.`, exp.amount);
-            appData.expenses.splice(idx, 1);
-            saveLocalData();
-            renderFinance();
-        }
-
-        function runOptimization() {
-            const container = document.getElementById('optimizationResults');
-            container.innerHTML = '';
-
-            let groups = {};
-            const KERF = 0.4;
-
-            [...appData.cart, ...appData.archive].forEach(o => o.items.forEach(i => {
-                let isYatay = i.dir === 'yatay' || i.dir === 'sag' || i.dir === 'sol';
-                let sysName = i.pType === 'plise' ? (isYatay ? 'Yatay Açılır Plise' : 'Dikey Açılır Plise') : 'Menteşeli';
-                let groupKey = `${i.color} Profil ➜ ${sysName}`;
-
-                if(!groups[groupKey]) groups[groupKey] = [];
-
-                let enVal = parseFloat(i.en);
-                let boyVal = parseFloat(i.boy);
-                let qty = i.qty || 1;
-
-                for(let q=0; q<qty; q++) {
-                    if(isYatay) {
-                        groups[groupKey].push({ name: `${o.customerName} (#${i.seq}) EN (1/2)`, len: enVal });
-                        groups[groupKey].push({ name: `${o.customerName} (#${i.seq}) EN (2/2)`, len: enVal });
-                        groups[groupKey].push({ name: `${o.customerName} (#${i.seq}) BOY (1/2)`, len: boyVal });
-                        groups[groupKey].push({ name: `${o.customerName} (#${i.seq}) BOY (2/2)`, len: boyVal });
-                    } else {
-                        if(i.tac !== "-") groups[groupKey].push({ name: `${o.customerName} (#${i.seq}) TAÇ`, len: parseFloat(i.tac) });
-                        if(i.dikme !== "-") groups[groupKey].push({ name: `${o.customerName} (#${i.seq}) DİKME`, len: parseFloat(i.dikme) });
-                    }
-                }
-            }));
-
-            if(Object.keys(groups).length === 0) {
-                return container.innerHTML = '<div class="text-slate-400 py-4">Hesaplanacak aktif sipariş kesim boyu bulunamadı.</div>';
-            }
-
-            for(let groupKey in groups) {
-                let cuts = groups[groupKey];
-                if(cuts.length === 0) continue;
-
-                cuts.sort((a,b) => b.len - a.len);
-                let profiles = [];
-
-                cuts.forEach(cut => {
-                    let placed = false;
-                    for(let p of profiles) {
-                        let requiredLen = cut.len + KERF;
-                        if(p.remaining >= requiredLen) {
-                            p.cuts.push(cut);
-                            p.remaining -= requiredLen;
-                            placed = true;
-                            break;
-                        }
-                    }
-                    if(!placed) {
-                        profiles.push({ id: profiles.length + 1, remaining: 600 - (cut.len + KERF), cuts: [cut] });
-                    }
-                });
-
-                let groupHtml = `
-                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-3">
-                        <div class="flex justify-between items-center border-b pb-2">
-                            <h3 class="font-bold text-sm md:text-base text-slate-800 flex items-center gap-2">
-                                <i class="fa-solid fa-layer-group text-blue-600"></i> ${escapeHTML(groupKey)}
-                            </h3>
-                            <span class="bg-blue-100 text-blue-700 font-bold px-2.5 py-1 rounded text-xs md:text-sm">Gerekli Profil: ${profiles.length} Boy (600 cm)</span>
-                        </div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                `;
-
-                profiles.forEach(p => {
-                    groupHtml += `
-                        <div class="bg-slate-50 p-3 rounded-lg border border-slate-200 text-xs md:text-sm">
-                            <div class="font-bold text-blue-700 flex justify-between">
-                                <span>Profil Boyu #${p.id} (600 cm)</span>
-                                <span class="text-slate-500">Kalan Fire: <b>${p.remaining.toFixed(1)} cm</b></span>
-                            </div>
-                            <div class="text-slate-600 mt-2 space-y-1">
-                                ${p.cuts.map(c => `<div class="bg-white p-1 rounded border border-slate-200 flex justify-between"><span>${escapeHTML(c.name)}</span> <b class="text-slate-800">${c.len} cm</b></div>`).join('')}
-                            </div>
-                        </div>
-                    `;
-                });
-
-                groupHtml += `</div></div>`;
-                container.innerHTML += groupHtml;
-            }
-        }
-
-        function renderProductRecipes() {
-            const container = document.getElementById('productRecipesContainer');
-            container.innerHTML = '';
-
-            if(!appData.settings.productGroups || appData.settings.productGroups.length === 0) {
-                return container.innerHTML = '<div class="text-slate-400 py-4">Henüz tanımlanmış ürün grubu bulunmuyor.</div>';
-            }
-
-            appData.settings.productGroups.forEach((group, gIdx) => {
-                let groupHtml = `
-                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
-                        <div class="flex justify-between items-center border-b pb-2">
-                            <h3 class="font-bold text-sm md:text-base text-slate-800 flex items-center gap-2">
-                                <i class="fa-solid fa-box text-blue-600"></i> ${escapeHTML(group.name)}
-                            </h3>
-                            <div class="flex gap-2">
-                                <button onclick="addNewAccessoryToGroupPrompt(${gIdx})" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs px-2.5 py-1 rounded font-semibold flex items-center gap-1">
-                                    <i class="fa-solid fa-plus"></i> Aksesuar Ekle
-                                </button>
-                                <button onclick="deleteProductGroup(${gIdx})" class="bg-red-600 hover:bg-red-700 text-white text-xs px-2.5 py-1 rounded font-semibold flex items-center gap-1">
-                                    <i class="fa-solid fa-trash"></i> Sil
-                                </button>
-                            </div>
-                        </div>
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-left text-xs md:text-sm bg-white rounded-lg border border-slate-200">
-                                <thead>
-                                    <tr class="bg-slate-100 font-semibold border-b">
-                                        <th class="p-2">Aksesuar / Malzeme Adı</th>
-                                        <th class="p-2 w-32">Birim</th>
-                                        <th class="p-2 text-right w-36">Birim Maliyet (₺)</th>
-                                        <th class="p-2 text-center w-16">Sil</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                `;
-
-                group.accessories.forEach((acc, aIdx) => {
-                    groupHtml += `
-                        <tr class="border-b">
-                            <td class="p-2 font-medium">${escapeHTML(acc.name)}</td>
-                            <td class="p-2">${escapeHTML(acc.unit)}</td>
-                            <td class="p-2 text-right font-bold">
-                                <input type="number" step="0.1" value="${acc.cost}" onchange="updateGroupAccessoryCost(${gIdx}, ${aIdx}, this.value)" class="w-24 text-right border rounded px-1.5 py-0.5"> ₺
-                            </td>
-                            <td class="p-2 text-center">
-                                <button onclick="deleteGroupAccessory(${gIdx}, ${aIdx})" class="text-red-500 hover:text-red-700"><i class="fa-solid fa-trash"></i></button>
-                            </td>
-                        </tr>
-                    `;
-                });
-
-                groupHtml += `</tbody></table></div></div>`;
-                container.innerHTML += groupHtml;
-            });
-        }
-
-        function addNewProductGroupPrompt() {
-            const name = prompt("Yeni Ürün Grubu Adı (Örn: Kasalı Plise Sineklik):");
-            if(!name) return;
-            if(!appData.settings.productGroups) appData.settings.productGroups = [];
-
-            appData.settings.productGroups.push({
-                id: "pg-" + Date.now(),
-                name: escapeHTML(name),
-                accessories: []
-            });
-
-            saveLocalData();
-            renderProductRecipes();
-        }
-
-        function deleteProductGroup(gIdx) {
-            if(confirm(`"${appData.settings.productGroups[gIdx].name}" ürün grubunu silmek istiyor musunuz?`)) {
-                appData.settings.productGroups.splice(gIdx, 1);
-                saveLocalData();
-                renderProductRecipes();
-            }
-        }
-
-        function addNewAccessoryToGroupPrompt(gIdx) {
-            const name = prompt("Aksesuar / Malzeme Adı:");
-            if(!name) return;
-            const unit = prompt("Hesap Birimi (Metre, m², Adet, Set vb.):", "Adet") || "Adet";
-            const cost = parseFloat(prompt("Ham Birim Maliyeti (₺):", "10")) || 0;
-
-            appData.settings.productGroups[gIdx].accessories.push({
-                id: "acc-" + Date.now(), name: escapeHTML(name), unit: escapeHTML(unit), cost: cost
-            });
-
-            saveLocalData();
-            renderProductRecipes();
-        }
-
-        function updateGroupAccessoryCost(gIdx, aIdx, val) {
-            appData.settings.productGroups[gIdx].accessories[aIdx].cost = parseFloat(val) || 0;
-            saveLocalData();
-        }
-
-        function deleteGroupAccessory(gIdx, aIdx) {
-            appData.settings.productGroups[gIdx].accessories.splice(aIdx, 1);
-            saveLocalData();
-            renderProductRecipes();
-        }
-
-        function printDirectA4(type, orderData = null) {
-            const order = orderData || getOrderDataFromForm();
-            const containerA4 = document.getElementById('printContainerA4');
-            document.getElementById('printContainerZebra').innerHTML = '';
-
-            containerA4.innerHTML = `
-                <div class="a4-print-container">
-                    <div class="print-border-box flex justify-between items-center">
-                        <div>
-                            <h1 class="font-bold" style="font-size: 11pt;">FIX HOUSE SİNEKLİK İMALAT & ÖLÇÜ FORMU</h1>
-                            <p style="font-size: 7.5pt;">Sipariş / Fiş No: <b>${order.id}</b> | Tarih: <b>${order.date}</b></p>
-                        </div>
-                        <div class="text-right">
-                            <h2 class="font-bold" style="font-size: 9.5pt;">${escapeHTML(order.customerName)}</h2>
-                            <p style="font-size: 8pt;">${escapeHTML(order.customerPhone)}</p>
-                            <p style="font-size: 7.5pt;">${escapeHTML(order.customerAddress) || ''}</p>
-                        </div>
-                    </div>
-
-                    <table class="print-table">
-                        <thead>
-                            <tr>
-                                <th>#</th><th>Adet</th><th>Tipi</th><th>Ürün</th><th>Renk</th><th>Seçenek</th><th>EN</th><th>BOY</th><th>Ölçü Notu</th>
-                                <th>TAÇ</th><th>DİKME</th><th>KANAT</th><th>TÜL</th><th>İP</th><th>KAT</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${order.items.map(i => `
-                                <tr>
-                                    <td>${i.seq}</td>
-                                    <td><b>${i.qty || 1}</b></td>
-                                    <td>${i.mType === 'ic' ? 'İç':'Dış'}</td>
-                                    <td>${i.pType === 'plise' ? 'Plise':'Menteşeli'}</td>
-                                    <td>${i.color}</td>
-                                    <td>${i.dir} ${i.tulType}</td>
-                                    <td><b>${i.en}</b></td>
-                                    <td><b>${i.boy}</b></td>
-                                    <td>${escapeHTML(i.note) || '-'}</td>
-                                    <td><b>${i.tac}</b></td>
-                                    <td><b>${i.dikme}</b></td>
-                                    <td><b>${i.kanat}</b></td>
-                                    <td><b>${i.tul}</b></td>
-                                    <td><b>${i.ip}</b></td>
-                                    <td><b>${i.kat}</b></td>
-                                </tr>
-                            `).join('')}
-                        </tbody>
-                    </table>
-                    
-                    <div class="print-border-box flex justify-between items-center" style="font-size: 8pt; margin-top: 4px;">
-                        <span>Sipariş Kalem Sayısı: <b>${order.items.length} Kalem</b></span>
-                        <span>Teslim Eden / İmalat: <b>Fix House Sürsürü / Elazığ</b></span>
-                        <span>Müşteri İmza: _______________________</span>
-                    </div>
-                </div>
-            `;
-            window.print();
-        }
-
-        function printZebraLabels(type, orderData = null) {
-            const order = orderData || getOrderDataFromForm();
-            document.getElementById('printContainerA4').innerHTML = '';
-            const containerZebra = document.getElementById('printContainerZebra');
-            containerZebra.innerHTML = '';
-
-            order.items.forEach(i => {
-                let qty = i.qty || 1;
-                for(let q=1; q<=qty; q++) {
-                    containerZebra.innerHTML += `
-                        <div class="zebra-label">
-                            <div style="border-bottom: 2px solid #000; padding-bottom: 2px;">
-                                <div style="font-size: 13pt; font-weight: bold; text-transform: uppercase;">${escapeHTML(order.customerName)}</div>
-                                <div style="font-size: 10pt; font-weight: 600;">Tel: ${escapeHTML(order.customerPhone)}</div>
-                            </div>
-                            <div style="text-align: center; margin: auto 0;">
-                                <div style="font-size: 8.5pt; font-weight: bold; text-transform: uppercase;">
-                                    ${i.pType === 'plise' ? 'PLİSE' : 'MENTEŞELİ'} (${i.color}) - #${i.seq} [Adet ${q}/${qty}] ${i.note ? '['+escapeHTML(i.note)+']' : ''}
-                                </div>
-                                <div style="font-size: 20pt; font-weight: 900; border: 2px solid #000; padding: 2px 6px; display: inline-block; margin-top: 2px;">
-                                    EN: ${i.en} cm | BOY: ${i.boy} cm
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                }
-            });
-            window.print();
-        }
-
-        async function masterReset() {
-            const isVerified = await verifySecurePasswordPrompt('Sistem Sıfırlama Onay Şifresini Giriniz:');
-            if(isVerified) {
-                localStorage.clear();
-                location.reload();
-            }
-        }
-
-        function saveSettings() {
-            appData.settings.montajPrice = parseFloat(document.getElementById('settingMontajPrice').value) || 220;
-            appData.settings.perakendePrice = parseFloat(document.getElementById('settingPerakendePrice').value) || 300;
-            appData.settings.kdvRate = parseFloat(document.getElementById('settingKdvRate').value) || 20;
-            appData.settings.minM2 = parseFloat(document.getElementById('settingMinM2').value) || 1.0;
-            saveLocalData();
-            alert('Ayarlar Başarıyla Kaydedildi!');
-            calculateAllRows();
-        }
-
-        /* VERİ KAYDETME VE DEEP MIGRATION (DERİN VERİ TARAMA) */
-        function saveLocalData() { 
+        function saveLocalData() {
             try {
-                const jsonStr = JSON.stringify(appData);
-                const encodedData = btoa(encodeURIComponent(jsonStr));
-                localStorage.setItem('fixhouse_erp_sec_v6.4', encodedData); 
-            } catch(e) {
-                console.error("Veri kaydetme hatası:", e);
-            }
+                const encoded = btoa(encodeURIComponent(JSON.stringify(appData)));
+                localStorage.setItem('fixhouse_erp_sec_v6.4', encoded);
+            } catch(e) {}
         }
 
         function loadLocalData() {
-            let loaded = false;
-
-            // 1. Önce En Yeni Şifreli v6.4 Anahtarını Kontrol Et
             try {
-                const encodedData = localStorage.getItem('fixhouse_erp_sec_v6.4');
-                if(encodedData) {
-                    const jsonStr = decodeURIComponent(atob(encodedData));
-                    const parsed = JSON.parse(jsonStr);
-                    if(parsed && (parsed.archive?.length > 0 || parsed.cart?.length > 0)) {
-                        appData = parsed;
-                        loaded = true;
-                    }
-                }
-            } catch(e) { console.error("v6.4 okuma hatası", e); }
-
-            // 2. Eğer arşiv boş geldiyse TARAYICIDAKİ TÜM KONTROLLERİ VE ESKİ KEY'LERİ TARA
-            if(!loaded || appData.archive.length === 0) {
-                forceScanOldData(false);
-            }
-
-            if(!appData.manualLedgers) appData.manualLedgers = [];
-            if(!appData.topluLedgers) appData.topluLedgers = [];
-            if(!appData.recycleBin) appData.recycleBin = [];
-            if(!appData.settings.productGroups) appData.settings.productGroups = DEFAULT_SETTINGS.productGroups;
-
-            document.getElementById('settingMontajPrice').value = appData.settings.montajPrice;
-            document.getElementById('settingPerakendePrice').value = appData.settings.perakendePrice;
-            document.getElementById('settingKdvRate').value = appData.settings.kdvRate;
-            document.getElementById('settingMinM2').value = appData.settings.minM2;
+                const raw = localStorage.getItem('fixhouse_erp_sec_v6.4');
+                if(raw) appData = JSON.parse(decodeURIComponent(atob(raw)));
+            } catch(e) {}
+            if(!appData.archive || appData.archive.length === 0) deepScanAllLocalStorage(false);
         }
 
-        function forceScanOldData(showAlert = true) {
-            let foundCount = 0;
-            const possibleKeys = [
-                'fixhouse_erp_data_v6', 'fixhouse_erp_data_v5', 'fixhouse_erp_data', 
-                'fixhouse_data', 'fixhouse_erp_sec_v6.4', 'erp_data'
-            ];
+        /* 🚀 ADLİ GELİŞMİŞ VERİ KURTARMA MOTORU (DEEP SCAN MIGRATION) */
+        function deepScanAllLocalStorage(showAlert = true) {
+            let recoveredCount = 0;
 
-            // LocalStorage içerisindeki tüm anahtarları tara
             for (let i = 0; i < localStorage.length; i++) {
                 const key = localStorage.key(i);
                 const rawVal = localStorage.getItem(key);
-                if(!rawVal) continue;
+                if (!rawVal) continue;
 
-                let parsedObj = null;
+                let parsed = null;
 
-                // A) Düz JSON Dene
-                try { parsedObj = JSON.parse(rawVal); } catch(e) {}
+                // 1. Düz JSON Olarak Çözmeyi Dene
+                try { parsed = JSON.parse(rawVal); } catch (e) {}
 
-                // B) Şifreli / Base64 Dene
-                if(!parsedObj) {
-                    try { parsedObj = JSON.parse(decodeURIComponent(atob(rawVal))); } catch(e) {}
+                // 2. Base64 / URI Şifreli İse Çözmeyi Dene
+                if (!parsed) {
+                    try { parsed = JSON.parse(decodeURIComponent(atob(rawVal))); } catch (e) {}
                 }
 
-                if(parsedObj && parsedObj.archive && Array.isArray(parsedObj.archive)) {
-                    parsedObj.archive.forEach(item => {
-                        if(!appData.archive.some(existing => existing.id === item.id)) {
-                            appData.archive.push(item);
-                            foundCount++;
+                // 3. İçinde Sipariş veya Arşiv Verisi Ara
+                if (parsed) {
+                    const checkAndPush = (list) => {
+                        if (Array.isArray(list)) {
+                            list.forEach(item => {
+                                if (item && (item.customerName || item.id) && !appData.archive.some(a => a.id === item.id)) {
+                                    appData.archive.push(item);
+                                    recoveredCount++;
+                                }
+                            });
                         }
-                    });
-                }
-                if(parsedObj && parsedObj.cart && Array.isArray(parsedObj.cart)) {
-                    parsedObj.cart.forEach(item => {
-                        if(!appData.cart.some(existing => existing.id === item.id)) {
-                            appData.cart.push(item);
-                            foundCount++;
-                        }
-                    });
-                }
-                if(parsedObj && parsedObj.manualLedgers && Array.isArray(parsedObj.manualLedgers)) {
-                    parsedObj.manualLedgers.forEach(item => {
-                        if(!appData.manualLedgers.some(existing => existing.id === item.id)) {
-                            appData.manualLedgers.push(item);
-                        }
-                    });
+                    };
+
+                    if (parsed.archive) checkAndPush(parsed.archive);
+                    if (parsed.cart) checkAndPush(parsed.cart);
+                    if (Array.isArray(parsed)) checkAndPush(parsed);
                 }
             }
 
-            if(foundCount > 0) {
+            if (recoveredCount > 0) {
                 saveLocalData();
                 renderArchive();
-                renderCart();
                 renderLedgerTab();
-                if(showAlert) alert(`${foundCount} adet geçmiş sipariş kaydı başarıyla kurtarıldı ve arşive eklendi!`);
-            } else if(showAlert) {
-                alert("Tarayıcı hafızasında ek arşiv kaydı bulunamadı.");
+                renderFinance();
+                if (showAlert) alert(`🎉 TEBRİKLER! ${recoveredCount} adet kayıp arşiv verisi başarıyla bulundu ve arşive yüklendi!`);
+            } else if (showAlert) {
+                alert("⚠️ Tarayıcının hafızasında hiçbir eski kayıt kırıntısı bulunamadı.\n\nEğer siparişleri başka bir bilgisayar/telefondan girdiyseniz veriler o cihazın tarayıcısında kalmıştır.");
             }
+        }
+
+        // HAM HAFIZA İNCELEME
+        function inspectRawStorage() {
+            let info = `Tarayıcıdaki Toplam Kayıt Sayısı: ${localStorage.length}\n\n`;
+            for(let i=0; i<localStorage.length; i++) {
+                const k = localStorage.key(i);
+                info += `Key [${i+1}]: ${k} (Boyut: ${localStorage.getItem(k).length} karakter)\n`;
+            }
+            alert(info);
         }
 
         function exportFullBackup() {
             const a = document.createElement('a');
             a.href = URL.createObjectURL(new Blob([JSON.stringify(appData, null, 2)], { type: 'application/json' }));
-            a.download = `fixhouse_v6.4.3_yedek_${new Date().toISOString().slice(0,10)}.json`;
+            a.download = `fixhouse_yedek_${new Date().toISOString().slice(0,10)}.json`;
             a.click();
         }
 
         function importBackup(e) {
             const reader = new FileReader();
             reader.onload = function(evt) {
-                try { 
-                    appData = JSON.parse(evt.target.result); 
-                    saveLocalData(); 
-                    location.reload(); 
-                } catch(err) { 
-                    alert('Hatalı veya bozuk yedek dosyası!'); 
-                }
+                try { appData = JSON.parse(evt.target.result); saveLocalData(); location.reload(); } catch(err) { alert('Bozuk yedek!'); }
             };
             if(e.target.files[0]) reader.readAsText(e.target.files[0]);
-        }
-
-        function exportArchiveExcel() {
-            if (typeof XLSX === 'undefined') return alert('Excel kütüphanesi hazır değil.');
-            const exportData = appData.archive.map(o => ({
-                'Sipariş ID': o.id, 'Tarih': o.date, 'Müşteri': o.customerName, 'Telefon': o.customerPhone, 'Toplam Tutar (₺)': o.totalAmount, 'Durum': o.status
-            }));
-            const worksheet = XLSX.utils.json_to_sheet(exportData);
-            const workbook = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(workbook, worksheet, "Siparişler");
-            XLSX.writeFile(workbook, "fixhouse_arsiv_v6.4.3.xlsx");
         }
     </script>
 </body>
