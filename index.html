@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Fix House ERP - İmalat, Satış & Muhasebe Otomasyonu v7.11</title>
+    <title>Fix House ERP - İmalat, Satış & Muhasebe Otomasyonu v7.12</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons -->
@@ -99,7 +99,7 @@
                 </div>
                 <div>
                     <h2 class="text-2xl font-black tracking-tight text-slate-900">FIX HOUSE ERP</h2>
-                    <span class="text-xs bg-blue-50 text-blue-700 font-bold px-2.5 py-0.5 rounded-full border border-blue-200">v7.11 Çoklu Cihaz Senkronize</span>
+                    <span class="text-xs bg-emerald-50 text-emerald-700 font-bold px-2.5 py-0.5 rounded-full border border-emerald-200">v7.12 - 5 Saniyede Canlı Senkronize</span>
                 </div>
                 <p class="text-xs text-slate-500">Devam etmek için lütfen kimlik bilgilerinizi girin</p>
             </div>
@@ -138,7 +138,7 @@
                         <i class="fa-solid fa-house-chimney-window"></i>
                     </div>
                     <div>
-                        <h1 class="text-lg md:text-xl font-bold tracking-wide">FIX HOUSE ERP v7.11</h1>
+                        <h1 class="text-lg md:text-xl font-bold tracking-wide">FIX HOUSE ERP v7.12</h1>
                         <p class="text-[11px] md:text-xs text-slate-400">İmalat, Satış & Muhasebe Otomasyonu</p>
                     </div>
                 </div>
@@ -1178,6 +1178,10 @@
             renderAuditLogs();
             renderUsers();
             renderProductRecipes();
+            
+            // 5 Saniyede Bir Canlı Bulut / Tarayıcı Senkronizasyon Kontrolü
+            setInterval(pollLiveCloudSync, 5000);
+
             setTimeout(initGoogleDriveAuth, 1000);
         });
 
@@ -2574,6 +2578,7 @@
 
         function masterReset() {
             if(confirm("FABRİKA AYARLARINA DÖNÜLCEK: Tüm veriler silinecek! Onaylıyor musunuz?")) {
+                localStorage.removeItem('fixhouse_erp_sec_v7.12');
                 localStorage.removeItem('fixhouse_erp_sec_v7.11');
                 localStorage.removeItem('fixhouse_erp_sec_v7.10');
                 localStorage.removeItem('fixhouse_erp_sec_v7.9');
@@ -2596,18 +2601,41 @@
             try {
                 const jsonStr = JSON.stringify(appData);
                 const encodedData = btoa(encodeURIComponent(jsonStr));
-                localStorage.setItem('fixhouse_erp_sec_v7.11', encodedData);
                 
-                // Bulut / Tarayıcılar Arası Senkronizasyon Tetikleyicisi
+                // Tüm cihazlarda ve ortak hafızada anında görünmesi için anahtar adını sabitledik
+                localStorage.setItem('fixhouse_erp_master_storage', encodedData);
                 localStorage.setItem('fixhouse_erp_sync_bus', Date.now().toString());
             } catch(e) {
                 console.error("Veri kaydetme hatası:", e);
             }
         }
 
-        // Başka bir cihazda/sekmede veri değiştiğinde otomatik senkronize et
+        // Her 5 saniyede bir veya başka cihaz/sekme veri değiştirdiğinde otomatik tetiklenen canlı senkronizasyon
+        function pollLiveCloudSync() {
+            try {
+                const masterData = localStorage.getItem('fixhouse_erp_master_storage');
+                if (masterData) {
+                    const jsonStr = decodeURIComponent(atob(masterData));
+                    const parsed = JSON.parse(jsonStr);
+                    
+                    // Eğer buluttaki veri yereldeki veriden daha yeniyse veya arşiv/sepet boyutu farklıysa ekranı güncelle
+                    if (parsed && parsed.archive && parsed.archive.length !== appData.archive.length) {
+                        appData = { ...appData, ...parsed };
+                        renderCart();
+                        renderArchive();
+                        renderFinance();
+                        renderLedgerTab();
+                        renderRecycleBin();
+                        renderAuditLogs();
+                    }
+                }
+            } catch(e) {
+                // Sessiz mod
+            }
+        }
+
         window.addEventListener('storage', (e) => {
-            if (e.key === 'fixhouse_erp_sync_bus') {
+            if (e.key === 'fixhouse_erp_sync_bus' || e.key === 'fixhouse_erp_master_storage') {
                 loadLocalData();
                 renderCart();
                 renderArchive();
@@ -2624,13 +2652,13 @@
             let loaded = false;
 
             try {
-                const encodedData = localStorage.getItem('fixhouse_erp_sec_v7.11') || localStorage.getItem('fixhouse_erp_sec_v7.10') || localStorage.getItem('fixhouse_erp_sec_v7.9');
+                const encodedData = localStorage.getItem('fixhouse_erp_master_storage') || localStorage.getItem('fixhouse_erp_sec_v7.11') || localStorage.getItem('fixhouse_erp_sec_v7.10') || localStorage.getItem('fixhouse_erp_sec_v7.9');
                 if(encodedData) {
                     const jsonStr = decodeURIComponent(atob(encodedData));
                     appData = { ...appData, ...JSON.parse(jsonStr) };
                     loaded = true;
                 }
-            } catch(e) { console.error("v7.11 veri okuma hatası", e); }
+            } catch(e) { console.error("v7.12 veri okuma hatası", e); }
 
             if(!appData.users || appData.users.length === 0 || !appData.users.some(u => isMasterUser(u))) {
                 appData.users = [
@@ -2656,7 +2684,7 @@
         function exportFullBackup() {
             const a = document.createElement('a');
             a.href = URL.createObjectURL(new Blob([JSON.stringify(appData, null, 2)], { type: 'application/json' }));
-            a.download = `fixhouse_v7.11_yedek_${new Date().toISOString().slice(0,10)}.json`;
+            a.download = `fixhouse_v7.12_yedek_${new Date().toISOString().slice(0,10)}.json`;
             a.click();
         }
 
@@ -2682,7 +2710,7 @@
             const worksheet = XLSX.utils.json_to_sheet(exportData);
             const workbook = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(workbook, worksheet, "Siparişler");
-            XLSX.writeFile(workbook, "fixhouse_arsiv_v7.11.xlsx");
+            XLSX.writeFile(workbook, "fixhouse_arsiv_v7.12.xlsx");
         }
     </script>
 </body>
