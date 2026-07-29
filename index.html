@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Fix House ERP - İmalat, Satış & Muhasebe Otomasyonu v7.4</title>
+    <title>Fix House ERP - İmalat, Satış & Muhasebe Otomasyonu v7.5</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons -->
@@ -110,7 +110,7 @@
                 </div>
                 <div class="border-t border-slate-200 pt-2">
                     <span class="text-[11px] md:text-xs font-bold text-slate-700 tracking-wider uppercase block">PLİSE PERDE VE SİNEKLİK SİSTEMLERİ</span>
-                    <span class="text-[10px] bg-emerald-50 text-emerald-800 font-bold px-2 py-0.5 rounded-full border border-emerald-200 mt-1 inline-block">ERP v7.4 Güvenli Oturum</span>
+                    <span class="text-[10px] bg-emerald-50 text-emerald-800 font-bold px-2 py-0.5 rounded-full border border-emerald-200 mt-1 inline-block">ERP v7.5 Güvenli Oturum</span>
                 </div>
             </div>
 
@@ -148,7 +148,7 @@
                         <i class="fa-solid fa-house-chimney-window"></i>
                     </div>
                     <div>
-                        <h1 class="text-lg md:text-xl font-bold tracking-wide">FIX HOUSE ERP v7.4</h1>
+                        <h1 class="text-lg md:text-xl font-bold tracking-wide">FIX HOUSE ERP v7.5</h1>
                         <p class="text-[11px] md:text-xs text-slate-400">Plise Perde ve Sineklik Sistemleri Otomasyonu</p>
                     </div>
                 </div>
@@ -228,7 +228,7 @@
                     <h2 class="text-base md:text-lg font-bold text-slate-800 flex items-center gap-2">
                         <i class="fa-solid fa-ruler-combined text-blue-600"></i> ÖLÇÜ & ÜRÜN KONFİGÜRASYONU
                     </h2>
-                    <span class="text-xs text-slate-500 hidden md:inline">Polen (+400₺/m²) & Kedi Tülü (+260₺/m²) Farkı Entegre</span>
+                    <span class="text-xs text-slate-500 hidden md:inline">Yatay (En+En+Boy+Boy+Boy) & Polen (+400₺/m²) / Kedi Tülü (+260₺/m²) Farkı</span>
                 </div>
 
                 <!-- Ölçü Satırlarının Konteyneri -->
@@ -1488,6 +1488,7 @@
             const dirSelect = card.querySelector('.opt-dir');
             const tulSelect = card.querySelector('.opt-tul');
             const isDikey = dirSelect ? dirSelect.value === 'dikey' : false;
+            const isYatayPlise = (pType === 'plise' && dirSelect && dirSelect.value === 'yatay');
 
             if(pType === 'plise') {
                 if(mType === 'ic') {
@@ -1546,7 +1547,16 @@
             }
 
             let unitPrice = (tariff === 'montajli') ? appData.settings.montajPrice : appData.settings.perakendePrice;
-            let rowPrice = totalM2 * unitPrice;
+            let rowPrice = 0;
+
+            if(isYatayPlise) {
+                // Yatay seçildiğinde: (en + en + boy + boy + boy) / 100 metre cinsinden birim fiyatla çarpılır
+                let sumCm = (rawEn + rawEn + rawBoy + rawBoy + rawBoy);
+                let sumMeters = sumCm / 100.0;
+                rowPrice = sumMeters * unitPrice * qty;
+            } else {
+                rowPrice = totalM2 * unitPrice;
+            }
 
             if(tulSelect) {
                 const tVal = tulSelect.value;
@@ -2437,6 +2447,7 @@
 
         function masterReset() {
             if(confirm("FABRİKA AYARLARINA DÖNÜLCEK: Tüm veriler silinecek! Onaylıyor musunuz?")) {
+                localStorage.removeItem('fixhouse_erp_sec_v7.5');
                 localStorage.removeItem('fixhouse_erp_sec_v7.4');
                 localStorage.removeItem('fixhouse_erp_sec_v7.3');
                 localStorage.removeItem('fixhouse_erp_sec_v7.2');
@@ -2462,7 +2473,7 @@
             try {
                 const jsonStr = JSON.stringify(appData);
                 const encodedData = btoa(encodeURIComponent(jsonStr));
-                localStorage.setItem('fixhouse_erp_sec_v7.4', encodedData); 
+                localStorage.setItem('fixhouse_erp_sec_v7.5', encodedData); 
             } catch(e) {
                 console.error("Veri kaydetme hatası:", e);
             }
@@ -2472,13 +2483,13 @@
             let loaded = false;
 
             try {
-                const encodedData = localStorage.getItem('fixhouse_erp_sec_v7.4') || localStorage.getItem('fixhouse_erp_sec_v7.3') || localStorage.getItem('fixhouse_erp_sec_v7.2') || localStorage.getItem('fixhouse_erp_sec_v7.1') || localStorage.getItem('fixhouse_erp_sec_v7.0');
+                const encodedData = localStorage.getItem('fixhouse_erp_sec_v7.5') || localStorage.getItem('fixhouse_erp_sec_v7.4') || localStorage.getItem('fixhouse_erp_sec_v7.3') || localStorage.getItem('fixhouse_erp_sec_v7.2') || localStorage.getItem('fixhouse_erp_sec_v7.1') || localStorage.getItem('fixhouse_erp_sec_v7.0');
                 if(encodedData) {
                     const jsonStr = decodeURIComponent(atob(encodedData));
                     appData = { ...appData, ...JSON.parse(jsonStr) };
                     loaded = true;
                 }
-            } catch(e) { console.error("v7.4 veri okuma hatası", e); }
+            } catch(e) { console.error("v7.5 veri okuma hatası", e); }
 
             if(!appData.users || appData.users.length === 0 || !appData.users.some(u => isMasterUser(u))) {
                 appData.users = [
@@ -2504,7 +2515,7 @@
         function exportFullBackup() {
             const a = document.createElement('a');
             a.href = URL.createObjectURL(new Blob([JSON.stringify(appData, null, 2)], { type: 'application/json' }));
-            a.download = `fixhouse_v7.4_yedek_${new Date().toISOString().slice(0,10)}.json`;
+            a.download = `fixhouse_v7.5_yedek_${new Date().toISOString().slice(0,10)}.json`;
             a.click();
         }
 
@@ -2530,7 +2541,7 @@
             const worksheet = XLSX.utils.json_to_sheet(exportData);
             const workbook = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(workbook, worksheet, "Siparişler");
-            XLSX.writeFile(workbook, "fixhouse_arsiv_v7.4.xlsx");
+            XLSX.writeFile(workbook, "fixhouse_arsiv_v7.5.xlsx");
         }
     </script>
 </body>
