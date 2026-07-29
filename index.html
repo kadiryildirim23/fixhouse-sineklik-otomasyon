@@ -93,45 +93,6 @@
 </head>
 <body class="min-h-screen flex flex-col text-slate-800">
 
-    <!-- GİRİŞ / KİLİT EKRANI MODALI -->
-    <div id="loginModal" class="fixed inset-0 bg-slate-900/90 backdrop-blur-md z-[100] flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl p-6 md:p-8 w-full max-w-md shadow-2xl border border-slate-100 space-y-6">
-            <div class="text-center space-y-3">
-                <div class="bg-gradient-to-tr from-blue-600 to-indigo-600 text-white w-16 h-16 rounded-2xl flex items-center justify-center text-3xl font-black mx-auto shadow-xl shadow-blue-500/30">
-                    <i class="fa-solid fa-house-chimney-window"></i>
-                </div>
-                <div>
-                    <h2 class="text-2xl font-black tracking-tight text-slate-900">FİX HOUSE 23</h2>
-                    <span class="text-xs bg-emerald-50 text-emerald-700 font-bold px-2.5 py-0.5 rounded-full border border-emerald-200">Canlı Bulut Senkronize (v7.15)</span>
-                </div>
-                <p class="text-xs text-slate-500">Devam etmek için lütfen kimlik bilgilerinizi girin</p>
-            </div>
-
-            <form onsubmit="handleUserLogin(event)" class="space-y-4">
-                <div>
-                    <label class="block text-xs font-semibold text-slate-600 mb-1">Yönetici / Kullanıcı Adı</label>
-                    <div class="relative">
-                        <i class="fa-solid fa-user absolute left-3 top-3.5 text-slate-400 text-xs"></i>
-                        <input type="text" id="loginUsername" required class="w-full pl-9 pr-3 py-2.5 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500" placeholder="Kullanıcı adınızı girin">
-                    </div>
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-slate-600 mb-1">Kullanıcı Şifresi</label>
-                    <div class="relative">
-                        <i class="fa-solid fa-lock absolute left-3 top-3.5 text-slate-400 text-xs"></i>
-                        <input type="password" id="loginPassword" required class="w-full pl-9 pr-3 py-2.5 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500" placeholder="••••••••">
-                    </div>
-                </div>
-                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg shadow-md transition flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-right-to-bracket"></i> Güvenli Giriş Yap
-                </button>
-            </form>
-            <div class="text-center text-[11px] text-slate-400 border-t pt-3 flex items-center justify-center gap-1">
-                <i class="fa-solid fa-shield-halved text-emerald-600"></i> Firebase Realtime Bulut Havuz Aktif
-            </div>
-        </div>
-    </div>
-
     <!-- TOP HEADER -->
     <header class="bg-slate-900 text-white shadow-lg no-print w-full">
         <div class="w-full px-4 md:px-8 py-3 flex flex-col md:flex-row justify-between items-center gap-3">
@@ -150,12 +111,6 @@
                 <span id="cloudStatusBadge" class="text-[11px] bg-emerald-900 text-emerald-200 px-2.5 py-1 rounded-lg border border-emerald-700 flex items-center gap-1.5 font-medium">
                     <i class="fa-solid fa-circle text-[8px] text-emerald-400 animate-pulse"></i> Bulut Bağlı
                 </span>
-                <span id="currentUserBadge" class="text-xs bg-blue-900 text-blue-200 px-3 py-1.5 rounded-lg flex items-center gap-2 border border-blue-700 font-medium">
-                    <i class="fa-solid fa-user-check text-emerald-400"></i> Aktif: <b id="activeUserDisplay">Giriş Yapılmadı</b>
-                </span>
-                <button onclick="handleUserLogout()" class="text-xs bg-red-800 hover:bg-red-700 text-red-100 px-3 py-1.5 rounded-lg border border-red-700 flex items-center gap-1.5 transition">
-                    <i class="fa-solid fa-right-from-bracket"></i> Çıkış
-                </button>
                 <span class="text-xs bg-slate-800 text-slate-300 px-3 py-1.5 rounded-lg border border-slate-700 flex items-center gap-2">
                     <i class="fa-regular fa-calendar-days text-blue-400"></i> <span id="clock">--.--.---- --:--:--</span>
                 </span>
@@ -188,7 +143,7 @@
                 <i class="fa-solid fa-trash-can text-red-600"></i> Çöp Kovası & Denetim <span id="recycleBadge" class="bg-red-100 text-red-700 text-xs px-2 py-0.5 rounded-full font-bold">0</span>
             </button>
             <button onclick="switchTab('settings')" id="tab-settings" class="tab-btn px-3.5 py-2 rounded-lg font-medium text-xs md:text-sm text-slate-600 hover:text-blue-600 transition flex items-center gap-2 border border-transparent whitespace-nowrap">
-                <i class="fa-solid fa-sliders"></i> Ayarlar & Kullanıcılar
+                <i class="fa-solid fa-sliders"></i> Ayarlar & Yönetim
             </button>
         </div>
     </nav>
@@ -500,7 +455,7 @@
                     Silinen Kayıtlar (Çöp Kovası)
                 </button>
                 <button onclick="switchRecycleSubTab('audit')" id="subtab-recycle-audit" class="py-2 px-4 border-b-2 border-transparent font-medium text-xs md:text-sm text-slate-500 hover:text-red-600">
-                    Giriş / Çıkış & İşlem Logları
+                    İşlem Logları
                 </button>
             </div>
 
@@ -519,7 +474,6 @@
                         <thead>
                             <tr class="bg-slate-100 font-semibold border-b text-slate-700">
                                 <th class="p-3">Silinme Tarihi</th>
-                                <th class="p-3">Silen Personel</th>
                                 <th class="p-3">İşlem Türü</th>
                                 <th class="p-3">Açıklama / İçerik</th>
                                 <th class="p-3 text-right">Tutar (₺)</th>
@@ -534,7 +488,7 @@
             <div id="recycle-sub-audit" class="bg-white rounded-xl p-4 md:p-6 shadow-sm border border-slate-200 space-y-4 hidden">
                 <div class="flex justify-between items-center">
                     <h2 class="text-base md:text-lg font-bold text-slate-800 flex items-center gap-2">
-                        <i class="fa-solid fa-clock-rotate-left text-blue-600"></i> PERSONEL OTURUM VE İŞLEM DENETİM LOGLARI
+                        <i class="fa-solid fa-clock-rotate-left text-blue-600"></i> İŞLEM DENETİM LOGLARI
                     </h2>
                     <button onclick="clearAuditLogs()" class="bg-slate-700 hover:bg-slate-800 text-white text-xs md:text-sm px-3.5 py-2 rounded-lg font-semibold flex items-center gap-1">
                         <i class="fa-solid fa-broom"></i> Logları Temizle
@@ -546,7 +500,6 @@
                         <thead>
                             <tr class="bg-slate-100 font-semibold border-b text-slate-700">
                                 <th class="p-3">Zaman</th>
-                                <th class="p-3">Kullanıcı</th>
                                 <th class="p-3">Eylem Kategorisi</th>
                                 <th class="p-3">İşlem Detayı</th>
                             </tr>
@@ -557,7 +510,7 @@
             </div>
         </section>
 
-        <!-- TAB 8: AYARLAR & KULLANICI YÖNETİMİ -->
+        <!-- TAB 8: AYARLAR & YÖNETİM -->
         <section id="sec-settings" class="space-y-6 hidden">
 
             <!-- WHATSAPP HAZIR MESAJLAR & OTOMATİK BİLGİLENDİRME AYARLARI -->
@@ -589,97 +542,6 @@
                     <button onclick="saveWhatsAppTemplates()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs px-4 py-2 rounded-lg font-semibold flex items-center gap-1.5">
                         <i class="fa-solid fa-floppy-disk"></i> WhatsApp Şablonlarını Kaydet
                     </button>
-                </div>
-            </div>
-
-            <!-- YÖNETİCİ ŞİFRE DEĞİŞTİRME PANELİ -->
-            <div class="bg-amber-50 rounded-xl p-4 md:p-6 shadow-sm border border-amber-200">
-                <h2 class="text-base md:text-lg font-bold text-amber-900 mb-2 flex items-center gap-2">
-                    <i class="fa-solid fa-key text-amber-600"></i> YÖNETİCİ KADİR YILDIRIM - ŞİFRE GÜNCELLEME
-                </h2>
-                <p class="text-xs text-amber-700 mb-4">Yönetici giriş şifrenizi buradan istediğiniz zaman değiştirebilirsiniz.</p>
-                <form onsubmit="changeMasterPassword(event)" class="grid grid-cols-1 md:grid-cols-3 gap-3">
-                    <input type="password" id="currentMasterPass" placeholder="Mevcut Şifreniz" required class="px-3 py-2 border rounded-lg text-sm">
-                    <input type="password" id="newMasterPass" placeholder="Yeni Şifre Belirleyin" required class="px-3 py-2 border rounded-lg text-sm">
-                    <button type="submit" class="bg-amber-700 hover:bg-amber-800 text-white font-semibold py-2 rounded-lg text-sm transition flex items-center justify-center gap-1.5">
-                        <i class="fa-solid fa-floppy-disk"></i> Şifreyi Güncelle
-                    </button>
-                </form>
-            </div>
-
-            <!-- KULLANICI YÖNETİMİ PANELİ -->
-            <div class="bg-white rounded-xl p-4 md:p-6 shadow-sm border border-slate-200">
-                <h2 class="text-base md:text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-                    <i class="fa-solid fa-users-gear text-blue-600"></i> PERSONEL KULLANICI TANIMLAMA & YETKİLENDİRME
-                </h2>
-
-                <form onsubmit="addNewUser(event)" class="space-y-4 mb-6 bg-slate-50 p-4 rounded-xl border border-slate-200">
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-600 mb-1">Kullanıcı Kodu / Adı *</label>
-                            <input type="text" id="newUsername" required placeholder="Örn: ahmet" class="w-full px-3 py-2 border rounded-lg text-sm">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-600 mb-1">Giriş Şifresi *</label>
-                            <input type="password" id="newUserPass" required placeholder="••••••••" class="w-full px-3 py-2 border rounded-lg text-sm">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-600 mb-1">Unvan / Rol</label>
-                            <input type="text" id="newUserRole" placeholder="Örn: İmalat Ustası, Plasiyer" class="w-full px-3 py-2 border rounded-lg text-sm bg-white">
-                        </div>
-                    </div>
-
-                    <div class="border-t border-slate-200 pt-3">
-                        <label class="block text-xs font-bold text-slate-700 mb-2 flex items-center gap-1.5">
-                            <i class="fa-solid fa-user-shield text-blue-600"></i> Personelin Erişebileceği Sayfalar (Tik Atarak İzin Verin):
-                        </label>
-                        <div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
-                            <label class="flex items-center space-x-2 bg-white p-2 rounded border border-slate-200 cursor-pointer">
-                                <input type="checkbox" id="perm_order" checked class="rounded text-blue-600"> <span>Sipariş & Ölçü Girişi</span>
-                            </label>
-                            <label class="flex items-center space-x-2 bg-white p-2 rounded border border-slate-200 cursor-pointer">
-                                <input type="checkbox" id="perm_cart" checked class="rounded text-blue-600"> <span>Aktif Sepet</span>
-                            </label>
-                            <label class="flex items-center space-x-2 bg-white p-2 rounded border border-slate-200 cursor-pointer">
-                                <input type="checkbox" id="perm_archive" checked class="rounded text-blue-600"> <span>Sipariş Arşivi</span>
-                            </label>
-                            <label class="flex items-center space-x-2 bg-white p-2 rounded border border-slate-200 cursor-pointer">
-                                <input type="checkbox" id="perm_optimization" checked class="rounded text-blue-600"> <span>Profil Optimizasyon</span>
-                            </label>
-                            <label class="flex items-center space-x-2 bg-amber-50 p-2 rounded border border-amber-200 cursor-pointer font-bold text-amber-900">
-                                <input type="checkbox" id="perm_ledger" class="rounded text-amber-600"> <span>Müşteri Cari Defteri</span>
-                            </label>
-                            <label class="flex items-center space-x-2 bg-emerald-50 p-2 rounded border border-emerald-200 cursor-pointer font-bold text-emerald-900">
-                                <input type="checkbox" id="perm_finance" class="rounded text-emerald-600"> <span>Gelir / Gider & Kasa</span>
-                            </label>
-                            <label class="flex items-center space-x-2 bg-red-50 p-2 rounded border border-red-200 cursor-pointer font-bold text-red-900">
-                                <input type="checkbox" id="perm_recycle" class="rounded text-red-600"> <span>Çöp Kovası & Denetim</span>
-                            </label>
-                            <label class="flex items-center space-x-2 bg-purple-50 p-2 rounded border border-purple-200 cursor-pointer font-bold text-purple-900">
-                                <input type="checkbox" id="perm_settings" class="rounded text-purple-600"> <span>Ayarlar & Kullanıcılar</span>
-                            </label>
-                        </div>
-                    </div>
-
-                    <div class="flex justify-end pt-2">
-                        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg text-sm transition flex items-center justify-center gap-2">
-                            <i class="fa-solid fa-user-plus"></i> Kullanıcıyı Yetkileriyle Ekle
-                        </button>
-                    </div>
-                </form>
-
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-xs md:text-sm min-w-[600px]">
-                        <thead>
-                            <tr class="bg-slate-100 font-semibold border-b text-slate-700">
-                                <th class="p-3">Kullanıcı Kodu / Adı</th>
-                                <th class="p-3">Unvan / Rol</th>
-                                <th class="p-3">Erişebildiği Sayfalar</th>
-                                <th class="p-3 text-center">İşlem</th>
-                            </tr>
-                        </thead>
-                        <tbody id="usersTableBody" class="divide-y divide-slate-200"></tbody>
-                    </table>
                 </div>
             </div>
 
@@ -797,7 +659,7 @@
     <div id="printContainerZebra" class="print-only"></div>
 
     <script>
-        // Firebase Canlı Bulut Veritabanı Yapılandırması (Fix House 23 - v7.15 Sabit)
+        // Firebase Canlı Bulut Veritabanı Yapılandırması (Fix House 23 - v7.16 Sabit)
         const firebaseConfig = {
             databaseURL: "https://fixhouse-erp-default-rtdb.europe-west1.firebasedatabase.app/"
         };
@@ -814,7 +676,6 @@
             console.error("Firebase Başlatma Hatası:", err);
         }
 
-        let activeUser = null;
         let isCloudSynced = false;
 
         function escapeHTML(str) {
@@ -824,110 +685,13 @@
                 .replace(/</g, '&lt;')
                 .replace(/>/g, '&gt;')
                 .replace(/"/g, '&quot;')
-                .replace(/'/g, '&#039;');
-        }
-
-        /* OTURUM YÖNETİMİ & KADİR YILDIRIM MASTER ADMIN YETKİLENDİRMESİ */
-        function handleUserLogin(e) {
-            e.preventDefault();
-            const uCode = document.getElementById('loginUsername').value.trim().toLowerCase();
-            const uPass = document.getElementById('loginPassword').value;
-
-            const foundUser = appData.users.find(u => u.username.toLowerCase() === uCode && u.password === uPass);
-
-            if (foundUser) {
-                activeUser = foundUser;
-                document.getElementById('loginModal').classList.add('hidden');
-                document.getElementById('activeUserDisplay').innerText = `${foundUser.username} (${foundUser.role || 'Yönetici'})`;
-                
-                logAuditEvent("Oturum Açıldı", `Sisteme giriş yapıldı. (${foundUser.username})`);
-                
-                applyUserPermissions();
-
-                document.getElementById('loginUsername').value = '';
-                document.getElementById('loginPassword').value = '';
-            } else {
-                alert("Hatalı Kullanıcı Kodu veya Şifre!");
-            }
-        }
-
-        function isMasterUser(user) {
-            if(!user) return false;
-            const u = user.username.toLowerCase();
-            return u === 'kadir yıldırım' || u === 'kadir yildirim' || u === 'admin';
-        }
-
-        function applyUserPermissions() {
-            if (!activeUser) return;
-
-            const isMaster = isMasterUser(activeUser);
-            const perms = activeUser.permissions || {};
-
-            const tabMap = {
-                'order': isMaster || perms.order,
-                'cart': isMaster || perms.cart,
-                'archive': isMaster || perms.archive,
-                'ledger': isMaster || perms.ledger,
-                'finance': isMaster || perms.finance,
-                'optimization': isMaster || perms.optimization,
-                'recycle': isMaster || perms.recycle,
-                'settings': isMaster || perms.settings
-            };
-
-            let firstAllowedTab = null;
-
-            for (let key in tabMap) {
-                const tabBtn = document.getElementById(`tab-${key}`);
-                const secEl = document.getElementById(`sec-${key}`);
-
-                if (tabMap[key]) {
-                    if (tabBtn) tabBtn.classList.remove('hidden');
-                    if (!firstAllowedTab) firstAllowedTab = key;
-                } else {
-                    if (tabBtn) tabBtn.classList.add('hidden');
-                    if (secEl) secEl.classList.add('hidden');
-                }
-            }
-
-            if (firstAllowedTab) {
-                switchTab(firstAllowedTab);
-            }
-        }
-
-        function changeMasterPassword(e) {
-            e.preventDefault();
-            const curr = document.getElementById('currentMasterPass').value;
-            const newP = document.getElementById('newMasterPass').value;
-
-            const masterUser = appData.users.find(u => isMasterUser(u));
-
-            if(masterUser && masterUser.password === curr) {
-                masterUser.password = newP;
-                saveLocalData();
-                logAuditEvent("Yönetici Şifresi Değiştirildi", "Kadir Yıldırım master şifresini güncelledi.");
-                document.getElementById('currentMasterPass').value = '';
-                document.getElementById('newMasterPass').value = '';
-                alert("Yönetici şifresi başarıyla güncellendi!");
-            } else {
-                alert("Mevcut şifrenizi hatalı girdiniz!");
-            }
-        }
-
-        function handleUserLogout() {
-            if (activeUser) {
-                logAuditEvent("Oturum Kapatıldı", `Güvenli çıkış yapıldı.`);
-            }
-            activeUser = null;
-            document.getElementById('loginModal').classList.remove('hidden');
-            document.getElementById('activeUserDisplay').innerText = "Giriş Yapılmadı";
+                .replace(./g, '&#039;');
         }
 
         function logAuditEvent(category, details) {
             if (!appData.auditLogs) appData.auditLogs = [];
-            const userStr = activeUser ? `${activeUser.username}` : 'Sistem';
             appData.auditLogs.unshift({
                 timestamp: new Date().toLocaleString('tr-TR'),
-                user: userStr,
                 category: escapeHTML(category),
                 details: escapeHTML(details)
             });
@@ -941,14 +705,13 @@
             tbody.innerHTML = '';
 
             if(!appData.auditLogs || appData.auditLogs.length === 0) {
-                return tbody.innerHTML = `<tr><td colspan="4" class="text-center py-6 text-slate-400">Henüz denetim kaydı bulunmamaktadır.</td></tr>`;
+                return tbody.innerHTML = `<tr><td colspan="3" class="text-center py-6 text-slate-400">Henüz denetim kaydı bulunmamaktadır.</td></tr>`;
             }
 
             appData.auditLogs.forEach(log => {
                 tbody.innerHTML += `
                     <tr>
                         <td class="p-3 text-slate-500 whitespace-nowrap">${log.timestamp}</td>
-                        <td class="p-3 font-bold text-blue-700">${escapeHTML(log.user)}</td>
                         <td class="p-3 font-semibold text-slate-800">${escapeHTML(log.category)}</td>
                         <td class="p-3 text-slate-600">${escapeHTML(log.details)}</td>
                     </tr>
@@ -957,7 +720,7 @@
         }
 
         function clearAuditLogs() {
-            if(confirm("Tüm giriş/çıkış ve eylem loglarını temizlemek istiyor musunuz?")) {
+            if(confirm("Tüm işlem loglarını temizlemek istiyor musunuz?")) {
                 appData.auditLogs = [];
                 saveLocalData();
                 renderAuditLogs();
@@ -1168,12 +931,6 @@
         };
 
         let appData = {
-            users: [
-                { 
-                    id: "usr-kadir", username: "Kadir Yıldırım", password: "Ar903703", role: "Yönetici (Master Admin)", 
-                    permissions: { order: true, cart: true, archive: true, ledger: true, finance: true, optimization: true, recycle: true, settings: true }
-                }
-            ],
             settings: { ...DEFAULT_SETTINGS },
             cart: [],
             archive: [],
@@ -1201,9 +958,6 @@
                     const cloudData = snapshot.val();
                     if (cloudData) {
                         appData = { ...appData, ...cloudData };
-                        if(!appData.users || appData.users.length === 0) {
-                            appData.users = [{ id: "usr-kadir", username: "Kadir Yıldırım", password: "Ar903703", role: "Yönetici (Master Admin)", permissions: { order: true, cart: true, archive: true, ledger: true, finance: true, optimization: true, recycle: true, settings: true } }];
-                        }
                         isCloudSynced = true;
                         document.getElementById('cloudStatusBadge').innerHTML = '<i class="fa-solid fa-circle text-[8px] text-emerald-400 animate-pulse"></i> Bulut Bağlı';
                         
@@ -1214,7 +968,6 @@
                         renderTopluLedger();
                         renderRecycleBin();
                         renderAuditLogs();
-                        renderUsers();
                         renderProductRecipes();
                     } else if(!isCloudSynced) {
                         saveLocalData();
@@ -1272,93 +1025,6 @@
 
             document.getElementById('subtab-recycle-deleted').className = sub === 'deleted' ? 'py-2 px-4 border-b-2 border-red-600 font-bold text-xs md:text-sm text-red-700' : 'py-2 px-4 border-b-2 border-transparent font-medium text-xs md:text-sm text-slate-500 hover:text-red-600';
             document.getElementById('subtab-recycle-audit').className = sub === 'audit' ? 'py-2 px-4 border-b-2 border-red-600 font-bold text-xs md:text-sm text-red-700' : 'py-2 px-4 border-b-2 border-transparent font-medium text-xs md:text-sm text-slate-500 hover:text-red-600';
-        }
-
-        /* KULLANICI YÖNETİMİ */
-        function addNewUser(e) {
-            e.preventDefault();
-            const uName = document.getElementById('newUsername').value.trim();
-            const uPass = document.getElementById('newUserPass').value.trim();
-            const uRole = document.getElementById('newUserRole').value.trim() || 'Personel';
-
-            if (appData.users.some(u => u.username.toLowerCase() === uName.toLowerCase())) {
-                return alert("Bu kullanıcı kodu zaten mevcut!");
-            }
-
-            const perms = {
-                order: document.getElementById('perm_order').checked,
-                cart: document.getElementById('perm_cart').checked,
-                archive: document.getElementById('perm_archive').checked,
-                optimization: document.getElementById('perm_optimization').checked,
-                ledger: document.getElementById('perm_ledger').checked,
-                finance: document.getElementById('perm_finance').checked,
-                recycle: document.getElementById('perm_recycle').checked,
-                settings: document.getElementById('perm_settings').checked
-            };
-
-            appData.users.push({
-                id: "usr-" + Date.now(),
-                username: escapeHTML(uName),
-                password: uPass,
-                role: escapeHTML(uRole),
-                permissions: perms
-            });
-
-            saveLocalData();
-            renderUsers();
-            logAuditEvent("Yeni Kullanıcı Tanımlandı", `Kullanıcı: ${uName} (${uRole})`);
-            
-            document.getElementById('newUsername').value = '';
-            document.getElementById('newUserPass').value = '';
-            document.getElementById('newUserRole').value = '';
-            alert("Yeni kullanıcı erişim izinleriyle birlikte tanımlandı.");
-        }
-
-        function renderUsers() {
-            const tbody = document.getElementById('usersTableBody');
-            if(!tbody) return;
-            tbody.innerHTML = '';
-
-            appData.users.forEach((u, idx) => {
-                let permLabels = [];
-                const p = u.permissions || {};
-                const isMaster = isMasterUser(u);
-
-                if(isMaster) {
-                    permLabels.push('<span class="bg-purple-100 text-purple-800 text-[10px] font-bold px-1.5 py-0.5 rounded">TAM YETKİLİ YÖNETİCİ</span>');
-                } else {
-                    if(p.order) permLabels.push('<span class="bg-blue-50 text-blue-700 text-[10px] px-1.5 py-0.5 rounded border">Ölçü</span>');
-                    if(p.cart) permLabels.push('<span class="bg-blue-50 text-blue-700 text-[10px] px-1.5 py-0.5 rounded border">Sepet</span>');
-                    if(p.archive) permLabels.push('<span class="bg-blue-50 text-blue-700 text-[10px] px-1.5 py-0.5 rounded border">Arşiv</span>');
-                    if(p.optimization) permLabels.push('<span class="bg-emerald-50 text-emerald-700 text-[10px] px-1.5 py-0.5 rounded border">Optimizasyon</span>');
-                    if(p.ledger) permLabels.push('<span class="bg-amber-100 text-amber-800 text-[10px] font-bold px-1.5 py-0.5 rounded border">Cari Defter</span>');
-                    if(p.finance) permLabels.push('<span class="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-1.5 py-0.5 rounded border">Kasa</span>');
-                    if(p.recycle) permLabels.push('<span class="bg-red-100 text-red-800 text-[10px] font-bold px-1.5 py-0.5 rounded border">Çöp Kovası</span>');
-                    if(p.settings) permLabels.push('<span class="bg-purple-100 text-purple-800 text-[10px] font-bold px-1.5 py-0.5 rounded border">Ayarlar</span>');
-                }
-
-                tbody.innerHTML += `
-                    <tr>
-                        <td class="p-3 font-bold text-slate-800">${escapeHTML(u.username)}</td>
-                        <td class="p-3 font-semibold text-slate-600">${escapeHTML(u.role || 'Personel')}</td>
-                        <td class="p-3"><div class="flex flex-wrap gap-1">${permLabels.join(' ')}</div></td>
-                        <td class="p-3 text-center">
-                            ${isMaster ? '<span class="text-xs text-amber-600 font-bold"><i class="fa-solid fa-crown"></i> Yönetici</span>' : `<button onclick="deleteUser(${idx})" class="text-red-500 hover:text-red-700"><i class="fa-solid fa-trash"></i></button>`}
-                        </td>
-                    </tr>
-                `;
-            });
-        }
-
-        function deleteUser(idx) {
-            const target = appData.users[idx];
-            if(isMasterUser(target)) return alert("Yönetici hesabı silinemez!");
-            if(confirm(`"${target.username}" kullanıcısını silmek istediğinize emin misiniz?`)) {
-                logAuditEvent("Kullanıcı Silindi", `Kullanıcı: ${target.username}`);
-                appData.users.splice(idx, 1);
-                saveLocalData();
-                renderUsers();
-            }
         }
 
         /* ÖLÇÜ SATIRI & EKSTRA AKSESUARLAR */
@@ -2179,11 +1845,9 @@
 
         function logRecycleItem(type, desc, amount = 0) {
             if(!appData.recycleBin) appData.recycleBin = [];
-            const userStr = activeUser ? `${activeUser.username}` : 'Sistem';
             appData.recycleBin.unshift({
                 id: 'REC-' + Date.now().toString().slice(-6),
                 date: new Date().toLocaleString('tr-TR'),
-                user: userStr,
                 type: escapeHTML(type), desc: escapeHTML(desc), amount: amount
             });
             saveLocalData();
@@ -2197,14 +1861,13 @@
             tbody.innerHTML = '';
 
             if(!appData.recycleBin || appData.recycleBin.length === 0) {
-                return tbody.innerHTML = `<tr><td colspan="6" class="text-center py-6 text-slate-400">Çöp kovasında silinmiş işlem bulunmamaktadır.</td></tr>`;
+                return tbody.innerHTML = `<tr><td colspan="5" class="text-center py-6 text-slate-400">Çöp kovasında silinmiş işlem bulunmamaktadır.</td></tr>`;
             }
 
             appData.recycleBin.forEach((r, idx) => {
                 tbody.innerHTML += `
                     <tr>
                         <td class="p-3 text-slate-500">${r.date}</td>
-                        <td class="p-3 font-bold text-blue-700">${escapeHTML(r.user || 'Belirtilmedi')}</td>
                         <td class="p-3 font-bold text-red-600">${escapeHTML(r.type)}</td>
                         <td class="p-3 font-medium text-slate-800">${escapeHTML(r.desc)}</td>
                         <td class="p-3 text-right font-black">${(r.amount || 0).toFixed(2)} ₺</td>
@@ -2660,15 +2323,6 @@
         }
 
         function loadLocalData() {
-            if(!appData.users || appData.users.length === 0 || !appData.users.some(u => isMasterUser(u))) {
-                appData.users = [
-                    { 
-                        id: "usr-kadir", username: "Kadir Yıldırım", password: "Ar903703", role: "Yönetici (Master Admin)", 
-                        permissions: { order: true, cart: true, archive: true, ledger: true, finance: true, optimization: true, recycle: true, settings: true }
-                    }
-                ];
-            }
-
             if(!appData.manualLedgers) appData.manualLedgers = [];
             if(!appData.topluLedgers) appData.topluLedgers = [];
             if(!appData.recycleBin) appData.recycleBin = [];
