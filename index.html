@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Fix House ERP - İmalat, Satış & Muhasebe Otomasyonu v7.5</title>
+    <title>Fix House ERP - İmalat, Satış & Muhasebe Otomasyonu v7.2</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons -->
@@ -110,7 +110,7 @@
                 </div>
                 <div class="border-t border-slate-200 pt-2">
                     <span class="text-[11px] md:text-xs font-bold text-slate-700 tracking-wider uppercase block">PLİSE PERDE VE SİNEKLİK SİSTEMLERİ</span>
-                    <span class="text-[10px] bg-emerald-50 text-emerald-800 font-bold px-2 py-0.5 rounded-full border border-emerald-200 mt-1 inline-block">ERP v7.5 Güvenli Oturum</span>
+                    <span class="text-[10px] bg-emerald-50 text-emerald-800 font-bold px-2 py-0.5 rounded-full border border-emerald-200 mt-1 inline-block">ERP v7.2 Güvenli Oturum</span>
                 </div>
             </div>
 
@@ -148,7 +148,7 @@
                         <i class="fa-solid fa-house-chimney-window"></i>
                     </div>
                     <div>
-                        <h1 class="text-lg md:text-xl font-bold tracking-wide">FIX HOUSE ERP v7.5</h1>
+                        <h1 class="text-lg md:text-xl font-bold tracking-wide">FIX HOUSE ERP v7.2</h1>
                         <p class="text-[11px] md:text-xs text-slate-400">Plise Perde ve Sineklik Sistemleri Otomasyonu</p>
                     </div>
                 </div>
@@ -228,7 +228,7 @@
                     <h2 class="text-base md:text-lg font-bold text-slate-800 flex items-center gap-2">
                         <i class="fa-solid fa-ruler-combined text-blue-600"></i> ÖLÇÜ & ÜRÜN KONFİGÜRASYONU
                     </h2>
-                    <span class="text-xs text-slate-500 hidden md:inline">Yatay (En+En+Boy+Boy+Boy) & Polen (+400₺/m²) / Kedi Tülü (+260₺/m²) Farkı</span>
+                    <span class="text-xs text-slate-500 hidden md:inline">Polen (+400₺/m²) & Kedi Tülü (+260₺/m²) Farkı Entegre</span>
                 </div>
 
                 <!-- Ölçü Satırlarının Konteyneri -->
@@ -1319,7 +1319,7 @@
                 <div class="bg-white p-3 rounded-lg border border-slate-200 text-xs grid grid-cols-3 md:grid-cols-7 gap-2 text-center mt-2">
                     <div class="bg-blue-50/70 p-1.5 rounded"><span class="block text-[10px] text-slate-500 font-semibold">TAÇ</span><b class="out-tac text-slate-800">-</b></div>
                     <div class="bg-blue-50/70 p-1.5 rounded"><span class="block text-[10px] text-slate-500 font-semibold">DİKME</span><b class="out-dikme text-slate-800">-</b></div>
-                    <div class="bg-blue-50/70 p-1.5 rounded"><span class="block text-[10px] text-slate-500 font-semibold">KANAT (Tül - 4cm)</span><b class="out-kanat text-slate-800">-</b></div>
+                    <div class="bg-blue-50/70 p-1.5 rounded"><span class="block text-[10px] text-slate-500 font-semibold">KANAT</span><b class="out-kanat text-slate-800">-</b></div>
                     <div class="bg-blue-50/70 p-1.5 rounded"><span class="block text-[10px] text-slate-500 font-semibold">TÜL</span><b class="out-tul text-slate-800">-</b></div>
                     <div class="bg-blue-50/70 p-1.5 rounded"><span class="block text-[10px] text-slate-500 font-semibold">İP / KAT</span><b class="out-ip text-slate-800">-</b></div>
                     <div class="bg-slate-100 p-1.5 rounded"><span class="block text-[10px] text-slate-500 font-semibold">MİKTAR (m²)</span><b class="out-m2 text-slate-800">0.00</b></div>
@@ -1481,61 +1481,46 @@
                 return;
             }
 
-            let tac = "-", dikmeVal = 0, kanatVal = 0, tulVal = 0, ipKat = "-";
+            let tac = "-", dikme = "-", kanat = "-", tul = "-", ipKat = "-";
             let unitM2 = (rawEn * rawBoy) / 10000;
             let totalM2 = Math.max(unitM2, appData.settings.minM2) * qty;
 
             const dirSelect = card.querySelector('.opt-dir');
             const tulSelect = card.querySelector('.opt-tul');
-            const isDikey = dirSelect ? dirSelect.value === 'dikey' : false;
-            const isYatayPlise = (pType === 'plise' && dirSelect && dirSelect.value === 'yatay');
+            const isYatay = dirSelect ? dirSelect.value === 'yatay' || dirSelect.value === 'sag' : true;
 
             if(pType === 'plise') {
                 if(mType === 'ic') {
-                    if(isDikey) {
-                        tac = rawBoy.toFixed(1);
-                        dikmeVal = rawEn + 4.0;
-                        tulVal = rawBoy;
-                    } else {
-                        tac = rawEn.toFixed(1);
-                        dikmeVal = rawBoy + 4.0;
-                        tulVal = rawBoy + 3.5;
-                    }
-                    kanatVal = tulVal - 4.0;
+                    tac = rawEn.toFixed(1);
+                    dikme = (rawBoy + 4).toFixed(1);
+                    kanat = isYatay ? (rawBoy - 0.5).toFixed(1) : (rawEn - 0.5).toFixed(1);
+                    tul = (rawBoy + 3.5).toFixed(1);
                     ipKat = `${(rawEn + rawBoy + 26).toFixed(0)}cm / ${Math.floor((rawEn / 2.5) - 2)}k`;
                 } else {
-                    if(isDikey) {
-                        tac = (rawBoy - 4).toFixed(1);
-                        dikmeVal = rawEn - 8.0;
-                        tulVal = rawBoy - 4.0;
-                    } else {
-                        tac = (rawEn - 8).toFixed(1);
-                        dikmeVal = (rawBoy - 4).toFixed(1);
-                        tulVal = rawBoy - 4.5;
-                    }
-                    kanatVal = tulVal - 4.0;
+                    tac = (rawEn - 8).toFixed(1);
+                    dikme = (rawBoy - 4).toFixed(1);
+                    kanat = isYatay ? (rawBoy - 4.5).toFixed(1) : (rawEn - 8.5).toFixed(1);
+                    tul = (rawBoy - 4.5).toFixed(1);
                     ipKat = `${(rawEn + rawBoy + 10).toFixed(0)}cm / ${Math.floor((rawEn / 2.5) - 2)}k`;
                 }
             } else {
                 if(mType === 'dis') {
                     tac = (rawEn - 5).toFixed(1);
-                    dikmeVal = rawBoy - 5.0;
-                    tulVal = rawBoy - 5.0;
-                    kanatVal = tulVal - 4.0;
+                    dikme = (rawBoy - 5).toFixed(1);
+                    kanat = (rawEn - 6).toFixed(1);
                     ipKat = "Sabit";
                 } else {
                     tac = rawEn.toFixed(1);
-                    dikmeVal = rawBoy;
-                    tulVal = rawBoy;
-                    kanatVal = tulVal - 4.0;
+                    dikme = rawBoy.toFixed(1);
+                    kanat = (rawEn - 1).toFixed(1);
                     ipKat = "Sabit";
                 }
             }
 
             card.querySelector('.out-tac').innerText = tac;
-            card.querySelector('.out-dikme').innerText = dikmeVal.toFixed(1);
-            card.querySelector('.out-kanat').innerText = kanatVal.toFixed(1);
-            card.querySelector('.out-tul').innerText = tulVal.toFixed(1);
+            card.querySelector('.out-dikme').innerText = dikme;
+            card.querySelector('.out-kanat').innerText = kanat;
+            card.querySelector('.out-tul').innerText = tul;
             card.querySelector('.out-ip').innerText = ipKat;
             card.querySelector('.out-m2').innerText = totalM2.toFixed(2);
 
@@ -1547,16 +1532,7 @@
             }
 
             let unitPrice = (tariff === 'montajli') ? appData.settings.montajPrice : appData.settings.perakendePrice;
-            let rowPrice = 0;
-
-            if(isYatayPlise) {
-                // Yatay seçildiğinde: (en + en + boy + boy + boy) / 100 metre cinsinden birim fiyatla çarpılır
-                let sumCm = (rawEn + rawEn + rawBoy + rawBoy + rawBoy);
-                let sumMeters = sumCm / 100.0;
-                rowPrice = sumMeters * unitPrice * qty;
-            } else {
-                rowPrice = totalM2 * unitPrice;
-            }
+            let rowPrice = totalM2 * unitPrice;
 
             if(tulSelect) {
                 const tVal = tulSelect.value;
@@ -2447,9 +2423,6 @@
 
         function masterReset() {
             if(confirm("FABRİKA AYARLARINA DÖNÜLCEK: Tüm veriler silinecek! Onaylıyor musunuz?")) {
-                localStorage.removeItem('fixhouse_erp_sec_v7.5');
-                localStorage.removeItem('fixhouse_erp_sec_v7.4');
-                localStorage.removeItem('fixhouse_erp_sec_v7.3');
                 localStorage.removeItem('fixhouse_erp_sec_v7.2');
                 localStorage.removeItem('fixhouse_erp_sec_v7.1');
                 localStorage.removeItem('fixhouse_erp_sec_v7.0');
@@ -2473,7 +2446,7 @@
             try {
                 const jsonStr = JSON.stringify(appData);
                 const encodedData = btoa(encodeURIComponent(jsonStr));
-                localStorage.setItem('fixhouse_erp_sec_v7.5', encodedData); 
+                localStorage.setItem('fixhouse_erp_sec_v7.2', encodedData); 
             } catch(e) {
                 console.error("Veri kaydetme hatası:", e);
             }
@@ -2483,13 +2456,13 @@
             let loaded = false;
 
             try {
-                const encodedData = localStorage.getItem('fixhouse_erp_sec_v7.5') || localStorage.getItem('fixhouse_erp_sec_v7.4') || localStorage.getItem('fixhouse_erp_sec_v7.3') || localStorage.getItem('fixhouse_erp_sec_v7.2') || localStorage.getItem('fixhouse_erp_sec_v7.1') || localStorage.getItem('fixhouse_erp_sec_v7.0');
+                const encodedData = localStorage.getItem('fixhouse_erp_sec_v7.2') || localStorage.getItem('fixhouse_erp_sec_v7.1') || localStorage.getItem('fixhouse_erp_sec_v7.0');
                 if(encodedData) {
                     const jsonStr = decodeURIComponent(atob(encodedData));
                     appData = { ...appData, ...JSON.parse(jsonStr) };
                     loaded = true;
                 }
-            } catch(e) { console.error("v7.5 veri okuma hatası", e); }
+            } catch(e) { console.error("v7.2 veri okuma hatası", e); }
 
             if(!appData.users || appData.users.length === 0 || !appData.users.some(u => isMasterUser(u))) {
                 appData.users = [
@@ -2515,7 +2488,7 @@
         function exportFullBackup() {
             const a = document.createElement('a');
             a.href = URL.createObjectURL(new Blob([JSON.stringify(appData, null, 2)], { type: 'application/json' }));
-            a.download = `fixhouse_v7.5_yedek_${new Date().toISOString().slice(0,10)}.json`;
+            a.download = `fixhouse_v7.2_yedek_${new Date().toISOString().slice(0,10)}.json`;
             a.click();
         }
 
@@ -2541,7 +2514,7 @@
             const worksheet = XLSX.utils.json_to_sheet(exportData);
             const workbook = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(workbook, worksheet, "Siparişler");
-            XLSX.writeFile(workbook, "fixhouse_arsiv_v7.5.xlsx");
+            XLSX.writeFile(workbook, "fixhouse_arsiv_v7.2.xlsx");
         }
     </script>
 </body>
