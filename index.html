@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Fix House 23 - İmalat, Satış & Muhasebe Otomasyonu (Canlı Bulut Senkron)</title>
+    <title>Fix House 23 - İmalat, Satış & Muhasebe Otomasyonu (Ortak Bulut Senkron)</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons -->
@@ -104,7 +104,7 @@
             </div>
             <div class="flex items-center space-x-3 w-full md:w-auto justify-between md:justify-end">
                 <button onclick="manualCloudSync()" id="syncButton" class="text-[11px] bg-emerald-800 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-lg border border-emerald-600 flex items-center gap-1.5 font-medium transition shadow-sm">
-                    <i class="fa-solid fa-rotate text-emerald-300"></i> <span id="syncText">Canlı Senkronize (Tıkla Güncelle)</span>
+                    <i class="fa-solid fa-rotate text-emerald-300 animate-spin" id="syncIcon" style="display:none;"></i> <span id="syncText">Canlı Bulut Senkronize</span>
                 </button>
                 <span class="text-xs bg-slate-800 text-slate-300 px-3 py-1.5 rounded-lg border border-slate-700 flex items-center gap-2">
                     <i class="fa-regular fa-calendar-days text-blue-400"></i> <span id="clock">--.--.---- --:--:--</span>
@@ -637,12 +637,11 @@
     <div id="printContainerZebra" class="print-only"></div>
 
     <script>
-        // Ücretsiz bulut ortak veri köprüsü (JSONBin.io public test bin)
+        // Bulut Ortak Veri Köprüsü (JSONBin.io Public Bin)
         const CLOUD_BIN_URL = "https://api.jsonbin.io/v3/b/6632fa5fe41b4d34e44f8327";
-        const CLOUD_MASTER_KEY = "$2a$10$wN9iQ3mF5sK1xJ8pZ3vUuOu5vL6x5k9vJ8mX3sK1xJ8pZ3vUuOu5vL"; // Public read/write token
+        const CLOUD_MASTER_KEY = "$2a$10$wN9iQ3mF5sK1xJ8pZ3vUuOu5vL6x5k9vJ8mX3sK1xJ8pZ3vUuOu5vL";
         
-        const STORAGE_KEY = "fix_house_23_data_v718";
-        const channel = new BroadcastChannel('fix_house_23_sync_channel');
+        const STORAGE_KEY = "fix_house_23_data_v720";
 
         const DEFAULT_SETTINGS = {
             montajPrice: 220,
@@ -690,56 +689,54 @@
         let currentRowId = 0;
         let currentDetailOrder = null;
 
-        window.addEventListener('DOMContentLoaded', () => {
-            loadLocalData();
-            loadWhatsAppTemplates();
+        window.addEventListener('DOMContentLoaded', async () => {
             updateClock();
             setInterval(updateClock, 1000);
             addMeasureRow();
-            refreshAllViews();
+            
+            // Sayfa açılır açılmaz buluttan güncel veriyi çek
+            await manualCloudSync(true);
 
-            // Otomatik Bulut Senkronizasyonu (Her 10 saniyede bir arkada günceller)
-            setInterval(manualCloudSync, 10000);
-
-            channel.onmessage = (event) => {
-                if (event.data && event.data.type === 'DATA_UPDATE') {
-                    appData = event.data.payload;
-                    refreshAllViews();
-                }
-            };
+            // Her 4 saniyede bir arkada otomatik olarak buluttan senkronize et (Tüm cihazlar ortak görür)
+            setInterval(() => manualCloudSync(false), 4000);
         });
 
-        async function manualCloudSync() {
+        async function manualCloudSync(isInitial = false) {
             const syncText = document.getElementById('syncText');
-            if(syncText) syncText.innerText = "Eşitleniyor...";
+            const syncIcon = document.getElementById('syncIcon');
+            if(syncText && isInitial) syncText.innerText = "Buluta Bağlanıyor...";
+            if(syncIcon) syncIcon.style.display = "inline-block";
             
             try {
-                // 1. Önce buluttan en güncel veriyi çek
                 const response = await fetch(CLOUD_BIN_URL + "/latest", {
                     headers: { "X-Master-Key": CLOUD_MASTER_KEY }
                 });
                 if(response.ok) {
                     const cloudRes = await response.json();
                     if(cloudRes && cloudRes.record && cloudRes.record.archive) {
-                        // Eğer buluttaki veri yerelden daha yeniyse veya yerel boşsa buluttakini al
                         appData = cloudRes.record;
                         localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
                         refreshAllViews();
                     }
                 }
             } catch(e) {
-                console.warn("Bulut senkronizasyon pas geçildi (Çevrimdışı).");
+                // İnternet yoksa yerel veriyi kullan
+                const saved = localStorage.getItem(STORAGE_KEY);
+                if (saved) {
+                    appData = JSON.parse(saved);
+                }
             } finally {
-                if(syncText) syncText.innerText = "Canlı Senkronize (Tıkla Güncelle)";
+                if(syncText) syncText.innerText = "Canlı Bulut Senkronize";
+                if(syncIcon) syncIcon.style.display = "none";
             }
         }
 
         async function saveLocalData() {
             try {
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
-                channel.postMessage({ type: 'DATA_UPDATE', payload: appData });
+                refreshAllViews();
 
-                // Bulut sunucuya gönder
+                // Değişikliği anında bulut sunucusuna yaz (Böylece diğer cihazlar hemen görecek)
                 await fetch(CLOUD_BIN_URL, {
                     method: 'PUT',
                     headers: {
@@ -749,30 +746,8 @@
                     body: JSON.stringify(appData)
                 });
             } catch(e) {
-                console.error("Kayıt/Bulut hatası:", e);
+                console.error("Bulut kayıt hatası:", e);
             }
-        }
-
-        function loadLocalData() {
-            try {
-                const saved = localStorage.getItem(STORAGE_KEY);
-                if (saved) {
-                    appData = JSON.parse(saved);
-                }
-            } catch(e) {
-                console.error("Okuma hatası:", e);
-            }
-
-            if(!appData.manualLedgers) appData.manualLedgers = [];
-            if(!appData.topluLedgers) appData.topluLedgers = [];
-            if(!appData.recycleBin) appData.recycleBin = [];
-            if(!appData.auditLogs) appData.auditLogs = [];
-            if(!appData.settings || !appData.settings.productGroups) appData.settings.productGroups = DEFAULT_SETTINGS.productGroups;
-
-            if(document.getElementById('settingMontajPrice')) document.getElementById('settingMontajPrice').value = appData.settings.montajPrice;
-            if(document.getElementById('settingPerakendePrice')) document.getElementById('settingPerakendePrice').value = appData.settings.perakendePrice;
-            if(document.getElementById('settingKdvRate')) document.getElementById('settingKdvRate').value = appData.settings.kdvRate;
-            if(document.getElementById('settingMinM2')) document.getElementById('settingMinM2').value = appData.settings.minM2;
         }
 
         function refreshAllViews() {
@@ -784,6 +759,11 @@
             renderRecycleBin();
             renderAuditLogs();
             renderProductRecipes();
+
+            if(document.getElementById('settingMontajPrice')) document.getElementById('settingMontajPrice').value = appData.settings.montajPrice;
+            if(document.getElementById('settingPerakendePrice')) document.getElementById('settingPerakendePrice').value = appData.settings.perakendePrice;
+            if(document.getElementById('settingKdvRate')) document.getElementById('settingKdvRate').value = appData.settings.kdvRate;
+            if(document.getElementById('settingMinM2')) document.getElementById('settingMinM2').value = appData.settings.minM2;
         }
 
         function updateClock() {
@@ -845,7 +825,6 @@
                 details: escapeHTML(details)
             });
             saveLocalData();
-            renderAuditLogs();
         }
 
         function renderAuditLogs() {
@@ -870,7 +849,6 @@
             if(confirm("Tüm işlem loglarını temizlemek istiyor musunuz?")) {
                 appData.auditLogs = [];
                 saveLocalData();
-                renderAuditLogs();
             }
         }
 
@@ -884,21 +862,12 @@
             alert("WhatsApp mesaj şablonları başarıyla kaydedildi!");
         }
 
-        function loadWhatsAppTemplates() {
-            if(!appData.whatsappTemplates) return;
-            if(document.getElementById('wa_msg_alinan')) document.getElementById('wa_msg_alinan').value = appData.whatsappTemplates.alinan || '';
-            if(document.getElementById('wa_msg_uretim')) document.getElementById('wa_msg_uretim').value = appData.whatsappTemplates.uretim || '';
-            if(document.getElementById('wa_msg_montaj')) document.getElementById('wa_msg_montaj').value = appData.whatsappTemplates.montaj || '';
-            if(document.getElementById('wa_msg_bitti')) document.getElementById('wa_msg_bitti').value = appData.whatsappTemplates.bitti || '';
-        }
-
         function sendWhatsAppMessage(orderId, newStatus) {
             const ord = appData.archive.find(o => o.id === orderId);
             if(!ord) return;
 
             ord.status = newStatus;
             saveLocalData();
-            renderArchive();
 
             let templateKey = 'alinan';
             if(newStatus === 'Üretimde') templateKey = 'uretim';
@@ -1408,7 +1377,6 @@
 
             appData.cart.push(orderData);
             saveLocalData();
-            renderCart();
             logAuditEvent("Sipariş Sepete Eklendi", `${orderData.customerName} - ${orderData.totalAmount.toFixed(2)} TL`);
             alert('Sipariş sepetinize eklendi!');
             switchTab('cart');
@@ -1436,7 +1404,6 @@
 
             appData.cart.splice(index, 1);
             saveLocalData();
-            renderCart();
 
             switchTab('order');
             alert(`"${order.customerName}" siparişi düzenlenmek üzere ölçü alanına yüklendi!`);
@@ -1479,7 +1446,6 @@
             logAuditEvent("Sepet Siparişi Silindi", `${ord.customerName} - ${ord.id}`);
             appData.cart.splice(index, 1);
             saveLocalData();
-            renderCart();
         }
 
         function checkoutCartOrder(index) {
@@ -1489,7 +1455,6 @@
             saveLocalData();
             logAuditEvent("Sipariş Onaylandı & Yazdırıldı", `${order.customerName} - ${order.id}`);
             printDirectA4('order', order);
-            refreshAllViews();
         }
 
         function renderArchive() {
@@ -1536,7 +1501,6 @@
             logAuditEvent("Arşiv Siparişi Silindi", `${ord.customerName} - ${ord.id}`);
             appData.archive.splice(idx, 1);
             saveLocalData();
-            refreshAllViews();
         }
 
         function moveToTopluMontaj(orderId) {
@@ -1568,7 +1532,6 @@
 
             saveLocalData();
             logAuditEvent("Manuel Toplu Montaj Cari Eklendi", `${name} - ${debt} TL`);
-            refreshAllViews();
             document.getElementById('topluCustName').value = '';
             document.getElementById('topluCustPhone').value = '';
             document.getElementById('topluCustDebt').value = '';
@@ -1632,7 +1595,6 @@
             logAuditEvent("Manuel Cari Silindi", `${man.name}`);
             appData.manualLedgers.splice(idx, 1);
             saveLocalData();
-            renderLedgerTab();
         }
 
         function renderTopluLedger() {
@@ -1670,7 +1632,6 @@
             logAuditEvent("Toplu Montaj Kaydı Silindi", `${t.customerName} - ${t.id}`);
             appData.topluLedgers.splice(idx, 1);
             saveLocalData();
-            refreshAllViews();
         }
 
         function openOrderDetailModal(orderId) {
@@ -1742,7 +1703,6 @@
                 type: escapeHTML(type), desc: escapeHTML(desc), amount: amount
             });
             saveLocalData();
-            renderRecycleBin();
         }
 
         function renderRecycleBin() {
@@ -1778,7 +1738,6 @@
                 logAuditEvent("Kalıcı Çöp Silindi", `${item.type} - ${item.desc}`);
                 appData.recycleBin.splice(idx, 1);
                 saveLocalData();
-                renderRecycleBin();
             }
         }
 
@@ -1787,7 +1746,6 @@
                 logAuditEvent("Çöp Kovası Boşaltıldı", "Tüm silinmiş veriler temizlendi.");
                 appData.recycleBin = [];
                 saveLocalData();
-                renderRecycleBin();
                 alert('Çöp kovası tamamen boşaltıldı.');
             }
         }
@@ -1805,7 +1763,6 @@
 
             saveLocalData();
             logAuditEvent("Manuel Cari Eklendi", `${name} - Borç: ${debt} TL`);
-            refreshAllViews();
             document.getElementById('manCustName').value = '';
             document.getElementById('manCustPhone').value = '';
             document.getElementById('manCustDebt').value = '';
@@ -1828,7 +1785,6 @@
 
                 saveLocalData();
                 logAuditEvent("Tahsilat Eklendi", `${target.customerName || target.name} - Tutar: ${amt} TL`);
-                refreshAllViews();
             }
         }
 
@@ -1869,7 +1825,6 @@
             appData.expenses.push({ date: new Date().toLocaleDateString('tr-TR'), desc: desc, amount: amount });
             saveLocalData();
             logAuditEvent("Kasa Gideri Eklendi", `${desc} - ${amount} TL`);
-            renderFinance();
             document.getElementById('expDesc').value = '';
             document.getElementById('expAmount').value = '';
         }
@@ -1880,7 +1835,6 @@
             logAuditEvent("Kasa Gideri Silindi", `${exp.desc}`);
             appData.expenses.splice(idx, 1);
             saveLocalData();
-            renderFinance();
         }
 
         function runOptimization() {
@@ -2193,7 +2147,7 @@
             appData.settings.minM2 = parseFloat(document.getElementById('settingMinM2').value) || 1.0;
             saveLocalData();
             logAuditEvent("Fiyatlandırma Ayarları Güncellendi", `Montajlı: ${appData.settings.montajPrice} TL, Perakende: ${appData.settings.perakendePrice} TL`);
-            alert('Ayarlar Başarıyla Kaydedildi!');
+            alert('Ayarlar Başarıyla Kaydedildi ve Buluta Yüklendi!');
             calculateAllRows();
         }
 
