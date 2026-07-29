@@ -124,9 +124,6 @@
             <button onclick="switchTab('finance')" id="tab-finance" class="tab-btn px-3.5 py-2 rounded-lg font-medium text-xs md:text-sm text-slate-600 hover:text-blue-600 transition flex items-center gap-2 border border-transparent whitespace-nowrap">
                 <i class="fa-solid fa-chart-line"></i> Gelir / Gider & Kasa
             </button>
-            <button onclick="switchTab('optimization')" id="tab-optimization" class="tab-btn px-3.5 py-2 rounded-lg font-medium text-xs md:text-sm text-slate-600 hover:text-blue-600 transition flex items-center gap-2 border border-transparent whitespace-nowrap">
-                <i class="fa-solid fa-scissors text-emerald-600"></i> Profil Optimizasyon
-            </button>
             <button onclick="switchTab('recycle')" id="tab-recycle" class="tab-btn px-3.5 py-2 rounded-lg font-medium text-xs md:text-sm text-slate-600 hover:text-blue-600 transition flex items-center gap-2 border border-transparent whitespace-nowrap">
                 <i class="fa-solid fa-trash-can text-red-600"></i> Çöp Kovası & Denetim <span id="recycleBadge" class="bg-red-100 text-red-700 text-xs px-2 py-0.5 rounded-full font-bold">0</span>
             </button>
@@ -167,7 +164,7 @@
                     <h2 class="text-base md:text-lg font-bold text-slate-800 flex items-center gap-2">
                         <i class="fa-solid fa-ruler-combined text-blue-600"></i> ÖLÇÜ & ÜRÜN KONFİGÜRASYONU
                     </h2>
-                    <span class="text-xs text-slate-500 hidden md:inline">Plise ve Menteşeli (Kapı/Pencere/Kasa) Optimizasyonu Aktif</span>
+                    <span class="text-xs text-slate-500 hidden md:inline">Seri Dinamik Geçiş Aktif</span>
                 </div>
 
                 <div id="measureRowsContainer" class="space-y-4"></div>
@@ -421,22 +418,7 @@
             </div>
         </section>
 
-        <!-- TAB 6: PROFİL OPTİMİZASYONU -->
-        <section id="sec-optimization" class="space-y-6 hidden">
-            <div class="bg-white rounded-xl p-4 md:p-6 shadow-sm border border-slate-200">
-                <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-base md:text-lg font-bold text-slate-800 flex items-center gap-2">
-                        <i class="fa-solid fa-scissors text-emerald-600"></i> RENK VE SİSTEM BAZLI PROFİL KESİM OPTİMİZASYONU
-                    </h2>
-                    <button onclick="runOptimization()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs md:text-sm px-4 py-2 rounded-lg font-semibold flex items-center gap-1.5">
-                        <i class="fa-solid fa-rotate"></i> Yenile
-                    </button>
-                </div>
-                <div id="optimizationResults" class="space-y-6 text-xs md:text-sm"></div>
-            </div>
-        </section>
-
-        <!-- TAB 7: GERİ DÖNÜŞÜM KUTUSU & DENETİM İZLERİ -->
+        <!-- TAB 6: GERİ DÖNÜŞÜM KUTUSU & DENETİM İZLERİ -->
         <section id="sec-recycle" class="space-y-6 hidden">
             <div class="flex border-b border-slate-200 gap-4 mb-2">
                 <button onclick="switchRecycleSubTab('deleted')" id="subtab-recycle-deleted" class="py-2 px-4 border-b-2 border-red-600 font-bold text-xs md:text-sm text-red-700">
@@ -498,7 +480,7 @@
             </div>
         </section>
 
-        <!-- TAB 8: AYARLAR & YÖNETİM -->
+        <!-- TAB 7: AYARLAR & YÖNETİM -->
         <section id="sec-settings" class="space-y-6 hidden">
 
             <!-- WHATSAPP HAZIR MESAJLAR & OTOMATİK BİLGİLENDİRME AYARLARI -->
@@ -631,7 +613,7 @@
 
     <script>
         const SHEETS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxPwtNChpye0O2n3ugRPgk_saqel4mo5kxBWicCfEdUc6HNpTuSwBkrDIPMCAVGx4h2/exec";
-        const STORAGE_KEY = "fix_house_23_data_v723";
+        const STORAGE_KEY = "fix_house_23_data_v725";
 
         const DEFAULT_SETTINGS = {
             montajPrice: 220,
@@ -783,7 +765,6 @@
             if(tabName === 'ledger') renderLedgerTab();
             if(tabName === 'finance') renderFinance();
             if(tabName === 'recycle') { renderRecycleBin(); renderAuditLogs(); }
-            if(tabName === 'optimization') runOptimization();
         }
 
         function switchLedgerSubTab(sub) {
@@ -903,14 +884,14 @@
                     </button>
                 </div>
 
-                <!-- İSTEDİĞİNİZ SIRALAMA: Adet ➜ Ürün Tipi ➜ Ölçü Tipi ➜ Profil Renk -->
+                <!-- SIRALAMA: 1. Ürün Tipi, 2. Ölçü Tipi, 3. Profil Renk -->
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-2.5 text-xs">
                     <div>
                         <label class="block font-semibold text-slate-600 mb-1">Adet</label>
                         <input type="number" min="1" value="1" oninput="calculateRow(${currentRowId})" class="inp-qty w-full border text-center rounded px-2 py-2 font-bold text-blue-700 bg-white">
                     </div>
                     <div>
-                        <label class="block font-semibold text-slate-600 mb-1">Ürün Tipi</label>
+                        <label class="block font-semibold text-slate-600 mb-1">1. Ürün Tipi</label>
                         <select onchange="stepSelect(${currentRowId}, 1)" class="product-type w-full border rounded px-2 py-2 bg-white font-bold text-blue-800">
                             <option value="">-- Seçiniz --</option>
                             <option value="plise">Plise Sineklik</option>
@@ -918,17 +899,17 @@
                         </select>
                     </div>
                     <div>
-                        <label class="block font-semibold text-slate-600 mb-1">Ölçü Tipi</label>
+                        <label class="block font-semibold text-slate-600 mb-1">2. Ölçü Tipi</label>
                         <select disabled onchange="stepSelect(${currentRowId}, 2)" class="measure-type w-full border rounded px-2 py-2 bg-white">
-                            <option value="">-- Ürün Seçiniz --</option>
+                            <option value="">-- Önce Ürün Seçin --</option>
                             <option value="ic">İç Ölçü</option>
                             <option value="dis">Dış Ölçü</option>
                         </select>
                     </div>
                     <div>
-                        <label class="block font-semibold text-slate-600 mb-1">Profil Renk</label>
+                        <label class="block font-semibold text-slate-600 mb-1">3. Profil Renk</label>
                         <select disabled onchange="stepSelect(${currentRowId}, 3)" class="color-type w-full border rounded px-2 py-2 bg-white">
-                            <option value="">-- Ölçü Tipi Seçiniz --</option>
+                            <option value="">-- Önce Ölçü Seçin --</option>
                             <option value="Beyaz">Beyaz</option>
                             <option value="Kahverengi">Kahverengi</option>
                             <option value="Antrasit">Antrasit</option>
@@ -936,11 +917,11 @@
                     </div>
                 </div>
 
-                <!-- ARA SEÇENEKLER & EN BOY ÖLÇÜ NOTU -->
+                <!-- DİĞER SEÇENEKLER ➜ EN ➜ BOY ➜ ÖLÇÜ NOTU -->
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-2.5 text-xs pt-1">
                     <div id="dynamicOpts-${currentRowId}" class="space-y-1">
-                        <label class="block font-semibold text-slate-600 mb-1">Açılım & Tül</label>
-                        <select disabled class="opt-placeholder w-full border rounded px-2 py-2 bg-white"><option value="">-- Profil Seçiniz --</option></select>
+                        <label class="block font-semibold text-slate-600 mb-1">Diğer Seçenekler</label>
+                        <select disabled class="opt-placeholder w-full border rounded px-2 py-2 bg-white"><option value="">-- Renk Seçin --</option></select>
                     </div>
                     <div>
                         <label class="block font-semibold text-slate-600 mb-1">EN (cm) *</label>
@@ -1048,24 +1029,29 @@
             const noteInp = card.querySelector('.inp-note');
 
             if(step === 1) {
-                if(pTypeSelect.value) {
-                    mTypeSelect.disabled = false;
-                } else {
-                    mTypeSelect.disabled = true; colorSelect.disabled = true;
-                    enInp.disabled = true; boyInp.disabled = true; noteInp.disabled = true;
-                }
+                mTypeSelect.value = "";
+                mTypeSelect.disabled = !pTypeSelect.value;
+                colorSelect.value = "";
+                colorSelect.disabled = true;
+                
+                optsContainer.innerHTML = `<label class="block font-semibold text-slate-600 mb-1">Diğer Seçenekler</label><select disabled class="opt-placeholder w-full border rounded px-2 py-2 bg-white"><option value="">-- Önce Renk Seçin --</option></select>`;
+                enInp.value = ""; enInp.disabled = true;
+                boyInp.value = ""; boyInp.disabled = true;
+                noteInp.value = ""; noteInp.disabled = true;
             } else if(step === 2) {
-                if(mTypeSelect.value) {
-                    colorSelect.disabled = false;
-                } else {
-                    colorSelect.disabled = true; enInp.disabled = true; boyInp.disabled = true; noteInp.disabled = true;
-                }
+                colorSelect.value = "";
+                colorSelect.disabled = !mTypeSelect.value;
+                
+                optsContainer.innerHTML = `<label class="block font-semibold text-slate-600 mb-1">Diğer Seçenekler</label><select disabled class="opt-placeholder w-full border rounded px-2 py-2 bg-white"><option value="">-- Önce Renk Seçin --</option></select>`;
+                enInp.value = ""; enInp.disabled = true;
+                boyInp.value = ""; boyInp.disabled = true;
+                noteInp.value = ""; noteInp.disabled = true;
             } else if(step === 3) {
                 if(colorSelect.value) {
                     const pType = pTypeSelect.value;
                     if(pType === 'plise') {
                         optsContainer.innerHTML = `
-                            <label class="block font-semibold text-slate-600 mb-1">Açılım, Tül & Kasa (Plise)</label>
+                            <label class="block font-semibold text-slate-600 mb-1">Diğer Seçenekler</label>
                             <div class="grid grid-cols-3 gap-1">
                                 <select onchange="calculateRow(${id})" class="opt-dir w-full border rounded px-1 py-2 bg-white text-[11px]"><option value="yatay">Yatay</option><option value="dikey">Dikey</option></select>
                                 <select onchange="calculateRow(${id})" class="opt-tul w-full border rounded px-1 py-2 bg-white text-[11px]"><option value="plise">Plise Tül</option><option value="polen">Polen (+400₺)</option></select>
@@ -1073,9 +1059,8 @@
                             </div>
                         `;
                     } else {
-                        // Menteşeli sistemde de Kasalı seçeneği eklendi
                         optsContainer.innerHTML = `
-                            <label class="block font-semibold text-slate-600 mb-1">Tip, Tül & Kasa (Menteşeli)</label>
+                            <label class="block font-semibold text-slate-600 mb-1">Diğer Seçenekler</label>
                             <div class="grid grid-cols-3 gap-1">
                                 <select onchange="calculateRow(${id})" class="opt-menteseli-tip w-full border rounded px-1 py-2 bg-white text-[11px]">
                                     <option value="pencere">Pencere</option>
@@ -1097,8 +1082,8 @@
                     noteInp.disabled = false;
                 } else {
                     optsContainer.innerHTML = `
-                        <label class="block font-semibold text-slate-600 mb-1">Açılım & Tül</label>
-                        <select disabled class="opt-placeholder w-full border rounded px-2 py-2 bg-white"><option value="">-- Profil Seçiniz --</option></select>
+                        <label class="block font-semibold text-slate-600 mb-1">Diğer Seçenekler</label>
+                        <select disabled class="opt-placeholder w-full border rounded px-2 py-2 bg-white"><option value="">-- Renk Seçin --</option></select>
                     `;
                     enInp.disabled = true; boyInp.disabled = true; noteInp.disabled = true;
                 }
@@ -1129,8 +1114,8 @@
             if(!card) return;
 
             const qty = parseInt(card.querySelector('.inp-qty').value) || 1;
-            const mType = card.querySelector('.measure-type').value;
             const pType = card.querySelector('.product-type').value;
+            const mType = card.querySelector('.measure-type').value;
             
             let inputEn = parseFloat(card.querySelector('.inp-en').value) || 0;
             let inputBoy = parseFloat(card.querySelector('.inp-boy').value) || 0;
@@ -1199,7 +1184,6 @@
                     ipKat = `${(rawEn + rawBoy + 10).toFixed(0)}cm / ${Math.floor((rawEn / 2.5) - 2)}k`;
                 }
             } else {
-                // Menteşeli Sistem: Kapı (4En + 2Boy) veya Pencere (2En + 2Boy)
                 let isKapi = menteseliTipSelect && menteseliTipSelect.value === 'kapi';
                 let perimeterCm = isKapi ? ((rawEn * 4) + (rawBoy * 2)) : ((rawEn * 2) + (rawBoy * 2));
                 multiplier = (perimeterCm / 100) * qty;
@@ -1240,13 +1224,11 @@
                 rowPrice += multiplier * 400; 
             }
 
-            // Menteşeli sistemde kedi tülü seçilmişse m² başına 260 TL ekleme
             if(pType === 'menteseli' && tulSelect && tulSelect.value === 'kedi') {
                 let actualM2 = ((rawEn * rawBoy) / 10000) * qty;
                 rowPrice += Math.max(actualM2, appData.settings.minM2) * 260;
             }
 
-            // Hem Plise hem Menteşeli için Kasalı seçeneği (2x çarpan)
             if(caseSelect && caseSelect.value === 'kasali') {
                 rowPrice = rowPrice * 2;
             }
@@ -1841,107 +1823,6 @@
             logAuditEvent("Kasa Gideri Silindi", `${exp.desc}`);
             appData.expenses.splice(idx, 1);
             await saveLocalData();
-        }
-
-        function runOptimization() {
-            const container = document.getElementById('optimizationResults');
-            if(!container) return;
-            container.innerHTML = '';
-
-            let groups = {};
-            const KERF = 0.4;
-
-            [...appData.cart, ...appData.archive].forEach(o => o.items.forEach(i => {
-                let isDikey = i.dir === 'dikey';
-                let sysName = i.pType === 'plise' ? (isDikey ? 'Dikey Açılır Plise' : 'Yatay Açılır Plise') : 'Menteşeli';
-                let groupKey = `${i.color} Profil ➜ ${sysName}`;
-
-                if(!groups[groupKey]) groups[groupKey] = [];
-
-                let inputEn = parseFloat(i.en);
-                let inputBoy = parseFloat(i.boy);
-                let qty = i.qty || 1;
-
-                let enVal = isDikey ? inputBoy : inputEn;
-                let boyVal = isDikey ? inputEn : inputBoy;
-
-                for(let q=0; q<qty; q++) {
-                    if(i.pType === 'plise') {
-                        if(!isDikey) {
-                            groups[groupKey].push({ name: `${o.customerName} (#${i.seq}) EN (1/2)`, len: enVal });
-                            groups[groupKey].push({ name: `${o.customerName} (#${i.seq}) EN (2/2)`, len: enVal });
-                            groups[groupKey].push({ name: `${o.customerName} (#${i.seq}) BOY (1/3)`, len: boyVal });
-                            groups[groupKey].push({ name: `${o.customerName} (#${i.seq}) BOY (2/3)`, len: boyVal });
-                            groups[groupKey].push({ name: `${o.customerName} (#${i.seq}) BOY (3/3)`, len: boyVal });
-                        } else {
-                            groups[groupKey].push({ name: `${o.customerName} (#${i.seq}) EN (1/3)`, len: enVal });
-                            groups[groupKey].push({ name: `${o.customerName} (#${i.seq}) EN (2/3)`, len: enVal });
-                            groups[groupKey].push({ name: `${o.customerName} (#${i.seq}) EN (3/3)`, len: enVal });
-                            groups[groupKey].push({ name: `${o.customerName} (#${i.seq}) BOY (1/2)`, len: boyVal });
-                            groups[groupKey].push({ name: `${o.customerName} (#${i.seq}) BOY (2/2)`, len: boyVal });
-                        }
-                    } else {
-                        if(i.tac !== "-") groups[groupKey].push({ name: `${o.customerName} (#${i.seq}) TAÇ`, len: parseFloat(i.tac) });
-                        if(i.dikme !== "-") groups[groupKey].push({ name: `${o.customerName} (#${i.seq}) DİKME`, len: parseFloat(i.dikme) });
-                    }
-                }
-            }));
-
-            if(Object.keys(groups).length === 0) {
-                return container.innerHTML = '<div class="text-slate-400 py-4">Hesaplanacak aktif sipariş kesim boyu bulunamadı.</div>';
-            }
-
-            for(let groupKey in groups) {
-                let cuts = groups[groupKey];
-                if(cuts.length === 0) continue;
-
-                cuts.sort((a,b) => b.len - a.len);
-                let profiles = [];
-
-                cuts.forEach(cut => {
-                    let placed = false;
-                    for(let p of profiles) {
-                        let requiredLen = cut.len + KERF;
-                        if(p.remaining >= requiredLen) {
-                            p.cuts.push(cut);
-                            p.remaining -= requiredLen;
-                            placed = true;
-                            break;
-                        }
-                    }
-                    if(!placed) {
-                        profiles.push({ id: profiles.length + 1, remaining: 600 - (cut.len + KERF), cuts: [cut] });
-                    }
-                });
-
-                let groupHtml = `
-                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-3">
-                        <div class="flex justify-between items-center border-b pb-2">
-                            <h3 class="font-bold text-sm md:text-base text-slate-800 flex items-center gap-2">
-                                <i class="fa-solid fa-layer-group text-blue-600"></i> ${escapeHTML(groupKey)}
-                            </h3>
-                            <span class="bg-blue-100 text-blue-700 font-bold px-2.5 py-1 rounded text-xs md:text-sm">Gerekli Profil: ${profiles.length} Boy (600 cm)</span>
-                        </div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                `;
-
-                profiles.forEach(p => {
-                    groupHtml += `
-                        <div class="bg-slate-50 p-3 rounded-lg border border-slate-200 text-xs md:text-sm">
-                            <div class="font-bold text-blue-700 flex justify-between">
-                                <span>Profil Boyu #${p.id} (600 cm)</span>
-                                <span class="text-slate-500">Kalan Fire: <b>${p.remaining.toFixed(1)} cm</b></span>
-                            </div>
-                            <div class="text-slate-600 mt-2 space-y-1">
-                                ${p.cuts.map(c => `<div class="bg-white p-1 rounded border border-slate-200 flex justify-between"><span>${escapeHTML(c.name)}</span> <b class="text-slate-800">${c.len} cm</b></div>`).join('')}
-                            </div>
-                        </div>
-                    `;
-                });
-
-                groupHtml += `</div></div>`;
-                container.innerHTML += groupHtml;
-            }
         }
 
         function renderProductRecipes() {
