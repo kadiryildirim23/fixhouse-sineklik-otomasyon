@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Fix House ERP - İmalat, Satış & Muhasebe Otomasyonu v7.1</title>
+    <title>Fix House ERP - İmalat, Satış & Muhasebe Otomasyonu v7.7</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons -->
@@ -13,7 +13,7 @@
     <!-- Google Identity Services (Drive Integration) -->
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
         body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
         
         input, select, button { font-size: 14px !important; }
@@ -90,33 +90,18 @@
 </head>
 <body class="min-h-screen flex flex-col text-slate-800">
 
-    <!-- GİRİŞ / KİLİT EKRANI MODALI (ÖZEL TABELA LOGO TASARIMI) -->
+    <!-- GİRİŞ / KİLİT EKRANI MODALI -->
     <div id="loginModal" class="fixed inset-0 bg-slate-900/90 backdrop-blur-md z-[100] flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl p-6 md:p-8 w-full max-w-lg shadow-2xl border border-slate-100 space-y-6">
-            
-            <!-- TABELA STİLİ KURUMSAL LOGO ALANI -->
-            <div class="text-center space-y-3 bg-slate-50 p-5 rounded-xl border border-slate-200">
-                <div class="flex items-center justify-center gap-3">
-                    <!-- Sol Ev Figürü İkonu -->
-                    <div class="bg-[#288448] text-white w-12 h-12 rounded-xl flex items-center justify-center text-2xl shadow-md shrink-0">
-                        <i class="fa-solid fa-house-chimney-window"></i>
-                    </div>
-                    <!-- FIX HOUSE Tabela Tipografi -->
-                    <div class="text-left leading-none">
-                        <div class="text-2xl md:text-3xl font-black tracking-wider text-[#288448] flex items-center">
-                            <span>FİX</span>
-                            <span class="relative mx-1 text-[#288448]">
-                                X
-                                <span class="absolute inset-0 flex items-center justify-center text-white text-base font-black transform rotate-45 select-none pointer-events-none">/</span>
-                            </span>
-                            <span class="text-[#288448] ml-0.5">HOUSE</span>
-                        </div>
-                    </div>
+        <div class="bg-white rounded-2xl p-6 md:p-8 w-full max-w-md shadow-2xl border border-slate-100 space-y-6">
+            <div class="text-center space-y-3">
+                <div class="bg-gradient-to-tr from-blue-600 to-indigo-600 text-white w-16 h-16 rounded-2xl flex items-center justify-center text-3xl font-black mx-auto shadow-xl shadow-blue-500/30">
+                    <i class="fa-solid fa-house-chimney-window"></i>
                 </div>
-                <div class="border-t border-slate-200 pt-2">
-                    <span class="text-[11px] md:text-xs font-bold text-slate-700 tracking-wider uppercase block">PLİSE PERDE VE SİNEKLİK SİSTEMLERİ</span>
-                    <span class="text-[10px] bg-emerald-50 text-emerald-800 font-bold px-2 py-0.5 rounded-full border border-emerald-200 mt-1 inline-block">ERP v7.1 Güvenli Oturum</span>
+                <div>
+                    <h2 class="text-2xl font-black tracking-tight text-slate-900">FIX HOUSE ERP</h2>
+                    <span class="text-xs bg-blue-50 text-blue-700 font-bold px-2.5 py-0.5 rounded-full border border-blue-200">v7.7 Güvenli Oturum</span>
                 </div>
+                <p class="text-xs text-slate-500">Devam etmek için lütfen kimlik bilgilerinizi girin</p>
             </div>
 
             <form onsubmit="handleUserLogin(event)" class="space-y-4">
@@ -124,17 +109,17 @@
                     <label class="block text-xs font-semibold text-slate-600 mb-1">Yönetici / Kullanıcı Adı</label>
                     <div class="relative">
                         <i class="fa-solid fa-user absolute left-3 top-3.5 text-slate-400 text-xs"></i>
-                        <input type="text" id="loginUsername" required class="w-full pl-9 pr-3 py-2.5 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-600" placeholder="Kullanıcı adınızı girin">
+                        <input type="text" id="loginUsername" required class="w-full pl-9 pr-3 py-2.5 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500" placeholder="Kullanıcı adınızı girin">
                     </div>
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-slate-600 mb-1">Kullanıcı Şifresi</label>
                     <div class="relative">
                         <i class="fa-solid fa-lock absolute left-3 top-3.5 text-slate-400 text-xs"></i>
-                        <input type="password" id="loginPassword" required class="w-full pl-9 pr-3 py-2.5 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-600" placeholder="••••••••">
+                        <input type="password" id="loginPassword" required class="w-full pl-9 pr-3 py-2.5 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500" placeholder="••••••••">
                     </div>
                 </div>
-                <button type="submit" class="w-full bg-[#288448] hover:bg-[#1f6837] text-white font-semibold py-3 rounded-lg shadow-md transition flex items-center justify-center gap-2">
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg shadow-md transition flex items-center justify-center gap-2">
                     <i class="fa-solid fa-right-to-bracket"></i> Güvenli Giriş Yap
                 </button>
             </form>
@@ -149,12 +134,12 @@
         <div class="w-full px-4 md:px-8 py-3 flex flex-col md:flex-row justify-between items-center gap-3">
             <div class="flex items-center space-x-3 w-full md:w-auto justify-between md:justify-start">
                 <div class="flex items-center space-x-3">
-                    <div class="bg-[#288448] p-2 rounded-lg text-white font-bold text-xl">
+                    <div class="bg-blue-600 p-2 rounded-lg text-white font-bold text-xl">
                         <i class="fa-solid fa-house-chimney-window"></i>
                     </div>
                     <div>
-                        <h1 class="text-lg md:text-xl font-bold tracking-wide">FIX HOUSE ERP v7.1</h1>
-                        <p class="text-[11px] md:text-xs text-slate-400">Plise Perde ve Sineklik Sistemleri Otomasyonu</p>
+                        <h1 class="text-lg md:text-xl font-bold tracking-wide">FIX HOUSE ERP v7.7</h1>
+                        <p class="text-[11px] md:text-xs text-slate-400">İmalat, Satış & Muhasebe Otomasyonu</p>
                     </div>
                 </div>
             </div>
@@ -227,16 +212,15 @@
                 </div>
             </div>
 
-            <!-- MOBİL UYUMLU ÖLÇÜ & ÜRÜN KONSEPTİ -->
+            <!-- ÖLÇÜ & ÜRÜN KONFİGÜRASYONU -->
             <div class="bg-white rounded-xl p-4 md:p-6 shadow-sm border border-slate-200">
                 <div class="flex justify-between items-center mb-4">
                     <h2 class="text-base md:text-lg font-bold text-slate-800 flex items-center gap-2">
                         <i class="fa-solid fa-ruler-combined text-blue-600"></i> ÖLÇÜ & ÜRÜN KONFİGÜRASYONU
                     </h2>
-                    <span class="text-xs text-slate-500 hidden md:inline">Polen (+400₺/m²) & Kedi Tülü (+260₺/m²) Farkı Entegre</span>
+                    <span class="text-xs text-slate-500 hidden md:inline">Plise Kanat (Dikme -4.5cm) & Menteşeli (Ayrı Kutu) Aktif</span>
                 </div>
 
-                <!-- Ölçü Satırlarının Konteyneri -->
                 <div id="measureRowsContainer" class="space-y-4"></div>
 
                 <div class="flex justify-end mt-4 pt-3 border-t border-slate-100">
@@ -333,7 +317,7 @@
                                 <th class="p-3">Telefon</th>
                                 <th class="p-3 text-center">Kalem</th>
                                 <th class="p-3 text-right">Toplam Tutar</th>
-                                <th class="p-3 text-center">Üretim Durumu</th>
+                                <th class="p-3 text-center">Üretim Konumu & WhatsApp</th>
                                 <th class="p-3 text-center">Ödeme Durumu</th>
                                 <th class="p-3 text-center">İşlemler</th>
                             </tr>
@@ -569,6 +553,38 @@
 
         <!-- TAB 8: AYARLAR & KULLANICI YÖNETİMİ -->
         <section id="sec-settings" class="space-y-6 hidden">
+
+            <!-- WHATSAPP HAZIR MESAJLAR & OTOMATİK BİLGİLENDİRME AYARLARI -->
+            <div class="bg-emerald-50 rounded-xl p-4 md:p-6 shadow-sm border border-emerald-200 space-y-4">
+                <h2 class="text-base md:text-lg font-bold text-emerald-900 flex items-center gap-2">
+                    <i class="fa-brands fa-whatsapp text-emerald-600 text-xl"></i> WHATSAPP HAZIR MESAJ & OTOMATİK KONUM BİLGİLENDİRME
+                </h2>
+                <p class="text-xs text-emerald-700">Sipariş üretim konumları değiştikçe müşteriye otomatik gönderilecek WhatsApp mesaj şablonlarını buradan yönetebilir, manuel mesaj gönderebilirsin.</p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="bg-white p-3 rounded-xl border border-emerald-200 space-y-2">
+                        <label class="block text-xs font-bold text-slate-700">📍 Sipariş Alındı Mesajı</label>
+                        <textarea id="wa_msg_alinan" rows="2" class="w-full p-2 text-xs border rounded-lg">Sayın {MUSTERI}, Fix House sineklik siparişiniz alınmıştır. Bizi tercih ettiğiniz için teşekkür ederiz.</textarea>
+                    </div>
+                    <div class="bg-white p-3 rounded-xl border border-emerald-200 space-y-2">
+                        <label class="block text-xs font-bold text-slate-700">⚙️ Üretime Başlandı Mesajı</label>
+                        <textarea id="wa_msg_uretim" rows="2" class="w-full p-2 text-xs border rounded-lg">Sayın {MUSTERI}, {SIPARIS_ID} numaralı sineklik siparişiniz atölyemizde üretime alınmıştır.</textarea>
+                    </div>
+                    <div class="bg-white p-3 rounded-xl border border-emerald-200 space-y-2">
+                        <label class="block text-xs font-bold text-slate-700">🚚 Montaja Hazır / Yola Çıktı Mesajı</label>
+                        <textarea id="wa_msg_montaj" rows="2" class="w-full p-2 text-xs border rounded-lg">Sayın {MUSTERI}, sineklikleriniz hazırlanmış olup montaj/sevkiyat için yola çıkmaktadır.</textarea>
+                    </div>
+                    <div class="bg-white p-3 rounded-xl border border-emerald-200 space-y-2">
+                        <label class="block text-xs font-bold text-slate-700">✅ Tamamlandı / Teslim Edildi Mesajı</label>
+                        <textarea id="wa_msg_bitti" rows="2" class="w-full p-2 text-xs border rounded-lg">Sayın {MUSTERI}, montajınız başarıyla tamamlanmıştır. Fix House'u seçtiğiniz için teşekkürler.</textarea>
+                    </div>
+                </div>
+                <div class="flex justify-end">
+                    <button onclick="saveWhatsAppTemplates()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs px-4 py-2 rounded-lg font-semibold flex items-center gap-1.5">
+                        <i class="fa-solid fa-floppy-disk"></i> WhatsApp Şablonlarını Kaydet
+                    </button>
+                </div>
+            </div>
 
             <!-- YÖNETİCİ ŞİFRE DEĞİŞTİRME PANELİ -->
             <div class="bg-amber-50 rounded-xl p-4 md:p-6 shadow-sm border border-amber-200">
@@ -924,6 +940,56 @@
             }
         }
 
+        /* WHATSAPP ŞABLONLARI YÖNETİMİ */
+        function saveWhatsAppTemplates() {
+            if(!appData.whatsappTemplates) appData.whatsappTemplates = {};
+            appData.whatsappTemplates.alinan = document.getElementById('wa_msg_alinan').value;
+            appData.whatsappTemplates.uretim = document.getElementById('wa_msg_uretim').value;
+            appData.whatsappTemplates.montaj = document.getElementById('wa_msg_montaj').value;
+            appData.whatsappTemplates.bitti = document.getElementById('wa_msg_bitti').value;
+            saveLocalData();
+            alert("WhatsApp mesaj şablonları başarıyla kaydedildi!");
+        }
+
+        function loadWhatsAppTemplates() {
+            if(!appData.whatsappTemplates) return;
+            if(document.getElementById('wa_msg_alinan')) document.getElementById('wa_msg_alinan').value = appData.whatsappTemplates.alinan || '';
+            if(document.getElementById('wa_msg_uretim')) document.getElementById('wa_msg_uretim').value = appData.whatsappTemplates.uretim || '';
+            if(document.getElementById('wa_msg_montaj')) document.getElementById('wa_msg_montaj').value = appData.whatsappTemplates.montaj || '';
+            if(document.getElementById('wa_msg_bitti')) document.getElementById('wa_msg_bitti').value = appData.whatsappTemplates.bitti || '';
+        }
+
+        function sendWhatsAppMessage(orderId, newStatus) {
+            const ord = appData.archive.find(o => o.id === orderId);
+            if(!ord) return;
+
+            ord.status = newStatus;
+            saveLocalData();
+            renderArchive();
+
+            let templateKey = 'alinan';
+            if(newStatus === 'Üretimde') templateKey = 'uretim';
+            else if(newStatus === 'Montaja Hazır') templateKey = 'montaj';
+            else if(newStatus === 'Tamamlandı') templateKey = 'bitti';
+
+            const templates = appData.whatsappTemplates || {
+                alinan: "Sayın {MUSTERI}, Fix House sineklik siparişiniz alınmıştır.",
+                uretim: "Sayın {MUSTERI}, {SIPARIS_ID} numaralı siparişiniz üretime alınmıştır.",
+                montaj: "Sayın {MUSTERI}, sineklikleriniz montaj için yola çıkmaktadır.",
+                bitti: "Sayın {MUSTERI}, montajınız tamamlanmıştır. Teşekkür ederiz."
+            };
+
+            let msg = templates[templateKey] || "Fix House bilgilendirme.";
+            msg = msg.replace('{MUSTERI}', ord.customerName).replace('{SIPARIS_ID}', ord.id);
+
+            let phone = ord.customerPhone.replace(/\D/g, '');
+            if(phone.startsWith('0')) phone = '9' + phone;
+
+            const waUrl = `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
+            window.open(waUrl, '_blank');
+            logAuditEvent("WhatsApp Mesaj Gönderildi", `${ord.customerName} - Durum: ${newStatus}`);
+        }
+
         /* GOOGLE DRIVE API BULUT YEDEKLEME MODÜLÜ */
         const GOOGLE_CLIENT_ID = "YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com";
         const SCOPES = "https://www.googleapis.com/auth/drive.file";
@@ -1079,7 +1145,8 @@
             manualLedgers: [],
             topluLedgers: [],
             recycleBin: [],
-            auditLogs: []
+            auditLogs: [],
+            whatsappTemplates: {}
         };
 
         let currentRowId = 0;
@@ -1087,6 +1154,7 @@
 
         window.addEventListener('DOMContentLoaded', () => {
             loadLocalData();
+            loadWhatsAppTemplates();
             updateClock();
             setInterval(updateClock, 1000);
             addMeasureRow();
@@ -1233,7 +1301,7 @@
             }
         }
 
-        /* 📱 MOBİL UYUMLU KART YAPISINDA ÖLÇÜ SATIRI & EKSTRA AKSESUARLAR */
+        /* ÖLÇÜ SATIRI & EKSTRA AKSESUARLAR */
         function addMeasureRow(initialData = null) {
             currentRowId++;
             const container = document.getElementById('measureRowsContainer');
@@ -1244,7 +1312,6 @@
             cardDiv.className = "measure-card bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-3 shadow-sm transition";
             
             cardDiv.innerHTML = `
-                <!-- Üst Başlık & Silme Butonu -->
                 <div class="flex justify-between items-center border-b border-slate-200 pb-2">
                     <span class="font-bold text-xs md:text-sm text-blue-700 flex items-center gap-1.5">
                         <i class="fa-solid fa-layer-group"></i> Ölçü Satırı #<span class="row-seq">1</span>
@@ -1254,7 +1321,6 @@
                     </button>
                 </div>
 
-                <!-- Seçim Alanları Grid -->
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-2.5 text-xs">
                     <div>
                         <label class="block font-semibold text-slate-600 mb-1">Adet</label>
@@ -1287,7 +1353,6 @@
                     </div>
                 </div>
 
-                <!-- Dinamik Seçenekler, EN ve BOY -->
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-2.5 text-xs pt-1">
                     <div id="dynamicOpts-${currentRowId}" class="space-y-1">
                         <label class="block font-semibold text-slate-600 mb-1">Açılım & Tül</label>
@@ -1295,11 +1360,11 @@
                     </div>
                     <div>
                         <label class="block font-semibold text-slate-600 mb-1">EN (cm) *</label>
-                        <input type="number" step="0.1" disabled placeholder="Örn: 70" oninput="calculateRow(${currentRowId})" class="inp-en w-full border text-center rounded px-2 py-2 font-bold bg-white">
+                        <input type="number" step="0.1" disabled placeholder="Örn: 50" oninput="calculateRow(${currentRowId})" class="inp-en w-full border text-center rounded px-2 py-2 font-bold bg-white">
                     </div>
                     <div>
                         <label class="block font-semibold text-slate-600 mb-1">BOY (cm) *</label>
-                        <input type="number" step="0.1" disabled placeholder="Örn: 150" oninput="calculateRow(${currentRowId})" class="inp-boy w-full border text-center rounded px-2 py-2 font-bold bg-white">
+                        <input type="number" step="0.1" disabled placeholder="Örn: 100" oninput="calculateRow(${currentRowId})" class="inp-boy w-full border text-center rounded px-2 py-2 font-bold bg-white">
                     </div>
                     <div>
                         <label class="block font-semibold text-slate-600 mb-1">Ölçü Notu</label>
@@ -1307,7 +1372,6 @@
                     </div>
                 </div>
 
-                <!-- EKSTRA AKSESUAR / MALZEME EKLEME BÖLÜMÜ -->
                 <div class="border-t border-slate-200 pt-2">
                     <div class="flex justify-between items-center mb-1.5">
                         <span class="text-[11px] font-bold text-slate-700 flex items-center gap-1">
@@ -1320,15 +1384,14 @@
                     <div id="rowAccessoriesContainer-${currentRowId}" class="space-y-1.5"></div>
                 </div>
 
-                <!-- Hesaplanan İmalat Ölçüleri & Tutar Özeti -->
                 <div class="bg-white p-3 rounded-lg border border-slate-200 text-xs grid grid-cols-3 md:grid-cols-7 gap-2 text-center mt-2">
                     <div class="bg-blue-50/70 p-1.5 rounded"><span class="block text-[10px] text-slate-500 font-semibold">TAÇ</span><b class="out-tac text-slate-800">-</b></div>
                     <div class="bg-blue-50/70 p-1.5 rounded"><span class="block text-[10px] text-slate-500 font-semibold">DİKME</span><b class="out-dikme text-slate-800">-</b></div>
                     <div class="bg-blue-50/70 p-1.5 rounded"><span class="block text-[10px] text-slate-500 font-semibold">KANAT</span><b class="out-kanat text-slate-800">-</b></div>
                     <div class="bg-blue-50/70 p-1.5 rounded"><span class="block text-[10px] text-slate-500 font-semibold">TÜL</span><b class="out-tul text-slate-800">-</b></div>
                     <div class="bg-blue-50/70 p-1.5 rounded"><span class="block text-[10px] text-slate-500 font-semibold">İP / KAT</span><b class="out-ip text-slate-800">-</b></div>
-                    <div class="bg-slate-100 p-1.5 rounded"><span class="block text-[10px] text-slate-500 font-semibold">MİKTAR (m²)</span><b class="out-m2 text-slate-800">0.00</b></div>
-                    <div class="bg-emerald-50 p-1.5 rounded col-span-3 md:col-span-1 flex flex-col justify-center"><span class="block text-[10px] text-emerald-700 font-semibold">TUTAR</span><b class="out-price text-emerald-700 font-black">0.00 ₺</b></div>
+                    <div class="bg-slate-100 p-1.5 rounded"><span class="block text-[10px] text-slate-500 font-semibold">ÇEVRE / M²</span><b class="out-m2 text-slate-800">0.00</b></div>
+                    <div class="bg-emerald-50 p-1.5 rounded col-span-3 md:col-span-1 flex flex-col justify-center"><span class="block text-[10px] text-emerald-700 font-semibold">NET TUTAR</span><b class="out-price text-emerald-700 font-black">0.00 ₺</b></div>
                 </div>
             `;
             
@@ -1345,7 +1408,9 @@
                 stepSelect(currentRowId, 3);
                 
                 if(initialData.dir && cardDiv.querySelector('.opt-dir')) cardDiv.querySelector('.opt-dir').value = initialData.dir;
+                if(initialData.magnetType && cardDiv.querySelector('.opt-magnet')) cardDiv.querySelector('.opt-magnet').value = initialData.magnetType;
                 if(initialData.tulType && cardDiv.querySelector('.opt-tul')) cardDiv.querySelector('.opt-tul').value = initialData.tulType;
+                if(initialData.caseType && cardDiv.querySelector('.opt-case')) cardDiv.querySelector('.opt-case').value = initialData.caseType;
                 
                 cardDiv.querySelector('.inp-en').value = initialData.en;
                 cardDiv.querySelector('.inp-boy').value = initialData.boy;
@@ -1416,18 +1481,29 @@
                     const pType = pTypeSelect.value;
                     if(pType === 'plise') {
                         optsContainer.innerHTML = `
-                            <label class="block font-semibold text-slate-600 mb-1">Açılım & Tül</label>
-                            <div class="flex gap-1">
-                                <select onchange="calculateRow(${id})" class="opt-dir w-full border rounded px-1.5 py-2 bg-white"><option value="yatay">Yatay</option><option value="dikey">Dikey</option></select>
-                                <select onchange="calculateRow(${id})" class="opt-tul w-full border rounded px-1.5 py-2 bg-white"><option value="plise">Plise Tül</option><option value="polen">Polen Tül (+400₺/m²)</option></select>
+                            <label class="block font-semibold text-slate-600 mb-1">Açılım, Tül & Kasa (Plise)</label>
+                            <div class="grid grid-cols-3 gap-1">
+                                <select onchange="calculateRow(${id})" class="opt-dir w-full border rounded px-1 py-2 bg-white text-[11px]"><option value="yatay">Yatay (2En+3Boy)</option><option value="dikey">Dikey (3En+2Boy)</option></select>
+                                <select onchange="calculateRow(${id})" class="opt-tul w-full border rounded px-1 py-2 bg-white text-[11px]"><option value="plise">Plise Tül</option><option value="polen">Polen (+400₺)</option></select>
+                                <select onchange="calculateRow(${id})" class="opt-case w-full border rounded px-1 py-2 bg-white text-[11px]"><option value="kasasiz">Kasasız</option><option value="kasali">Kasalı (2x)</option></select>
                             </div>
                         `;
                     } else {
                         optsContainer.innerHTML = `
-                            <label class="block font-semibold text-slate-600 mb-1">Açılım & Tül</label>
-                            <div class="flex gap-1">
-                                <select onchange="calculateRow(${id})" class="opt-dir w-full border rounded px-1.5 py-2 bg-white"><option value="sag">Sağa</option><option value="sol">Sola</option></select>
-                                <select onchange="calculateRow(${id})" class="opt-tul w-full border rounded px-1.5 py-2 bg-white"><option value="duz">Düz Tül</option><option value="kedi">Kedi Tülü (+260₺/m²)</option></select>
+                            <label class="block font-semibold text-slate-600 mb-1">Açılım & Kilitleme (Menteşeli)</label>
+                            <div class="grid grid-cols-3 gap-1">
+                                <select onchange="calculateRow(${id})" class="opt-dir w-full border rounded px-1 py-2 bg-white text-[11px]">
+                                    <option value="saga">Sağa Açılır</option>
+                                    <option value="sola">Sola Açılır</option>
+                                </select>
+                                <select onchange="calculateRow(${id})" class="opt-magnet w-full border rounded px-1 py-2 bg-white text-[11px]">
+                                    <option value="miknatisli">Mıknatıslı</option>
+                                    <option value="citcitli">Çıtçıtlı</option>
+                                </select>
+                                <select onchange="calculateRow(${id})" class="opt-tul w-full border rounded px-1 py-2 bg-white text-[11px]">
+                                    <option value="duz">Düz Tül</option>
+                                    <option value="kedi">Kedi Tülü (+260₺)</option>
+                                </select>
                             </div>
                         `;
                     }
@@ -1487,37 +1563,49 @@
             }
 
             let tac = "-", dikme = "-", kanat = "-", tul = "-", ipKat = "-";
-            let unitM2 = (rawEn * rawBoy) / 10000;
-            let totalM2 = Math.max(unitM2, appData.settings.minM2) * qty;
+            let multiplier = 0; 
 
             const dirSelect = card.querySelector('.opt-dir');
             const tulSelect = card.querySelector('.opt-tul');
-            const isYatay = dirSelect ? dirSelect.value === 'yatay' || dirSelect.value === 'sag' : true;
+            const caseSelect = card.querySelector('.opt-case');
 
             if(pType === 'plise') {
+                const isYatayDir = dirSelect && dirSelect.value === 'yatay';
+                let perimeterCm = isYatayDir ? ((rawEn * 2) + (rawBoy * 3)) : ((rawEn * 3) + (rawBoy * 2));
+                multiplier = (perimeterCm / 100) * qty;
+
                 if(mType === 'ic') {
                     tac = rawEn.toFixed(1);
                     dikme = (rawBoy + 4).toFixed(1);
-                    kanat = isYatay ? (rawBoy - 0.5).toFixed(1) : (rawEn - 0.5).toFixed(1);
+                    // Plise seçildiğinde kanat hesabı: dikme verisinden -4.5 cm
+                    let calcDikmeIc = rawBoy + 4;
+                    kanat = (calcDikmeIc - 4.5).toFixed(1);
                     tul = (rawBoy + 3.5).toFixed(1);
                     ipKat = `${(rawEn + rawBoy + 26).toFixed(0)}cm / ${Math.floor((rawEn / 2.5) - 2)}k`;
                 } else {
                     tac = (rawEn - 8).toFixed(1);
                     dikme = (rawBoy - 4).toFixed(1);
-                    kanat = isYatay ? (rawBoy - 4.5).toFixed(1) : (rawEn - 8.5).toFixed(1);
+                    // Plise dış ölçüde kanat hesabı: dikme verisinden -4.5 cm
+                    let calcDikmeDis = rawBoy - 4;
+                    kanat = (calcDikmeDis - 4.5).toFixed(1);
                     tul = (rawBoy - 4.5).toFixed(1);
                     ipKat = `${(rawEn + rawBoy + 10).toFixed(0)}cm / ${Math.floor((rawEn / 2.5) - 2)}k`;
                 }
             } else {
+                let unitM2 = (rawEn * rawBoy) / 10000;
+                multiplier = Math.max(unitM2, appData.settings.minM2) * qty;
+
                 if(mType === 'dis') {
                     tac = (rawEn - 5).toFixed(1);
                     dikme = (rawBoy - 5).toFixed(1);
-                    kanat = (rawEn - 6).toFixed(1);
+                    let baseTul = rawBoy - 5; 
+                    kanat = (baseTul - 4).toFixed(1);
                     ipKat = "Sabit";
                 } else {
                     tac = rawEn.toFixed(1);
                     dikme = rawBoy.toFixed(1);
-                    kanat = (rawEn - 1).toFixed(1);
+                    let baseTul = rawBoy;
+                    kanat = (baseTul - 4).toFixed(1);
                     ipKat = "Sabit";
                 }
             }
@@ -1527,7 +1615,7 @@
             card.querySelector('.out-kanat').innerText = kanat;
             card.querySelector('.out-tul').innerText = tul;
             card.querySelector('.out-ip').innerText = ipKat;
-            card.querySelector('.out-m2').innerText = totalM2.toFixed(2);
+            card.querySelector('.out-m2').innerText = multiplier.toFixed(2);
 
             const tariff = document.getElementById('salesTariff').value;
             if(!tariff) {
@@ -1537,15 +1625,19 @@
             }
 
             let unitPrice = (tariff === 'montajli') ? appData.settings.montajPrice : appData.settings.perakendePrice;
-            let rowPrice = totalM2 * unitPrice;
+            let rowPrice = multiplier * unitPrice;
 
-            if(tulSelect) {
-                const tVal = tulSelect.value;
-                if(tVal === 'polen') {
-                    rowPrice += totalM2 * 400; 
-                } else if(tVal === 'kedi') {
-                    rowPrice += totalM2 * 260; 
-                }
+            if(pType === 'plise' && tulSelect && tulSelect.value === 'polen') {
+                rowPrice += multiplier * 400; 
+            }
+
+            if(pType === 'menteseli' && tulSelect && tulSelect.value === 'kedi') {
+                let actualM2 = ((rawEn * rawBoy) / 10000) * qty;
+                rowPrice += Math.max(actualM2, appData.settings.minM2) * 260;
+            }
+
+            if(pType === 'plise' && caseSelect && caseSelect.value === 'kasali') {
+                rowPrice = rowPrice * 2;
             }
 
             const accItems = card.querySelectorAll('.custom-acc-item');
@@ -1631,7 +1723,9 @@
                         pType: card.querySelector('.product-type').value,
                         color: card.querySelector('.color-type').value,
                         dir: card.querySelector('.opt-dir') ? card.querySelector('.opt-dir').value : '',
+                        magnetType: card.querySelector('.opt-magnet') ? card.querySelector('.opt-magnet').value : '',
                         tulType: card.querySelector('.opt-tul') ? card.querySelector('.opt-tul').value : '',
+                        caseType: card.querySelector('.opt-case') ? card.querySelector('.opt-case').value : '',
                         en: enVal,
                         boy: parseFloat(card.querySelector('.inp-boy').value),
                         note: escapeHTML(card.querySelector('.inp-note').value || ''),
@@ -1770,7 +1864,14 @@
                         <td class="p-3 text-slate-500">${escapeHTML(order.customerPhone)}</td>
                         <td class="p-3 text-center font-bold">${order.items.length} Kalem</td>
                         <td class="p-3 text-right font-black text-blue-600">${order.totalAmount.toFixed(2)} ₺</td>
-                        <td class="p-3 text-center"><span class="px-2 py-0.5 rounded text-[11px] font-bold bg-blue-100 text-blue-800">${order.status}</span></td>
+                        <td class="p-3 text-center space-x-1">
+                            <select onchange="sendWhatsAppMessage('${order.id}', this.value)" class="text-xs border rounded p-1 font-bold bg-emerald-50 text-emerald-800">
+                                <option value="Sipariş Alındı" ${order.status==='Sipariş Alındı'?'selected':''}>📍 Sipariş Alındı</option>
+                                <option value="Üretimde" ${order.status==='Üretimde'?'selected':''}>⚙️ Üretimde</option>
+                                <option value="Montaja Hazır" ${order.status==='Montaja Hazır'?'selected':''}>🚚 Montaja Hazır</option>
+                                <option value="Tamamlandı" ${order.status==='Tamamlandı'?'selected':''}>✅ Tamamlandı</option>
+                            </select>
+                        </td>
                         <td class="p-3 text-center">
                             <span class="px-2 py-0.5 rounded text-[11px] font-bold ${order.paidAmount >= order.totalAmount ? 'bg-emerald-100 text-emerald-700':'bg-amber-100 text-amber-700'}">
                                 ${order.paidAmount >= order.totalAmount ? 'Ödendi':'Kalan: ' + (order.totalAmount - order.paidAmount).toFixed(2) + ' ₺'}
@@ -2152,7 +2253,7 @@
             const KERF = 0.4;
 
             [...appData.cart, ...appData.archive].forEach(o => o.items.forEach(i => {
-                let isYatay = i.dir === 'yatay' || i.dir === 'sag' || i.dir === 'sol';
+                let isYatay = i.dir === 'yatay' || i.dir === 'saga' || i.dir === 'sola';
                 let sysName = i.pType === 'plise' ? (isYatay ? 'Yatay Açılır Plise' : 'Dikey Açılır Plise') : 'Menteşeli';
                 let groupKey = `${i.color} Profil ➜ ${sysName}`;
 
@@ -2163,11 +2264,20 @@
                 let qty = i.qty || 1;
 
                 for(let q=0; q<qty; q++) {
-                    if(isYatay) {
-                        groups[groupKey].push({ name: `${o.customerName} (#${i.seq}) EN (1/2)`, len: enVal });
-                        groups[groupKey].push({ name: `${o.customerName} (#${i.seq}) EN (2/2)`, len: enVal });
-                        groups[groupKey].push({ name: `${o.customerName} (#${i.seq}) BOY (1/2)`, len: boyVal });
-                        groups[groupKey].push({ name: `${o.customerName} (#${i.seq}) BOY (2/2)`, len: boyVal });
+                    if(i.pType === 'plise') {
+                        if(isYatay) {
+                            groups[groupKey].push({ name: `${o.customerName} (#${i.seq}) EN (1/2)`, len: enVal });
+                            groups[groupKey].push({ name: `${o.customerName} (#${i.seq}) EN (2/2)`, len: enVal });
+                            groups[groupKey].push({ name: `${o.customerName} (#${i.seq}) BOY (1/3)`, len: boyVal });
+                            groups[groupKey].push({ name: `${o.customerName} (#${i.seq}) BOY (2/3)`, len: boyVal });
+                            groups[groupKey].push({ name: `${o.customerName} (#${i.seq}) BOY (3/3)`, len: boyVal });
+                        } else {
+                            groups[groupKey].push({ name: `${o.customerName} (#${i.seq}) EN (1/3)`, len: enVal });
+                            groups[groupKey].push({ name: `${o.customerName} (#${i.seq}) EN (2/3)`, len: enVal });
+                            groups[groupKey].push({ name: `${o.customerName} (#${i.seq}) EN (3/3)`, len: enVal });
+                            groups[groupKey].push({ name: `${o.customerName} (#${i.seq}) BOY (1/2)`, len: boyVal });
+                            groups[groupKey].push({ name: `${o.customerName} (#${i.seq}) BOY (2/2)`, len: boyVal });
+                        }
                     } else {
                         if(i.tac !== "-") groups[groupKey].push({ name: `${o.customerName} (#${i.seq}) TAÇ`, len: parseFloat(i.tac) });
                         if(i.dikme !== "-") groups[groupKey].push({ name: `${o.customerName} (#${i.seq}) DİKME`, len: parseFloat(i.dikme) });
@@ -2346,7 +2456,7 @@
                 <div class="a4-print-container">
                     <div class="print-border-box flex justify-between items-center">
                         <div>
-                            <h1 class="font-bold" style="font-size: 11pt;">FİX HOUSE SİNEKLİK İMALAT & ÖLÇÜ FORMU</h1>
+                            <h1 class="font-bold" style="font-size: 11pt;">FIX HOUSE SİNEKLİK İMALAT & ÖLÇÜ FORMU</h1>
                             <p style="font-size: 7.5pt;">Sipariş / Fiş No: <b>${order.id}</b> | Tarih: <b>${order.date}</b></p>
                         </div>
                         <div class="text-right">
@@ -2371,7 +2481,7 @@
                                     <td>${i.mType === 'ic' ? 'İç':'Dış'}</td>
                                     <td>${i.pType === 'plise' ? 'Plise':'Menteşeli'}</td>
                                     <td>${i.color}</td>
-                                    <td>${i.dir} ${i.tulType}</td>
+                                    <td>${i.dir} ${i.magnetType || ''} ${i.tulType} ${i.caseType || ''}</td>
                                     <td><b>${i.en}</b></td>
                                     <td><b>${i.boy}</b></td>
                                     <td>${escapeHTML(i.note) || '-'}</td>
@@ -2428,8 +2538,8 @@
 
         function masterReset() {
             if(confirm("FABRİKA AYARLARINA DÖNÜLCEK: Tüm veriler silinecek! Onaylıyor musunuz?")) {
-                localStorage.removeItem('fixhouse_erp_sec_v7.1');
-                localStorage.removeItem('fixhouse_erp_sec_v7.0');
+                localStorage.removeItem('fixhouse_erp_sec_v7.7');
+                localStorage.removeItem('fixhouse_erp_sec_v7.6');
                 location.reload();
             }
         }
@@ -2445,12 +2555,11 @@
             calculateAllRows();
         }
 
-        /* VERİ MASKELENEREK LOCALSTORAGE KAYDI VE MIGRATION */
         function saveLocalData() { 
             try {
                 const jsonStr = JSON.stringify(appData);
                 const encodedData = btoa(encodeURIComponent(jsonStr));
-                localStorage.setItem('fixhouse_erp_sec_v7.1', encodedData); 
+                localStorage.setItem('fixhouse_erp_sec_v7.7', encodedData); 
             } catch(e) {
                 console.error("Veri kaydetme hatası:", e);
             }
@@ -2460,13 +2569,13 @@
             let loaded = false;
 
             try {
-                const encodedData = localStorage.getItem('fixhouse_erp_sec_v7.1') || localStorage.getItem('fixhouse_erp_sec_v7.0') || localStorage.getItem('fixhouse_erp_sec_v6.9');
+                const encodedData = localStorage.getItem('fixhouse_erp_sec_v7.7') || localStorage.getItem('fixhouse_erp_sec_v7.6') || localStorage.getItem('fixhouse_erp_sec_v7.5');
                 if(encodedData) {
                     const jsonStr = decodeURIComponent(atob(encodedData));
                     appData = { ...appData, ...JSON.parse(jsonStr) };
                     loaded = true;
                 }
-            } catch(e) { console.error("v7.1 veri okuma hatası", e); }
+            } catch(e) { console.error("v7.7 veri okuma hatası", e); }
 
             if(!appData.users || appData.users.length === 0 || !appData.users.some(u => isMasterUser(u))) {
                 appData.users = [
@@ -2492,7 +2601,7 @@
         function exportFullBackup() {
             const a = document.createElement('a');
             a.href = URL.createObjectURL(new Blob([JSON.stringify(appData, null, 2)], { type: 'application/json' }));
-            a.download = `fixhouse_v7.1_yedek_${new Date().toISOString().slice(0,10)}.json`;
+            a.download = `fixhouse_v7.7_yedek_${new Date().toISOString().slice(0,10)}.json`;
             a.click();
         }
 
@@ -2518,7 +2627,7 @@
             const worksheet = XLSX.utils.json_to_sheet(exportData);
             const workbook = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(workbook, worksheet, "Siparişler");
-            XLSX.writeFile(workbook, "fixhouse_arsiv_v7.1.xlsx");
+            XLSX.writeFile(workbook, "fixhouse_arsiv_v7.7.xlsx");
         }
     </script>
 </body>
