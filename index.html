@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Fix House ERP - İmalat, Satış & Muhasebe Otomasyonu v7.13 (Canlı Bulut)</title>
+    <title>Fix House 23 - İmalat, Satış & Muhasebe Otomasyonu (Canlı Bulut)</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons -->
@@ -101,8 +101,8 @@
                     <i class="fa-solid fa-house-chimney-window"></i>
                 </div>
                 <div>
-                    <h2 class="text-2xl font-black tracking-tight text-slate-900">FIX HOUSE ERP</h2>
-                    <span class="text-xs bg-emerald-50 text-emerald-700 font-bold px-2.5 py-0.5 rounded-full border border-emerald-200">v7.13 - Firebase Canlı Bulut Senkronize</span>
+                    <h2 class="text-2xl font-black tracking-tight text-slate-900">FIX HOUSE 23</h2>
+                    <span class="text-xs bg-emerald-50 text-emerald-700 font-bold px-2.5 py-0.5 rounded-full border border-emerald-200">Firebase Canlı Bulut Senkronize</span>
                 </div>
                 <p class="text-xs text-slate-500">Devam etmek için lütfen kimlik bilgilerinizi girin</p>
             </div>
@@ -141,7 +141,7 @@
                         <i class="fa-solid fa-house-chimney-window"></i>
                     </div>
                     <div>
-                        <h1 class="text-lg md:text-xl font-bold tracking-wide">FIX HOUSE ERP v7.13</h1>
+                        <h1 class="text-lg md:text-xl font-bold tracking-wide">FİX HOUSE 23</h1>
                         <p class="text-[11px] md:text-xs text-slate-400">İmalat, Satış & Muhasebe Otomasyonu</p>
                     </div>
                 </div>
@@ -794,15 +794,16 @@
     <div id="printContainerZebra" class="print-only"></div>
 
     <script>
-        // Firebase Canlı Bulut Veritabanı Yapılandırması
+        // Firebase Canlı Bulut Veritabanı Yapılandırması (Fix House 23)
         const firebaseConfig = {
             databaseURL: "https://fixhouse-erp-default-rtdb.europe-west1.firebasedatabase.app/"
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
-        const dbRef = db.ref('fixhouse_erp_live_data');
+        const dbRef = db.ref('fixhouse_23_live_data');
 
         let activeUser = null;
+        let isCloudInitialLoaded = false;
 
         function escapeHTML(str) {
             if (!str) return '';
@@ -990,7 +991,7 @@
                 bitti: "Sayın {MUSTERI}, montajınız tamamlanmıştır. Teşekkür ederiz."
             };
 
-            let msg = templates[templateKey] || "Fix House bilgilendirme.";
+            let msg = templates[templateKey] || "Fix House 23 bilgilendirme.";
             msg = msg.replace('{MUSTERI}', ord.customerName).replace('{SIPARIS_ID}', ord.id);
 
             let phone = ord.customerPhone.replace(/\D/g, '');
@@ -1063,7 +1064,7 @@
         async function uploadToGoogleDrive() {
             if (!driveAccessToken) return;
 
-            const fileName = `fixhouse_backup_${new Date().toISOString().slice(0, 10)}.json`;
+            const fileName = `fixhouse23_backup_${new Date().toISOString().slice(0, 10)}.json`;
             const fileContent = JSON.stringify(appData, null, 2);
 
             const metadata = { name: fileName, mimeType: 'application/json' };
@@ -1092,14 +1093,14 @@
             if (!driveAccessToken) return;
 
             try {
-                const query = "name contains 'fixhouse_backup_' and mimeType = 'application/json' and trashed = false";
+                const query = "name contains 'fixhouse23_backup_' and mimeType = 'application/json' and trashed = false";
                 const listRes = await fetch(`https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(query)}&orderBy=createdTime desc&pageSize=1`, {
                     headers: new Headers({ 'Authorization': 'Bearer ' + driveAccessToken })
                 });
                 const listData = await listRes.json();
 
                 if (!listData.files || listData.files.length === 0) {
-                    return alert("Google Drive hesabınızda geçerli bir Fix House ERP yedek dosyası bulunamadı!");
+                    return alert("Google Drive hesabınızda geçerli bir Fix House 23 yedek dosyası bulunamadı!");
                 }
 
                 const lastFile = listData.files[0];
@@ -1182,7 +1183,7 @@
             setInterval(updateClock, 1000);
             addMeasureRow();
             
-            // Firebase Realtime Database Canlı Dinleme (Tüm cihazlar için eşzamanlı)
+            // Firebase Realtime Database Canlı Dinleme (Fix House 23 Ortak Bulut Havuzu)
             dbRef.on('value', (snapshot) => {
                 const cloudData = snapshot.val();
                 if (cloudData) {
@@ -1190,6 +1191,7 @@
                     if(!appData.users || appData.users.length === 0) {
                         appData.users = [{ id: "usr-kadir", username: "Kadir Yıldırım", password: "Ar903703", role: "Yönetici (Master Admin)", permissions: { order: true, cart: true, archive: true, ledger: true, finance: true, optimization: true, recycle: true, settings: true } }];
                     }
+                    isCloudInitialLoaded = true;
                     renderCart();
                     renderArchive();
                     renderFinance();
@@ -1199,6 +1201,10 @@
                     renderAuditLogs();
                     renderUsers();
                     renderProductRecipes();
+                } else if(!isCloudInitialLoaded) {
+                    // Bulut boşsa ilk kez local/varsayılan veriyi buluta yaz
+                    saveLocalData();
+                    isCloudInitialLoaded = true;
                 }
             });
 
@@ -1858,6 +1864,7 @@
 
         function renderCart() {
             const container = document.getElementById('cartListContainer');
+            if(!container) return;
             document.getElementById('cartBadge').innerText = appData.cart.length;
             container.innerHTML = appData.cart.length === 0 ? `<div class="text-center py-8 text-slate-400">Sepetinizde sipariş bulunmamaktadır.</div>` : '';
 
@@ -1909,6 +1916,7 @@
 
         function renderArchive() {
             const tbody = document.getElementById('archiveTableBody');
+            if(!tbody) return;
             tbody.innerHTML = '';
             const query = (document.getElementById('archiveSearch')?.value || '').toLowerCase();
 
@@ -1993,6 +2001,7 @@
 
         function renderLedgerTab() {
             const tbody = document.getElementById('fullCustomerLedgerBody');
+            if(!tbody) return;
             tbody.innerHTML = '';
             const query = (document.getElementById('ledgerSearchInput')?.value || '').toLowerCase();
 
@@ -2521,7 +2530,7 @@
                 <div class="a4-print-container">
                     <div class="print-border-box flex justify-between items-center">
                         <div>
-                            <h1 class="font-bold" style="font-size: 11pt;">FIX HOUSE SİNEKLİK İMALAT & ÖLÇÜ FORMU</h1>
+                            <h1 class="font-bold" style="font-size: 11pt;">FİX HOUSE 23 SİNEKLİK İMALAT & ÖLÇÜ FORMU</h1>
                             <p style="font-size: 7.5pt;">Sipariş / Fiş No: <b>${order.id}</b> | Tarih: <b>${order.date}</b></p>
                         </div>
                         <div class="text-right">
@@ -2563,7 +2572,7 @@
                     
                     <div class="print-border-box flex justify-between items-center" style="font-size: 8pt; margin-top: 4px;">
                         <span>Sipariş Kalem Sayısı: <b>${order.items.length} Kalem</b></span>
-                        <span>Teslim Eden / İmalat: <b>Fix House Sürsürü / Elazığ</b></span>
+                        <span>Teslim Eden / İmalat: <b>Fix House 23 Sürsürü / Elazığ</b></span>
                         <span>Müşteri İmza: _______________________</span>
                     </div>
                 </div>
@@ -2622,7 +2631,7 @@
 
         function saveLocalData() { 
             try {
-                // Firebase Bulut Veritabanına Anında Kayıt
+                // Firebase Bulut Veritabanına Anında Ortak Senkronizasyon Kaydı
                 dbRef.set(appData);
             } catch(e) {
                 console.error("Bulut kayıt hatası:", e);
@@ -2630,7 +2639,6 @@
         }
 
         function loadLocalData() {
-            // İlk açılışta yedek veriler
             if(!appData.users || appData.users.length === 0 || !appData.users.some(u => isMasterUser(u))) {
                 appData.users = [
                     { 
@@ -2655,7 +2663,7 @@
         function exportFullBackup() {
             const a = document.createElement('a');
             a.href = URL.createObjectURL(new Blob([JSON.stringify(appData, null, 2)], { type: 'application/json' }));
-            a.download = `fixhouse_v7.13_yedek_${new Date().toISOString().slice(0,10)}.json`;
+            a.download = `fixhouse23_yedek_${new Date().toISOString().slice(0,10)}.json`;
             a.click();
         }
 
@@ -2681,7 +2689,7 @@
             const worksheet = XLSX.utils.json_to_sheet(exportData);
             const workbook = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(workbook, worksheet, "Siparişler");
-            XLSX.writeFile(workbook, "fixhouse_arsiv_v7.13.xlsx");
+            XLSX.writeFile(workbook, "fixhouse23_arsiv.xlsx");
         }
     </script>
 </body>
