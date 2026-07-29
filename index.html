@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Fix House 23 - İmalat, Satış & Muhasebe Otomasyonu (Ortak Bulut Senkron)</title>
+    <title>Fix House 23 - İmalat, Satış & Muhasebe Otomasyonu</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons -->
@@ -103,9 +103,9 @@
                 </div>
             </div>
             <div class="flex items-center space-x-3 w-full md:w-auto justify-between md:justify-end">
-                <button onclick="manualCloudSync()" id="syncButton" class="text-[11px] bg-emerald-800 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-lg border border-emerald-600 flex items-center gap-1.5 font-medium transition shadow-sm">
-                    <i class="fa-solid fa-rotate text-emerald-300 animate-spin" id="syncIcon" style="display:none;"></i> <span id="syncText">Canlı Bulut Senkronize</span>
-                </button>
+                <span class="text-xs bg-emerald-900 text-emerald-200 px-3 py-1.5 rounded-lg border border-emerald-700 flex items-center gap-1.5 font-medium">
+                    <i class="fa-solid fa-cloud text-emerald-300"></i> Yerel Hafıza Aktif (Güvenli)
+                </span>
                 <span class="text-xs bg-slate-800 text-slate-300 px-3 py-1.5 rounded-lg border border-slate-700 flex items-center gap-2">
                     <i class="fa-regular fa-calendar-days text-blue-400"></i> <span id="clock">--.--.---- --:--:--</span>
                 </span>
@@ -637,10 +637,6 @@
     <div id="printContainerZebra" class="print-only"></div>
 
     <script>
-        // Bulut Ortak Veri Köprüsü (JSONBin.io Public Bin)
-        const CLOUD_BIN_URL = "https://api.jsonbin.io/v3/b/6632fa5fe41b4d34e44f8327";
-        const CLOUD_MASTER_KEY = "$2a$10$wN9iQ3mF5sK1xJ8pZ3vUuOu5vL6x5k9vJ8mX3sK1xJ8pZ3vUuOu5vL";
-        
         const STORAGE_KEY = "fix_house_23_data_v720";
 
         const DEFAULT_SETTINGS = {
@@ -689,64 +685,29 @@
         let currentRowId = 0;
         let currentDetailOrder = null;
 
-        window.addEventListener('DOMContentLoaded', async () => {
+        window.addEventListener('DOMContentLoaded', () => {
             updateClock();
             setInterval(updateClock, 1000);
-            addMeasureRow();
             
-            // Sayfa açılır açılmaz buluttan güncel veriyi çek
-            await manualCloudSync(true);
+            const saved = localStorage.getItem(STORAGE_KEY);
+            if (saved) {
+                try {
+                    appData = JSON.parse(saved);
+                } catch(e) {
+                    console.error("Yerel veri okuma hatası", e);
+                }
+            }
 
-            // Her 4 saniyede bir arkada otomatik olarak buluttan senkronize et (Tüm cihazlar ortak görür)
-            setInterval(() => manualCloudSync(false), 4000);
+            addMeasureRow();
+            refreshAllViews();
         });
 
-        async function manualCloudSync(isInitial = false) {
-            const syncText = document.getElementById('syncText');
-            const syncIcon = document.getElementById('syncIcon');
-            if(syncText && isInitial) syncText.innerText = "Buluta Bağlanıyor...";
-            if(syncIcon) syncIcon.style.display = "inline-block";
-            
-            try {
-                const response = await fetch(CLOUD_BIN_URL + "/latest", {
-                    headers: { "X-Master-Key": CLOUD_MASTER_KEY }
-                });
-                if(response.ok) {
-                    const cloudRes = await response.json();
-                    if(cloudRes && cloudRes.record && cloudRes.record.archive) {
-                        appData = cloudRes.record;
-                        localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
-                        refreshAllViews();
-                    }
-                }
-            } catch(e) {
-                // İnternet yoksa yerel veriyi kullan
-                const saved = localStorage.getItem(STORAGE_KEY);
-                if (saved) {
-                    appData = JSON.parse(saved);
-                }
-            } finally {
-                if(syncText) syncText.innerText = "Canlı Bulut Senkronize";
-                if(syncIcon) syncIcon.style.display = "none";
-            }
-        }
-
-        async function saveLocalData() {
+        function saveLocalData() {
             try {
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
                 refreshAllViews();
-
-                // Değişikliği anında bulut sunucusuna yaz (Böylece diğer cihazlar hemen görecek)
-                await fetch(CLOUD_BIN_URL, {
-                    method: 'PUT',
-                    headers: {
-                        "Content-Type": "application/json",
-                        "X-Master-Key": CLOUD_MASTER_KEY
-                    },
-                    body: JSON.stringify(appData)
-                });
             } catch(e) {
-                console.error("Bulut kayıt hatası:", e);
+                console.error("Kayıt hatası:", e);
             }
         }
 
@@ -892,7 +853,6 @@
             logAuditEvent("WhatsApp Mesaj Gönderildi", `${ord.customerName} - Durum: ${newStatus}`);
         }
 
-        /* ÖLÇÜ SATIRI & EKSTRA AKSESUARLAR */
         function addMeasureRow(initialData = null) {
             currentRowId++;
             const container = document.getElementById('measureRowsContainer');
@@ -2147,7 +2107,7 @@
             appData.settings.minM2 = parseFloat(document.getElementById('settingMinM2').value) || 1.0;
             saveLocalData();
             logAuditEvent("Fiyatlandırma Ayarları Güncellendi", `Montajlı: ${appData.settings.montajPrice} TL, Perakende: ${appData.settings.perakendePrice} TL`);
-            alert('Ayarlar Başarıyla Kaydedildi ve Buluta Yüklendi!');
+            alert('Ayarlar Başarıyla Kaydedildi!');
             calculateAllRows();
         }
 
@@ -2174,7 +2134,7 @@
 
         function exportArchiveExcel() {
             if (typeof XLSX === 'undefined') return alert('Excel kütüphanesi hazır değil.');
-            const exportData = appData.archive.map(o => ({
+            const exportData = appData.archive.log(o => ({
                 'Sipariş ID': o.id, 'Tarih': o.date, 'Müşteri': o.customerName, 'Telefon': o.customerPhone, 'Toplam Tutar (₺)': o.totalAmount, 'Durum': o.status
             }));
             const worksheet = XLSX.utils.json_to_sheet(exportData);
