@@ -521,8 +521,8 @@
                         <textarea id="wa_msg_alinan" rows="2" class="w-full p-2 text-xs border rounded-lg">Sayın {MUSTERI}, Fix House sineklik siparişiniz alınmıştır. Bizi tercih ettiğiniz için teşekkür ederiz.</textarea>
                     </div>
                     <div class="bg-white p-3 rounded-xl border border-emerald-200 space-y-2">
-                        <label class="block text-xs font-bold text-slate-700">⚙️ Üretime Başlandı Mesajı</label>
-                        <textarea id="wa_msg_uretim" rows="2" class="w-full p-2 text-xs border rounded-lg">Sayın {MUSTERI}, {SIPARIS_ID} numaralı sineklik siparişiniz atölyemizde üretime alınmıştır.</textarea>
+                        <label class="block text-xs font-bold text-slate-700">⚙️ Üretime Başlandı / Konum Mesajı</label>
+                        <textarea id="wa_msg_uretim" rows="2" class="w-full p-2 text-xs border rounded-lg">Sayın {MUSTERI}, {SIPARIS_ID} numaralı sineklik siparişiniz atölyemizde üretime alınmıştır. Sürsürü Mah. / Elazığ showroomumuza bekleriz.</textarea>
                     </div>
                     <div class="bg-white p-3 rounded-xl border border-emerald-200 space-y-2">
                         <label class="block text-xs font-bold text-slate-700">🚚 Montaja Hazır / Yola Çıktı Mesajı</label>
@@ -691,10 +691,8 @@
             updateClock();
             setInterval(updateClock, 1000);
             
-            // İlk açılışta Google Sheets bulutundan verileri çek
             await manualCloudSync(true);
 
-            // Her 5 saniyede bir arkada otomatik olarak Google Sheets'ten senkronize et
             setInterval(() => manualCloudSync(false), 5000);
             
             addMeasureRow();
@@ -732,7 +730,6 @@
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
                 refreshAllViews();
 
-                // Google Sheets bulutuna anında gönder
                 await fetch(SHEETS_WEB_APP_URL, {
                     method: 'POST',
                     mode: 'no-cors',
@@ -857,7 +854,7 @@
         }
 
         function sendWhatsAppMessage(orderId, newStatus) {
-            const ord = appData.archive.find(o => o.id === orderId);
+            const ord = appData.archive.find(o => o.id === orderId) || appData.cart.find(o => o.id === orderId) || (appData.topluLedgers && appData.topluLedgers.find(o => o.id === orderId));
             if(!ord) return;
 
             ord.status = newStatus;
@@ -870,13 +867,13 @@
 
             const templates = appData.whatsappTemplates || {
                 alinan: "Sayın {MUSTERI}, Fix House sineklik siparişiniz alınmıştır.",
-                uretim: "Sayın {MUSTERI}, {SIPARIS_ID} numaralı siparişiniz üretime alınmıştır.",
+                uretim: "Sayın {MUSTERI}, {SIPARIS_ID} numaralı siparişiniz üretime alınmıştır. Sürsürü Mah. / Elazığ showroomumuza bekleriz.",
                 montaj: "Sayın {MUSTERI}, sineklikleriniz montaj için yola çıkmaktadır.",
-                bitti: "Sayın {MUSTERI}, montajınız tamamlanmıştır. Teşekkür ederiz."
+                bitti: "Sayın {MUSTERI}, montajınız başarıyla tamamlanmıştır."
             };
 
             let msg = templates[templateKey] || "Fix House 23 bilgilendirme.";
-            msg = msg.replace('{MUSTERI}', ord.customerName).replace('{SIPARIS_ID}', ord.id);
+            msg = msg.replace(/\{MUSTERI\}/g, ord.customerName).replace(/\{SIPARIS_ID\}/g, ord.id);
 
             let phone = ord.customerPhone.replace(/\D/g, '');
             if(phone.startsWith('0')) phone = '9' + phone;
@@ -1363,6 +1360,7 @@
             };
         }
 
+        // Talep 1: Sipariş ilk oluştuğunda (Sepete Atıldığında) arka planda "Sipariş Alındı" mesajı
         function addToCart() {
             if(!validateCustomer()) return;
             const orderData = getOrderDataFromForm();
@@ -1371,7 +1369,11 @@
             appData.cart.push(orderData);
             saveLocalData();
             logAuditEvent("Sipariş Sepete Eklendi", `${orderData.customerName} - ${orderData.totalAmount.toFixed(2)} TL`);
-            alert('Sipariş sepetinize eklendi!');
+            
+            // Otomatik Sipariş Alındı WhatsApp Bildirimi
+            sendWhatsAppMessage(orderData.id, 'Sipariş Alındı');
+
+            alert('Sipariş sepetinize eklendi ve ilk WhatsApp bildirimi tetiklendi!');
             switchTab('cart');
         }
 
@@ -1441,12 +1443,17 @@
             saveLocalData();
         }
 
+        // Talep 2: Çıktı alındığında arşive geçerken otomatik olarak konum ve üretim mesajının gitmesi
         function checkoutCartOrder(index) {
             const order = appData.cart[index];
             appData.archive.push(order);
             appData.cart.splice(index, 1);
             saveLocalData();
-            logAuditEvent("Sipariş Onaylandı & Yazdırıldı", `${order.customerName} - ${order.id}`);
+            logAuditEvent("Sipariş Onaylandı & Arşive Atıldı", `${order.customerName} - ${order.id}`);
+            
+            // Arşife düştüğü an konum / üretim şablonu arka planda müşteriye iletilir
+            sendWhatsAppMessage(order.id, 'Üretimde');
+            
             printDirectA4('order', order);
         }
 
@@ -1468,7 +1475,7 @@
                         <td class="p-3 text-center space-x-1">
                             <select onchange="sendWhatsAppMessage('${order.id}', this.value)" class="text-xs border rounded p-1 font-bold bg-emerald-50 text-emerald-800">
                                 <option value="Sipariş Alındı" ${order.status==='Sipariş Alındı'?'selected':''}>📍 Sipariş Alındı</option>
-                                <option value="Üretimde" ${order.status==='Üretimde'?'selected':''}>⚙️ Üretimde</option>
+                                <option value="Üretimde" ${order.status==='Üretimde'?'selected':''}>⚙️ Üretimde / Konum</option>
                                 <option value="Montaja Hazır" ${order.status==='Montaja Hazır'?'selected':''}>🚚 Montaja Hazır</option>
                                 <option value="Tamamlandı" ${order.status==='Tamamlandı'?'selected':''}>✅ Tamamlandı</option>
                             </select>
@@ -1725,21 +1732,24 @@
             });
         }
 
-        function deleteSingleRecycleItem(idx) {
+        // Talep 3: Çöp kovasından silinen kayıtların tekrar geri gelmemesi için buluta anında işleme
+        async function deleteSingleRecycleItem(idx) {
             if(confirm("Bu kaydı kalıcı olarak silmek istediğinize emin misiniz?")) {
                 const item = appData.recycleBin[idx];
                 logAuditEvent("Kalıcı Çöp Silindi", `${item.type} - ${item.desc}`);
                 appData.recycleBin.splice(idx, 1);
-                saveLocalData();
+                await saveLocalData();
+                renderRecycleBin();
             }
         }
 
-        function emptyRecycleBin() {
+        async function emptyRecycleBin() {
             if(confirm("Geri dönüşüm kutusunu TAMAMEN boşaltmak istediğinize emin misiniz?")) {
                 logAuditEvent("Çöp Kovası Boşaltıldı", "Tüm silinmiş veriler temizlendi.");
                 appData.recycleBin = [];
-                saveLocalData();
-                alert('Çöp kovası tamamen boşaltıldı.');
+                await saveLocalData();
+                renderRecycleBin();
+                alert('Çöp kovası tamamen boşaltıldı ve buluta işlendi.');
             }
         }
 
