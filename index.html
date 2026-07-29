@@ -24,24 +24,17 @@
             .print-only { display: block !important; }
             html, body { 
                 background: white; 
-                font-size: 8pt; 
+                font-size: 13pt; 
                 color: #000; 
                 margin: 0 !important; 
                 padding: 0 !important; 
-                height: 100%;
-                overflow: hidden !important;
             }
             
-            @page a4page { size: A4 landscape; margin: 4mm; }
+            @page a4page { size: A4 landscape; margin: 6mm; }
             .a4-print-container {
                 page: a4page;
                 width: 100%;
-                max-height: 190mm;
                 box-sizing: border-box;
-                overflow: hidden !important;
-                page-break-after: avoid !important;
-                page-break-before: avoid !important;
-                page-break-inside: avoid !important;
             }
 
             @page zebra { size: 100mm 50mm; margin: 0; }
@@ -61,19 +54,19 @@
             
             .print-border-box {
                 border: 1px solid #000 !important;
-                padding: 4px 6px !important;
-                margin-bottom: 4px !important;
+                padding: 6px 8px !important;
+                margin-bottom: 6px !important;
             }
             .print-table {
                 width: 100% !important;
                 border-collapse: collapse !important;
-                font-size: 7.5pt !important;
+                font-size: 12pt !important;
             }
             .print-table th, .print-table td {
                 border: 1px solid #000 !important;
-                padding: 2px 3px !important;
+                padding: 5px 6px !important;
                 text-align: center !important;
-                line-height: 1.1 !important;
+                line-height: 1.3 !important;
             }
             .print-table th {
                 background-color: #f0f0f0 !important;
@@ -103,7 +96,7 @@
                 </div>
             </div>
             <div class="flex items-center space-x-3 w-full md:w-auto justify-between md:justify-end">
-                <button onclick="manualCloudSync()" id="syncButton" class="text-[11px] bg-emerald-800 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-lg border border-emerald-600 flex items-center gap-1.5 font-medium transition shadow-sm">
+                <button onclick="manualCloudSync(true)" id="syncButton" class="text-[11px] bg-emerald-800 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-lg border border-emerald-600 flex items-center gap-1.5 font-medium transition shadow-sm">
                     <i class="fa-solid fa-rotate text-emerald-300" id="syncIcon" style="display:none;"></i> <span id="syncText">Google Sheets Bulut Senkron</span>
                 </button>
                 <span class="text-xs bg-slate-800 text-slate-300 px-3 py-1.5 rounded-lg border border-slate-700 flex items-center gap-2">
@@ -174,7 +167,7 @@
                     <h2 class="text-base md:text-lg font-bold text-slate-800 flex items-center gap-2">
                         <i class="fa-solid fa-ruler-combined text-blue-600"></i> ÖLÇÜ & ÜRÜN KONFİGÜRASYONU
                     </h2>
-                    <span class="text-xs text-slate-500 hidden md:inline">Plise Dikey (Dikme -0.5cm Tül & Tül -4cm Kanat) Aktif</span>
+                    <span class="text-xs text-slate-500 hidden md:inline">Plise ve Menteşeli (Kapı/Pencere/Kasa) Optimizasyonu Aktif</span>
                 </div>
 
                 <div id="measureRowsContainer" class="space-y-4"></div>
@@ -522,7 +515,7 @@
                     </div>
                     <div class="bg-white p-3 rounded-xl border border-emerald-200 space-y-2">
                         <label class="block text-xs font-bold text-slate-700">⚙️ Üretime Başlandı / Konum Mesajı</label>
-                        <textarea id="wa_msg_uretim" rows="2" class="w-full p-2 text-xs border rounded-lg">Sayın {MUSTERI}, {SIPARIS_ID} numaralı sineklik siparişiniz atölyemizde üretime alınmıştır. Sürsürü Mah. / Elazığ showroomumuza bekleriz.</textarea>
+                        <textarea id="wa_msg_uretim" rows="2" class="w-full p-2 text-xs border rounded-lg">Sayın {MUSTERI}, {SIPARIS_ID} numaralı sineklik siparişiniz üretime alınmıştır. Sürsürü Mah. / Elazığ showroomumuza bekleriz.</textarea>
                     </div>
                     <div class="bg-white p-3 rounded-xl border border-emerald-200 space-y-2">
                         <label class="block text-xs font-bold text-slate-700">🚚 Montaja Hazır / Yola Çıktı Mesajı</label>
@@ -530,7 +523,7 @@
                     </div>
                     <div class="bg-white p-3 rounded-xl border border-emerald-200 space-y-2">
                         <label class="block text-xs font-bold text-slate-700">✅ Tamamlandı / Teslim Edildi Mesajı</label>
-                        <textarea id="wa_msg_bitti" rows="2" class="w-full p-2 text-xs border rounded-lg">Sayın {MUSTERI}, montajınız başarıyla tamamlanmıştır. Fix House'u seçtiğiniz için teşekkürler.</textarea>
+                        <textarea id="wa_msg_bitti" rows="2" class="w-full p-2 text-xs border rounded-lg">Sayın {MUSTERI}, montajınız başarıyla tamamlanmıştır.</textarea>
                     </div>
                 </div>
                 <div class="flex justify-end">
@@ -637,9 +630,8 @@
     <div id="printContainerZebra" class="print-only"></div>
 
     <script>
-        // Google Sheets Web App URL
         const SHEETS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxPwtNChpye0O2n3ugRPgk_saqel4mo5kxBWicCfEdUc6HNpTuSwBkrDIPMCAVGx4h2/exec";
-        const STORAGE_KEY = "fix_house_23_data_v720";
+        const STORAGE_KEY = "fix_house_23_data_v723";
 
         const DEFAULT_SETTINGS = {
             montajPrice: 220,
@@ -692,7 +684,6 @@
             setInterval(updateClock, 1000);
             
             await manualCloudSync(true);
-
             setInterval(() => manualCloudSync(false), 5000);
             
             addMeasureRow();
@@ -708,8 +699,17 @@
                 const response = await fetch(SHEETS_WEB_APP_URL);
                 if(response.ok) {
                     const cloudData = await response.json();
-                    if(cloudData && cloudData.archive) {
-                        appData = cloudData;
+                    if(cloudData) {
+                        appData.settings = cloudData.settings || DEFAULT_SETTINGS;
+                        appData.cart = cloudData.cart || [];
+                        appData.archive = cloudData.archive || [];
+                        appData.expenses = cloudData.expenses || [];
+                        appData.manualLedgers = cloudData.manualLedgers || [];
+                        appData.topluLedgers = cloudData.topluLedgers || [];
+                        appData.recycleBin = cloudData.recycleBin || [];
+                        appData.auditLogs = cloudData.auditLogs || [];
+                        appData.whatsappTemplates = cloudData.whatsappTemplates || {};
+
                         localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
                         refreshAllViews();
                     }
@@ -718,6 +718,7 @@
                 const saved = localStorage.getItem(STORAGE_KEY);
                 if (saved) {
                     appData = JSON.parse(saved);
+                    refreshAllViews();
                 }
             } finally {
                 if(syncText) syncText.innerText = "Google Sheets Bulut Senkron";
@@ -867,8 +868,8 @@
 
             const templates = appData.whatsappTemplates || {
                 alinan: "Sayın {MUSTERI}, Fix House sineklik siparişiniz alınmıştır.",
-                uretim: "Sayın {MUSTERI}, {SIPARIS_ID} numaralı siparişiniz üretime alınmıştır. Sürsürü Mah. / Elazığ showroomumuza bekleriz.",
-                montaj: "Sayın {MUSTERI}, sineklikleriniz montaj için yola çıkmaktadır.",
+                uretim: "Sayın {MUSTERI}, {SIPARIS_ID} numaralı sineklik siparişiniz üretime alınmıştır. Sürsürü Mah. / Elazığ showroomumuza bekleriz.",
+                montaj: "Sayın {MUSTERI}, sineklikleriniz hazırlanmış olup montaj/sevkiyat için yola çıkmaktadır.",
                 bitti: "Sayın {MUSTERI}, montajınız başarıyla tamamlanmıştır."
             };
 
@@ -902,31 +903,32 @@
                     </button>
                 </div>
 
+                <!-- İSTEDİĞİNİZ SIRALAMA: Adet ➜ Ürün Tipi ➜ Ölçü Tipi ➜ Profil Renk -->
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-2.5 text-xs">
                     <div>
                         <label class="block font-semibold text-slate-600 mb-1">Adet</label>
                         <input type="number" min="1" value="1" oninput="calculateRow(${currentRowId})" class="inp-qty w-full border text-center rounded px-2 py-2 font-bold text-blue-700 bg-white">
                     </div>
                     <div>
-                        <label class="block font-semibold text-slate-600 mb-1">Ölçü Tipi</label>
-                        <select onchange="stepSelect(${currentRowId}, 1)" class="measure-type w-full border rounded px-2 py-2 bg-white">
-                            <option value="">-- Seçiniz --</option>
-                            <option value="ic">İç Ölçü</option>
-                            <option value="dis">Dış Ölçü</option>
-                        </select>
-                    </div>
-                    <div>
                         <label class="block font-semibold text-slate-600 mb-1">Ürün Tipi</label>
-                        <select disabled onchange="stepSelect(${currentRowId}, 2)" class="product-type w-full border rounded px-2 py-2 bg-white">
+                        <select onchange="stepSelect(${currentRowId}, 1)" class="product-type w-full border rounded px-2 py-2 bg-white font-bold text-blue-800">
                             <option value="">-- Seçiniz --</option>
                             <option value="plise">Plise Sineklik</option>
                             <option value="menteseli">Menteşeli Sineklik</option>
                         </select>
                     </div>
                     <div>
+                        <label class="block font-semibold text-slate-600 mb-1">Ölçü Tipi</label>
+                        <select disabled onchange="stepSelect(${currentRowId}, 2)" class="measure-type w-full border rounded px-2 py-2 bg-white">
+                            <option value="">-- Ürün Seçiniz --</option>
+                            <option value="ic">İç Ölçü</option>
+                            <option value="dis">Dış Ölçü</option>
+                        </select>
+                    </div>
+                    <div>
                         <label class="block font-semibold text-slate-600 mb-1">Profil Renk</label>
                         <select disabled onchange="stepSelect(${currentRowId}, 3)" class="color-type w-full border rounded px-2 py-2 bg-white">
-                            <option value="">-- Seçiniz --</option>
+                            <option value="">-- Ölçü Tipi Seçiniz --</option>
                             <option value="Beyaz">Beyaz</option>
                             <option value="Kahverengi">Kahverengi</option>
                             <option value="Antrasit">Antrasit</option>
@@ -934,10 +936,11 @@
                     </div>
                 </div>
 
+                <!-- ARA SEÇENEKLER & EN BOY ÖLÇÜ NOTU -->
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-2.5 text-xs pt-1">
                     <div id="dynamicOpts-${currentRowId}" class="space-y-1">
                         <label class="block font-semibold text-slate-600 mb-1">Açılım & Tül</label>
-                        <select disabled class="opt-placeholder w-full border rounded px-2 py-2 bg-white"><option value="">-- Renk Seçiniz --</option></select>
+                        <select disabled class="opt-placeholder w-full border rounded px-2 py-2 bg-white"><option value="">-- Profil Seçiniz --</option></select>
                     </div>
                     <div>
                         <label class="block font-semibold text-slate-600 mb-1">EN (cm) *</label>
@@ -981,15 +984,15 @@
 
             if(initialData) {
                 cardDiv.querySelector('.inp-qty').value = initialData.qty || 1;
-                cardDiv.querySelector('.measure-type').value = initialData.mType;
-                stepSelect(currentRowId, 1);
                 cardDiv.querySelector('.product-type').value = initialData.pType;
+                stepSelect(currentRowId, 1);
+                cardDiv.querySelector('.measure-type').value = initialData.mType;
                 stepSelect(currentRowId, 2);
                 cardDiv.querySelector('.color-type').value = initialData.color;
                 stepSelect(currentRowId, 3);
                 
                 if(initialData.dir && cardDiv.querySelector('.opt-dir')) cardDiv.querySelector('.opt-dir').value = initialData.dir;
-                if(initialData.magnetType && cardDiv.querySelector('.opt-magnet')) cardDiv.querySelector('.opt-magnet').value = initialData.magnetType;
+                if(initialData.menteseliTip && cardDiv.querySelector('.opt-menteseli-tip')) cardDiv.querySelector('.opt-menteseli-tip').value = initialData.menteseliTip;
                 if(initialData.tulType && cardDiv.querySelector('.opt-tul')) cardDiv.querySelector('.opt-tul').value = initialData.tulType;
                 if(initialData.caseType && cardDiv.querySelector('.opt-case')) cardDiv.querySelector('.opt-case').value = initialData.caseType;
                 
@@ -1036,8 +1039,8 @@
             const card = document.getElementById(`row-${id}`);
             if(!card) return;
 
-            const mType = card.querySelector('.measure-type').value;
             const pTypeSelect = card.querySelector('.product-type');
+            const mTypeSelect = card.querySelector('.measure-type');
             const colorSelect = card.querySelector('.color-type');
             const optsContainer = document.getElementById(`dynamicOpts-${id}`);
             const enInp = card.querySelector('.inp-en');
@@ -1045,14 +1048,14 @@
             const noteInp = card.querySelector('.inp-note');
 
             if(step === 1) {
-                if(mType) {
-                    pTypeSelect.disabled = false;
+                if(pTypeSelect.value) {
+                    mTypeSelect.disabled = false;
                 } else {
-                    pTypeSelect.disabled = true; colorSelect.disabled = true;
+                    mTypeSelect.disabled = true; colorSelect.disabled = true;
                     enInp.disabled = true; boyInp.disabled = true; noteInp.disabled = true;
                 }
             } else if(step === 2) {
-                if(pTypeSelect.value) {
+                if(mTypeSelect.value) {
                     colorSelect.disabled = false;
                 } else {
                     colorSelect.disabled = true; enInp.disabled = true; boyInp.disabled = true; noteInp.disabled = true;
@@ -1064,26 +1067,27 @@
                         optsContainer.innerHTML = `
                             <label class="block font-semibold text-slate-600 mb-1">Açılım, Tül & Kasa (Plise)</label>
                             <div class="grid grid-cols-3 gap-1">
-                                <select onchange="calculateRow(${id})" class="opt-dir w-full border rounded px-1 py-2 bg-white text-[11px]"><option value="yatay">Yatay (2En+3Boy)</option><option value="dikey">Dikey (3En+2Boy)</option></select>
+                                <select onchange="calculateRow(${id})" class="opt-dir w-full border rounded px-1 py-2 bg-white text-[11px]"><option value="yatay">Yatay</option><option value="dikey">Dikey</option></select>
                                 <select onchange="calculateRow(${id})" class="opt-tul w-full border rounded px-1 py-2 bg-white text-[11px]"><option value="plise">Plise Tül</option><option value="polen">Polen (+400₺)</option></select>
                                 <select onchange="calculateRow(${id})" class="opt-case w-full border rounded px-1 py-2 bg-white text-[11px]"><option value="kasasiz">Kasasız</option><option value="kasali">Kasalı (2x)</option></select>
                             </div>
                         `;
                     } else {
+                        // Menteşeli sistemde de Kasalı seçeneği eklendi
                         optsContainer.innerHTML = `
-                            <label class="block font-semibold text-slate-600 mb-1">Açılım & Kilitleme (Menteşeli)</label>
+                            <label class="block font-semibold text-slate-600 mb-1">Tip, Tül & Kasa (Menteşeli)</label>
                             <div class="grid grid-cols-3 gap-1">
-                                <select onchange="calculateRow(${id})" class="opt-dir w-full border rounded px-1 py-2 bg-white text-[11px]">
-                                    <option value="saga">Sağa Açılır</option>
-                                    <option value="sola">Sola Açılır</option>
-                                </select>
-                                <select onchange="calculateRow(${id})" class="opt-magnet w-full border rounded px-1 py-2 bg-white text-[11px]">
-                                    <option value="miknatisli">Mıknatıslı</option>
-                                    <option value="citcitli">Çıtçıtlı</option>
+                                <select onchange="calculateRow(${id})" class="opt-menteseli-tip w-full border rounded px-1 py-2 bg-white text-[11px]">
+                                    <option value="pencere">Pencere</option>
+                                    <option value="kapi">Kapı</option>
                                 </select>
                                 <select onchange="calculateRow(${id})" class="opt-tul w-full border rounded px-1 py-2 bg-white text-[11px]">
                                     <option value="duz">Düz Tül</option>
-                                    <option value="kedi">Kedi Tülü (+260₺)</option>
+                                    <option value="kedi">Kedi Tülü</option>
+                                </select>
+                                <select onchange="calculateRow(${id})" class="opt-case w-full border rounded px-1 py-2 bg-white text-[11px]">
+                                    <option value="kasasiz">Kasasız</option>
+                                    <option value="kasali">Kasalı (2x)</option>
                                 </select>
                             </div>
                         `;
@@ -1094,7 +1098,7 @@
                 } else {
                     optsContainer.innerHTML = `
                         <label class="block font-semibold text-slate-600 mb-1">Açılım & Tül</label>
-                        <select disabled class="opt-placeholder w-full border rounded px-2 py-2 bg-white"><option value="">-- Renk Seçiniz --</option></select>
+                        <select disabled class="opt-placeholder w-full border rounded px-2 py-2 bg-white"><option value="">-- Profil Seçiniz --</option></select>
                     `;
                     enInp.disabled = true; boyInp.disabled = true; noteInp.disabled = true;
                 }
@@ -1146,6 +1150,7 @@
             const dirSelect = card.querySelector('.opt-dir');
             const tulSelect = card.querySelector('.opt-tul');
             const caseSelect = card.querySelector('.opt-case');
+            const menteseliTipSelect = card.querySelector('.opt-menteseli-tip');
 
             let isDikey = (pType === 'plise' && dirSelect && dirSelect.value === 'dikey');
 
@@ -1194,8 +1199,10 @@
                     ipKat = `${(rawEn + rawBoy + 10).toFixed(0)}cm / ${Math.floor((rawEn / 2.5) - 2)}k`;
                 }
             } else {
-                let unitM2 = (rawEn * rawBoy) / 10000;
-                multiplier = Math.max(unitM2, appData.settings.minM2) * qty;
+                // Menteşeli Sistem: Kapı (4En + 2Boy) veya Pencere (2En + 2Boy)
+                let isKapi = menteseliTipSelect && menteseliTipSelect.value === 'kapi';
+                let perimeterCm = isKapi ? ((rawEn * 4) + (rawBoy * 2)) : ((rawEn * 2) + (rawBoy * 2));
+                multiplier = (perimeterCm / 100) * qty;
 
                 if(mType === 'dis') {
                     tac = (rawEn - 5).toFixed(1);
@@ -1233,12 +1240,14 @@
                 rowPrice += multiplier * 400; 
             }
 
+            // Menteşeli sistemde kedi tülü seçilmişse m² başına 260 TL ekleme
             if(pType === 'menteseli' && tulSelect && tulSelect.value === 'kedi') {
                 let actualM2 = ((rawEn * rawBoy) / 10000) * qty;
                 rowPrice += Math.max(actualM2, appData.settings.minM2) * 260;
             }
 
-            if(pType === 'plise' && caseSelect && caseSelect.value === 'kasali') {
+            // Hem Plise hem Menteşeli için Kasalı seçeneği (2x çarpan)
+            if(caseSelect && caseSelect.value === 'kasali') {
                 rowPrice = rowPrice * 2;
             }
 
@@ -1321,11 +1330,11 @@
                     items.push({
                         seq: idx + 1,
                         qty: parseInt(card.querySelector('.inp-qty').value) || 1,
-                        mType: card.querySelector('.measure-type').value,
                         pType: card.querySelector('.product-type').value,
+                        mType: card.querySelector('.measure-type').value,
                         color: card.querySelector('.color-type').value,
                         dir: card.querySelector('.opt-dir') ? card.querySelector('.opt-dir').value : '',
-                        magnetType: card.querySelector('.opt-magnet') ? card.querySelector('.opt-magnet').value : '',
+                        menteseliTip: card.querySelector('.opt-menteseli-tip') ? card.querySelector('.opt-menteseli-tip').value : '',
                         tulType: card.querySelector('.opt-tul') ? card.querySelector('.opt-tul').value : '',
                         caseType: card.querySelector('.opt-case') ? card.querySelector('.opt-case').value : '',
                         en: enVal,
@@ -1360,20 +1369,18 @@
             };
         }
 
-        // Talep 1: Sipariş ilk oluştuğunda (Sepete Atıldığında) arka planda "Sipariş Alındı" mesajı
-        function addToCart() {
+        async function addToCart() {
             if(!validateCustomer()) return;
             const orderData = getOrderDataFromForm();
             if(orderData.items.length === 0) return alert('Lütfen en az 1 tane tamamlanmış ölçü giriniz!');
 
             appData.cart.push(orderData);
-            saveLocalData();
+            await saveLocalData();
             logAuditEvent("Sipariş Sepete Eklendi", `${orderData.customerName} - ${orderData.totalAmount.toFixed(2)} TL`);
             
-            // Otomatik Sipariş Alındı WhatsApp Bildirimi
             sendWhatsAppMessage(orderData.id, 'Sipariş Alındı');
 
-            alert('Sipariş sepetinize eklendi ve ilk WhatsApp bildirimi tetiklendi!');
+            alert('Sipariş sepetinize eklendi ve buluta kaydedildi!');
             switchTab('cart');
         }
 
@@ -1435,25 +1442,22 @@
             });
         }
 
-        function deleteCartOrder(index) {
+        async function deleteCartOrder(index) {
             const ord = appData.cart[index];
             logRecycleItem('Sepet Siparişi Silindi', `${ord.customerName} (${ord.id}) sepetten silindi.`, ord.totalAmount);
             logAuditEvent("Sepet Siparişi Silindi", `${ord.customerName} - ${ord.id}`);
             appData.cart.splice(index, 1);
-            saveLocalData();
+            await saveLocalData();
         }
 
-        // Talep 2: Çıktı alındığında arşive geçerken otomatik olarak konum ve üretim mesajının gitmesi
-        function checkoutCartOrder(index) {
+        async function checkoutCartOrder(index) {
             const order = appData.cart[index];
             appData.archive.push(order);
             appData.cart.splice(index, 1);
-            saveLocalData();
+            await saveLocalData();
             logAuditEvent("Sipariş Onaylandı & Arşive Atıldı", `${order.customerName} - ${order.id}`);
             
-            // Arşife düştüğü an konum / üretim şablonu arka planda müşteriye iletilir
             sendWhatsAppMessage(order.id, 'Üretimde');
-            
             printDirectA4('order', order);
         }
 
@@ -1495,29 +1499,29 @@
             });
         }
 
-        function deleteArchiveOrder(idx) {
+        async function deleteArchiveOrder(idx) {
             const ord = appData.archive[idx];
             logRecycleItem('Arşiv Siparişi Silindi', `${ord.customerName} - ${ord.id} arşivden silindi.`, ord.totalAmount);
             logAuditEvent("Arşiv Siparişi Silindi", `${ord.customerName} - ${ord.id}`);
             appData.archive.splice(idx, 1);
-            saveLocalData();
+            await saveLocalData();
         }
 
-        function moveToTopluMontaj(orderId) {
+        async function moveToTopluMontaj(orderId) {
             const ord = appData.archive.find(o => o.id === orderId);
             if(!ord) return;
             if(!appData.topluLedgers) appData.topluLedgers = [];
             if(appData.topluLedgers.some(t => t.id === ord.id)) return alert('Bu sipariş zaten Toplu Montaj Defterine aktarılmış!');
 
             appData.topluLedgers.push({ ...ord, isToplu: true });
-            saveLocalData();
+            await saveLocalData();
             logAuditEvent("Toplu Montaja Aktarıldı", `${ord.customerName} - ${ord.id}`);
             alert(`"${ord.customerName}" projesi Toplu Montaj Defterine aktarıldı!`);
             switchTab('ledger');
             switchLedgerSubTab('toplu');
         }
 
-        function addManualTopluMontajLedger(e) {
+        async function addManualTopluMontajLedger(e) {
             e.preventDefault();
             const name = escapeHTML(document.getElementById('topluCustName').value.trim());
             const phone = escapeHTML(document.getElementById('topluCustPhone').value.trim());
@@ -1530,7 +1534,7 @@
                 customerName: name, customerPhone: phone, totalAmount: debt, paidAmount: 0, items: [], isManual: true
             });
 
-            saveLocalData();
+            await saveLocalData();
             logAuditEvent("Manuel Toplu Montaj Cari Eklendi", `${name} - ${debt} TL`);
             document.getElementById('topluCustName').value = '';
             document.getElementById('topluCustPhone').value = '';
@@ -1589,12 +1593,12 @@
             if(idx !== -1) deleteArchiveOrder(idx);
         }
 
-        function deleteManualLedger(idx) {
+        async function deleteManualLedger(idx) {
             const man = appData.manualLedgers[idx];
             logRecycleItem('Manuel Cari Silindi', `${man.name} cari kaydı silindi.`, man.debt);
             logAuditEvent("Manuel Cari Silindi", `${man.name}`);
             appData.manualLedgers.splice(idx, 1);
-            saveLocalData();
+            await saveLocalData();
         }
 
         function renderTopluLedger() {
@@ -1626,12 +1630,12 @@
             });
         }
 
-        function deleteTopluLedger(idx) {
+        async function deleteTopluLedger(idx) {
             const t = appData.topluLedgers[idx];
             logRecycleItem('Toplu Montaj Kaydı Silindi', `${t.customerName} (${t.id}) toplu montaj defterinden silindi.`, t.totalAmount);
             logAuditEvent("Toplu Montaj Kaydı Silindi", `${t.customerName} - ${t.id}`);
             appData.topluLedgers.splice(idx, 1);
-            saveLocalData();
+            await saveLocalData();
         }
 
         function openOrderDetailModal(orderId) {
@@ -1732,7 +1736,6 @@
             });
         }
 
-        // Talep 3: Çöp kovasından silinen kayıtların tekrar geri gelmemesi için buluta anında işleme
         async function deleteSingleRecycleItem(idx) {
             if(confirm("Bu kaydı kalıcı olarak silmek istediğinize emin misiniz?")) {
                 const item = appData.recycleBin[idx];
@@ -1753,7 +1756,7 @@
             }
         }
 
-        function addManualCustomerLedger(e) {
+        async function addManualCustomerLedger(e) {
             e.preventDefault();
             const name = escapeHTML(document.getElementById('manCustName').value.trim());
             const phone = escapeHTML(document.getElementById('manCustPhone').value.trim());
@@ -1764,7 +1767,7 @@
                 name, phone, debt, paid: 0
             });
 
-            saveLocalData();
+            await saveLocalData();
             logAuditEvent("Manuel Cari Eklendi", `${name} - Borç: ${debt} TL`);
             document.getElementById('manCustName').value = '';
             document.getElementById('manCustPhone').value = '';
@@ -1772,7 +1775,7 @@
             alert('Manuel Müşteri Cari Kartı Deftere Eklendi!');
         }
 
-        function addPayment(type, id) {
+        async function addPayment(type, id) {
             let target = null;
             if(type === 'archive') target = appData.archive.find(o => o.id === id);
             if(type === 'manual') target = appData.manualLedgers.find(m => m.id === id);
@@ -1786,7 +1789,7 @@
                 if(type === 'manual') target.paid = (target.paid || 0) + amt;
                 else target.paidAmount = (target.paidAmount || 0) + amt;
 
-                saveLocalData();
+                await saveLocalData();
                 logAuditEvent("Tahsilat Eklendi", `${target.customerName || target.name} - Tutar: ${amt} TL`);
             }
         }
@@ -1821,23 +1824,23 @@
             });
         }
 
-        function addExpense(e) {
+        async function addExpense(e) {
             e.preventDefault();
             const desc = escapeHTML(document.getElementById('expDesc').value);
             const amount = parseFloat(document.getElementById('expAmount').value);
             appData.expenses.push({ date: new Date().toLocaleDateString('tr-TR'), desc: desc, amount: amount });
-            saveLocalData();
+            await saveLocalData();
             logAuditEvent("Kasa Gideri Eklendi", `${desc} - ${amount} TL`);
             document.getElementById('expDesc').value = '';
             document.getElementById('expAmount').value = '';
         }
 
-        function deleteExpense(idx) {
+        async function deleteExpense(idx) {
             const exp = appData.expenses[idx];
             logRecycleItem('Kasa Gideri Silindi', `${exp.desc} gideri silindi.`, exp.amount);
             logAuditEvent("Kasa Gideri Silindi", `${exp.desc}`);
             appData.expenses.splice(idx, 1);
-            saveLocalData();
+            await saveLocalData();
         }
 
         function runOptimization() {
@@ -1999,7 +2002,7 @@
             });
         }
 
-        function addNewProductGroupPrompt() {
+        async function addNewProductGroupPrompt() {
             const name = prompt("Yeni Ürün Grubu Adı (Örn: Kasalı Plise Sineklik):");
             if(!name) return;
             if(!appData.settings.productGroups) appData.settings.productGroups = [];
@@ -2010,19 +2013,19 @@
                 accessories: []
             });
 
-            saveLocalData();
+            await saveLocalData();
             renderProductRecipes();
         }
 
-        function deleteProductGroup(gIdx) {
+        async function deleteProductGroup(gIdx) {
             if(confirm(`"${appData.settings.productGroups[gIdx].name}" ürün grubunu silmek istiyor musunuz?`)) {
                 appData.settings.productGroups.splice(gIdx, 1);
-                saveLocalData();
+                await saveLocalData();
                 renderProductRecipes();
             }
         }
 
-        function addNewAccessoryToGroupPrompt(gIdx) {
+        async function addNewAccessoryToGroupPrompt(gIdx) {
             const name = prompt("Aksesuar / Malzeme Adı:");
             if(!name) return;
             const unit = prompt("Hesap Birimi (Metre, m², Adet, Set vb.):", "Adet") || "Adet";
@@ -2032,18 +2035,18 @@
                 id: "acc-" + Date.now(), name: escapeHTML(name), unit: escapeHTML(unit), cost: cost
             });
 
-            saveLocalData();
+            await saveLocalData();
             renderProductRecipes();
         }
 
-        function updateGroupAccessoryCost(gIdx, aIdx, val) {
+        async function updateGroupAccessoryCost(gIdx, aIdx, val) {
             appData.settings.productGroups[gIdx].accessories[aIdx].cost = parseFloat(val) || 0;
-            saveLocalData();
+            await saveLocalData();
         }
 
-        function deleteGroupAccessory(gIdx, aIdx) {
+        async function deleteGroupAccessory(gIdx, aIdx) {
             appData.settings.productGroups[gIdx].accessories.splice(aIdx, 1);
-            saveLocalData();
+            await saveLocalData();
             renderProductRecipes();
         }
 
@@ -2056,13 +2059,13 @@
                 <div class="a4-print-container">
                     <div class="print-border-box flex justify-between items-center">
                         <div>
-                            <h1 class="font-bold" style="font-size: 11pt;">FİX HOUSE 23 SİNEKLİK İMALAT & ÖLÇÜ FORMU</h1>
-                            <p style="font-size: 7.5pt;">Sipariş / Fiş No: <b>${order.id}</b> | Tarih: <b>${order.date}</b></p>
+                            <h1 class="font-bold" style="font-size: 13pt;">FİX HOUSE 23 SİNEKLİK İMALAT & ÖLÇÜ FORMU</h1>
+                            <p style="font-size: 10pt;">Sipariş / Fiş No: <b>${order.id}</b> | Tarih: <b>${order.date}</b></p>
                         </div>
                         <div class="text-right">
-                            <h2 class="font-bold" style="font-size: 9.5pt;">${escapeHTML(order.customerName)}</h2>
-                            <p style="font-size: 8pt;">${escapeHTML(order.customerPhone)}</p>
-                            <p style="font-size: 7.5pt;">${escapeHTML(order.customerAddress) || ''}</p>
+                            <h2 class="font-bold" style="font-size: 11pt;">${escapeHTML(order.customerName)}</h2>
+                            <p style="font-size: 10pt;">${escapeHTML(order.customerPhone)}</p>
+                            <p style="font-size: 9.5pt;">${escapeHTML(order.customerAddress) || ''}</p>
                         </div>
                     </div>
 
@@ -2081,7 +2084,7 @@
                                     <td>${i.mType === 'ic' ? 'İç':'Dış'}</td>
                                     <td>${i.pType === 'plise' ? 'Plise':'Menteşeli'}</td>
                                     <td>${i.color}</td>
-                                    <td>${i.dir} ${i.magnetType || ''} ${i.tulType} ${i.caseType || ''}</td>
+                                    <td>${i.dir || ''} ${i.menteseliTip || ''} ${i.tulType} ${i.caseType || ''}</td>
                                     <td><b>${i.en}</b></td>
                                     <td><b>${i.boy}</b></td>
                                     <td>${escapeHTML(i.note) || '-'}</td>
@@ -2096,7 +2099,7 @@
                         </tbody>
                     </table>
                     
-                    <div class="print-border-box flex justify-between items-center" style="font-size: 8pt; margin-top: 4px;">
+                    <div class="print-border-box flex justify-between items-center" style="font-size: 10pt; margin-top: 6px;">
                         <span>Sipariş Kalem Sayısı: <b>${order.items.length} Kalem</b></span>
                         <span>Teslim Eden / İmalat: <b>Fix House 23 Sürsürü / Elazığ</b></span>
                         <span>Müşteri İmza: _______________________</span>
@@ -2143,12 +2146,12 @@
             }
         }
 
-        function saveSettings() {
+        async function saveSettings() {
             appData.settings.montajPrice = parseFloat(document.getElementById('settingMontajPrice').value) || 220;
             appData.settings.perakendePrice = parseFloat(document.getElementById('settingPerakendePrice').value) || 300;
             appData.settings.kdvRate = parseFloat(document.getElementById('settingKdvRate').value) || 20;
             appData.settings.minM2 = parseFloat(document.getElementById('settingMinM2').value) || 1.0;
-            saveLocalData();
+            await saveLocalData();
             logAuditEvent("Fiyatlandırma Ayarları Güncellendi", `Montajlı: ${appData.settings.montajPrice} TL, Perakende: ${appData.settings.perakendePrice} TL`);
             alert('Ayarlar Başarıyla Kaydedildi ve Buluta Yüklendi!');
             calculateAllRows();
@@ -2161,12 +2164,12 @@
             a.click();
         }
 
-        function importBackup(e) {
+        async function importBackup(e) {
             const reader = new FileReader();
-            reader.onload = function(evt) {
+            reader.onload = async function(evt) {
                 try { 
                     appData = JSON.parse(evt.target.result); 
-                    saveLocalData(); 
+                    await saveLocalData(); 
                     location.reload(); 
                 } catch(err) { 
                     alert('Hatalı veya bozuk yedek dosyası!'); 
