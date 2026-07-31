@@ -334,7 +334,6 @@
                                 </tr>
                             </thead>
                             <tbody id="fullCustomerLedgerBody" class="divide-y divide-slate-200"></tbody>
-                            <!-- DİNAMİK VE GENEL TOPLAM SATIRI -->
                             <tfoot id="ledgerTableFoot" class="bg-slate-900 text-white font-bold text-xs md:text-sm"></tfoot>
                         </table>
                     </div>
@@ -626,7 +625,7 @@
 
     <script>
         const SHEETS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxPwtNChpye0O2n3ugRPgk_saqel4mo5kxBWicCfEdUc6HNpTuSwBkrDIPMCAVGx4h2/exec";
-        const STORAGE_KEY = "fix_house_23_data_v727";
+        const STORAGE_KEY = "fix_house_23_data_v728";
 
         const DEFAULT_SETTINGS = {
             montajPrice: 220,
@@ -898,7 +897,6 @@
                     </button>
                 </div>
 
-                <!-- SIRALAMA: 1. Ürün Tipi, 2. Ölçü Tipi, 3. Profil Renk -->
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-2.5 text-xs">
                     <div>
                         <label class="block font-semibold text-slate-600 mb-1">Adet</label>
@@ -931,7 +929,6 @@
                     </div>
                 </div>
 
-                <!-- DİĞER SEÇENEKLER ➜ EN ➜ BOY ➜ ÖLÇÜ NOTU -->
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-2.5 text-xs pt-1">
                     <div id="dynamicOpts-${currentRowId}" class="space-y-1">
                         <label class="block font-semibold text-slate-600 mb-1">Diğer Seçenekler</label>
@@ -1577,7 +1574,7 @@
             });
 
             await saveLocalData();
-            logAuditEvent("Manuel Toplu Montaj Cari Eklendi", `${name} - ${debt} TL`);
+            logAuditEvent("Toplu Montaj Cari Eklendi", `${name} - ${debt} TL`);
             document.getElementById('topluCustName').value = '';
             document.getElementById('topluCustPhone').value = '';
             document.getElementById('topluCustDebt').value = '';
@@ -1601,7 +1598,6 @@
             let grandTotalDebt = 0;
             let grandTotalPaid = 0;
 
-            // Genel Toplamlar (Filtreden bağımsız tümü)
             appData.archive.forEach(o => { grandTotalDebt += o.totalAmount; grandTotalPaid += (o.paidAmount || 0); });
             appData.manualLedgers.forEach(m => { grandTotalDebt += m.debt; grandTotalPaid += (m.paid || 0); });
 
@@ -1655,7 +1651,6 @@
             let filteredRemaining = filteredTotalDebt - filteredTotalPaid;
             let grandRemaining = grandTotalDebt - grandTotalPaid;
 
-            // Tfoot içeriği (Filtrelenen ve Genel Toplamlar)
             let footHtml = '';
             if (query.trim() !== '') {
                 footHtml += `
@@ -1855,6 +1850,8 @@
             const debt = parseFloat(document.getElementById('manCustDebt').value) || 0;
             const desc = escapeHTML(document.getElementById('manCustDesc').value.trim());
 
+            if(!appData.manualLedgers) appData.manualLedgers = [];
+
             appData.manualLedgers.push({
                 id: 'MAN-' + Date.now().toString().slice(-4),
                 name, phone, debt, paid: 0, desc
@@ -1862,10 +1859,12 @@
 
             await saveLocalData();
             logAuditEvent("Manuel Cari Eklendi", `${name} - Borç: ${debt} TL`);
+            
             document.getElementById('manCustName').value = '';
             document.getElementById('manCustPhone').value = '';
             document.getElementById('manCustDebt').value = '';
             document.getElementById('manCustDesc').value = '';
+            
             alert('Manuel Müşteri Cari Kartı Deftere Eklendi!');
         }
 
