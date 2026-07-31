@@ -629,7 +629,7 @@
 
     <script>
         const SHEETS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxPwtNChpye0O2n3ugRPgk_saqel4mo5kxBWicCfEdUc6HNpTuSwBkrDIPMCAVGx4h2/exec";
-        const STORAGE_KEY = "fix_house_23_data_v729";
+        const STORAGE_KEY = "fix_house_23_data_v730";
 
         const DEFAULT_SETTINGS = {
             montajPrice: 220,
@@ -1912,21 +1912,33 @@
 
             if(!target) return;
             const total = target.totalAmount || target.debt;
-            const currentPaid = target.paidAmount || target.paid || 0;
+            const currentPaid = type === 'manual' ? (target.paid || 0) : (target.paidAmount || 0);
             const remaining = total - currentPaid;
             
-            const amt = parseFloat(prompt(`Alınan tahsilat tutarı (Kalan Borç: ${remaining.toFixed(2)} ₺):`));
+            const amtStr = prompt(`Alınan tahsilat tutarı (Kalan Borç: ${remaining.toFixed(2)} ₺):`);
+            if(amtStr === null) return;
+            const amt = parseFloat(amtStr);
             
-            if(amt && !isNaN(amt)) {
-                if(type === 'manual') target.paid = (target.paid || 0) + amt;
-                else target.paidAmount = (target.paidAmount || 0) + amt;
+            if(!isNaN(amt) && amt > 0) {
+                if(amt > remaining) {
+                    alert('Tahsilat tutarı kalan bakiyeden büyük olamaz!');
+                    return;
+                }
+
+                if(type === 'manual') {
+                    target.paid = (target.paid || 0) + amt;
+                } else {
+                    target.paidAmount = (target.paidAmount || 0) + amt;
+                }
 
                 await saveLocalData();
                 logAuditEvent("Tahsilat Eklendi", `${target.customerName || target.name} - Tutar: ${amt} TL`);
 
                 if(confirm("Tahsilat makbuzu yazdırmak ister misiniz?")) {
-                    printTahsilatMakbuzu(target, amt, total, currentPaid + amt);
+                    printTahsilatMakbuzu(target, amt, total, type === 'manual' ? target.paid : target.paidAmount);
                 }
+            } else if(amtStr !== "") {
+                alert("Lütfen geçerli bir tutar giriniz!");
             }
         }
 
