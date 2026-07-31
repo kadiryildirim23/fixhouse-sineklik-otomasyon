@@ -295,21 +295,52 @@
             </div>
 
             <div id="ledger-sub-standart" class="space-y-6">
+                <!-- REVİZE EDİLEN PROFESYONEL CARİ KARTI FORMU -->
                 <div class="bg-white rounded-xl p-4 md:p-6 shadow-sm border border-slate-200">
                     <h2 id="manualFormTitle" class="text-base md:text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-                        <i class="fa-solid fa-address-book text-amber-600"></i> MANUEL MÜŞTERİ CARİ KARTI OLUŞTUR / BORÇLANDIR (AÇIKLAMA DESTEKLİ)
+                        <i class="fa-solid fa-address-book text-amber-600"></i> PROFESYONEL MÜŞTERİ CARİ KARTI OLUŞTUR / GÜNCELLE
                     </h2>
-                    <form onsubmit="handleManualCustomerSubmit(event)" class="grid grid-cols-1 md:grid-cols-5 gap-3">
+                    <form onsubmit="handleManualCustomerSubmit(event)" class="grid grid-cols-1 md:grid-cols-3 gap-3">
                         <input type="hidden" id="editManualIndex" value="">
-                        <input type="text" id="manCustName" placeholder="Müşteri Adı Soyadı *" required class="px-3 py-2.5 text-xs md:text-sm border border-slate-300 rounded-lg">
-                        <input type="tel" id="manCustPhone" placeholder="Telefon Numarası *" required class="px-3 py-2.5 text-xs md:text-sm border border-slate-300 rounded-lg">
-                        <input type="number" id="manCustDebt" step="0.01" placeholder="Açılış Borç Tutarı (₺) *" required class="px-3 py-2.5 text-xs md:text-sm border border-slate-300 rounded-lg">
-                        <input type="text" id="manCustDesc" placeholder="İşlem Açıklaması (Örn: Özel sipariş borcu)" class="px-3 py-2.5 text-xs md:text-sm border border-slate-300 rounded-lg">
-                        <div class="flex gap-2">
-                            <button type="submit" id="manualSubmitBtn" class="flex-grow bg-amber-600 hover:bg-amber-700 text-white text-xs md:text-sm font-semibold rounded-lg py-2.5">
-                                <i class="fa-solid fa-plus"></i> Cari Deftere Ekle
+                        
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Müşteri / Firma Adı Soyadı <span class="text-red-500">*</span></label>
+                            <input type="text" id="manCustName" placeholder="Örn: Ahmet Yılmaz / İnşaat Ltd." required class="w-full px-3 py-2.5 text-xs md:text-sm border border-slate-300 rounded-lg">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Telefon Numarası <span class="text-red-500">*</span></label>
+                            <input type="tel" id="manCustPhone" placeholder="05XX XXX XX XX" required class="w-full px-3 py-2.5 text-xs md:text-sm border border-slate-300 rounded-lg">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">T.C. Kimlik / Vergi No</label>
+                            <input type="text" id="manCustTaxNo" placeholder="Fatura / Resmi Takip İçin" class="w-full px-3 py-2.5 text-xs md:text-sm border border-slate-300 rounded-lg">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Açılış Bakiye Tipi</label>
+                            <select id="manCustBalanceType" class="w-full px-3 py-2.5 text-xs md:text-sm border border-slate-300 rounded-lg bg-white font-bold">
+                                <option value="borc">Borçlu (Müşteri Bize Borçlu)</option>
+                                <option value="alacak">Alacaklı (Müşteriye Alacağımız Var)</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Açılış Tutar Tutarı (₺) <span class="text-red-500">*</span></label>
+                            <input type="number" id="manCustDebt" step="0.01" placeholder="0.00" required class="w-full px-3 py-2.5 text-xs md:text-sm border border-slate-300 rounded-lg font-bold text-amber-700">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">İşlem / Proje Açıklaması</label>
+                            <input type="text" id="manCustDesc" placeholder="Örn: Özel ölçü bina giriş kapısı sinekliği" class="w-full px-3 py-2.5 text-xs md:text-sm border border-slate-300 rounded-lg">
+                        </div>
+
+                        <div class="md:col-span-3 flex justify-end gap-2 pt-2">
+                            <button type="button" id="manualCancelBtn" onclick="resetManualForm()" class="hidden bg-slate-500 hover:bg-slate-600 text-white text-xs px-4 py-2.5 rounded-lg font-semibold">İptal</button>
+                            <button type="submit" id="manualSubmitBtn" class="bg-amber-600 hover:bg-amber-700 text-white text-xs md:text-sm font-semibold rounded-lg px-6 py-2.5 flex items-center gap-2">
+                                <i class="fa-solid fa-plus"></i> Cari Kartı Kaydet
                             </button>
-                            <button type="button" id="manualCancelBtn" onclick="resetManualForm()" class="hidden bg-slate-500 hover:bg-slate-600 text-white text-xs px-3 rounded-lg py-2.5">İptal</button>
                         </div>
                     </form>
                 </div>
@@ -629,7 +660,7 @@
 
     <script>
         const SHEETS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxPwtNChpye0O2n3ugRPgk_saqel4mo5kxBWicCfEdUc6HNpTuSwBkrDIPMCAVGx4h2/exec";
-        const STORAGE_KEY = "fix_house_23_data_v731";
+        const STORAGE_KEY = "fix_house_23_data_v740";
 
         const DEFAULT_SETTINGS = {
             montajPrice: 220,
@@ -1638,7 +1669,10 @@
 
                 tbody.innerHTML += `
                     <tr class="bg-amber-50/40">
-                        <td class="p-3 font-semibold">${escapeHTML(m.name)}</td>
+                        <td class="p-3 font-semibold">
+                            ${escapeHTML(m.name)}
+                            ${m.taxNo ? `<br><span class="text-[10px] text-slate-400 font-normal">Vergi/TC: ${escapeHTML(m.taxNo)}</span>` : ''}
+                        </td>
                         <td class="p-3 text-slate-500">${escapeHTML(m.phone)}</td>
                         <td class="p-3 text-slate-700">${escapeHTML(m.desc) || '<span class="text-slate-400">Açıklama yok</span>'}</td>
                         <td class="p-3 text-right font-bold">${m.debt.toFixed(2)} ₺</td>
@@ -1700,14 +1734,16 @@
             const currentRemaining = m.debt - currentPaid;
 
             document.getElementById('editManualIndex').value = idx;
-            document.getElementById('manCustName').value = m.name;
-            document.getElementById('manCustPhone').value = m.phone;
-            document.getElementById('manCustDebt').value = m.debt;
+            document.getElementById('manCustName').value = m.name || '';
+            document.getElementById('manCustPhone').value = m.phone || '';
+            document.getElementById('manCustTaxNo').value = m.taxNo || '';
+            document.getElementById('manCustBalanceType').value = m.balanceType || 'borc';
+            document.getElementById('manCustDebt').value = m.debt || 0;
             document.getElementById('manCustDesc').value = m.desc || '';
             
-            document.getElementById('manualSubmitBtn').innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Güncelle';
+            document.getElementById('manualSubmitBtn').innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Cari Kartı Güncelle';
             document.getElementById('manualCancelBtn').classList.remove('hidden');
-            document.getElementById('manualFormTitle').innerHTML = `<i class="fa-solid fa-pen-to-square text-amber-600"></i> MANUEL CARİ DÜZENLE (Toplam Borç: ${m.debt.toFixed(2)} ₺ | Ödenen: ${currentPaid.toFixed(2)} ₺ | Kalan: ${currentRemaining.toFixed(2)} ₺)`;
+            document.getElementById('manualFormTitle').innerHTML = `<i class="fa-solid fa-pen-to-square text-amber-600"></i> CARİ KART DÜZENLE: ${escapeHTML(m.name)}`;
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
@@ -1715,11 +1751,14 @@
             document.getElementById('editManualIndex').value = '';
             document.getElementById('manCustName').value = '';
             document.getElementById('manCustPhone').value = '';
+            document.getElementById('manCustTaxNo').value = '';
+            document.getElementById('manCustBalanceType').value = 'borc';
             document.getElementById('manCustDebt').value = '';
             document.getElementById('manCustDesc').value = '';
-            document.getElementById('manualSubmitBtn').innerHTML = '<i class="fa-solid fa-plus"></i> Cari Deftere Ekle';
+            
+            document.getElementById('manualSubmitBtn').innerHTML = '<i class="fa-solid fa-plus"></i> Cari Kartı Kaydet';
             document.getElementById('manualCancelBtn').classList.add('hidden');
-            document.getElementById('manualFormTitle').innerHTML = `<i class="fa-solid fa-address-book text-amber-600"></i> MANUEL MÜŞTERİ CARİ KARTI OLUŞTUR / BORÇLANDIR (AÇIKLAMA DESTEKLİ)`;
+            document.getElementById('manualFormTitle').innerHTML = `<i class="fa-solid fa-address-book text-amber-600"></i> PROFESYONEL MÜŞTERİ CARİ KARTI OLUŞTUR / GÜNCELLE`;
         }
 
         async function handleManualCustomerSubmit(e) {
@@ -1727,7 +1766,9 @@
             const editIdx = document.getElementById('editManualIndex').value;
             const name = escapeHTML(document.getElementById('manCustName').value.trim());
             const phone = escapeHTML(document.getElementById('manCustPhone').value.trim());
-            const newTotalDebt = parseFloat(document.getElementById('manCustDebt').value) || 0;
+            const taxNo = escapeHTML(document.getElementById('manCustTaxNo').value.trim());
+            const balanceType = document.getElementById('manCustBalanceType').value;
+            const amount = parseFloat(document.getElementById('manCustDebt').value) || 0;
             const desc = escapeHTML(document.getElementById('manCustDesc').value.trim());
 
             if(!appData.manualLedgers) appData.manualLedgers = [];
@@ -1735,17 +1776,27 @@
             if(editIdx !== "" && !isNaN(editIdx) && appData.manualLedgers[editIdx]) {
                 appData.manualLedgers[editIdx].name = name;
                 appData.manualLedgers[editIdx].phone = phone;
-                appData.manualLedgers[editIdx].debt = newTotalDebt;
+                appData.manualLedgers[editIdx].taxNo = taxNo;
+                appData.manualLedgers[editIdx].debt = amount;
+                appData.manualLedgers[editIdx].balanceType = balanceType;
                 appData.manualLedgers[editIdx].desc = desc;
-                logAuditEvent("Manuel Cari Güncellendi", `${name} - Toplam Borç: ${newTotalDebt} TL`);
-                alert('Manuel Müşteri Cari Kartı Güncellendi!');
+                
+                logAuditEvent("Manuel Cari Güncellendi", `${name} - Tutar: ${amount} TL`);
+                alert('Müşteri Cari Kartı Başarıyla Güncellendi!');
             } else {
                 appData.manualLedgers.push({
                     id: 'MAN-' + Date.now().toString().slice(-4),
-                    name, phone, debt: newTotalDebt, paid: 0, desc
+                    name, 
+                    phone, 
+                    taxNo,
+                    debt: amount, 
+                    paid: 0, 
+                    balanceType,
+                    desc,
+                    date: new Date().toLocaleDateString('tr-TR')
                 });
-                logAuditEvent("Manuel Cari Eklendi", `${name} - Borç: ${newTotalDebt} TL`);
-                alert('Manuel Müşteri Cari Kartı Deftere Eklendi!');
+                logAuditEvent("Yeni Manuel Cari Kart", `${name} - Borç: ${amount} TL`);
+                alert('Yeni Müşteri Cari Kartı Oluşturuldu!');
             }
 
             resetManualForm();
