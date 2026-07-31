@@ -24,26 +24,24 @@
             .print-only { display: block !important; }
             html, body { 
                 background: white; 
-                font-size: 12pt; 
+                font-size: 8pt; 
                 color: #000; 
                 margin: 0 !important; 
                 padding: 0 !important; 
+                height: 100%;
+                overflow: hidden !important;
             }
             
-            @page a4page { size: A4 landscape; margin: 6mm; }
+            @page a4page { size: A4 landscape; margin: 4mm; }
             .a4-print-container {
                 page: a4page;
                 width: 100%;
+                max-height: 190mm;
                 box-sizing: border-box;
-            }
-
-            @page makbuzpage { size: A5 landscape; margin: 6mm; }
-            .makbuz-print-container {
-                page: makbuzpage;
-                width: 100%;
-                box-sizing: border-box;
-                font-family: Arial, sans-serif;
-                color: #000;
+                overflow: hidden !important;
+                page-break-after: avoid !important;
+                page-break-before: avoid !important;
+                page-break-inside: avoid !important;
             }
 
             @page zebra { size: 100mm 50mm; margin: 0; }
@@ -63,19 +61,19 @@
             
             .print-border-box {
                 border: 1px solid #000 !important;
-                padding: 6px 8px !important;
-                margin-bottom: 6px !important;
+                padding: 4px 6px !important;
+                margin-bottom: 4px !important;
             }
             .print-table {
                 width: 100% !important;
                 border-collapse: collapse !important;
-                font-size: 11pt !important;
+                font-size: 7.5pt !important;
             }
             .print-table th, .print-table td {
                 border: 1px solid #000 !important;
-                padding: 4px 5px !important;
+                padding: 2px 3px !important;
                 text-align: center !important;
-                line-height: 1.2 !important;
+                line-height: 1.1 !important;
             }
             .print-table th {
                 background-color: #f0f0f0 !important;
@@ -105,7 +103,7 @@
                 </div>
             </div>
             <div class="flex items-center space-x-3 w-full md:w-auto justify-between md:justify-end">
-                <button onclick="manualCloudSync(true)" id="syncButton" class="text-[11px] bg-emerald-800 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-lg border border-emerald-600 flex items-center gap-1.5 font-medium transition shadow-sm">
+                <button onclick="manualCloudSync()" id="syncButton" class="text-[11px] bg-emerald-800 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-lg border border-emerald-600 flex items-center gap-1.5 font-medium transition shadow-sm">
                     <i class="fa-solid fa-rotate text-emerald-300" id="syncIcon" style="display:none;"></i> <span id="syncText">Google Sheets Bulut Senkron</span>
                 </button>
                 <span class="text-xs bg-slate-800 text-slate-300 px-3 py-1.5 rounded-lg border border-slate-700 flex items-center gap-2">
@@ -132,6 +130,9 @@
             </button>
             <button onclick="switchTab('finance')" id="tab-finance" class="tab-btn px-3.5 py-2 rounded-lg font-medium text-xs md:text-sm text-slate-600 hover:text-blue-600 transition flex items-center gap-2 border border-transparent whitespace-nowrap">
                 <i class="fa-solid fa-chart-line"></i> Gelir / Gider & Kasa
+            </button>
+            <button onclick="switchTab('optimization')" id="tab-optimization" class="tab-btn px-3.5 py-2 rounded-lg font-medium text-xs md:text-sm text-slate-600 hover:text-blue-600 transition flex items-center gap-2 border border-transparent whitespace-nowrap">
+                <i class="fa-solid fa-scissors text-emerald-600"></i> Profil Optimizasyon
             </button>
             <button onclick="switchTab('recycle')" id="tab-recycle" class="tab-btn px-3.5 py-2 rounded-lg font-medium text-xs md:text-sm text-slate-600 hover:text-blue-600 transition flex items-center gap-2 border border-transparent whitespace-nowrap">
                 <i class="fa-solid fa-trash-can text-red-600"></i> Çöp Kovası & Denetim <span id="recycleBadge" class="bg-red-100 text-red-700 text-xs px-2 py-0.5 rounded-full font-bold">0</span>
@@ -173,7 +174,7 @@
                     <h2 class="text-base md:text-lg font-bold text-slate-800 flex items-center gap-2">
                         <i class="fa-solid fa-ruler-combined text-blue-600"></i> ÖLÇÜ & ÜRÜN KONFİGÜRASYONU
                     </h2>
-                    <span class="text-xs text-slate-500 hidden md:inline">Şerit Mıknatıs & Reçete Bazlı Fiyatlandırma Aktif</span>
+                    <span class="text-xs text-slate-500 hidden md:inline">Plise Dikey (Dikme -0.5cm Tül & Tül -4cm Kanat) Aktif</span>
                 </div>
 
                 <div id="measureRowsContainer" class="space-y-4"></div>
@@ -295,53 +296,17 @@
             </div>
 
             <div id="ledger-sub-standart" class="space-y-6">
-                <!-- PROFESYONEL CARİ KARTI FORMU -->
                 <div class="bg-white rounded-xl p-4 md:p-6 shadow-sm border border-slate-200">
-                    <h2 id="manualFormTitle" class="text-base md:text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-                        <i class="fa-solid fa-address-book text-amber-600"></i> PROFESYONEL MÜŞTERİ CARİ KARTI OLUŞTUR / GÜNCELLE
+                    <h2 class="text-base md:text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-address-book text-amber-600"></i> MANUEL MÜŞTERİ CARİ KARTI OLUŞTUR / BORÇLANDIR
                     </h2>
-                    <form onsubmit="handleManualCustomerSubmit(event)" class="grid grid-cols-1 md:grid-cols-3 gap-3">
-                        <input type="hidden" id="editManualIndex" value="">
-                        
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-600 mb-1">Müşteri / Firma Adı Soyadı <span class="text-red-500">*</span></label>
-                            <input type="text" id="manCustName" placeholder="Örn: Ahmet Yılmaz / İnşaat Ltd." required class="w-full px-3 py-2.5 text-xs md:text-sm border border-slate-300 rounded-lg">
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-600 mb-1">Telefon Numarası <span class="text-red-500">*</span></label>
-                            <input type="tel" id="manCustPhone" placeholder="05XX XXX XX XX" required class="w-full px-3 py-2.5 text-xs md:text-sm border border-slate-300 rounded-lg">
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-600 mb-1">T.C. Kimlik / Vergi No</label>
-                            <input type="text" id="manCustTaxNo" placeholder="Fatura / Resmi Takip İçin" class="w-full px-3 py-2.5 text-xs md:text-sm border border-slate-300 rounded-lg">
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-600 mb-1">Açılış Bakiye Tipi</label>
-                            <select id="manCustBalanceType" class="w-full px-3 py-2.5 text-xs md:text-sm border border-slate-300 rounded-lg bg-white font-bold">
-                                <option value="borc">Borçlu (Müşteri Bize Borçlu)</option>
-                                <option value="alacak">Alacaklı (Müşteriye Alacağımız Var)</option>
-                            </select>
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-600 mb-1">Açılış Tutar Tutarı (₺) <span class="text-red-500">*</span></label>
-                            <input type="number" id="manCustDebt" step="0.01" placeholder="0.00" required class="w-full px-3 py-2.5 text-xs md:text-sm border border-slate-300 rounded-lg font-bold text-amber-700">
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-600 mb-1">İşlem / Proje Açıklaması</label>
-                            <input type="text" id="manCustDesc" placeholder="Örn: Özel ölçü bina giriş kapısı sinekliği" class="w-full px-3 py-2.5 text-xs md:text-sm border border-slate-300 rounded-lg">
-                        </div>
-
-                        <div class="md:col-span-3 flex justify-end gap-2 pt-2">
-                            <button type="button" id="manualCancelBtn" onclick="resetManualForm()" class="hidden bg-slate-500 hover:bg-slate-600 text-white text-xs px-4 py-2.5 rounded-lg font-semibold">İptal</button>
-                            <button type="submit" id="manualSubmitBtn" class="bg-amber-600 hover:bg-amber-700 text-white text-xs md:text-sm font-semibold rounded-lg px-6 py-2.5 flex items-center gap-2">
-                                <i class="fa-solid fa-plus"></i> Cari Kartı Kaydet
-                            </button>
-                        </div>
+                    <form onsubmit="addManualCustomerLedger(event)" class="grid grid-cols-1 md:grid-cols-4 gap-3">
+                        <input type="text" id="manCustName" placeholder="Müşteri Adı Soyadı *" required class="px-3 py-2.5 text-xs md:text-sm border border-slate-300 rounded-lg">
+                        <input type="tel" id="manCustPhone" placeholder="Telefon Numarası *" required class="px-3 py-2.5 text-xs md:text-sm border border-slate-300 rounded-lg">
+                        <input type="number" id="manCustDebt" step="0.01" placeholder="Açılış Borç Tutarı (₺) *" required class="px-3 py-2.5 text-xs md:text-sm border border-slate-300 rounded-lg">
+                        <button type="submit" class="bg-amber-600 hover:bg-amber-700 text-white text-xs md:text-sm font-semibold rounded-lg py-2.5">
+                            <i class="fa-solid fa-plus"></i> Cari Deftere Ekle
+                        </button>
                     </form>
                 </div>
 
@@ -361,7 +326,7 @@
                                 <tr class="bg-slate-100 font-semibold border-b border-slate-200 text-slate-700">
                                     <th class="p-3">Müşteri Adı</th>
                                     <th class="p-3">Telefon</th>
-                                    <th class="p-3">Kaynak / Açıklama</th>
+                                    <th class="p-3">Kaynak / Tür</th>
                                     <th class="p-3 text-right">Toplam Borç (₺)</th>
                                     <th class="p-3 text-right">Ödenen (₺)</th>
                                     <th class="p-3 text-right">Kalan Bakiye (₺)</th>
@@ -369,7 +334,6 @@
                                 </tr>
                             </thead>
                             <tbody id="fullCustomerLedgerBody" class="divide-y divide-slate-200"></tbody>
-                            <tfoot id="ledgerTableFoot" class="bg-slate-900 text-white font-bold text-xs md:text-sm"></tfoot>
                         </table>
                     </div>
                 </div>
@@ -464,7 +428,22 @@
             </div>
         </section>
 
-        <!-- TAB 6: GERİ DÖNÜŞÜM KUTUSU & DENETİM İZLERİ -->
+        <!-- TAB 6: PROFİL OPTİMİZASYONU -->
+        <section id="sec-optimization" class="space-y-6 hidden">
+            <div class="bg-white rounded-xl p-4 md:p-6 shadow-sm border border-slate-200">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-base md:text-lg font-bold text-slate-800 flex items-center gap-2">
+                        <i class="fa-solid fa-scissors text-emerald-600"></i> RENK VE SİSTEM BAZLI PROFİL KESİM OPTİMİZASYONU
+                    </h2>
+                    <button onclick="runOptimization()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs md:text-sm px-4 py-2 rounded-lg font-semibold flex items-center gap-1.5">
+                        <i class="fa-solid fa-rotate"></i> Yenile
+                    </button>
+                </div>
+                <div id="optimizationResults" class="space-y-6 text-xs md:text-sm"></div>
+            </div>
+        </section>
+
+        <!-- TAB 7: GERİ DÖNÜŞÜM KUTUSU & DENETİM İZLERİ -->
         <section id="sec-recycle" class="space-y-6 hidden">
             <div class="flex border-b border-slate-200 gap-4 mb-2">
                 <button onclick="switchRecycleSubTab('deleted')" id="subtab-recycle-deleted" class="py-2 px-4 border-b-2 border-red-600 font-bold text-xs md:text-sm text-red-700">
@@ -526,7 +505,7 @@
             </div>
         </section>
 
-        <!-- TAB 7: AYARLAR & YÖNETİM -->
+        <!-- TAB 8: AYARLAR & YÖNETİM -->
         <section id="sec-settings" class="space-y-6 hidden">
 
             <!-- WHATSAPP HAZIR MESAJLAR & OTOMATİK BİLGİLENDİRME AYARLARI -->
@@ -542,8 +521,8 @@
                         <textarea id="wa_msg_alinan" rows="2" class="w-full p-2 text-xs border rounded-lg">Sayın {MUSTERI}, Fix House sineklik siparişiniz alınmıştır. Bizi tercih ettiğiniz için teşekkür ederiz.</textarea>
                     </div>
                     <div class="bg-white p-3 rounded-xl border border-emerald-200 space-y-2">
-                        <label class="block text-xs font-bold text-slate-700">⚙️ Üretime Başlandı / Konum Mesajı</label>
-                        <textarea id="wa_msg_uretim" rows="2" class="w-full p-2 text-xs border rounded-lg">Sayın {MUSTERI}, {SIPARIS_ID} numaralı sineklik siparişiniz üretime alınmıştır. Sürsürü Mah. / Elazığ showroomumuza bekleriz.</textarea>
+                        <label class="block text-xs font-bold text-slate-700">⚙️ Üretime Başlandı Mesajı</label>
+                        <textarea id="wa_msg_uretim" rows="2" class="w-full p-2 text-xs border rounded-lg">Sayın {MUSTERI}, {SIPARIS_ID} numaralı sineklik siparişiniz atölyemizde üretime alınmıştır.</textarea>
                     </div>
                     <div class="bg-white p-3 rounded-xl border border-emerald-200 space-y-2">
                         <label class="block text-xs font-bold text-slate-700">🚚 Montaja Hazır / Yola Çıktı Mesajı</label>
@@ -551,7 +530,7 @@
                     </div>
                     <div class="bg-white p-3 rounded-xl border border-emerald-200 space-y-2">
                         <label class="block text-xs font-bold text-slate-700">✅ Tamamlandı / Teslim Edildi Mesajı</label>
-                        <textarea id="wa_msg_bitti" rows="2" class="w-full p-2 text-xs border rounded-lg">Sayın {MUSTERI}, montajınız başarıyla tamamlanmıştır.</textarea>
+                        <textarea id="wa_msg_bitti" rows="2" class="w-full p-2 text-xs border rounded-lg">Sayın {MUSTERI}, montajınız başarıyla tamamlanmıştır. Fix House'u seçtiğiniz için teşekkürler.</textarea>
                     </div>
                 </div>
                 <div class="flex justify-end">
@@ -656,11 +635,11 @@
     <!-- PRINT SHADOW TEMPLATES -->
     <div id="printContainerA4" class="print-only"></div>
     <div id="printContainerZebra" class="print-only"></div>
-    <div id="printContainerMakbuz" class="print-only"></div>
 
     <script>
+        // Google Sheets Web App URL
         const SHEETS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxPwtNChpye0O2n3ugRPgk_saqel4mo5kxBWicCfEdUc6HNpTuSwBkrDIPMCAVGx4h2/exec";
-        const STORAGE_KEY = "fix_house_23_data_v741";
+        const STORAGE_KEY = "fix_house_23_data_v720";
 
         const DEFAULT_SETTINGS = {
             montajPrice: 220,
@@ -675,7 +654,6 @@
                         { id: "acc-profil", name: "Alüminyum Profil", unit: "Metre (m)", cost: 45 },
                         { id: "acc-plise-tul", name: "Plise Tül", unit: "m²", cost: 35 },
                         { id: "acc-polen-tul", name: "Polen Tülü (Fark)", unit: "m²", cost: 400 },
-                        { id: "acc-serit-miknatis", name: "Şerit Mıknatıs", unit: "Metre (m)", cost: 60 },
                         { id: "acc-takoz", name: "Köşe Takozu", unit: "Adet", cost: 5 },
                         { id: "acc-ip", name: "Plise İp", unit: "Metre (m)", cost: 2 }
                     ]
@@ -713,7 +691,10 @@
             updateClock();
             setInterval(updateClock, 1000);
             
+            // İlk açılışta Google Sheets bulutundan verileri çek
             await manualCloudSync(true);
+
+            // Her 5 saniyede bir arkada otomatik olarak Google Sheets'ten senkronize et
             setInterval(() => manualCloudSync(false), 5000);
             
             addMeasureRow();
@@ -729,17 +710,8 @@
                 const response = await fetch(SHEETS_WEB_APP_URL);
                 if(response.ok) {
                     const cloudData = await response.json();
-                    if(cloudData) {
-                        appData.settings = cloudData.settings || DEFAULT_SETTINGS;
-                        appData.cart = cloudData.cart || [];
-                        appData.archive = cloudData.archive || [];
-                        appData.expenses = cloudData.expenses || [];
-                        appData.manualLedgers = cloudData.manualLedgers || [];
-                        appData.topluLedgers = cloudData.topluLedgers || [];
-                        appData.recycleBin = cloudData.recycleBin || [];
-                        appData.auditLogs = cloudData.auditLogs || [];
-                        appData.whatsappTemplates = cloudData.whatsappTemplates || {};
-
+                    if(cloudData && cloudData.archive) {
+                        appData = cloudData;
                         localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
                         refreshAllViews();
                     }
@@ -748,7 +720,6 @@
                 const saved = localStorage.getItem(STORAGE_KEY);
                 if (saved) {
                     appData = JSON.parse(saved);
-                    refreshAllViews();
                 }
             } finally {
                 if(syncText) syncText.innerText = "Google Sheets Bulut Senkron";
@@ -761,6 +732,7 @@
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
                 refreshAllViews();
 
+                // Google Sheets bulutuna anında gönder
                 await fetch(SHEETS_WEB_APP_URL, {
                     method: 'POST',
                     mode: 'no-cors',
@@ -813,6 +785,7 @@
             if(tabName === 'ledger') renderLedgerTab();
             if(tabName === 'finance') renderFinance();
             if(tabName === 'recycle') { renderRecycleBin(); renderAuditLogs(); }
+            if(tabName === 'optimization') runOptimization();
         }
 
         function switchLedgerSubTab(sub) {
@@ -884,7 +857,7 @@
         }
 
         function sendWhatsAppMessage(orderId, newStatus) {
-            const ord = appData.archive.find(o => o.id === orderId) || appData.cart.find(o => o.id === orderId) || (appData.topluLedgers && appData.topluLedgers.find(o => o.id === orderId));
+            const ord = appData.archive.find(o => o.id === orderId);
             if(!ord) return;
 
             ord.status = newStatus;
@@ -897,13 +870,13 @@
 
             const templates = appData.whatsappTemplates || {
                 alinan: "Sayın {MUSTERI}, Fix House sineklik siparişiniz alınmıştır.",
-                uretim: "Sayın {MUSTERI}, {SIPARIS_ID} numaralı sineklik siparişiniz üretime alınmıştır. Sürsürü Mah. / Elazığ showroomumuza bekleriz.",
-                montaj: "Sayın {MUSTERI}, sineklikleriniz hazırlanmış olup montaj/sevkiyat için yola çıkmaktadır.",
-                bitti: "Sayın {MUSTERI}, montajınız başarıyla tamamlanmıştır."
+                uretim: "Sayın {MUSTERI}, {SIPARIS_ID} numaralı siparişiniz üretime alınmıştır.",
+                montaj: "Sayın {MUSTERI}, sineklikleriniz montaj için yola çıkmaktadır.",
+                bitti: "Sayın {MUSTERI}, montajınız tamamlanmıştır. Teşekkür ederiz."
             };
 
             let msg = templates[templateKey] || "Fix House 23 bilgilendirme.";
-            msg = msg.replace(/\{MUSTERI\}/g, ord.customerName).replace(/\{SIPARIS_ID\}/g, ord.id);
+            msg = msg.replace('{MUSTERI}', ord.customerName).replace('{SIPARIS_ID}', ord.id);
 
             let phone = ord.customerPhone.replace(/\D/g, '');
             if(phone.startsWith('0')) phone = '9' + phone;
@@ -938,25 +911,25 @@
                         <input type="number" min="1" value="1" oninput="calculateRow(${currentRowId})" class="inp-qty w-full border text-center rounded px-2 py-2 font-bold text-blue-700 bg-white">
                     </div>
                     <div>
-                        <label class="block font-semibold text-slate-600 mb-1">1. Ürün Tipi</label>
-                        <select onchange="stepSelect(${currentRowId}, 1)" class="product-type w-full border rounded px-2 py-2 bg-white font-bold text-blue-800">
+                        <label class="block font-semibold text-slate-600 mb-1">Ölçü Tipi</label>
+                        <select onchange="stepSelect(${currentRowId}, 1)" class="measure-type w-full border rounded px-2 py-2 bg-white">
+                            <option value="">-- Seçiniz --</option>
+                            <option value="ic">İç Ölçü</option>
+                            <option value="dis">Dış Ölçü</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-600 mb-1">Ürün Tipi</label>
+                        <select disabled onchange="stepSelect(${currentRowId}, 2)" class="product-type w-full border rounded px-2 py-2 bg-white">
                             <option value="">-- Seçiniz --</option>
                             <option value="plise">Plise Sineklik</option>
                             <option value="menteseli">Menteşeli Sineklik</option>
                         </select>
                     </div>
                     <div>
-                        <label class="block font-semibold text-slate-600 mb-1">2. Ölçü Tipi</label>
-                        <select disabled onchange="stepSelect(${currentRowId}, 2)" class="measure-type w-full border rounded px-2 py-2 bg-white">
-                            <option value="">-- Önce Ürün Seçin --</option>
-                            <option value="ic">İç Ölçü</option>
-                            <option value="dis">Dış Ölçü</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block font-semibold text-slate-600 mb-1">3. Profil Renk</label>
+                        <label class="block font-semibold text-slate-600 mb-1">Profil Renk</label>
                         <select disabled onchange="stepSelect(${currentRowId}, 3)" class="color-type w-full border rounded px-2 py-2 bg-white">
-                            <option value="">-- Önce Ölçü Seçin --</option>
+                            <option value="">-- Seçiniz --</option>
                             <option value="Beyaz">Beyaz</option>
                             <option value="Kahverengi">Kahverengi</option>
                             <option value="Antrasit">Antrasit</option>
@@ -966,8 +939,8 @@
 
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-2.5 text-xs pt-1">
                     <div id="dynamicOpts-${currentRowId}" class="space-y-1">
-                        <label class="block font-semibold text-slate-600 mb-1">Diğer Seçenekler</label>
-                        <select disabled class="opt-placeholder w-full border rounded px-2 py-2 bg-white"><option value="">-- Renk Seçin --</option></select>
+                        <label class="block font-semibold text-slate-600 mb-1">Açılım & Tül</label>
+                        <select disabled class="opt-placeholder w-full border rounded px-2 py-2 bg-white"><option value="">-- Renk Seçiniz --</option></select>
                     </div>
                     <div>
                         <label class="block font-semibold text-slate-600 mb-1">EN (cm) *</label>
@@ -1011,17 +984,17 @@
 
             if(initialData) {
                 cardDiv.querySelector('.inp-qty').value = initialData.qty || 1;
-                cardDiv.querySelector('.product-type').value = initialData.pType;
-                stepSelect(currentRowId, 1);
                 cardDiv.querySelector('.measure-type').value = initialData.mType;
+                stepSelect(currentRowId, 1);
+                cardDiv.querySelector('.product-type').value = initialData.pType;
                 stepSelect(currentRowId, 2);
                 cardDiv.querySelector('.color-type').value = initialData.color;
                 stepSelect(currentRowId, 3);
                 
                 if(initialData.dir && cardDiv.querySelector('.opt-dir')) cardDiv.querySelector('.opt-dir').value = initialData.dir;
+                if(initialData.magnetType && cardDiv.querySelector('.opt-magnet')) cardDiv.querySelector('.opt-magnet').value = initialData.magnetType;
                 if(initialData.tulType && cardDiv.querySelector('.opt-tul')) cardDiv.querySelector('.opt-tul').value = initialData.tulType;
                 if(initialData.caseType && cardDiv.querySelector('.opt-case')) cardDiv.querySelector('.opt-case').value = initialData.caseType;
-                if(initialData.magnetType && cardDiv.querySelector('.opt-magnet')) cardDiv.querySelector('.opt-magnet').value = initialData.magnetType;
                 
                 cardDiv.querySelector('.inp-en').value = initialData.en;
                 cardDiv.querySelector('.inp-boy').value = initialData.boy;
@@ -1066,8 +1039,8 @@
             const card = document.getElementById(`row-${id}`);
             if(!card) return;
 
+            const mType = card.querySelector('.measure-type').value;
             const pTypeSelect = card.querySelector('.product-type');
-            const mTypeSelect = card.querySelector('.measure-type');
             const colorSelect = card.querySelector('.color-type');
             const optsContainer = document.getElementById(`dynamicOpts-${id}`);
             const enInp = card.querySelector('.inp-en');
@@ -1075,50 +1048,45 @@
             const noteInp = card.querySelector('.inp-note');
 
             if(step === 1) {
-                mTypeSelect.value = "";
-                mTypeSelect.disabled = !pTypeSelect.value;
-                colorSelect.value = "";
-                colorSelect.disabled = true;
-                
-                optsContainer.innerHTML = `<label class="block font-semibold text-slate-600 mb-1">Diğer Seçenekler</label><select disabled class="opt-placeholder w-full border rounded px-2 py-2 bg-white"><option value="">-- Önce Renk Seçin --</option></select>`;
-                enInp.value = ""; enInp.disabled = true;
-                boyInp.value = ""; boyInp.disabled = true;
-                noteInp.value = ""; noteInp.disabled = true;
+                if(mType) {
+                    pTypeSelect.disabled = false;
+                } else {
+                    pTypeSelect.disabled = true; colorSelect.disabled = true;
+                    enInp.disabled = true; boyInp.disabled = true; noteInp.disabled = true;
+                }
             } else if(step === 2) {
-                colorSelect.value = "";
-                colorSelect.disabled = !mTypeSelect.value;
-                
-                optsContainer.innerHTML = `<label class="block font-semibold text-slate-600 mb-1">Diğer Seçenekler</label><select disabled class="opt-placeholder w-full border rounded px-2 py-2 bg-white"><option value="">-- Önce Renk Seçin --</option></select>`;
-                enInp.value = ""; enInp.disabled = true;
-                boyInp.value = ""; boyInp.disabled = true;
-                noteInp.value = ""; noteInp.disabled = true;
+                if(pTypeSelect.value) {
+                    colorSelect.disabled = false;
+                } else {
+                    colorSelect.disabled = true; enInp.disabled = true; boyInp.disabled = true; noteInp.disabled = true;
+                }
             } else if(step === 3) {
                 if(colorSelect.value) {
                     const pType = pTypeSelect.value;
                     if(pType === 'plise') {
                         optsContainer.innerHTML = `
-                            <label class="block font-semibold text-slate-600 mb-1">Diğer Seçenekler</label>
-                            <div class="grid grid-cols-4 gap-1">
-                                <select onchange="calculateRow(${id})" class="opt-dir w-full border rounded px-1 py-2 bg-white text-[11px]"><option value="yatay">Yatay</option><option value="dikey">Dikey</option></select>
-                                <select onchange="calculateRow(${id})" class="opt-tul w-full border rounded px-1 py-2 bg-white text-[11px]"><option value="plise">Plise Tül</option><option value="polen">Polen (Reçete)</option></select>
+                            <label class="block font-semibold text-slate-600 mb-1">Açılım, Tül & Kasa (Plise)</label>
+                            <div class="grid grid-cols-3 gap-1">
+                                <select onchange="calculateRow(${id})" class="opt-dir w-full border rounded px-1 py-2 bg-white text-[11px]"><option value="yatay">Yatay (2En+3Boy)</option><option value="dikey">Dikey (3En+2Boy)</option></select>
+                                <select onchange="calculateRow(${id})" class="opt-tul w-full border rounded px-1 py-2 bg-white text-[11px]"><option value="plise">Plise Tül</option><option value="polen">Polen (+400₺)</option></select>
                                 <select onchange="calculateRow(${id})" class="opt-case w-full border rounded px-1 py-2 bg-white text-[11px]"><option value="kasasiz">Kasasız</option><option value="kasali">Kasalı (2x)</option></select>
-                                <select onchange="calculateRow(${id})" class="opt-magnet w-full border rounded px-1 py-2 bg-white text-[11px]"><option value="yok">Mıknatıs Yok</option><option value="var">Şerit Mıknatıs</option></select>
                             </div>
                         `;
                     } else {
                         optsContainer.innerHTML = `
-                            <label class="block font-semibold text-slate-600 mb-1">Diğer Seçenekler</label>
+                            <label class="block font-semibold text-slate-600 mb-1">Açılım & Kilitleme (Menteşeli)</label>
                             <div class="grid grid-cols-3 gap-1">
-                                <select onchange="calculateRow(${id})" class="opt-menteseli-tip w-full border rounded px-1 py-2 bg-white text-[11px]">
-                                    <option value="pencere">Pencere</option>
-                                    <option value="kapi">Kapı</option>
+                                <select onchange="calculateRow(${id})" class="opt-dir w-full border rounded px-1 py-2 bg-white text-[11px]">
+                                    <option value="saga">Sağa Açılır</option>
+                                    <option value="sola">Sola Açılır</option>
+                                </select>
+                                <select onchange="calculateRow(${id})" class="opt-magnet w-full border rounded px-1 py-2 bg-white text-[11px]">
+                                    <option value="miknatisli">Mıknatıslı</option>
+                                    <option value="citcitli">Çıtçıtlı</option>
                                 </select>
                                 <select onchange="calculateRow(${id})" class="opt-tul w-full border rounded px-1 py-2 bg-white text-[11px]">
                                     <option value="duz">Düz Tül</option>
-                                    <option value="kedi">Kedi Tülü (Reçete)</option>
-                                </select>
-                                <select onchange="calculateRow(${id})" class="opt-case w-full border rounded px-1 py-2 bg-white text-[11px]">
-                                    <option value="kasasiz">Kasasız</option><option value="kasali">Kasalı (2x)</option>
+                                    <option value="kedi">Kedi Tülü (+260₺)</option>
                                 </select>
                             </div>
                         `;
@@ -1128,8 +1096,8 @@
                     noteInp.disabled = false;
                 } else {
                     optsContainer.innerHTML = `
-                        <label class="block font-semibold text-slate-600 mb-1">Diğer Seçenekler</label>
-                        <select disabled class="opt-placeholder w-full border rounded px-2 py-2 bg-white"><option value="">-- Renk Seçin --</option></select>
+                        <label class="block font-semibold text-slate-600 mb-1">Açılım & Tül</label>
+                        <select disabled class="opt-placeholder w-full border rounded px-2 py-2 bg-white"><option value="">-- Renk Seçiniz --</option></select>
                     `;
                     enInp.disabled = true; boyInp.disabled = true; noteInp.disabled = true;
                 }
@@ -1155,20 +1123,13 @@
             });
         }
 
-        function getRecipeCost(groupId, accessoryId) {
-            const group = appData.settings.productGroups.find(g => g.id === groupId);
-            if(!group) return 0;
-            const acc = group.accessories.find(a => a.id === accessoryId);
-            return acc ? acc.cost : 0;
-        }
-
         function calculateRow(id) {
             const card = document.getElementById(`row-${id}`);
             if(!card) return;
 
             const qty = parseInt(card.querySelector('.inp-qty').value) || 1;
-            const pType = card.querySelector('.product-type').value;
             const mType = card.querySelector('.measure-type').value;
+            const pType = card.querySelector('.product-type').value;
             
             let inputEn = parseFloat(card.querySelector('.inp-en').value) || 0;
             let inputBoy = parseFloat(card.querySelector('.inp-boy').value) || 0;
@@ -1188,8 +1149,6 @@
             const dirSelect = card.querySelector('.opt-dir');
             const tulSelect = card.querySelector('.opt-tul');
             const caseSelect = card.querySelector('.opt-case');
-            const magnetSelect = card.querySelector('.opt-magnet');
-            const menteseliTipSelect = card.querySelector('.opt-menteseli-tip');
 
             let isDikey = (pType === 'plise' && dirSelect && dirSelect.value === 'dikey');
 
@@ -1238,9 +1197,8 @@
                     ipKat = `${(rawEn + rawBoy + 10).toFixed(0)}cm / ${Math.floor((rawEn / 2.5) - 2)}k`;
                 }
             } else {
-                let isKapi = menteseliTipSelect && menteseliTipSelect.value === 'kapi';
-                let perimeterCm = isKapi ? ((rawEn * 4) + (rawBoy * 2)) : ((rawEn * 2) + (rawBoy * 2));
-                multiplier = (perimeterCm / 100) * qty;
+                let unitM2 = (rawEn * rawBoy) / 10000;
+                multiplier = Math.max(unitM2, appData.settings.minM2) * qty;
 
                 if(mType === 'dis') {
                     tac = (rawEn - 5).toFixed(1);
@@ -1275,24 +1233,15 @@
             let rowPrice = multiplier * unitPrice;
 
             if(pType === 'plise' && tulSelect && tulSelect.value === 'polen') {
-                let polenCost = getRecipeCost('pg-plise', 'acc-polen-tul');
-                let actualM2 = ((rawEn * rawBoy) / 10000) * qty;
-                rowPrice += Math.max(actualM2, appData.settings.minM2) * polenCost; 
+                rowPrice += multiplier * 400; 
             }
 
             if(pType === 'menteseli' && tulSelect && tulSelect.value === 'kedi') {
-                let kediCost = getRecipeCost('pg-mentese', 'acc-kedi-tul');
                 let actualM2 = ((rawEn * rawBoy) / 10000) * qty;
-                rowPrice += Math.max(actualM2, appData.settings.minM2) * kediCost;
+                rowPrice += Math.max(actualM2, appData.settings.minM2) * 260;
             }
 
-            if(pType === 'plise' && magnetSelect && magnetSelect.value === 'var') {
-                let magnetMeterCost = getRecipeCost('pg-plise', 'acc-serit-miknatis');
-                let perimeterM = (perimeterCm / 100);
-                rowPrice += perimeterM * magnetMeterCost * qty;
-            }
-
-            if(caseSelect && caseSelect.value === 'kasali') {
+            if(pType === 'plise' && caseSelect && caseSelect.value === 'kasali') {
                 rowPrice = rowPrice * 2;
             }
 
@@ -1375,14 +1324,13 @@
                     items.push({
                         seq: idx + 1,
                         qty: parseInt(card.querySelector('.inp-qty').value) || 1,
-                        pType: card.querySelector('.product-type').value,
                         mType: card.querySelector('.measure-type').value,
+                        pType: card.querySelector('.product-type').value,
                         color: card.querySelector('.color-type').value,
                         dir: card.querySelector('.opt-dir') ? card.querySelector('.opt-dir').value : '',
-                        menteseliTip: card.querySelector('.opt-menteseli-tip') ? card.querySelector('.opt-menteseli-tip').value : '',
+                        magnetType: card.querySelector('.opt-magnet') ? card.querySelector('.opt-magnet').value : '',
                         tulType: card.querySelector('.opt-tul') ? card.querySelector('.opt-tul').value : '',
                         caseType: card.querySelector('.opt-case') ? card.querySelector('.opt-case').value : '',
-                        magnetType: card.querySelector('.opt-magnet') ? card.querySelector('.opt-magnet').value : '',
                         en: enVal,
                         boy: parseFloat(card.querySelector('.inp-boy').value),
                         note: escapeHTML(card.querySelector('.inp-note').value || ''),
@@ -1415,18 +1363,15 @@
             };
         }
 
-        async function addToCart() {
+        function addToCart() {
             if(!validateCustomer()) return;
             const orderData = getOrderDataFromForm();
             if(orderData.items.length === 0) return alert('Lütfen en az 1 tane tamamlanmış ölçü giriniz!');
 
             appData.cart.push(orderData);
-            await saveLocalData();
+            saveLocalData();
             logAuditEvent("Sipariş Sepete Eklendi", `${orderData.customerName} - ${orderData.totalAmount.toFixed(2)} TL`);
-            
-            sendWhatsAppMessage(orderData.id, 'Sipariş Alındı');
-
-            alert('Sipariş sepetinize eklendi ve buluta kaydedildi!');
+            alert('Sipariş sepetinize eklendi!');
             switchTab('cart');
         }
 
@@ -1488,22 +1433,20 @@
             });
         }
 
-        async function deleteCartOrder(index) {
+        function deleteCartOrder(index) {
             const ord = appData.cart[index];
             logRecycleItem('Sepet Siparişi Silindi', `${ord.customerName} (${ord.id}) sepetten silindi.`, ord.totalAmount);
             logAuditEvent("Sepet Siparişi Silindi", `${ord.customerName} - ${ord.id}`);
             appData.cart.splice(index, 1);
-            await saveLocalData();
+            saveLocalData();
         }
 
-        async function checkoutCartOrder(index) {
+        function checkoutCartOrder(index) {
             const order = appData.cart[index];
             appData.archive.push(order);
             appData.cart.splice(index, 1);
-            await saveLocalData();
-            logAuditEvent("Sipariş Onaylandı & Arşive Atıldı", `${order.customerName} - ${order.id}`);
-            
-            sendWhatsAppMessage(order.id, 'Üretimde');
+            saveLocalData();
+            logAuditEvent("Sipariş Onaylandı & Yazdırıldı", `${order.customerName} - ${order.id}`);
             printDirectA4('order', order);
         }
 
@@ -1525,7 +1468,7 @@
                         <td class="p-3 text-center space-x-1">
                             <select onchange="sendWhatsAppMessage('${order.id}', this.value)" class="text-xs border rounded p-1 font-bold bg-emerald-50 text-emerald-800">
                                 <option value="Sipariş Alındı" ${order.status==='Sipariş Alındı'?'selected':''}>📍 Sipariş Alındı</option>
-                                <option value="Üretimde" ${order.status==='Üretimde'?'selected':''}>⚙️ Üretimde / Konum</option>
+                                <option value="Üretimde" ${order.status==='Üretimde'?'selected':''}>⚙️ Üretimde</option>
                                 <option value="Montaja Hazır" ${order.status==='Montaja Hazır'?'selected':''}>🚚 Montaja Hazır</option>
                                 <option value="Tamamlandı" ${order.status==='Tamamlandı'?'selected':''}>✅ Tamamlandı</option>
                             </select>
@@ -1536,8 +1479,7 @@
                             </span>
                         </td>
                         <td class="p-3 text-center space-x-1.5 whitespace-nowrap">
-                            <button onclick='editArchiveOrder(${idx})' class="bg-amber-600 hover:bg-amber-700 text-white px-2 py-1 rounded text-xs font-semibold" title="Düzenle"><i class="fa-solid fa-pen-to-square"></i> Düzenle</button>
-                            <button onclick='moveToTopluMontaj("${order.id}")' class="bg-purple-600 hover:bg-purple-700 text-white px-2 py-1 rounded text-xs font-semibold" title="Toplu Montaja At"><i class="fa-solid fa-city"></i> Toplu</button>
+                            <button onclick='moveToTopluMontaj("${order.id}")' class="bg-purple-600 hover:bg-purple-700 text-white px-2 py-1 rounded text-xs font-semibold" title="Toplu Montaja At"><i class="fa-solid fa-city"></i> Toplu Montaj</button>
                             <button onclick='openOrderDetailModal("${order.id}")' class="text-blue-600 hover:text-blue-800" title="Ölçü Detayı"><i class="fa-solid fa-magnifying-glass text-sm"></i></button>
                             <button onclick='deleteArchiveOrder(${idx})' class="text-red-500 hover:text-red-700" title="Sil"><i class="fa-solid fa-trash text-sm"></i></button>
                         </td>
@@ -1546,56 +1488,29 @@
             });
         }
 
-        function editArchiveOrder(index) {
-            const order = appData.archive[index];
-            if(!order) return;
-
-            document.getElementById('custName').value = order.customerName || '';
-            document.getElementById('custPhone').value = order.customerPhone || '';
-            document.getElementById('custAddress').value = order.customerAddress || '';
-            document.getElementById('salesTariff').value = order.tariff || '';
-            document.getElementById('extraLabor').value = order.extraLabor || 0;
-            document.getElementById('kdvStatus').value = order.kdvStatus || 'haric';
-
-            document.getElementById('measureRowsContainer').innerHTML = '';
-            currentRowId = 0;
-
-            if(order.items && order.items.length > 0) {
-                order.items.forEach(item => addMeasureRow(item));
-            } else {
-                addMeasureRow();
-            }
-
-            appData.archive.splice(index, 1);
-            saveLocalData();
-
-            switchTab('order');
-            alert(`"${order.customerName}" arşivdeki siparişi düzenlenmek üzere yüklendi!`);
-        }
-
-        async function deleteArchiveOrder(idx) {
+        function deleteArchiveOrder(idx) {
             const ord = appData.archive[idx];
             logRecycleItem('Arşiv Siparişi Silindi', `${ord.customerName} - ${ord.id} arşivden silindi.`, ord.totalAmount);
             logAuditEvent("Arşiv Siparişi Silindi", `${ord.customerName} - ${ord.id}`);
             appData.archive.splice(idx, 1);
-            await saveLocalData();
+            saveLocalData();
         }
 
-        async function moveToTopluMontaj(orderId) {
+        function moveToTopluMontaj(orderId) {
             const ord = appData.archive.find(o => o.id === orderId);
             if(!ord) return;
             if(!appData.topluLedgers) appData.topluLedgers = [];
             if(appData.topluLedgers.some(t => t.id === ord.id)) return alert('Bu sipariş zaten Toplu Montaj Defterine aktarılmış!');
 
             appData.topluLedgers.push({ ...ord, isToplu: true });
-            await saveLocalData();
+            saveLocalData();
             logAuditEvent("Toplu Montaja Aktarıldı", `${ord.customerName} - ${ord.id}`);
             alert(`"${ord.customerName}" projesi Toplu Montaj Defterine aktarıldı!`);
             switchTab('ledger');
             switchLedgerSubTab('toplu');
         }
 
-        async function addManualTopluMontajLedger(e) {
+        function addManualTopluMontajLedger(e) {
             e.preventDefault();
             const name = escapeHTML(document.getElementById('topluCustName').value.trim());
             const phone = escapeHTML(document.getElementById('topluCustPhone').value.trim());
@@ -1608,8 +1523,8 @@
                 customerName: name, customerPhone: phone, totalAmount: debt, paidAmount: 0, items: [], isManual: true
             });
 
-            await saveLocalData();
-            logAuditEvent("Toplu Montaj Cari Eklendi", `${name} - ${debt} TL`);
+            saveLocalData();
+            logAuditEvent("Manuel Toplu Montaj Cari Eklendi", `${name} - ${debt} TL`);
             document.getElementById('topluCustName').value = '';
             document.getElementById('topluCustPhone').value = '';
             document.getElementById('topluCustDebt').value = '';
@@ -1618,103 +1533,48 @@
 
         function renderLedgerTab() {
             const tbody = document.getElementById('fullCustomerLedgerBody');
-            const tfoot = document.getElementById('ledgerTableFoot');
-            if(!tbody || !tfoot) return;
-            
+            if(!tbody) return;
             tbody.innerHTML = '';
             const query = (document.getElementById('ledgerSearchInput')?.value || '').toLowerCase();
 
-            let filteredArchive = appData.archive.filter(o => o.customerName.toLowerCase().includes(query) || o.customerPhone.includes(query));
-            let filteredManual = (appData.manualLedgers || []).filter(m => m.name.toLowerCase().includes(query) || m.phone.includes(query));
-
-            let filteredTotalDebt = 0;
-            let filteredTotalPaid = 0;
-
-            let grandTotalDebt = 0;
-            let grandTotalPaid = 0;
-
-            appData.archive.forEach(o => { grandTotalDebt += o.totalAmount; grandTotalPaid += (o.paidAmount || 0); });
-            (appData.manualLedgers || []).forEach(m => { grandTotalDebt += (m.debt || 0); grandTotalPaid += (m.paid || 0); });
-
-            filteredArchive.forEach(o => {
-                const paid = o.paidAmount || 0;
-                const remaining = o.totalAmount - paid;
-                filteredTotalDebt += o.totalAmount;
-                filteredTotalPaid += paid;
-
+            appData.archive.filter(o => o.customerName.toLowerCase().includes(query) || o.customerPhone.includes(query)).forEach(o => {
+                const remaining = o.totalAmount - (o.paidAmount || 0);
                 tbody.innerHTML += `
-                    <tr class="hover:bg-slate-50">
+                    <tr>
                         <td class="p-3 font-semibold flex items-center gap-2">
-                            <button onclick="openOrderDetailModal('${o.id}')" class="text-blue-600 hover:text-blue-800" title="Detay"><i class="fa-solid fa-magnifying-glass text-sm"></i></button>
+                            <button onclick="openOrderDetailModal('${o.id}')" class="text-blue-600 hover:text-blue-800"><i class="fa-solid fa-magnifying-glass text-sm"></i></button>
                             <span>${escapeHTML(o.customerName)}</span>
                         </td>
                         <td class="p-3 text-slate-500">${escapeHTML(o.customerPhone)}</td>
                         <td class="p-3"><span class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-[10px] font-bold">Sipariş (${o.id})</span></td>
                         <td class="p-3 text-right font-bold">${o.totalAmount.toFixed(2)} ₺</td>
-                        <td class="p-3 text-right text-emerald-600 font-bold">${paid.toFixed(2)} ₺</td>
+                        <td class="p-3 text-right text-emerald-600 font-bold">${(o.paidAmount || 0).toFixed(2)} ₺</td>
                         <td class="p-3 text-right text-red-600 font-black">${remaining.toFixed(2)} ₺</td>
                         <td class="p-3 text-center space-x-1 whitespace-nowrap">
-                            ${remaining > 0.01 ? `<button onclick="addPayment('archive', '${o.id}')" class="bg-blue-600 hover:bg-blue-700 text-white px-2.5 py-1 rounded text-xs font-semibold">Tahsilat Ekle</button>` : '<span class="text-emerald-600 font-bold text-xs bg-emerald-50 px-2 py-1 rounded">Hesap Kapandı</span>'}
-                            <button onclick="deleteArchiveOrderById('${o.id}')" class="text-red-500 hover:text-red-700 px-1" title="Sil"><i class="fa-solid fa-trash text-sm"></i></button>
+                            ${remaining > 0 ? `<button onclick="addPayment('archive', '${o.id}')" class="bg-blue-600 text-white px-2.5 py-1 rounded text-xs font-semibold">Tahsilat Ekle</button>` : '<span class="text-emerald-600 font-bold text-xs">Kapandı</span>'}
+                            <button onclick="deleteArchiveOrderById('${o.id}')" class="text-red-500 hover:text-red-700 px-1"><i class="fa-solid fa-trash text-sm"></i></button>
                         </td>
                     </tr>
                 `;
             });
 
-            filteredManual.forEach((m) => {
-                const debt = m.debt || 0;
-                const paid = m.paid || 0;
-                const remaining = debt - paid;
-                filteredTotalDebt += debt;
-                filteredTotalPaid += paid;
-
-                const originalIndex = appData.manualLedgers.findIndex(item => item.id === m.id);
-
+            appData.manualLedgers.filter(m => m.name.toLowerCase().includes(query) || m.phone.includes(query)).forEach((m, idx) => {
+                const remaining = m.debt - m.paid;
                 tbody.innerHTML += `
-                    <tr class="bg-amber-50/40 hover:bg-amber-50">
-                        <td class="p-3 font-semibold">
-                            ${escapeHTML(m.name)}
-                            ${m.taxNo ? `<br><span class="text-[10px] text-slate-400 font-normal">Vergi/TC: ${escapeHTML(m.taxNo)}</span>` : ''}
-                        </td>
+                    <tr class="bg-amber-50/40">
+                        <td class="p-3 font-semibold">${escapeHTML(m.name)}</td>
                         <td class="p-3 text-slate-500">${escapeHTML(m.phone)}</td>
-                        <td class="p-3 text-slate-700">${escapeHTML(m.desc) || '<span class="text-slate-400">Manuel Cari Kart</span>'}</td>
-                        <td class="p-3 text-right font-bold">${debt.toFixed(2)} ₺</td>
-                        <td class="p-3 text-right text-emerald-600 font-bold">${paid.toFixed(2)} ₺</td>
+                        <td class="p-3"><span class="bg-amber-100 text-amber-700 px-2 py-0.5 rounded text-[10px] font-bold">Manuel Cari</span></td>
+                        <td class="p-3 text-right font-bold">${m.debt.toFixed(2)} ₺</td>
+                        <td class="p-3 text-right text-emerald-600 font-bold">${m.paid.toFixed(2)} ₺</td>
                         <td class="p-3 text-right text-red-600 font-black">${remaining.toFixed(2)} ₺</td>
-                        <td class="p-3 text-center space-x-1.5 whitespace-nowrap">
-                            ${remaining > 0.01 ? `<button onclick="addPayment('manual', '${m.id}')" class="bg-blue-600 hover:bg-blue-700 text-white px-2.5 py-1 rounded text-xs font-semibold">Tahsilat Ekle</button>` : '<span class="text-emerald-600 font-bold text-xs bg-emerald-50 px-2 py-1 rounded">Hesap Kapandı</span>'}
-                            <button onclick="editManualLedger(${originalIndex})" class="bg-amber-600 hover:bg-amber-700 text-white px-2 py-1 rounded text-xs font-semibold" title="Düzenle"><i class="fa-solid fa-pen-to-square"></i> Düzenle</button>
-                            <button onclick="deleteManualLedger(${originalIndex})" class="text-red-500 hover:text-red-700 px-1" title="Sil"><i class="fa-solid fa-trash text-sm"></i></button>
+                        <td class="p-3 text-center space-x-1 whitespace-nowrap">
+                            ${remaining > 0 ? `<button onclick="addPayment('manual', '${m.id}')" class="bg-blue-600 text-white px-2.5 py-1 rounded text-xs font-semibold">Tahsilat Ekle</button>` : '<span class="text-emerald-600 font-bold text-xs">Kapandı</span>'}
+                            <button onclick="deleteManualLedger(${idx})" class="text-red-500 hover:text-red-700 px-1"><i class="fa-solid fa-trash text-sm"></i></button>
                         </td>
                     </tr>
                 `;
             });
-
-            let filteredRemaining = filteredTotalDebt - filteredTotalPaid;
-            let grandRemaining = grandTotalDebt - grandTotalPaid;
-
-            let footHtml = '';
-            if (query.trim() !== '') {
-                footHtml += `
-                    <tr class="border-b border-slate-700 bg-blue-950">
-                        <td colspan="3" class="p-3 text-right uppercase tracking-wider text-blue-300">🔍 Arama Filtresi Toplamı:</td>
-                        <td class="p-3 text-right">${filteredTotalDebt.toFixed(2)} ₺</td>
-                        <td class="p-3 text-right text-emerald-400">${filteredTotalPaid.toFixed(2)} ₺</td>
-                        <td class="p-3 text-right text-red-400">${filteredRemaining.toFixed(2)} ₺</td>
-                        <td></td>
-                    </tr>
-                `;
-            }
-            footHtml += `
-                <tr class="bg-slate-900">
-                    <td colspan="3" class="p-3 text-right uppercase tracking-wider">🏢 GENEL CARİ YEKÜN:</td>
-                    <td class="p-3 text-right">${grandTotalDebt.toFixed(2)} ₺</td>
-                    <td class="p-3 text-right text-emerald-400">${grandTotalPaid.toFixed(2)} ₺</td>
-                    <td class="p-3 text-right text-red-400">${grandRemaining.toFixed(2)} ₺</td>
-                    <td></td>
-                </tr>
-            `;
-            tfoot.innerHTML = footHtml;
         }
 
         function deleteArchiveOrderById(id) {
@@ -1722,86 +1582,12 @@
             if(idx !== -1) deleteArchiveOrder(idx);
         }
 
-        async function deleteManualLedger(idx) {
+        function deleteManualLedger(idx) {
             const man = appData.manualLedgers[idx];
             logRecycleItem('Manuel Cari Silindi', `${man.name} cari kaydı silindi.`, man.debt);
             logAuditEvent("Manuel Cari Silindi", `${man.name}`);
             appData.manualLedgers.splice(idx, 1);
-            await saveLocalData();
-        }
-
-        function editManualLedger(idx) {
-            const m = appData.manualLedgers[idx];
-            if(!m) return;
-
-            document.getElementById('editManualIndex').value = idx;
-            document.getElementById('manCustName').value = m.name || '';
-            document.getElementById('manCustPhone').value = m.phone || '';
-            document.getElementById('manCustTaxNo').value = m.taxNo || '';
-            document.getElementById('manCustBalanceType').value = m.balanceType || 'borc';
-            document.getElementById('manCustDebt').value = m.debt || 0;
-            document.getElementById('manCustDesc').value = m.desc || '';
-            
-            document.getElementById('manualSubmitBtn').innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Cari Kartı Güncelle';
-            document.getElementById('manualCancelBtn').classList.remove('hidden');
-            document.getElementById('manualFormTitle').innerHTML = `<i class="fa-solid fa-pen-to-square text-amber-600"></i> CARİ KART DÜZENLE: ${escapeHTML(m.name)}`;
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        function resetManualForm() {
-            document.getElementById('editManualIndex').value = '';
-            document.getElementById('manCustName').value = '';
-            document.getElementById('manCustPhone').value = '';
-            document.getElementById('manCustTaxNo').value = '';
-            document.getElementById('manCustBalanceType').value = 'borc';
-            document.getElementById('manCustDebt').value = '';
-            document.getElementById('manCustDesc').value = '';
-            
-            document.getElementById('manualSubmitBtn').innerHTML = '<i class="fa-solid fa-plus"></i> Cari Kartı Kaydet';
-            document.getElementById('manualCancelBtn').classList.add('hidden');
-            document.getElementById('manualFormTitle').innerHTML = `<i class="fa-solid fa-address-book text-amber-600"></i> PROFESYONEL MÜŞTERİ CARİ KARTI OLUŞTUR / GÜNCELLE`;
-        }
-
-        async function handleManualCustomerSubmit(e) {
-            e.preventDefault();
-            const editIdx = document.getElementById('editManualIndex').value;
-            const name = escapeHTML(document.getElementById('manCustName').value.trim());
-            const phone = escapeHTML(document.getElementById('manCustPhone').value.trim());
-            const taxNo = escapeHTML(document.getElementById('manCustTaxNo').value.trim());
-            const balanceType = document.getElementById('manCustBalanceType').value;
-            const amount = parseFloat(document.getElementById('manCustDebt').value) || 0;
-            const desc = escapeHTML(document.getElementById('manCustDesc').value.trim());
-
-            if(!appData.manualLedgers) appData.manualLedgers = [];
-
-            if(editIdx !== "" && !isNaN(editIdx) && appData.manualLedgers[editIdx]) {
-                appData.manualLedgers[editIdx].name = name;
-                appData.manualLedgers[editIdx].phone = phone;
-                appData.manualLedgers[editIdx].taxNo = taxNo;
-                appData.manualLedgers[editIdx].debt = amount;
-                appData.manualLedgers[editIdx].balanceType = balanceType;
-                appData.manualLedgers[editIdx].desc = desc;
-                
-                logAuditEvent("Manuel Cari Güncellendi", `${name} - Tutar: ${amount} TL`);
-                alert('Müşteri Cari Kartı Başarıyla Güncellendi!');
-            } else {
-                appData.manualLedgers.push({
-                    id: 'MAN-' + Date.now().toString().slice(-4),
-                    name, 
-                    phone, 
-                    taxNo,
-                    debt: amount, 
-                    paid: 0, 
-                    balanceType,
-                    desc,
-                    date: new Date().toLocaleDateString('tr-TR')
-                });
-                logAuditEvent("Yeni Manuel Cari Kart", `${name} - Borç: ${amount} TL`);
-                alert('Yeni Müşteri Cari Kartı Oluşturuldu!');
-            }
-
-            resetManualForm();
-            await saveLocalData();
+            saveLocalData();
         }
 
         function renderTopluLedger() {
@@ -1825,7 +1611,7 @@
                         <td class="p-3 text-right text-emerald-600 font-bold">${(t.paidAmount || 0).toFixed(2)} ₺</td>
                         <td class="p-3 text-right text-red-600 font-black">${remaining.toFixed(2)} ₺</td>
                         <td class="p-3 text-center space-x-1.5 whitespace-nowrap">
-                            ${remaining > 0.01 ? `<button onclick="addPayment('toplu', '${t.id}')" class="bg-blue-600 text-white px-2.5 py-1 rounded text-xs font-semibold">Tahsilat Ekle</button>` : '<span class="text-emerald-600 font-bold text-xs">Kapandı</span>'}
+                            ${remaining > 0 ? `<button onclick="addPayment('toplu', '${t.id}')" class="bg-blue-600 text-white px-2.5 py-1 rounded text-xs font-semibold">Tahsilat Ekle</button>` : '<span class="text-emerald-600 font-bold text-xs">Kapandı</span>'}
                             <button onclick="deleteTopluLedger(${idx})" class="text-red-500 hover:text-red-700 px-1 font-bold"><i class="fa-solid fa-trash text-sm"></i></button>
                         </td>
                     </tr>
@@ -1833,12 +1619,12 @@
             });
         }
 
-        async function deleteTopluLedger(idx) {
+        function deleteTopluLedger(idx) {
             const t = appData.topluLedgers[idx];
             logRecycleItem('Toplu Montaj Kaydı Silindi', `${t.customerName} (${t.id}) toplu montaj defterinden silindi.`, t.totalAmount);
             logAuditEvent("Toplu Montaj Kaydı Silindi", `${t.customerName} - ${t.id}`);
             appData.topluLedgers.splice(idx, 1);
-            await saveLocalData();
+            saveLocalData();
         }
 
         function openOrderDetailModal(orderId) {
@@ -1939,142 +1725,66 @@
             });
         }
 
-        async function deleteSingleRecycleItem(idx) {
+        function deleteSingleRecycleItem(idx) {
             if(confirm("Bu kaydı kalıcı olarak silmek istediğinize emin misiniz?")) {
                 const item = appData.recycleBin[idx];
                 logAuditEvent("Kalıcı Çöp Silindi", `${item.type} - ${item.desc}`);
                 appData.recycleBin.splice(idx, 1);
-                await saveLocalData();
-                renderRecycleBin();
+                saveLocalData();
             }
         }
 
-        async function emptyRecycleBin() {
+        function emptyRecycleBin() {
             if(confirm("Geri dönüşüm kutusunu TAMAMEN boşaltmak istediğinize emin misiniz?")) {
                 logAuditEvent("Çöp Kovası Boşaltıldı", "Tüm silinmiş veriler temizlendi.");
                 appData.recycleBin = [];
-                await saveLocalData();
-                renderRecycleBin();
-                alert('Çöp kovası tamamen boşaltıldı ve buluta işlendi.');
+                saveLocalData();
+                alert('Çöp kovası tamamen boşaltıldı.');
             }
         }
 
-        async function addPayment(type, id) {
+        function addManualCustomerLedger(e) {
+            e.preventDefault();
+            const name = escapeHTML(document.getElementById('manCustName').value.trim());
+            const phone = escapeHTML(document.getElementById('manCustPhone').value.trim());
+            const debt = parseFloat(document.getElementById('manCustDebt').value) || 0;
+
+            appData.manualLedgers.push({
+                id: 'MAN-' + Date.now().toString().slice(-4),
+                name, phone, debt, paid: 0
+            });
+
+            saveLocalData();
+            logAuditEvent("Manuel Cari Eklendi", `${name} - Borç: ${debt} TL`);
+            document.getElementById('manCustName').value = '';
+            document.getElementById('manCustPhone').value = '';
+            document.getElementById('manCustDebt').value = '';
+            alert('Manuel Müşteri Cari Kartı Deftere Eklendi!');
+        }
+
+        function addPayment(type, id) {
             let target = null;
             if(type === 'archive') target = appData.archive.find(o => o.id === id);
             if(type === 'manual') target = appData.manualLedgers.find(m => m.id === id);
             if(type === 'toplu') target = appData.topluLedgers.find(t => t.id === id);
 
-            if(!target) return alert('İlgili cari kayıt bulunamadı!');
+            if(!target) return;
+            const remaining = (target.totalAmount || target.debt) - (target.paidAmount || target.paid || 0);
+            const amt = parseFloat(prompt(`Alınan tahsilat tutarı (Kalan Borç: ${remaining.toFixed(2)} ₺):`));
             
-            const total = target.totalAmount !== undefined ? target.totalAmount : (target.debt || 0);
-            const currentPaid = type === 'manual' ? (target.paid || 0) : (target.paidAmount || 0);
-            const remaining = total - currentPaid;
-            
-            const amtStr = prompt(`Alınan tahsilat tutarını giriniz (Kalan Borç: ${remaining.toFixed(2)} ₺):`);
-            if(amtStr === null) return;
-            const amt = parseFloat(amtStr);
-            
-            if(!isNaN(amt) && amt > 0) {
-                if(amt > remaining + 0.01) {
-                    alert('Tahsilat tutarı kalan bakiyeden büyük olamaz!');
-                    return;
-                }
+            if(amt && !isNaN(amt)) {
+                if(type === 'manual') target.paid = (target.paid || 0) + amt;
+                else target.paidAmount = (target.paidAmount || 0) + amt;
 
-                if(type === 'manual') {
-                    target.paid = (target.paid || 0) + amt;
-                } else {
-                    target.paidAmount = (target.paidAmount || 0) + amt;
-                }
-
-                await saveLocalData();
-                logAuditEvent("Tahsilat Eklendi", `${target.customerName || target.name} - Tahsil Edilen: ${amt.toFixed(2)} TL`);
-
-                if(confirm("Tahsilat makbuzu yazdırmak ister misiniz?")) {
-                    printTahsilatMakbuzu(target, amt, total, type === 'manual' ? target.paid : target.paidAmount);
-                }
-            } else if(amtStr !== "") {
-                alert("Lütfen geçerli bir tutar giriniz!");
+                saveLocalData();
+                logAuditEvent("Tahsilat Eklendi", `${target.customerName || target.name} - Tutar: ${amt} TL`);
             }
-        }
-
-        function printTahsilatMakbuzu(target, tahsilatTutari, toplamBorc, yeniOdenen) {
-            const containerMakbuz = document.getElementById('printContainerMakbuz');
-            document.getElementById('printContainerA4').innerHTML = '';
-            document.getElementById('printContainerZebra').innerHTML = '';
-
-            const name = target.customerName || target.name;
-            const phone = target.customerPhone || target.phone || '';
-            const kalanBakiye = toplamBorc - yeniOdenen;
-            const makbuzNo = 'NO-' + Math.floor(100000 + Math.random() * 900000);
-            const tarih = new Date().toLocaleDateString('tr-TR');
-
-            containerMakbuz.innerHTML = `
-                <div class="makbuz-print-container" style="padding: 10mm; font-size: 11pt;">
-                    <div style="display: flex; justify-content: space-between; border-bottom: 2px solid #000; padding-bottom: 8px; margin-bottom: 10px;">
-                        <div>
-                            <h2 style="font-size: 16pt; font-weight: bold; margin:0;">FİX HOUSE</h2>
-                            <p style="font-size: 9pt; margin: 2px 0;">PLİSE PERDE VE SİNEKLİK SİSTEMLERİ</p>
-                            <p style="font-size: 8.5pt; margin: 0;">Sürsürü Mh. Şht. Emn. Amiri Mustafa Cebeloğlu Sk. A Blok No:14/D ELAZIĞ</p>
-                        </div>
-                        <div style="text-align: right;">
-                            <h3 style="font-size: 12pt; font-weight: bold; margin: 0;">Kadir YILDIRIM</h3>
-                            <p style="font-size: 10pt; margin: 2px 0;"><b>+90 (533) 443 32 23</b></p>
-                            <h2 style="color: #b91c1c; font-size: 14pt; margin: 4px 0;">TAHSİLAT MAKBUZU</h2>
-                            <p style="font-size: 10pt; margin: 0;"><b>${makbuzNo}</b></p>
-                            <p style="font-size: 9.5pt; margin: 2px 0;">Tarih: <b>${tarih}</b></p>
-                        </div>
-                    </div>
-
-                    <div style="display: flex; gap: 10px; margin-bottom: 10px;">
-                        <table style="width: 35%; border-collapse: collapse; font-size: 10pt;">
-                            <tr><td style="border: 1px solid #000; padding: 4px; background:#f1f5f9;">Bakiye</td><td style="border: 1px solid #000; padding: 4px; text-align:right;">${toplamBorc.toFixed(2)} ₺</td></tr>
-                            <tr><td style="border: 1px solid #000; padding: 4px; background:#f1f5f9;">Tahsilat Tutarı</td><td style="border: 1px solid #000; padding: 4px; text-align:right; font-weight:bold; color:#15803d;">${tahsilatTutari.toFixed(2)} ₺</td></tr>
-                            <tr><td style="border: 1px solid #000; padding: 4px; background:#f1f5f9;">Kalan Bakiye</td><td style="border: 1px solid #000; padding: 4px; text-align:right; font-weight:bold; color:#b91c1c;">${kalanBakiye.toFixed(2)} ₺</td></tr>
-                        </table>
-                        <div style="width: 65%; border: 1px solid #000; padding: 6px; font-size: 10.5pt; display:flex; flex-direction:column; justify-content:space-between;">
-                            <div><b>Sayın:</b> ${escapeHTML(name)} (${phone})</div>
-                            <div><b>Tahsil Edilen Tutar:</b> ${tahsilatTutari.toFixed(2)} Türk Lirası</div>
-                            <div style="font-size: 9.5pt; color: #475569;">Yukarıda belirtilen meblağ cari hesabınıza karşılık tahsil edilmiştir.</div>
-                        </div>
-                    </div>
-
-                    <table style="width: 100%; border-collapse: collapse; font-size: 10pt; margin-bottom: 15px;">
-                        <thead>
-                            <tr style="background: #e2e8f0;">
-                                <th style="border: 1px solid #000; padding: 5px;">Ödeme Türü</th>
-                                <th style="border: 1px solid #000; padding: 5px;">Banka / Açıklama</th>
-                                <th style="border: 1px solid #000; padding: 5px;">Çek No</th>
-                                <th style="border: 1px solid #000; padding: 5px;">Vade</th>
-                                <th style="border: 1px solid #000; padding: 5px; text-align:right;">Tutar (₺)</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td style="border: 1px solid #000; padding: 5px; font-weight:bold;">NAKİT</td>
-                                <td style="border: 1px solid #000; padding: 5px;">Elden Tahsilat</td>
-                                <td style="border: 1px solid #000; padding: 5px;">-</td>
-                                <td style="border: 1px solid #000; padding: 5px;">-</td>
-                                <td style="border: 1px solid #000; padding: 5px; text-align:right; font-weight:bold;">${tahsilatTutari.toFixed(2)} ₺</td>
-                            </tr>
-                            <tr><td style="border: 1px solid #000; padding: 5px;">K. KARTI</td><td style="border: 1px solid #000; padding: 5px;"></td><td style="border: 1px solid #000; padding: 5px;"></td><td style="border: 1px solid #000; padding: 5px;"></td><td style="border: 1px solid #000; padding: 5px;"></td></tr>
-                            <tr><td style="border: 1px solid #000; padding: 5px;">ÇEK / SENET</td><td style="border: 1px solid #000; padding: 5px;"></td><td style="border: 1px solid #000; padding: 5px;"></td><td style="border: 1px solid #000; padding: 5px;"></td><td style="border: 1px solid #000; padding: 5px;"></td></tr>
-                        </tbody>
-                    </table>
-
-                    <div style="display: flex; justify-content: space-between; font-size: 10pt; margin-top: 20px;">
-                        <div>Tahsil Eden: <b>Kadir YILDIRIM</b></div>
-                        <div>Müşteri İmza: ....................................................</div>
-                    </div>
-                </div>
-            `;
-            window.print();
         }
 
         function renderFinance() {
             let totalSales = 0, totalCollected = 0;
             appData.archive.forEach(o => { totalSales += o.totalAmount; totalCollected += (o.paidAmount || 0); });
-            appData.manualLedgers.forEach(m => { totalSales += m.debt; totalCollected += (m.paid || 0); });
+            appData.manualLedgers.forEach(m => { totalSales += m.debt; totalCollected += m.paid; });
             if(appData.topluLedgers) appData.topluLedgers.forEach(t => { if(t.isManual) { totalSales += t.totalAmount; totalCollected += (t.paidAmount || 0); } });
 
             let totalExpense = appData.expenses.reduce((sum, e) => sum + e.amount, 0);
@@ -2101,23 +1811,124 @@
             });
         }
 
-        async function addExpense(e) {
+        function addExpense(e) {
             e.preventDefault();
             const desc = escapeHTML(document.getElementById('expDesc').value);
             const amount = parseFloat(document.getElementById('expAmount').value);
             appData.expenses.push({ date: new Date().toLocaleDateString('tr-TR'), desc: desc, amount: amount });
-            await saveLocalData();
+            saveLocalData();
             logAuditEvent("Kasa Gideri Eklendi", `${desc} - ${amount} TL`);
             document.getElementById('expDesc').value = '';
             document.getElementById('expAmount').value = '';
         }
 
-        async function deleteExpense(idx) {
+        function deleteExpense(idx) {
             const exp = appData.expenses[idx];
             logRecycleItem('Kasa Gideri Silindi', `${exp.desc} gideri silindi.`, exp.amount);
             logAuditEvent("Kasa Gideri Silindi", `${exp.desc}`);
             appData.expenses.splice(idx, 1);
-            await saveLocalData();
+            saveLocalData();
+        }
+
+        function runOptimization() {
+            const container = document.getElementById('optimizationResults');
+            if(!container) return;
+            container.innerHTML = '';
+
+            let groups = {};
+            const KERF = 0.4;
+
+            [...appData.cart, ...appData.archive].forEach(o => o.items.forEach(i => {
+                let isDikey = i.dir === 'dikey';
+                let sysName = i.pType === 'plise' ? (isDikey ? 'Dikey Açılır Plise' : 'Yatay Açılır Plise') : 'Menteşeli';
+                let groupKey = `${i.color} Profil ➜ ${sysName}`;
+
+                if(!groups[groupKey]) groups[groupKey] = [];
+
+                let inputEn = parseFloat(i.en);
+                let inputBoy = parseFloat(i.boy);
+                let qty = i.qty || 1;
+
+                let enVal = isDikey ? inputBoy : inputEn;
+                let boyVal = isDikey ? inputEn : inputBoy;
+
+                for(let q=0; q<qty; q++) {
+                    if(i.pType === 'plise') {
+                        if(!isDikey) {
+                            groups[groupKey].push({ name: `${o.customerName} (#${i.seq}) EN (1/2)`, len: enVal });
+                            groups[groupKey].push({ name: `${o.customerName} (#${i.seq}) EN (2/2)`, len: enVal });
+                            groups[groupKey].push({ name: `${o.customerName} (#${i.seq}) BOY (1/3)`, len: boyVal });
+                            groups[groupKey].push({ name: `${o.customerName} (#${i.seq}) BOY (2/3)`, len: boyVal });
+                            groups[groupKey].push({ name: `${o.customerName} (#${i.seq}) BOY (3/3)`, len: boyVal });
+                        } else {
+                            groups[groupKey].push({ name: `${o.customerName} (#${i.seq}) EN (1/3)`, len: enVal });
+                            groups[groupKey].push({ name: `${o.customerName} (#${i.seq}) EN (2/3)`, len: enVal });
+                            groups[groupKey].push({ name: `${o.customerName} (#${i.seq}) EN (3/3)`, len: enVal });
+                            groups[groupKey].push({ name: `${o.customerName} (#${i.seq}) BOY (1/2)`, len: boyVal });
+                            groups[groupKey].push({ name: `${o.customerName} (#${i.seq}) BOY (2/2)`, len: boyVal });
+                        }
+                    } else {
+                        if(i.tac !== "-") groups[groupKey].push({ name: `${o.customerName} (#${i.seq}) TAÇ`, len: parseFloat(i.tac) });
+                        if(i.dikme !== "-") groups[groupKey].push({ name: `${o.customerName} (#${i.seq}) DİKME`, len: parseFloat(i.dikme) });
+                    }
+                }
+            }));
+
+            if(Object.keys(groups).length === 0) {
+                return container.innerHTML = '<div class="text-slate-400 py-4">Hesaplanacak aktif sipariş kesim boyu bulunamadı.</div>';
+            }
+
+            for(let groupKey in groups) {
+                let cuts = groups[groupKey];
+                if(cuts.length === 0) continue;
+
+                cuts.sort((a,b) => b.len - a.len);
+                let profiles = [];
+
+                cuts.forEach(cut => {
+                    let placed = false;
+                    for(let p of profiles) {
+                        let requiredLen = cut.len + KERF;
+                        if(p.remaining >= requiredLen) {
+                            p.cuts.push(cut);
+                            p.remaining -= requiredLen;
+                            placed = true;
+                            break;
+                        }
+                    }
+                    if(!placed) {
+                        profiles.push({ id: profiles.length + 1, remaining: 600 - (cut.len + KERF), cuts: [cut] });
+                    }
+                });
+
+                let groupHtml = `
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-3">
+                        <div class="flex justify-between items-center border-b pb-2">
+                            <h3 class="font-bold text-sm md:text-base text-slate-800 flex items-center gap-2">
+                                <i class="fa-solid fa-layer-group text-blue-600"></i> ${escapeHTML(groupKey)}
+                            </h3>
+                            <span class="bg-blue-100 text-blue-700 font-bold px-2.5 py-1 rounded text-xs md:text-sm">Gerekli Profil: ${profiles.length} Boy (600 cm)</span>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                `;
+
+                profiles.forEach(p => {
+                    groupHtml += `
+                        <div class="bg-slate-50 p-3 rounded-lg border border-slate-200 text-xs md:text-sm">
+                            <div class="font-bold text-blue-700 flex justify-between">
+                                <span>Profil Boyu #${p.id} (600 cm)</span>
+                                <span class="text-slate-500">Kalan Fire: <b>${p.remaining.toFixed(1)} cm</b></span>
+                            </div>
+                            <div class="text-slate-600 mt-2 space-y-1">
+                                ${p.cuts.map(c => `<div class="bg-white p-1 rounded border border-slate-200 flex justify-between"><span>${escapeHTML(c.name)}</span> <b class="text-slate-800">${c.len} cm</b></div>`).join('')}
+                            </div>
+                        </div>
+                    `;
+                });
+
+                groupHtml += `</div></div>`;
+                container.innerHTML += groupHtml;
+            }
         }
 
         function renderProductRecipes() {
@@ -2178,7 +1989,7 @@
             });
         }
 
-        async function addNewProductGroupPrompt() {
+        function addNewProductGroupPrompt() {
             const name = prompt("Yeni Ürün Grubu Adı (Örn: Kasalı Plise Sineklik):");
             if(!name) return;
             if(!appData.settings.productGroups) appData.settings.productGroups = [];
@@ -2189,19 +2000,19 @@
                 accessories: []
             });
 
-            await saveLocalData();
+            saveLocalData();
             renderProductRecipes();
         }
 
-        async function deleteProductGroup(gIdx) {
+        function deleteProductGroup(gIdx) {
             if(confirm(`"${appData.settings.productGroups[gIdx].name}" ürün grubunu silmek istiyor musunuz?`)) {
                 appData.settings.productGroups.splice(gIdx, 1);
-                await saveLocalData();
+                saveLocalData();
                 renderProductRecipes();
             }
         }
 
-        async function addNewAccessoryToGroupPrompt(gIdx) {
+        function addNewAccessoryToGroupPrompt(gIdx) {
             const name = prompt("Aksesuar / Malzeme Adı:");
             if(!name) return;
             const unit = prompt("Hesap Birimi (Metre, m², Adet, Set vb.):", "Adet") || "Adet";
@@ -2211,18 +2022,18 @@
                 id: "acc-" + Date.now(), name: escapeHTML(name), unit: escapeHTML(unit), cost: cost
             });
 
-            await saveLocalData();
+            saveLocalData();
             renderProductRecipes();
         }
 
-        async function updateGroupAccessoryCost(gIdx, aIdx, val) {
+        function updateGroupAccessoryCost(gIdx, aIdx, val) {
             appData.settings.productGroups[gIdx].accessories[aIdx].cost = parseFloat(val) || 0;
-            await saveLocalData();
+            saveLocalData();
         }
 
-        async function deleteGroupAccessory(gIdx, aIdx) {
+        function deleteGroupAccessory(gIdx, aIdx) {
             appData.settings.productGroups[gIdx].accessories.splice(aIdx, 1);
-            await saveLocalData();
+            saveLocalData();
             renderProductRecipes();
         }
 
@@ -2230,19 +2041,18 @@
             const order = orderData || getOrderDataFromForm();
             const containerA4 = document.getElementById('printContainerA4');
             document.getElementById('printContainerZebra').innerHTML = '';
-            document.getElementById('printContainerMakbuz').innerHTML = '';
 
             containerA4.innerHTML = `
                 <div class="a4-print-container">
                     <div class="print-border-box flex justify-between items-center">
                         <div>
-                            <h1 class="font-bold" style="font-size: 13pt;">FİX HOUSE 23 SİNEKLİK İMALAT & ÖLÇÜ FORMU</h1>
-                            <p style="font-size: 10pt;">Sipariş / Fiş No: <b>${order.id}</b> | Tarih: <b>${order.date}</b></p>
+                            <h1 class="font-bold" style="font-size: 11pt;">FİX HOUSE 23 SİNEKLİK İMALAT & ÖLÇÜ FORMU</h1>
+                            <p style="font-size: 7.5pt;">Sipariş / Fiş No: <b>${order.id}</b> | Tarih: <b>${order.date}</b></p>
                         </div>
                         <div class="text-right">
-                            <h2 class="font-bold" style="font-size: 11pt;">${escapeHTML(order.customerName)}</h2>
-                            <p style="font-size: 10pt;">${escapeHTML(order.customerPhone)}</p>
-                            <p style="font-size: 9.5pt;">${escapeHTML(order.customerAddress) || ''}</p>
+                            <h2 class="font-bold" style="font-size: 9.5pt;">${escapeHTML(order.customerName)}</h2>
+                            <p style="font-size: 8pt;">${escapeHTML(order.customerPhone)}</p>
+                            <p style="font-size: 7.5pt;">${escapeHTML(order.customerAddress) || ''}</p>
                         </div>
                     </div>
 
@@ -2261,7 +2071,7 @@
                                     <td>${i.mType === 'ic' ? 'İç':'Dış'}</td>
                                     <td>${i.pType === 'plise' ? 'Plise':'Menteşeli'}</td>
                                     <td>${i.color}</td>
-                                    <td>${i.dir || ''} ${i.menteseliTip || ''} ${i.tulType} ${i.caseType || ''} ${i.magnetType === 'var' ? 'Mıknatıslı':''}</td>
+                                    <td>${i.dir} ${i.magnetType || ''} ${i.tulType} ${i.caseType || ''}</td>
                                     <td><b>${i.en}</b></td>
                                     <td><b>${i.boy}</b></td>
                                     <td>${escapeHTML(i.note) || '-'}</td>
@@ -2276,7 +2086,7 @@
                         </tbody>
                     </table>
                     
-                    <div class="print-border-box flex justify-between items-center" style="font-size: 10pt; margin-top: 6px;">
+                    <div class="print-border-box flex justify-between items-center" style="font-size: 8pt; margin-top: 4px;">
                         <span>Sipariş Kalem Sayısı: <b>${order.items.length} Kalem</b></span>
                         <span>Teslim Eden / İmalat: <b>Fix House 23 Sürsürü / Elazığ</b></span>
                         <span>Müşteri İmza: _______________________</span>
@@ -2289,7 +2099,6 @@
         function printZebraLabels(type, orderData = null) {
             const order = orderData || getOrderDataFromForm();
             document.getElementById('printContainerA4').innerHTML = '';
-            document.getElementById('printContainerMakbuz').innerHTML = '';
             const containerZebra = document.getElementById('printContainerZebra');
             containerZebra.innerHTML = '';
 
@@ -2324,12 +2133,12 @@
             }
         }
 
-        async function saveSettings() {
+        function saveSettings() {
             appData.settings.montajPrice = parseFloat(document.getElementById('settingMontajPrice').value) || 220;
             appData.settings.perakendePrice = parseFloat(document.getElementById('settingPerakendePrice').value) || 300;
             appData.settings.kdvRate = parseFloat(document.getElementById('settingKdvRate').value) || 20;
             appData.settings.minM2 = parseFloat(document.getElementById('settingMinM2').value) || 1.0;
-            await saveLocalData();
+            saveLocalData();
             logAuditEvent("Fiyatlandırma Ayarları Güncellendi", `Montajlı: ${appData.settings.montajPrice} TL, Perakende: ${appData.settings.perakendePrice} TL`);
             alert('Ayarlar Başarıyla Kaydedildi ve Buluta Yüklendi!');
             calculateAllRows();
@@ -2342,12 +2151,12 @@
             a.click();
         }
 
-        async function importBackup(e) {
+        function importBackup(e) {
             const reader = new FileReader();
-            reader.onload = async function(evt) {
+            reader.onload = function(evt) {
                 try { 
                     appData = JSON.parse(evt.target.result); 
-                    await saveLocalData(); 
+                    saveLocalData(); 
                     location.reload(); 
                 } catch(err) { 
                     alert('Hatalı veya bozuk yedek dosyası!'); 
