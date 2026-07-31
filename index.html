@@ -334,6 +334,8 @@
                                 </tr>
                             </thead>
                             <tbody id="fullCustomerLedgerBody" class="divide-y divide-slate-200"></tbody>
+                            <!-- DİNAMİK VE GENEL TOPLAM SATIRI -->
+                            <tfoot id="ledgerTableFoot" class="bg-slate-900 text-white font-bold text-xs md:text-sm"></tfoot>
                         </table>
                     </div>
                 </div>
@@ -624,7 +626,7 @@
 
     <script>
         const SHEETS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxPwtNChpye0O2n3ugRPgk_saqel4mo5kxBWicCfEdUc6HNpTuSwBkrDIPMCAVGx4h2/exec";
-        const STORAGE_KEY = "fix_house_23_data_v726";
+        const STORAGE_KEY = "fix_house_23_data_v727";
 
         const DEFAULT_SETTINGS = {
             montajPrice: 220,
@@ -1062,7 +1064,6 @@
                 if(colorSelect.value) {
                     const pType = pTypeSelect.value;
                     if(pType === 'plise') {
-                        // Plise için Şerit Mıknatıs eklendi
                         optsContainer.innerHTML = `
                             <label class="block font-semibold text-slate-600 mb-1">Diğer Seçenekler</label>
                             <div class="grid grid-cols-4 gap-1">
@@ -1241,21 +1242,18 @@
             let unitPrice = (tariff === 'montajli') ? appData.settings.montajPrice : appData.settings.perakendePrice;
             let rowPrice = multiplier * unitPrice;
 
-            // Polen Tülü Fiyatlandırması (Reçeteden alınır)
             if(pType === 'plise' && tulSelect && tulSelect.value === 'polen') {
                 let polenCost = getRecipeCost('pg-plise', 'acc-polen-tul');
                 let actualM2 = ((rawEn * rawBoy) / 10000) * qty;
                 rowPrice += Math.max(actualM2, appData.settings.minM2) * polenCost; 
             }
 
-            // Kedi Tülü Fiyatlandırması (Reçeteden alınır)
             if(pType === 'menteseli' && tulSelect && tulSelect.value === 'kedi') {
                 let kediCost = getRecipeCost('pg-mentese', 'acc-kedi-tul');
                 let actualM2 = ((rawEn * rawBoy) / 10000) * qty;
                 rowPrice += Math.max(actualM2, appData.settings.minM2) * kediCost;
             }
 
-            // Şerit Mıknatıs Fiyatlandırması (Reçetedeki metre birim fiyatı ile çevre metre hesabı)
             if(pType === 'plise' && magnetSelect && magnetSelect.value === 'var') {
                 let magnetMeterCost = getRecipeCost('pg-plise', 'acc-serit-miknatis');
                 let perimeterM = (perimeterCm / 100);
@@ -1588,12 +1586,31 @@
 
         function renderLedgerTab() {
             const tbody = document.getElementById('fullCustomerLedgerBody');
-            if(!tbody) return;
+            const tfoot = document.getElementById('ledgerTableFoot');
+            if(!tbody || !tfoot) return;
+            
             tbody.innerHTML = '';
             const query = (document.getElementById('ledgerSearchInput')?.value || '').toLowerCase();
 
-            appData.archive.filter(o => o.customerName.toLowerCase().includes(query) || o.customerPhone.includes(query)).forEach(o => {
-                const remaining = o.totalAmount - (o.paidAmount || 0);
+            let filteredArchive = appData.archive.filter(o => o.customerName.toLowerCase().includes(query) || o.customerPhone.includes(query));
+            let filteredManual = appData.manualLedgers.filter(m => m.name.toLowerCase().includes(query) || m.phone.includes(query));
+
+            let filteredTotalDebt = 0;
+            let filteredTotalPaid = 0;
+
+            let grandTotalDebt = 0;
+            let grandTotalPaid = 0;
+
+            // Genel Toplamlar (Filtreden bağımsız tümü)
+            appData.archive.forEach(o => { grandTotalDebt += o.totalAmount; grandTotalPaid += (o.paidAmount || 0); });
+            appData.manualLedgers.forEach(m => { grandTotalDebt += m.debt; grandTotalPaid += (m.paid || 0); });
+
+            filteredArchive.forEach(o => {
+                const paid = o.paidAmount || 0;
+                const remaining = o.totalAmount - paid;
+                filteredTotalDebt += o.totalAmount;
+                filteredTotalPaid += paid;
+
                 tbody.innerHTML += `
                     <tr>
                         <td class="p-3 font-semibold flex items-center gap-2">
@@ -1603,7 +1620,7 @@
                         <td class="p-3 text-slate-500">${escapeHTML(o.customerPhone)}</td>
                         <td class="p-3"><span class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-[10px] font-bold">Sipariş (${o.id})</span></td>
                         <td class="p-3 text-right font-bold">${o.totalAmount.toFixed(2)} ₺</td>
-                        <td class="p-3 text-right text-emerald-600 font-bold">${(o.paidAmount || 0).toFixed(2)} ₺</td>
+                        <td class="p-3 text-right text-emerald-600 font-bold">${paid.toFixed(2)} ₺</td>
                         <td class="p-3 text-right text-red-600 font-black">${remaining.toFixed(2)} ₺</td>
                         <td class="p-3 text-center space-x-1 whitespace-nowrap">
                             ${remaining > 0 ? `<button onclick="addPayment('archive', '${o.id}')" class="bg-blue-600 text-white px-2.5 py-1 rounded text-xs font-semibold">Tahsilat Ekle</button>` : '<span class="text-emerald-600 font-bold text-xs">Kapandı</span>'}
@@ -1613,15 +1630,19 @@
                 `;
             });
 
-            appData.manualLedgers.filter(m => m.name.toLowerCase().includes(query) || m.phone.includes(query)).forEach((m, idx) => {
-                const remaining = m.debt - (m.paid || 0);
+            filteredManual.forEach((m, idx) => {
+                const paid = m.paid || 0;
+                const remaining = m.debt - paid;
+                filteredTotalDebt += m.debt;
+                filteredTotalPaid += paid;
+
                 tbody.innerHTML += `
                     <tr class="bg-amber-50/40">
                         <td class="p-3 font-semibold">${escapeHTML(m.name)}</td>
                         <td class="p-3 text-slate-500">${escapeHTML(m.phone)}</td>
                         <td class="p-3 text-slate-700">${escapeHTML(m.desc) || '<span class="text-slate-400">Açıklama yok</span>'}</td>
                         <td class="p-3 text-right font-bold">${m.debt.toFixed(2)} ₺</td>
-                        <td class="p-3 text-right text-emerald-600 font-bold">${(m.paid || 0).toFixed(2)} ₺</td>
+                        <td class="p-3 text-right text-emerald-600 font-bold">${paid.toFixed(2)} ₺</td>
                         <td class="p-3 text-right text-red-600 font-black">${remaining.toFixed(2)} ₺</td>
                         <td class="p-3 text-center space-x-1 whitespace-nowrap">
                             ${remaining > 0 ? `<button onclick="addPayment('manual', '${m.id}')" class="bg-blue-600 text-white px-2.5 py-1 rounded text-xs font-semibold">Tahsilat Ekle</button>` : '<span class="text-emerald-600 font-bold text-xs">Kapandı</span>'}
@@ -1630,6 +1651,33 @@
                     </tr>
                 `;
             });
+
+            let filteredRemaining = filteredTotalDebt - filteredTotalPaid;
+            let grandRemaining = grandTotalDebt - grandTotalPaid;
+
+            // Tfoot içeriği (Filtrelenen ve Genel Toplamlar)
+            let footHtml = '';
+            if (query.trim() !== '') {
+                footHtml += `
+                    <tr class="border-b border-slate-700 bg-blue-950">
+                        <td colspan="3" class="p-3 text-right uppercase tracking-wider text-blue-300">🔍 Arama Filtresi Toplamı:</td>
+                        <td class="p-3 text-right">${filteredTotalDebt.toFixed(2)} ₺</td>
+                        <td class="p-3 text-right text-emerald-400">${filteredTotalPaid.toFixed(2)} ₺</td>
+                        <td class="p-3 text-right text-red-400">${filteredRemaining.toFixed(2)} ₺</td>
+                        <td></td>
+                    </tr>
+                `;
+            }
+            footHtml += `
+                <tr class="bg-slate-900">
+                    <td colspan="3" class="p-3 text-right uppercase tracking-wider">🏢 GENEL TOPLAM YEKÜN:</td>
+                    <td class="p-3 text-right">${grandTotalDebt.toFixed(2)} ₺</td>
+                    <td class="p-3 text-right text-emerald-400">${grandTotalPaid.toFixed(2)} ₺</td>
+                    <td class="p-3 text-right text-red-400">${grandRemaining.toFixed(2)} ₺</td>
+                    <td></td>
+                </tr>
+            `;
+            tfoot.innerHTML = footHtml;
         }
 
         function deleteArchiveOrderById(id) {
@@ -1900,7 +1948,7 @@
                         </thead>
                         <tbody>
                             <tr>
-                                <td style="border: 1px solid #000; padding: 5px; font-weight:bold;">NADİT / NAKİT</td>
+                                <td style="border: 1px solid #000; padding: 5px; font-weight:bold;">NAKİT</td>
                                 <td style="border: 1px solid #000; padding: 5px;">Elden Tahsilat</td>
                                 <td style="border: 1px solid #000; padding: 5px;">-</td>
                                 <td style="border: 1px solid #000; padding: 5px;">-</td>
