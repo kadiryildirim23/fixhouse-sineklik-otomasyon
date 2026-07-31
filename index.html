@@ -296,17 +296,21 @@
 
             <div id="ledger-sub-standart" class="space-y-6">
                 <div class="bg-white rounded-xl p-4 md:p-6 shadow-sm border border-slate-200">
-                    <h2 class="text-base md:text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+                    <h2 id="manualFormTitle" class="text-base md:text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
                         <i class="fa-solid fa-address-book text-amber-600"></i> MANUEL MÜŞTERİ CARİ KARTI OLUŞTUR / BORÇLANDIR (AÇIKLAMA DESTEKLİ)
                     </h2>
-                    <form onsubmit="addManualCustomerLedger(event)" class="grid grid-cols-1 md:grid-cols-5 gap-3">
+                    <form onsubmit="handleManualCustomerSubmit(event)" class="grid grid-cols-1 md:grid-cols-5 gap-3">
+                        <input type="hidden" id="editManualIndex" value="">
                         <input type="text" id="manCustName" placeholder="Müşteri Adı Soyadı *" required class="px-3 py-2.5 text-xs md:text-sm border border-slate-300 rounded-lg">
                         <input type="tel" id="manCustPhone" placeholder="Telefon Numarası *" required class="px-3 py-2.5 text-xs md:text-sm border border-slate-300 rounded-lg">
                         <input type="number" id="manCustDebt" step="0.01" placeholder="Açılış Borç Tutarı (₺) *" required class="px-3 py-2.5 text-xs md:text-sm border border-slate-300 rounded-lg">
                         <input type="text" id="manCustDesc" placeholder="İşlem Açıklaması (Örn: Özel sipariş borcu)" class="px-3 py-2.5 text-xs md:text-sm border border-slate-300 rounded-lg">
-                        <button type="submit" class="bg-amber-600 hover:bg-amber-700 text-white text-xs md:text-sm font-semibold rounded-lg py-2.5">
-                            <i class="fa-solid fa-plus"></i> Cari Deftere Ekle
-                        </button>
+                        <div class="flex gap-2">
+                            <button type="submit" id="manualSubmitBtn" class="flex-grow bg-amber-600 hover:bg-amber-700 text-white text-xs md:text-sm font-semibold rounded-lg py-2.5">
+                                <i class="fa-solid fa-plus"></i> Cari Deftere Ekle
+                            </button>
+                            <button type="button" id="manualCancelBtn" onclick="resetManualForm()" class="hidden bg-slate-500 hover:bg-slate-600 text-white text-xs px-3 rounded-lg py-2.5">İptal</button>
+                        </div>
                     </form>
                 </div>
 
@@ -625,7 +629,7 @@
 
     <script>
         const SHEETS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxPwtNChpye0O2n3ugRPgk_saqel4mo5kxBWicCfEdUc6HNpTuSwBkrDIPMCAVGx4h2/exec";
-        const STORAGE_KEY = "fix_house_23_data_v728";
+        const STORAGE_KEY = "fix_house_23_data_v729";
 
         const DEFAULT_SETTINGS = {
             montajPrice: 220,
@@ -1640,9 +1644,10 @@
                         <td class="p-3 text-right font-bold">${m.debt.toFixed(2)} ₺</td>
                         <td class="p-3 text-right text-emerald-600 font-bold">${paid.toFixed(2)} ₺</td>
                         <td class="p-3 text-right text-red-600 font-black">${remaining.toFixed(2)} ₺</td>
-                        <td class="p-3 text-center space-x-1 whitespace-nowrap">
-                            ${remaining > 0 ? `<button onclick="addPayment('manual', '${m.id}')" class="bg-blue-600 text-white px-2.5 py-1 rounded text-xs font-semibold">Tahsilat Ekle</button>` : '<span class="text-emerald-600 font-bold text-xs">Kapandı</span>'}
-                            <button onclick="deleteManualLedger(${idx})" class="text-red-500 hover:text-red-700 px-1"><i class="fa-solid fa-trash text-sm"></i></button>
+                        <td class="p-3 text-center space-x-1.5 whitespace-nowrap">
+                            ${remaining > 0 ? `<button onclick="addPayment('manual', '${m.id}')" class="bg-blue-600 text-white px-2 py-1 rounded text-xs font-semibold">Tahsilat Ekle</button>` : '<span class="text-emerald-600 font-bold text-xs">Kapandı</span>'}
+                            <button onclick="editManualLedger(${idx})" class="bg-amber-600 hover:bg-amber-700 text-white px-2 py-1 rounded text-xs font-semibold" title="Düzenle"><i class="fa-solid fa-pen-to-square"></i> Düzenle</button>
+                            <button onclick="deleteManualLedger(${idx})" class="text-red-500 hover:text-red-700 px-1" title="Sil"><i class="fa-solid fa-trash text-sm"></i></button>
                         </td>
                     </tr>
                 `;
@@ -1685,6 +1690,62 @@
             logRecycleItem('Manuel Cari Silindi', `${man.name} cari kaydı silindi.`, man.debt);
             logAuditEvent("Manuel Cari Silindi", `${man.name}`);
             appData.manualLedgers.splice(idx, 1);
+            await saveLocalData();
+        }
+
+        function editManualLedger(idx) {
+            const m = appData.manualLedgers[idx];
+            if(!m) return;
+            document.getElementById('editManualIndex').value = idx;
+            document.getElementById('manCustName').value = m.name;
+            document.getElementById('manCustPhone').value = m.phone;
+            document.getElementById('manCustDebt').value = m.debt;
+            document.getElementById('manCustDesc').value = m.desc || '';
+            
+            document.getElementById('manualSubmitBtn').innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Güncelle';
+            document.getElementById('manualCancelBtn').classList.remove('hidden');
+            document.getElementById('manualFormTitle').innerHTML = `<i class="fa-solid fa-pen-to-square text-amber-600"></i> MANUEL MÜŞTERİ CARİ KARTINI DÜZENLE`;
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function resetManualForm() {
+            document.getElementById('editManualIndex').value = '';
+            document.getElementById('manCustName').value = '';
+            document.getElementById('manCustPhone').value = '';
+            document.getElementById('manCustDebt').value = '';
+            document.getElementById('manCustDesc').value = '';
+            document.getElementById('manualSubmitBtn').innerHTML = '<i class="fa-solid fa-plus"></i> Cari Deftere Ekle';
+            document.getElementById('manualCancelBtn').classList.add('hidden');
+            document.getElementById('manualFormTitle').innerHTML = `<i class="fa-solid fa-address-book text-amber-600"></i> MANUEL MÜŞTERİ CARİ KARTI OLUŞTUR / BORÇLANDIR (AÇIKLAMA DESTEKLİ)`;
+        }
+
+        async function handleManualCustomerSubmit(e) {
+            e.preventDefault();
+            const editIdx = document.getElementById('editManualIndex').value;
+            const name = escapeHTML(document.getElementById('manCustName').value.trim());
+            const phone = escapeHTML(document.getElementById('manCustPhone').value.trim());
+            const debt = parseFloat(document.getElementById('manCustDebt').value) || 0;
+            const desc = escapeHTML(document.getElementById('manCustDesc').value.trim());
+
+            if(!appData.manualLedgers) appData.manualLedgers = [];
+
+            if(editIdx !== "" && !isNaN(editIdx) && appData.manualLedgers[editIdx]) {
+                appData.manualLedgers[editIdx].name = name;
+                appData.manualLedgers[editIdx].phone = phone;
+                appData.manualLedgers[editIdx].debt = debt;
+                appData.manualLedgers[editIdx].desc = desc;
+                logAuditEvent("Manuel Cari Güncellendi", `${name} - Borç: ${debt} TL`);
+                alert('Manuel Müşteri Cari Kartı Güncellendi!');
+            } else {
+                appData.manualLedgers.push({
+                    id: 'MAN-' + Date.now().toString().slice(-4),
+                    name, phone, debt, paid: 0, desc
+                });
+                logAuditEvent("Manuel Cari Eklendi", `${name} - Borç: ${debt} TL`);
+                alert('Manuel Müşteri Cari Kartı Deftere Eklendi!');
+            }
+
+            resetManualForm();
             await saveLocalData();
         }
 
@@ -1841,31 +1902,6 @@
                 renderRecycleBin();
                 alert('Çöp kovası tamamen boşaltıldı ve buluta işlendi.');
             }
-        }
-
-        async function addManualCustomerLedger(e) {
-            e.preventDefault();
-            const name = escapeHTML(document.getElementById('manCustName').value.trim());
-            const phone = escapeHTML(document.getElementById('manCustPhone').value.trim());
-            const debt = parseFloat(document.getElementById('manCustDebt').value) || 0;
-            const desc = escapeHTML(document.getElementById('manCustDesc').value.trim());
-
-            if(!appData.manualLedgers) appData.manualLedgers = [];
-
-            appData.manualLedgers.push({
-                id: 'MAN-' + Date.now().toString().slice(-4),
-                name, phone, debt, paid: 0, desc
-            });
-
-            await saveLocalData();
-            logAuditEvent("Manuel Cari Eklendi", `${name} - Borç: ${debt} TL`);
-            
-            document.getElementById('manCustName').value = '';
-            document.getElementById('manCustPhone').value = '';
-            document.getElementById('manCustDebt').value = '';
-            document.getElementById('manCustDesc').value = '';
-            
-            alert('Manuel Müşteri Cari Kartı Deftere Eklendi!');
         }
 
         async function addPayment(type, id) {
