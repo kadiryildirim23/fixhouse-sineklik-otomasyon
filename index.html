@@ -295,7 +295,7 @@
             </div>
 
             <div id="ledger-sub-standart" class="space-y-6">
-                <!-- REVİZE EDİLEN PROFESYONEL CARİ KARTI FORMU -->
+                <!-- PROFESYONEL CARİ KARTI FORMU -->
                 <div class="bg-white rounded-xl p-4 md:p-6 shadow-sm border border-slate-200">
                     <h2 id="manualFormTitle" class="text-base md:text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
                         <i class="fa-solid fa-address-book text-amber-600"></i> PROFESYONEL MÜŞTERİ CARİ KARTI OLUŞTUR / GÜNCELLE
@@ -660,7 +660,7 @@
 
     <script>
         const SHEETS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxPwtNChpye0O2n3ugRPgk_saqel4mo5kxBWicCfEdUc6HNpTuSwBkrDIPMCAVGx4h2/exec";
-        const STORAGE_KEY = "fix_house_23_data_v740";
+        const STORAGE_KEY = "fix_house_23_data_v741";
 
         const DEFAULT_SETTINGS = {
             montajPrice: 220,
@@ -1625,7 +1625,7 @@
             const query = (document.getElementById('ledgerSearchInput')?.value || '').toLowerCase();
 
             let filteredArchive = appData.archive.filter(o => o.customerName.toLowerCase().includes(query) || o.customerPhone.includes(query));
-            let filteredManual = appData.manualLedgers.filter(m => m.name.toLowerCase().includes(query) || m.phone.includes(query));
+            let filteredManual = (appData.manualLedgers || []).filter(m => m.name.toLowerCase().includes(query) || m.phone.includes(query));
 
             let filteredTotalDebt = 0;
             let filteredTotalPaid = 0;
@@ -1634,7 +1634,7 @@
             let grandTotalPaid = 0;
 
             appData.archive.forEach(o => { grandTotalDebt += o.totalAmount; grandTotalPaid += (o.paidAmount || 0); });
-            appData.manualLedgers.forEach(m => { grandTotalDebt += m.debt; grandTotalPaid += (m.paid || 0); });
+            (appData.manualLedgers || []).forEach(m => { grandTotalDebt += (m.debt || 0); grandTotalPaid += (m.paid || 0); });
 
             filteredArchive.forEach(o => {
                 const paid = o.paidAmount || 0;
@@ -1643,9 +1643,9 @@
                 filteredTotalPaid += paid;
 
                 tbody.innerHTML += `
-                    <tr>
+                    <tr class="hover:bg-slate-50">
                         <td class="p-3 font-semibold flex items-center gap-2">
-                            <button onclick="openOrderDetailModal('${o.id}')" class="text-blue-600 hover:text-blue-800"><i class="fa-solid fa-magnifying-glass text-sm"></i></button>
+                            <button onclick="openOrderDetailModal('${o.id}')" class="text-blue-600 hover:text-blue-800" title="Detay"><i class="fa-solid fa-magnifying-glass text-sm"></i></button>
                             <span>${escapeHTML(o.customerName)}</span>
                         </td>
                         <td class="p-3 text-slate-500">${escapeHTML(o.customerPhone)}</td>
@@ -1654,34 +1654,37 @@
                         <td class="p-3 text-right text-emerald-600 font-bold">${paid.toFixed(2)} ₺</td>
                         <td class="p-3 text-right text-red-600 font-black">${remaining.toFixed(2)} ₺</td>
                         <td class="p-3 text-center space-x-1 whitespace-nowrap">
-                            ${remaining > 0 ? `<button onclick="addPayment('archive', '${o.id}')" class="bg-blue-600 text-white px-2.5 py-1 rounded text-xs font-semibold">Tahsilat Ekle</button>` : '<span class="text-emerald-600 font-bold text-xs">Kapandı</span>'}
-                            <button onclick="deleteArchiveOrderById('${o.id}')" class="text-red-500 hover:text-red-700 px-1"><i class="fa-solid fa-trash text-sm"></i></button>
+                            ${remaining > 0.01 ? `<button onclick="addPayment('archive', '${o.id}')" class="bg-blue-600 hover:bg-blue-700 text-white px-2.5 py-1 rounded text-xs font-semibold">Tahsilat Ekle</button>` : '<span class="text-emerald-600 font-bold text-xs bg-emerald-50 px-2 py-1 rounded">Hesap Kapandı</span>'}
+                            <button onclick="deleteArchiveOrderById('${o.id}')" class="text-red-500 hover:text-red-700 px-1" title="Sil"><i class="fa-solid fa-trash text-sm"></i></button>
                         </td>
                     </tr>
                 `;
             });
 
-            filteredManual.forEach((m, idx) => {
+            filteredManual.forEach((m) => {
+                const debt = m.debt || 0;
                 const paid = m.paid || 0;
-                const remaining = m.debt - paid;
-                filteredTotalDebt += m.debt;
+                const remaining = debt - paid;
+                filteredTotalDebt += debt;
                 filteredTotalPaid += paid;
 
+                const originalIndex = appData.manualLedgers.findIndex(item => item.id === m.id);
+
                 tbody.innerHTML += `
-                    <tr class="bg-amber-50/40">
+                    <tr class="bg-amber-50/40 hover:bg-amber-50">
                         <td class="p-3 font-semibold">
                             ${escapeHTML(m.name)}
                             ${m.taxNo ? `<br><span class="text-[10px] text-slate-400 font-normal">Vergi/TC: ${escapeHTML(m.taxNo)}</span>` : ''}
                         </td>
                         <td class="p-3 text-slate-500">${escapeHTML(m.phone)}</td>
-                        <td class="p-3 text-slate-700">${escapeHTML(m.desc) || '<span class="text-slate-400">Açıklama yok</span>'}</td>
-                        <td class="p-3 text-right font-bold">${m.debt.toFixed(2)} ₺</td>
+                        <td class="p-3 text-slate-700">${escapeHTML(m.desc) || '<span class="text-slate-400">Manuel Cari Kart</span>'}</td>
+                        <td class="p-3 text-right font-bold">${debt.toFixed(2)} ₺</td>
                         <td class="p-3 text-right text-emerald-600 font-bold">${paid.toFixed(2)} ₺</td>
                         <td class="p-3 text-right text-red-600 font-black">${remaining.toFixed(2)} ₺</td>
                         <td class="p-3 text-center space-x-1.5 whitespace-nowrap">
-                            ${remaining > 0 ? `<button onclick="addPayment('manual', '${m.id}')" class="bg-blue-600 text-white px-2.5 py-1 rounded text-xs font-semibold">Tahsilat Ekle</button>` : '<span class="text-emerald-600 font-bold text-xs">Kapandı</span>'}
-                            <button onclick="editManualLedger(${idx})" class="bg-amber-600 hover:bg-amber-700 text-white px-2 py-1 rounded text-xs font-semibold" title="Düzenle"><i class="fa-solid fa-pen-to-square"></i> Düzenle</button>
-                            <button onclick="deleteManualLedger(${idx})" class="text-red-500 hover:text-red-700 px-1" title="Sil"><i class="fa-solid fa-trash text-sm"></i></button>
+                            ${remaining > 0.01 ? `<button onclick="addPayment('manual', '${m.id}')" class="bg-blue-600 hover:bg-blue-700 text-white px-2.5 py-1 rounded text-xs font-semibold">Tahsilat Ekle</button>` : '<span class="text-emerald-600 font-bold text-xs bg-emerald-50 px-2 py-1 rounded">Hesap Kapandı</span>'}
+                            <button onclick="editManualLedger(${originalIndex})" class="bg-amber-600 hover:bg-amber-700 text-white px-2 py-1 rounded text-xs font-semibold" title="Düzenle"><i class="fa-solid fa-pen-to-square"></i> Düzenle</button>
+                            <button onclick="deleteManualLedger(${originalIndex})" class="text-red-500 hover:text-red-700 px-1" title="Sil"><i class="fa-solid fa-trash text-sm"></i></button>
                         </td>
                     </tr>
                 `;
@@ -1704,7 +1707,7 @@
             }
             footHtml += `
                 <tr class="bg-slate-900">
-                    <td colspan="3" class="p-3 text-right uppercase tracking-wider">🏢 GENEL TOPLAM YEKÜN:</td>
+                    <td colspan="3" class="p-3 text-right uppercase tracking-wider">🏢 GENEL CARİ YEKÜN:</td>
                     <td class="p-3 text-right">${grandTotalDebt.toFixed(2)} ₺</td>
                     <td class="p-3 text-right text-emerald-400">${grandTotalPaid.toFixed(2)} ₺</td>
                     <td class="p-3 text-right text-red-400">${grandRemaining.toFixed(2)} ₺</td>
@@ -1730,8 +1733,6 @@
         function editManualLedger(idx) {
             const m = appData.manualLedgers[idx];
             if(!m) return;
-            const currentPaid = m.paid || 0;
-            const currentRemaining = m.debt - currentPaid;
 
             document.getElementById('editManualIndex').value = idx;
             document.getElementById('manCustName').value = m.name || '';
@@ -1824,7 +1825,7 @@
                         <td class="p-3 text-right text-emerald-600 font-bold">${(t.paidAmount || 0).toFixed(2)} ₺</td>
                         <td class="p-3 text-right text-red-600 font-black">${remaining.toFixed(2)} ₺</td>
                         <td class="p-3 text-center space-x-1.5 whitespace-nowrap">
-                            ${remaining > 0 ? `<button onclick="addPayment('toplu', '${t.id}')" class="bg-blue-600 text-white px-2.5 py-1 rounded text-xs font-semibold">Tahsilat Ekle</button>` : '<span class="text-emerald-600 font-bold text-xs">Kapandı</span>'}
+                            ${remaining > 0.01 ? `<button onclick="addPayment('toplu', '${t.id}')" class="bg-blue-600 text-white px-2.5 py-1 rounded text-xs font-semibold">Tahsilat Ekle</button>` : '<span class="text-emerald-600 font-bold text-xs">Kapandı</span>'}
                             <button onclick="deleteTopluLedger(${idx})" class="text-red-500 hover:text-red-700 px-1 font-bold"><i class="fa-solid fa-trash text-sm"></i></button>
                         </td>
                     </tr>
@@ -1964,17 +1965,18 @@
             if(type === 'manual') target = appData.manualLedgers.find(m => m.id === id);
             if(type === 'toplu') target = appData.topluLedgers.find(t => t.id === id);
 
-            if(!target) return;
-            const total = target.totalAmount || target.debt;
+            if(!target) return alert('İlgili cari kayıt bulunamadı!');
+            
+            const total = target.totalAmount !== undefined ? target.totalAmount : (target.debt || 0);
             const currentPaid = type === 'manual' ? (target.paid || 0) : (target.paidAmount || 0);
             const remaining = total - currentPaid;
             
-            const amtStr = prompt(`Alınan tahsilat tutarı (Kalan Borç: ${remaining.toFixed(2)} ₺):`);
+            const amtStr = prompt(`Alınan tahsilat tutarını giriniz (Kalan Borç: ${remaining.toFixed(2)} ₺):`);
             if(amtStr === null) return;
             const amt = parseFloat(amtStr);
             
             if(!isNaN(amt) && amt > 0) {
-                if(amt > remaining) {
+                if(amt > remaining + 0.01) {
                     alert('Tahsilat tutarı kalan bakiyeden büyük olamaz!');
                     return;
                 }
@@ -1986,7 +1988,7 @@
                 }
 
                 await saveLocalData();
-                logAuditEvent("Tahsilat Eklendi", `${target.customerName || target.name} - Tutar: ${amt} TL`);
+                logAuditEvent("Tahsilat Eklendi", `${target.customerName || target.name} - Tahsil Edilen: ${amt.toFixed(2)} TL`);
 
                 if(confirm("Tahsilat makbuzu yazdırmak ister misiniz?")) {
                     printTahsilatMakbuzu(target, amt, total, type === 'manual' ? target.paid : target.paidAmount);
