@@ -24,7 +24,7 @@
             .print-only { display: block !important; }
             html, body { 
                 background: white; 
-                font-size: 13pt; 
+                font-size: 12pt; 
                 color: #000; 
                 margin: 0 !important; 
                 padding: 0 !important; 
@@ -35,6 +35,15 @@
                 page: a4page;
                 width: 100%;
                 box-sizing: border-box;
+            }
+
+            @page makbuzpage { size: A5 landscape; margin: 6mm; }
+            .makbuz-print-container {
+                page: makbuzpage;
+                width: 100%;
+                box-sizing: border-box;
+                font-family: Arial, sans-serif;
+                color: #000;
             }
 
             @page zebra { size: 100mm 50mm; margin: 0; }
@@ -60,13 +69,13 @@
             .print-table {
                 width: 100% !important;
                 border-collapse: collapse !important;
-                font-size: 12pt !important;
+                font-size: 11pt !important;
             }
             .print-table th, .print-table td {
                 border: 1px solid #000 !important;
-                padding: 5px 6px !important;
+                padding: 4px 5px !important;
                 text-align: center !important;
-                line-height: 1.3 !important;
+                line-height: 1.2 !important;
             }
             .print-table th {
                 background-color: #f0f0f0 !important;
@@ -164,7 +173,7 @@
                     <h2 class="text-base md:text-lg font-bold text-slate-800 flex items-center gap-2">
                         <i class="fa-solid fa-ruler-combined text-blue-600"></i> ÖLÇÜ & ÜRÜN KONFİGÜRASYONU
                     </h2>
-                    <span class="text-xs text-slate-500 hidden md:inline">Seri Dinamik Geçiş Aktif</span>
+                    <span class="text-xs text-slate-500 hidden md:inline">Şerit Mıknatıs & Reçete Bazlı Fiyatlandırma Aktif</span>
                 </div>
 
                 <div id="measureRowsContainer" class="space-y-4"></div>
@@ -288,12 +297,13 @@
             <div id="ledger-sub-standart" class="space-y-6">
                 <div class="bg-white rounded-xl p-4 md:p-6 shadow-sm border border-slate-200">
                     <h2 class="text-base md:text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-                        <i class="fa-solid fa-address-book text-amber-600"></i> MANUEL MÜŞTERİ CARİ KARTI OLUŞTUR / BORÇLANDIR
+                        <i class="fa-solid fa-address-book text-amber-600"></i> MANUEL MÜŞTERİ CARİ KARTI OLUŞTUR / BORÇLANDIR (AÇIKLAMA DESTEKLİ)
                     </h2>
-                    <form onsubmit="addManualCustomerLedger(event)" class="grid grid-cols-1 md:grid-cols-4 gap-3">
+                    <form onsubmit="addManualCustomerLedger(event)" class="grid grid-cols-1 md:grid-cols-5 gap-3">
                         <input type="text" id="manCustName" placeholder="Müşteri Adı Soyadı *" required class="px-3 py-2.5 text-xs md:text-sm border border-slate-300 rounded-lg">
                         <input type="tel" id="manCustPhone" placeholder="Telefon Numarası *" required class="px-3 py-2.5 text-xs md:text-sm border border-slate-300 rounded-lg">
                         <input type="number" id="manCustDebt" step="0.01" placeholder="Açılış Borç Tutarı (₺) *" required class="px-3 py-2.5 text-xs md:text-sm border border-slate-300 rounded-lg">
+                        <input type="text" id="manCustDesc" placeholder="İşlem Açıklaması (Örn: Özel sipariş borcu)" class="px-3 py-2.5 text-xs md:text-sm border border-slate-300 rounded-lg">
                         <button type="submit" class="bg-amber-600 hover:bg-amber-700 text-white text-xs md:text-sm font-semibold rounded-lg py-2.5">
                             <i class="fa-solid fa-plus"></i> Cari Deftere Ekle
                         </button>
@@ -316,7 +326,7 @@
                                 <tr class="bg-slate-100 font-semibold border-b border-slate-200 text-slate-700">
                                     <th class="p-3">Müşteri Adı</th>
                                     <th class="p-3">Telefon</th>
-                                    <th class="p-3">Kaynak / Tür</th>
+                                    <th class="p-3">Kaynak / Açıklama</th>
                                     <th class="p-3 text-right">Toplam Borç (₺)</th>
                                     <th class="p-3 text-right">Ödenen (₺)</th>
                                     <th class="p-3 text-right">Kalan Bakiye (₺)</th>
@@ -610,10 +620,11 @@
     <!-- PRINT SHADOW TEMPLATES -->
     <div id="printContainerA4" class="print-only"></div>
     <div id="printContainerZebra" class="print-only"></div>
+    <div id="printContainerMakbuz" class="print-only"></div>
 
     <script>
         const SHEETS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxPwtNChpye0O2n3ugRPgk_saqel4mo5kxBWicCfEdUc6HNpTuSwBkrDIPMCAVGx4h2/exec";
-        const STORAGE_KEY = "fix_house_23_data_v725";
+        const STORAGE_KEY = "fix_house_23_data_v726";
 
         const DEFAULT_SETTINGS = {
             montajPrice: 220,
@@ -628,6 +639,7 @@
                         { id: "acc-profil", name: "Alüminyum Profil", unit: "Metre (m)", cost: 45 },
                         { id: "acc-plise-tul", name: "Plise Tül", unit: "m²", cost: 35 },
                         { id: "acc-polen-tul", name: "Polen Tülü (Fark)", unit: "m²", cost: 400 },
+                        { id: "acc-serit-miknatis", name: "Şerit Mıknatıs", unit: "Metre (m)", cost: 60 },
                         { id: "acc-takoz", name: "Köşe Takozu", unit: "Adet", cost: 5 },
                         { id: "acc-ip", name: "Plise İp", unit: "Metre (m)", cost: 2 }
                     ]
@@ -973,9 +985,9 @@
                 stepSelect(currentRowId, 3);
                 
                 if(initialData.dir && cardDiv.querySelector('.opt-dir')) cardDiv.querySelector('.opt-dir').value = initialData.dir;
-                if(initialData.menteseliTip && cardDiv.querySelector('.opt-menteseli-tip')) cardDiv.querySelector('.opt-menteseli-tip').value = initialData.menteseliTip;
                 if(initialData.tulType && cardDiv.querySelector('.opt-tul')) cardDiv.querySelector('.opt-tul').value = initialData.tulType;
                 if(initialData.caseType && cardDiv.querySelector('.opt-case')) cardDiv.querySelector('.opt-case').value = initialData.caseType;
+                if(initialData.magnetType && cardDiv.querySelector('.opt-magnet')) cardDiv.querySelector('.opt-magnet').value = initialData.magnetType;
                 
                 cardDiv.querySelector('.inp-en').value = initialData.en;
                 cardDiv.querySelector('.inp-boy').value = initialData.boy;
@@ -1050,12 +1062,14 @@
                 if(colorSelect.value) {
                     const pType = pTypeSelect.value;
                     if(pType === 'plise') {
+                        // Plise için Şerit Mıknatıs eklendi
                         optsContainer.innerHTML = `
                             <label class="block font-semibold text-slate-600 mb-1">Diğer Seçenekler</label>
-                            <div class="grid grid-cols-3 gap-1">
+                            <div class="grid grid-cols-4 gap-1">
                                 <select onchange="calculateRow(${id})" class="opt-dir w-full border rounded px-1 py-2 bg-white text-[11px]"><option value="yatay">Yatay</option><option value="dikey">Dikey</option></select>
-                                <select onchange="calculateRow(${id})" class="opt-tul w-full border rounded px-1 py-2 bg-white text-[11px]"><option value="plise">Plise Tül</option><option value="polen">Polen (+400₺)</option></select>
+                                <select onchange="calculateRow(${id})" class="opt-tul w-full border rounded px-1 py-2 bg-white text-[11px]"><option value="plise">Plise Tül</option><option value="polen">Polen (Reçete)</option></select>
                                 <select onchange="calculateRow(${id})" class="opt-case w-full border rounded px-1 py-2 bg-white text-[11px]"><option value="kasasiz">Kasasız</option><option value="kasali">Kasalı (2x)</option></select>
+                                <select onchange="calculateRow(${id})" class="opt-magnet w-full border rounded px-1 py-2 bg-white text-[11px]"><option value="yok">Mıknatıs Yok</option><option value="var">Şerit Mıknatıs</option></select>
                             </div>
                         `;
                     } else {
@@ -1068,11 +1082,10 @@
                                 </select>
                                 <select onchange="calculateRow(${id})" class="opt-tul w-full border rounded px-1 py-2 bg-white text-[11px]">
                                     <option value="duz">Düz Tül</option>
-                                    <option value="kedi">Kedi Tülü</option>
+                                    <option value="kedi">Kedi Tülü (Reçete)</option>
                                 </select>
                                 <select onchange="calculateRow(${id})" class="opt-case w-full border rounded px-1 py-2 bg-white text-[11px]">
-                                    <option value="kasasiz">Kasasız</option>
-                                    <option value="kasali">Kasalı (2x)</option>
+                                    <option value="kasasiz">Kasasız</option><option value="kasali">Kasalı (2x)</option>
                                 </select>
                             </div>
                         `;
@@ -1109,6 +1122,13 @@
             });
         }
 
+        function getRecipeCost(groupId, accessoryId) {
+            const group = appData.settings.productGroups.find(g => g.id === groupId);
+            if(!group) return 0;
+            const acc = group.accessories.find(a => a.id === accessoryId);
+            return acc ? acc.cost : 0;
+        }
+
         function calculateRow(id) {
             const card = document.getElementById(`row-${id}`);
             if(!card) return;
@@ -1135,6 +1155,7 @@
             const dirSelect = card.querySelector('.opt-dir');
             const tulSelect = card.querySelector('.opt-tul');
             const caseSelect = card.querySelector('.opt-case');
+            const magnetSelect = card.querySelector('.opt-magnet');
             const menteseliTipSelect = card.querySelector('.opt-menteseli-tip');
 
             let isDikey = (pType === 'plise' && dirSelect && dirSelect.value === 'dikey');
@@ -1220,13 +1241,25 @@
             let unitPrice = (tariff === 'montajli') ? appData.settings.montajPrice : appData.settings.perakendePrice;
             let rowPrice = multiplier * unitPrice;
 
+            // Polen Tülü Fiyatlandırması (Reçeteden alınır)
             if(pType === 'plise' && tulSelect && tulSelect.value === 'polen') {
-                rowPrice += multiplier * 400; 
+                let polenCost = getRecipeCost('pg-plise', 'acc-polen-tul');
+                let actualM2 = ((rawEn * rawBoy) / 10000) * qty;
+                rowPrice += Math.max(actualM2, appData.settings.minM2) * polenCost; 
             }
 
+            // Kedi Tülü Fiyatlandırması (Reçeteden alınır)
             if(pType === 'menteseli' && tulSelect && tulSelect.value === 'kedi') {
+                let kediCost = getRecipeCost('pg-mentese', 'acc-kedi-tul');
                 let actualM2 = ((rawEn * rawBoy) / 10000) * qty;
-                rowPrice += Math.max(actualM2, appData.settings.minM2) * 260;
+                rowPrice += Math.max(actualM2, appData.settings.minM2) * kediCost;
+            }
+
+            // Şerit Mıknatıs Fiyatlandırması (Reçetedeki metre birim fiyatı ile çevre metre hesabı)
+            if(pType === 'plise' && magnetSelect && magnetSelect.value === 'var') {
+                let magnetMeterCost = getRecipeCost('pg-plise', 'acc-serit-miknatis');
+                let perimeterM = (perimeterCm / 100);
+                rowPrice += perimeterM * magnetMeterCost * qty;
             }
 
             if(caseSelect && caseSelect.value === 'kasali') {
@@ -1319,6 +1352,7 @@
                         menteseliTip: card.querySelector('.opt-menteseli-tip') ? card.querySelector('.opt-menteseli-tip').value : '',
                         tulType: card.querySelector('.opt-tul') ? card.querySelector('.opt-tul').value : '',
                         caseType: card.querySelector('.opt-case') ? card.querySelector('.opt-case').value : '',
+                        magnetType: card.querySelector('.opt-magnet') ? card.querySelector('.opt-magnet').value : '',
                         en: enVal,
                         boy: parseFloat(card.querySelector('.inp-boy').value),
                         note: escapeHTML(card.querySelector('.inp-note').value || ''),
@@ -1472,13 +1506,41 @@
                             </span>
                         </td>
                         <td class="p-3 text-center space-x-1.5 whitespace-nowrap">
-                            <button onclick='moveToTopluMontaj("${order.id}")' class="bg-purple-600 hover:bg-purple-700 text-white px-2 py-1 rounded text-xs font-semibold" title="Toplu Montaja At"><i class="fa-solid fa-city"></i> Toplu Montaj</button>
+                            <button onclick='editArchiveOrder(${idx})' class="bg-amber-600 hover:bg-amber-700 text-white px-2 py-1 rounded text-xs font-semibold" title="Düzenle"><i class="fa-solid fa-pen-to-square"></i> Düzenle</button>
+                            <button onclick='moveToTopluMontaj("${order.id}")' class="bg-purple-600 hover:bg-purple-700 text-white px-2 py-1 rounded text-xs font-semibold" title="Toplu Montaja At"><i class="fa-solid fa-city"></i> Toplu</button>
                             <button onclick='openOrderDetailModal("${order.id}")' class="text-blue-600 hover:text-blue-800" title="Ölçü Detayı"><i class="fa-solid fa-magnifying-glass text-sm"></i></button>
                             <button onclick='deleteArchiveOrder(${idx})' class="text-red-500 hover:text-red-700" title="Sil"><i class="fa-solid fa-trash text-sm"></i></button>
                         </td>
                     </tr>
                 `;
             });
+        }
+
+        function editArchiveOrder(index) {
+            const order = appData.archive[index];
+            if(!order) return;
+
+            document.getElementById('custName').value = order.customerName || '';
+            document.getElementById('custPhone').value = order.customerPhone || '';
+            document.getElementById('custAddress').value = order.customerAddress || '';
+            document.getElementById('salesTariff').value = order.tariff || '';
+            document.getElementById('extraLabor').value = order.extraLabor || 0;
+            document.getElementById('kdvStatus').value = order.kdvStatus || 'haric';
+
+            document.getElementById('measureRowsContainer').innerHTML = '';
+            currentRowId = 0;
+
+            if(order.items && order.items.length > 0) {
+                order.items.forEach(item => addMeasureRow(item));
+            } else {
+                addMeasureRow();
+            }
+
+            appData.archive.splice(index, 1);
+            saveLocalData();
+
+            switchTab('order');
+            alert(`"${order.customerName}" arşivdeki siparişi düzenlenmek üzere yüklendi!`);
         }
 
         async function deleteArchiveOrder(idx) {
@@ -1552,14 +1614,14 @@
             });
 
             appData.manualLedgers.filter(m => m.name.toLowerCase().includes(query) || m.phone.includes(query)).forEach((m, idx) => {
-                const remaining = m.debt - m.paid;
+                const remaining = m.debt - (m.paid || 0);
                 tbody.innerHTML += `
                     <tr class="bg-amber-50/40">
                         <td class="p-3 font-semibold">${escapeHTML(m.name)}</td>
                         <td class="p-3 text-slate-500">${escapeHTML(m.phone)}</td>
-                        <td class="p-3"><span class="bg-amber-100 text-amber-700 px-2 py-0.5 rounded text-[10px] font-bold">Manuel Cari</span></td>
+                        <td class="p-3 text-slate-700">${escapeHTML(m.desc) || '<span class="text-slate-400">Açıklama yok</span>'}</td>
                         <td class="p-3 text-right font-bold">${m.debt.toFixed(2)} ₺</td>
-                        <td class="p-3 text-right text-emerald-600 font-bold">${m.paid.toFixed(2)} ₺</td>
+                        <td class="p-3 text-right text-emerald-600 font-bold">${(m.paid || 0).toFixed(2)} ₺</td>
                         <td class="p-3 text-right text-red-600 font-black">${remaining.toFixed(2)} ₺</td>
                         <td class="p-3 text-center space-x-1 whitespace-nowrap">
                             ${remaining > 0 ? `<button onclick="addPayment('manual', '${m.id}')" class="bg-blue-600 text-white px-2.5 py-1 rounded text-xs font-semibold">Tahsilat Ekle</button>` : '<span class="text-emerald-600 font-bold text-xs">Kapandı</span>'}
@@ -1743,10 +1805,11 @@
             const name = escapeHTML(document.getElementById('manCustName').value.trim());
             const phone = escapeHTML(document.getElementById('manCustPhone').value.trim());
             const debt = parseFloat(document.getElementById('manCustDebt').value) || 0;
+            const desc = escapeHTML(document.getElementById('manCustDesc').value.trim());
 
             appData.manualLedgers.push({
                 id: 'MAN-' + Date.now().toString().slice(-4),
-                name, phone, debt, paid: 0
+                name, phone, debt, paid: 0, desc
             });
 
             await saveLocalData();
@@ -1754,6 +1817,7 @@
             document.getElementById('manCustName').value = '';
             document.getElementById('manCustPhone').value = '';
             document.getElementById('manCustDebt').value = '';
+            document.getElementById('manCustDesc').value = '';
             alert('Manuel Müşteri Cari Kartı Deftere Eklendi!');
         }
 
@@ -1764,7 +1828,10 @@
             if(type === 'toplu') target = appData.topluLedgers.find(t => t.id === id);
 
             if(!target) return;
-            const remaining = (target.totalAmount || target.debt) - (target.paidAmount || target.paid || 0);
+            const total = target.totalAmount || target.debt;
+            const currentPaid = target.paidAmount || target.paid || 0;
+            const remaining = total - currentPaid;
+            
             const amt = parseFloat(prompt(`Alınan tahsilat tutarı (Kalan Borç: ${remaining.toFixed(2)} ₺):`));
             
             if(amt && !isNaN(amt)) {
@@ -1773,13 +1840,90 @@
 
                 await saveLocalData();
                 logAuditEvent("Tahsilat Eklendi", `${target.customerName || target.name} - Tutar: ${amt} TL`);
+
+                if(confirm("Tahsilat makbuzu yazdırmak ister misiniz?")) {
+                    printTahsilatMakbuzu(target, amt, total, currentPaid + amt);
+                }
             }
+        }
+
+        function printTahsilatMakbuzu(target, tahsilatTutari, toplamBorc, yeniOdenen) {
+            const containerMakbuz = document.getElementById('printContainerMakbuz');
+            document.getElementById('printContainerA4').innerHTML = '';
+            document.getElementById('printContainerZebra').innerHTML = '';
+
+            const name = target.customerName || target.name;
+            const phone = target.customerPhone || target.phone || '';
+            const kalanBakiye = toplamBorc - yeniOdenen;
+            const makbuzNo = 'NO-' + Math.floor(100000 + Math.random() * 900000);
+            const tarih = new Date().toLocaleDateString('tr-TR');
+
+            containerMakbuz.innerHTML = `
+                <div class="makbuz-print-container" style="padding: 10mm; font-size: 11pt;">
+                    <div style="display: flex; justify-content: space-between; border-bottom: 2px solid #000; padding-bottom: 8px; margin-bottom: 10px;">
+                        <div>
+                            <h2 style="font-size: 16pt; font-weight: bold; margin:0;">FİX HOUSE</h2>
+                            <p style="font-size: 9pt; margin: 2px 0;">PLİSE PERDE VE SİNEKLİK SİSTEMLERİ</p>
+                            <p style="font-size: 8.5pt; margin: 0;">Sürsürü Mh. Şht. Emn. Amiri Mustafa Cebeloğlu Sk. A Blok No:14/D ELAZIĞ</p>
+                        </div>
+                        <div style="text-align: right;">
+                            <h3 style="font-size: 12pt; font-weight: bold; margin: 0;">Kadir YILDIRIM</h3>
+                            <p style="font-size: 10pt; margin: 2px 0;"><b>+90 (533) 443 32 23</b></p>
+                            <h2 style="color: #b91c1c; font-size: 14pt; margin: 4px 0;">TAHSİLAT MAKBUZU</h2>
+                            <p style="font-size: 10pt; margin: 0;"><b>${makbuzNo}</b></p>
+                            <p style="font-size: 9.5pt; margin: 2px 0;">Tarih: <b>${tarih}</b></p>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                        <table style="width: 35%; border-collapse: collapse; font-size: 10pt;">
+                            <tr><td style="border: 1px solid #000; padding: 4px; background:#f1f5f9;">Bakiye</td><td style="border: 1px solid #000; padding: 4px; text-align:right;">${toplamBorc.toFixed(2)} ₺</td></tr>
+                            <tr><td style="border: 1px solid #000; padding: 4px; background:#f1f5f9;">Tahsilat Tutarı</td><td style="border: 1px solid #000; padding: 4px; text-align:right; font-weight:bold; color:#15803d;">${tahsilatTutari.toFixed(2)} ₺</td></tr>
+                            <tr><td style="border: 1px solid #000; padding: 4px; background:#f1f5f9;">Kalan Bakiye</td><td style="border: 1px solid #000; padding: 4px; text-align:right; font-weight:bold; color:#b91c1c;">${kalanBakiye.toFixed(2)} ₺</td></tr>
+                        </table>
+                        <div style="width: 65%; border: 1px solid #000; padding: 6px; font-size: 10.5pt; display:flex; flex-direction:column; justify-content:space-between;">
+                            <div><b>Sayın:</b> ${escapeHTML(name)} (${phone})</div>
+                            <div><b>Tahsil Edilen Tutar:</b> ${tahsilatTutari.toFixed(2)} Türk Lirası</div>
+                            <div style="font-size: 9.5pt; color: #475569;">Yukarıda belirtilen meblağ cari hesabınıza karşılık tahsil edilmiştir.</div>
+                        </div>
+                    </div>
+
+                    <table style="width: 100%; border-collapse: collapse; font-size: 10pt; margin-bottom: 15px;">
+                        <thead>
+                            <tr style="background: #e2e8f0;">
+                                <th style="border: 1px solid #000; padding: 5px;">Ödeme Türü</th>
+                                <th style="border: 1px solid #000; padding: 5px;">Banka / Açıklama</th>
+                                <th style="border: 1px solid #000; padding: 5px;">Çek No</th>
+                                <th style="border: 1px solid #000; padding: 5px;">Vade</th>
+                                <th style="border: 1px solid #000; padding: 5px; text-align:right;">Tutar (₺)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td style="border: 1px solid #000; padding: 5px; font-weight:bold;">NADİT / NAKİT</td>
+                                <td style="border: 1px solid #000; padding: 5px;">Elden Tahsilat</td>
+                                <td style="border: 1px solid #000; padding: 5px;">-</td>
+                                <td style="border: 1px solid #000; padding: 5px;">-</td>
+                                <td style="border: 1px solid #000; padding: 5px; text-align:right; font-weight:bold;">${tahsilatTutari.toFixed(2)} ₺</td>
+                            </tr>
+                            <tr><td style="border: 1px solid #000; padding: 5px;">K. KARTI</td><td style="border: 1px solid #000; padding: 5px;"></td><td style="border: 1px solid #000; padding: 5px;"></td><td style="border: 1px solid #000; padding: 5px;"></td><td style="border: 1px solid #000; padding: 5px;"></td></tr>
+                            <tr><td style="border: 1px solid #000; padding: 5px;">ÇEK / SENET</td><td style="border: 1px solid #000; padding: 5px;"></td><td style="border: 1px solid #000; padding: 5px;"></td><td style="border: 1px solid #000; padding: 5px;"></td><td style="border: 1px solid #000; padding: 5px;"></td></tr>
+                        </tbody>
+                    </table>
+
+                    <div style="display: flex; justify-content: space-between; font-size: 10pt; margin-top: 20px;">
+                        <div>Tahsil Eden: <b>Kadir YILDIRIM</b></div>
+                        <div>Müşteri İmza: ....................................................</div>
+                    </div>
+                </div>
+            `;
+            window.print();
         }
 
         function renderFinance() {
             let totalSales = 0, totalCollected = 0;
             appData.archive.forEach(o => { totalSales += o.totalAmount; totalCollected += (o.paidAmount || 0); });
-            appData.manualLedgers.forEach(m => { totalSales += m.debt; totalCollected += m.paid; });
+            appData.manualLedgers.forEach(m => { totalSales += m.debt; totalCollected += (m.paid || 0); });
             if(appData.topluLedgers) appData.topluLedgers.forEach(t => { if(t.isManual) { totalSales += t.totalAmount; totalCollected += (t.paidAmount || 0); } });
 
             let totalExpense = appData.expenses.reduce((sum, e) => sum + e.amount, 0);
@@ -1935,6 +2079,7 @@
             const order = orderData || getOrderDataFromForm();
             const containerA4 = document.getElementById('printContainerA4');
             document.getElementById('printContainerZebra').innerHTML = '';
+            document.getElementById('printContainerMakbuz').innerHTML = '';
 
             containerA4.innerHTML = `
                 <div class="a4-print-container">
@@ -1965,7 +2110,7 @@
                                     <td>${i.mType === 'ic' ? 'İç':'Dış'}</td>
                                     <td>${i.pType === 'plise' ? 'Plise':'Menteşeli'}</td>
                                     <td>${i.color}</td>
-                                    <td>${i.dir || ''} ${i.menteseliTip || ''} ${i.tulType} ${i.caseType || ''}</td>
+                                    <td>${i.dir || ''} ${i.menteseliTip || ''} ${i.tulType} ${i.caseType || ''} ${i.magnetType === 'var' ? 'Mıknatıslı':''}</td>
                                     <td><b>${i.en}</b></td>
                                     <td><b>${i.boy}</b></td>
                                     <td>${escapeHTML(i.note) || '-'}</td>
@@ -1993,6 +2138,7 @@
         function printZebraLabels(type, orderData = null) {
             const order = orderData || getOrderDataFromForm();
             document.getElementById('printContainerA4').innerHTML = '';
+            document.getElementById('printContainerMakbuz').innerHTML = '';
             const containerZebra = document.getElementById('printContainerZebra');
             containerZebra.innerHTML = '';
 
