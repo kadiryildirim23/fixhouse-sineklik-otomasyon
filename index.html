@@ -127,6 +127,9 @@
             <button onclick="switchTab('archive')" id="tab-archive" class="tab-btn px-3.5 py-2 rounded-lg font-medium text-xs md:text-sm text-slate-600 hover:text-blue-600 transition flex items-center gap-2 border border-transparent whitespace-nowrap">
                 <i class="fa-solid fa-box-archive"></i> Sipariş Arşivi
             </button>
+            <button onclick="switchTab('customers')" id="tab-customers" class="tab-btn px-3.5 py-2 rounded-lg font-medium text-xs md:text-sm text-slate-600 hover:text-blue-600 transition flex items-center gap-2 border border-transparent whitespace-nowrap">
+                <i class="fa-solid fa-id-card text-blue-600"></i> Müşteri Kartları & Taksitler <span id="customerBadge" class="bg-blue-100 text-blue-700 text-xs px-2 py-0.5 rounded-full font-bold">0</span>
+            </button>
             <button onclick="switchTab('ledger')" id="tab-ledger" class="tab-btn px-3.5 py-2 rounded-lg font-medium text-xs md:text-sm text-slate-600 hover:text-blue-600 transition flex items-center gap-2 border border-transparent whitespace-nowrap">
                 <i class="fa-solid fa-book-bookmark text-amber-600"></i> Müşteri Cari Defteri
             </button>
@@ -241,7 +244,7 @@
                     <h2 class="text-base md:text-lg font-bold text-slate-800 flex items-center gap-2">
                         <i class="fa-solid fa-cart-shopping text-blue-600"></i> ONAYLANAN SİPARİŞLER (SEPET)
                     </h2>
-                    <span class="text-xs text-slate-500">Yazdırıldığında otomatik arşive ve cariye aktarılır</span>
+                    <span class="text-xs text-slate-500">Yazdırıldığında otomatik arşive, cariye ve müşteri kartına aktarılır</span>
                 </div>
                 <div id="cartListContainer" class="space-y-4"></div>
             </div>
@@ -283,7 +286,40 @@
             </div>
         </section>
 
-        <!-- TAB 4: MÜŞTERİ CARİ DEFTERİ -->
+        <!-- TAB 4: MÜŞTERİ KARTLARI & TAKSİTLER -->
+        <section id="sec-customers" class="space-y-6 hidden">
+            <div class="bg-white rounded-xl p-4 md:p-6 shadow-sm border border-slate-200">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
+                    <h2 class="text-base md:text-lg font-bold text-slate-800 flex items-center gap-2">
+                        <i class="fa-solid fa-id-card text-blue-600"></i> MÜŞTERİ KARTLARI & TAKSİTLİ SATIŞ YÖNETİMİ
+                    </h2>
+                    <div class="flex gap-2 w-full md:w-auto">
+                        <input type="text" id="customerSearchInput" oninput="renderCustomerCards()" placeholder="Müşteri adı veya telefon ara..." class="px-3 py-2 text-xs md:text-sm border border-slate-300 rounded-lg w-full md:w-64">
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs md:text-sm min-w-[800px]">
+                        <thead>
+                            <tr class="bg-slate-100 font-semibold border-b border-slate-200 text-slate-700">
+                                <th class="p-3">Müşteri Adı Soyadı</th>
+                                <th class="p-3">Telefon / Adres</th>
+                                <th class="p-3 text-center">Kayıt Türü</th>
+                                <th class="p-3 text-right">Toplam Borç</th>
+                                <th class="p-3 text-right">Ödenen</th>
+                                <th class="p-3 text-right">Kalan Bakiye</th>
+                                <th class="p-3 text-center">Taksit Durumu</th>
+                                <th class="p-3 text-center">İşlemler</th>
+                            </tr>
+                        </thead>
+                        <tbody id="customerCardsTableBody" class="divide-y divide-slate-200"></tbody>
+                        <tfoot id="customerCardsTableFoot" class="bg-slate-900 text-white font-bold text-xs md:text-sm"></tfoot>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 5: MÜŞTERİ CARİ DEFTERİ -->
         <section id="sec-ledger" class="space-y-6 hidden">
             <div class="flex border-b border-slate-200 gap-4 mb-2">
                 <button onclick="switchLedgerSubTab('standart')" id="subtab-ledger-standart" class="py-2 px-4 border-b-2 border-amber-600 font-bold text-xs md:text-sm text-amber-700">
@@ -299,15 +335,18 @@
                     <h2 id="manualFormTitle" class="text-base md:text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
                         <i class="fa-solid fa-address-book text-amber-600"></i> MANUEL MÜŞTERİ CARİ KARTI OLUŞTUR / BORÇLANDIR (AÇIKLAMA DESTEKLİ)
                     </h2>
-                    <form onsubmit="handleManualCustomerSubmit(event)" class="grid grid-cols-1 md:grid-cols-5 gap-3">
+                    <form onsubmit="handleManualCustomerSubmit(event)" class="grid grid-cols-1 md:grid-cols-6 gap-3">
                         <input type="hidden" id="editManualIndex" value="">
                         <input type="text" id="manCustName" placeholder="Müşteri Adı Soyadı *" required class="px-3 py-2.5 text-xs md:text-sm border border-slate-300 rounded-lg">
                         <input type="tel" id="manCustPhone" placeholder="Telefon Numarası *" required class="px-3 py-2.5 text-xs md:text-sm border border-slate-300 rounded-lg">
                         <input type="number" id="manCustDebt" step="0.01" placeholder="Açılış Borç Tutarı (₺) *" required class="px-3 py-2.5 text-xs md:text-sm border border-slate-300 rounded-lg">
-                        <input type="text" id="manCustDesc" placeholder="İşlem Açıklaması (Örn: Özel sipariş borcu)" class="px-3 py-2.5 text-xs md:text-sm border border-slate-300 rounded-lg">
+                        <input type="text" id="manCustDesc" placeholder="İşlem Açıklaması" class="px-3 py-2.5 text-xs md:text-sm border border-slate-300 rounded-lg">
+                        <div class="flex gap-2">
+                            <input type="number" id="manCustInstallment" min="1" value="1" placeholder="Taksit Sayısı" class="w-24 px-2 py-2.5 text-xs md:text-sm border border-slate-300 rounded-lg text-center font-bold" title="Taksit Sayısı">
+                        </div>
                         <div class="flex gap-2">
                             <button type="submit" id="manualSubmitBtn" class="flex-grow bg-amber-600 hover:bg-amber-700 text-white text-xs md:text-sm font-semibold rounded-lg py-2.5">
-                                <i class="fa-solid fa-plus"></i> Cari Deftere Ekle
+                                <i class="fa-solid fa-plus"></i> Ekle
                             </button>
                             <button type="button" id="manualCancelBtn" onclick="resetManualForm()" class="hidden bg-slate-500 hover:bg-slate-600 text-white text-xs px-3 rounded-lg py-2.5">İptal</button>
                         </div>
@@ -346,16 +385,21 @@
 
             <div id="ledger-sub-toplu" class="space-y-6 hidden">
                 <div class="bg-white rounded-xl p-4 md:p-6 shadow-sm border border-slate-200">
-                    <h2 class="text-base md:text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-                        <i class="fa-solid fa-city text-amber-600"></i> TOPLU MONTAJ DEFTERİNE MANUEL PROJE / CARİ EKLENMESİ
+                    <h2 id="topluFormTitle" class="text-base md:text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-city text-amber-600"></i> TOPLU MONTAJ DEFTERİNE MANUEL PROJE / CARİ EKLENMESİ / DÜZENLENMESİ
                     </h2>
-                    <form onsubmit="addManualTopluMontajLedger(event)" class="grid grid-cols-1 md:grid-cols-4 gap-3">
+                    <form onsubmit="addOrUpdateManualTopluMontajLedger(event)" class="grid grid-cols-1 md:grid-cols-5 gap-3">
+                        <input type="hidden" id="editTopluIndex" value="">
                         <input type="text" id="topluCustName" placeholder="Proje / Müşteri Adı *" required class="px-3 py-2.5 text-xs md:text-sm border border-slate-300 rounded-lg">
                         <input type="tel" id="topluCustPhone" placeholder="Telefon Numarası *" required class="px-3 py-2.5 text-xs md:text-sm border border-slate-300 rounded-lg">
                         <input type="number" id="topluCustDebt" step="0.01" placeholder="Proje / Montaj Borç Tutarı (₺) *" required class="px-3 py-2.5 text-xs md:text-sm border border-slate-300 rounded-lg">
-                        <button type="submit" class="bg-purple-600 hover:bg-purple-700 text-white text-xs md:text-sm font-semibold rounded-lg py-2.5">
-                            <i class="fa-solid fa-plus"></i> Toplu Montaj Defterine Ekle
-                        </button>
+                        <input type="number" id="topluCustInstallment" min="1" value="1" placeholder="Taksit Sayısı" class="px-3 py-2.5 text-xs md:text-sm border border-slate-300 rounded-lg text-center font-bold">
+                        <div class="flex gap-2">
+                            <button type="submit" id="topluSubmitBtn" class="flex-grow bg-purple-600 hover:bg-purple-700 text-white text-xs md:text-sm font-semibold rounded-lg py-2.5">
+                                <i class="fa-solid fa-plus"></i> Ekle
+                            </button>
+                            <button type="button" id="topluCancelBtn" onclick="resetTopluForm()" class="hidden bg-slate-500 hover:bg-slate-600 text-white text-xs px-3 rounded-lg py-2.5">İptal</button>
+                        </div>
                     </form>
                 </div>
 
@@ -381,13 +425,14 @@
                                 </tr>
                             </thead>
                             <tbody id="topluMontajLedgerBody" class="divide-y divide-slate-200"></tbody>
+                            <tfoot id="topluLedgerTableFoot" class="bg-slate-900 text-white font-bold text-xs md:text-sm"></tfoot>
                         </table>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- TAB 5: GELİR / GİDER & KASA -->
+        <!-- TAB 6: GELİR / GİDER & KASA -->
         <section id="sec-finance" class="space-y-6 hidden">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
@@ -408,20 +453,76 @@
                 </div>
             </div>
 
-            <div class="bg-white rounded-xl p-4 md:p-6 shadow-sm border border-slate-200">
-                <h2 class="text-base md:text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-                    <i class="fa-solid fa-wallet text-blue-600"></i> KASA GİDER DEFTERİ
-                </h2>
-                <form onsubmit="addExpense(event)" class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
-                    <input type="text" id="expDesc" placeholder="Gider Açıklaması (Kira, Yemek, Personel)" required class="px-3 py-2 text-xs md:text-sm border border-slate-300 rounded-lg">
-                    <input type="number" id="expAmount" step="0.01" placeholder="Tutar (₺)" required class="px-3 py-2 text-xs md:text-sm border border-slate-300 rounded-lg">
-                    <button type="submit" class="bg-red-600 hover:bg-red-700 text-white text-xs md:text-sm font-semibold rounded-lg py-2">Gider Ekle</button>
+            <!-- GÜNCELLENEN KASA HAREKETLERİ & TAHSİLAT DEFTERİ (TARİH/SAAT BİLGİLİ) -->
+            <div class="bg-white rounded-xl p-4 md:p-6 shadow-sm border border-slate-200 space-y-4">
+                <div class="flex justify-between items-center">
+                    <h2 class="text-base md:text-lg font-bold text-slate-800 flex items-center gap-2">
+                        <i class="fa-solid fa-wallet text-emerald-600"></i> KASA HAREKETLERİ & TAHSİLAT DEFTERİ
+                    </h2>
+                    <span class="text-xs text-slate-500">Tüm tahsilat ve kasa hareketleri tarih ve saat bilgisiyle kayıt altındadır</span>
+                </div>
+                
+                <form onsubmit="addManualIncome(event)" class="grid grid-cols-1 md:grid-cols-3 gap-3 p-3 bg-slate-50 rounded-xl border border-slate-200">
+                    <input type="text" id="incDesc" placeholder="Ek Gelir Açıklaması (Örn: Ekstra Malzeme Satışı)" required class="px-3 py-2 text-xs md:text-sm border border-slate-300 rounded-lg">
+                    <input type="number" id="incAmount" step="0.01" placeholder="Gelir Tutarı (₺)" required class="px-3 py-2 text-xs md:text-sm border border-slate-300 rounded-lg">
+                    <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs md:text-sm font-semibold rounded-lg py-2 flex items-center justify-center gap-1.5"><i class="fa-solid fa-plus"></i> Kasaya Gelir Ekle</button>
                 </form>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs md:text-sm">
+                        <thead class="bg-slate-100 text-slate-700 font-semibold border-b">
+                            <tr>
+                                <th class="p-3">Tarih / Saat</th>
+                                <th class="p-3">İşlem Türü</th>
+                                <th class="p-3">Açıklama / Müşteri</th>
+                                <th class="p-3 text-right">Tutar (₺)</th>
+                                <th class="p-3 text-center w-16">İşlem</th>
+                            </tr>
+                        </thead>
+                        <tbody id="kasaHareketleriTableBody" class="divide-y divide-slate-200"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- DÜKKAN GİDERLERİ: HAM MADDE VE TEMİZLİK KATEGORİLİ -->
+            <div class="bg-white rounded-xl p-4 md:p-6 shadow-sm border border-slate-200 space-y-4">
+                <h2 class="text-base md:text-lg font-bold text-slate-800 flex items-center gap-2">
+                    <i class="fa-solid fa-receipt text-red-600"></i> DÜKKAN GİDER DEFTERİ (HAM MADDE & TEMİZLİK / İHTİYAÇ)
+                </h2>
+                
+                <!-- Gider Özet Kartları -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <div class="bg-red-50 p-3 rounded-lg border border-red-200">
+                        <span class="text-xs font-bold text-red-700">HAM MADDE GİDERLERİ</span>
+                        <div id="hamMaddeExpenseTotal" class="text-lg font-black text-red-800 mt-1">0.00 ₺</div>
+                    </div>
+                    <div class="bg-orange-50 p-3 rounded-lg border border-orange-200">
+                        <span class="text-xs font-bold text-orange-700">İŞ YERİ TEMİZLİK & İHTİYAÇ</span>
+                        <div id="temizlikExpenseTotal" class="text-lg font-black text-orange-800 mt-1">0.00 ₺</div>
+                    </div>
+                    <div class="bg-slate-100 p-3 rounded-lg border border-slate-200">
+                        <span class="text-xs font-bold text-slate-700">DİĞER / GENEL GİDERLER</span>
+                        <div id="digerExpenseTotal" class="text-lg font-black text-slate-800 mt-1">0.00 ₺</div>
+                    </div>
+                </div>
+
+                <form onsubmit="addExpense(event)" class="grid grid-cols-1 md:grid-cols-4 gap-3 p-3 bg-slate-50 rounded-xl border border-slate-200">
+                    <input type="text" id="expDesc" placeholder="Gider Açıklaması (Kira, Boru, Deterjan vb.)" required class="px-3 py-2 text-xs md:text-sm border border-slate-300 rounded-lg">
+                    <select id="expCategory" class="px-3 py-2 text-xs md:text-sm border border-slate-300 rounded-lg bg-white font-semibold text-slate-700">
+                        <option value="Hammadde">Ham Madde Gideri</option>
+                        <option value="Temizlik">İş Yeri Temizlik & İhtiyaç</option>
+                        <option value="Genel">Genel / Diğer Gider</option>
+                    </select>
+                    <input type="number" id="expAmount" step="0.01" placeholder="Tutar (₺)" required class="px-3 py-2 text-xs md:text-sm border border-slate-300 rounded-lg">
+                    <button type="submit" class="bg-red-600 hover:bg-red-700 text-white text-xs md:text-sm font-semibold rounded-lg py-2 flex items-center justify-center gap-1.5"><i class="fa-solid fa-plus"></i> Gider Ekle</button>
+                </form>
+
                 <div class="max-h-60 overflow-y-auto">
                     <table class="w-full text-left text-xs md:text-sm">
-                        <thead class="bg-slate-100">
+                        <thead class="bg-slate-100 font-semibold">
                             <tr>
                                 <th class="p-2">Tarih</th>
+                                <th class="p-2">Kategori</th>
                                 <th class="p-2">Açıklama</th>
                                 <th class="p-2 text-right">Tutar</th>
                                 <th class="p-2 text-center w-12">İşlem</th>
@@ -433,7 +534,7 @@
             </div>
         </section>
 
-        <!-- TAB 6: GERİ DÖNÜŞÜM KUTUSU & DENETİM İZLERİ -->
+        <!-- TAB 7: GERİ DÖNÜŞÜM KUTUSU & DENETİM İZLERİ -->
         <section id="sec-recycle" class="space-y-6 hidden">
             <div class="flex border-b border-slate-200 gap-4 mb-2">
                 <button onclick="switchRecycleSubTab('deleted')" id="subtab-recycle-deleted" class="py-2 px-4 border-b-2 border-red-600 font-bold text-xs md:text-sm text-red-700">
@@ -495,7 +596,7 @@
             </div>
         </section>
 
-        <!-- TAB 7: AYARLAR & YÖNETİM -->
+        <!-- TAB 8: AYARLAR & YÖNETİM -->
         <section id="sec-settings" class="space-y-6 hidden">
 
             <!-- WHATSAPP HAZIR MESAJLAR & OTOMATİK BİLGİLENDİRME AYARLARI -->
@@ -598,6 +699,24 @@
 
     </main>
 
+    <!-- MÜŞTERİ KARTI & TAKSİT YÖNETİM MODALI -->
+    <div id="customerCardModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden no-print px-3">
+        <div class="bg-white rounded-xl p-4 md:p-6 w-full max-w-2xl shadow-2xl space-y-4 max-h-[90vh] flex flex-col">
+            <div class="flex justify-between items-center border-b pb-3">
+                <h3 class="font-bold text-slate-800 text-sm md:text-base flex items-center gap-2" id="modalCustomerTitle">
+                    <i class="fa-solid fa-id-card text-blue-600"></i> Müşteri Kartı Detayları
+                </h3>
+                <button onclick="closeCustomerCardModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            
+            <div class="overflow-y-auto flex-grow space-y-4" id="modalCustomerContent"></div>
+
+            <div class="flex justify-end gap-2 pt-3 border-t">
+                <button onclick="closeCustomerCardModal()" class="px-4 py-2 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-100">Kapat</button>
+            </div>
+        </div>
+    </div>
+
     <!-- MÜŞTERİ ÖLÇÜ DETAY MODALI -->
     <div id="orderDetailModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden no-print px-3">
         <div class="bg-white rounded-xl p-4 md:p-6 w-full max-w-4xl shadow-2xl space-y-4 max-h-[90vh] flex flex-col">
@@ -629,7 +748,7 @@
 
     <script>
         const SHEETS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxPwtNChpye0O2n3ugRPgk_saqel4mo5kxBWicCfEdUc6HNpTuSwBkrDIPMCAVGx4h2/exec";
-        const STORAGE_KEY = "fix_house_23_data_v731";
+        const STORAGE_KEY = "fix_house_23_data_v750";
 
         const DEFAULT_SETTINGS = {
             montajPrice: 220,
@@ -670,6 +789,8 @@
             expenses: [],
             manualLedgers: [],
             topluLedgers: [],
+            customerCards: [], // Müşteri kartları ve taksit planları veritabanı
+            kasaHareketleri: [],
             recycleBin: [],
             auditLogs: [],
             whatsappTemplates: {}
@@ -686,6 +807,7 @@
             setInterval(() => manualCloudSync(false), 5000);
             
             addMeasureRow();
+            checkInstallmentReminders();
         });
 
         async function manualCloudSync(isInitial = false) {
@@ -705,6 +827,8 @@
                         appData.expenses = cloudData.expenses || [];
                         appData.manualLedgers = cloudData.manualLedgers || [];
                         appData.topluLedgers = cloudData.topluLedgers || [];
+                        appData.customerCards = cloudData.customerCards || [];
+                        appData.kasaHareketleri = cloudData.kasaHareketleri || [];
                         appData.recycleBin = cloudData.recycleBin || [];
                         appData.auditLogs = cloudData.auditLogs || [];
                         appData.whatsappTemplates = cloudData.whatsappTemplates || {};
@@ -742,8 +866,10 @@
         }
 
         function refreshAllViews() {
+            syncCustomerCardsFromSources();
             renderCart();
             renderArchive();
+            renderCustomerCards();
             renderFinance();
             renderLedgerTab();
             renderTopluLedger();
@@ -779,6 +905,7 @@
 
             if(tabName === 'cart') renderCart();
             if(tabName === 'archive') renderArchive();
+            if(tabName === 'customers') renderCustomerCards();
             if(tabName === 'ledger') renderLedgerTab();
             if(tabName === 'finance') renderFinance();
             if(tabName === 'recycle') { renderRecycleBin(); renderAuditLogs(); }
@@ -872,14 +999,305 @@
             };
 
             let msg = templates[templateKey] || "Fix House 23 bilgilendirme.";
-            msg = msg.replace(/\{MUSTERI\}/g, ord.customerName).replace(/\{SIPARIS_ID\}/g, ord.id);
+            msg = msg.replace(/\{MUSTERI\}/g, ord.customerName || ord.name).replace(/\{SIPARIS_ID\}/g, ord.id || '');
 
-            let phone = ord.customerPhone.replace(/\D/g, '');
+            let phone = (ord.customerPhone || ord.phone || '').replace(/\D/g, '');
             if(phone.startsWith('0')) phone = '9' + phone;
 
             const waUrl = `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
             window.open(waUrl, '_blank');
-            logAuditEvent("WhatsApp Mesaj Gönderildi", `${ord.customerName} - Durum: ${newStatus}`);
+            logAuditEvent("WhatsApp Mesaj Gönderildi", `${ord.customerName || ord.name} - Durum: ${newStatus}`);
+        }
+
+        // --- MÜŞTERİ KARTI & TAKSİT YÖNETİMİ ---
+        function syncCustomerCardsFromSources() {
+            if(!appData.customerCards) appData.customerCards = [];
+
+            // 1. Arşiv siparişlerinden müşteri kartları eşitle veya oluştur
+            appData.archive.forEach(ord => {
+                let existing = appData.customerCards.find(c => c.phone === ord.customerPhone || (c.name.toLowerCase() === ord.customerName.toLowerCase()));
+                if(!existing) {
+                    appData.customerCards.push({
+                        id: 'CUST-' + Date.now().toString().slice(-5) + Math.floor(Math.random()*1000),
+                        name: ord.customerName,
+                        phone: ord.customerPhone,
+                        address: ord.customerAddress || '',
+                        source: 'Sipariş Arşivi',
+                        refId: ord.id,
+                        totalDebt: ord.totalAmount,
+                        paidAmount: ord.paidAmount || 0,
+                        installmentCount: ord.installmentCount || 1,
+                        startDate: ord.date || new Date().toLocaleDateString('tr-TR'),
+                        installments: ord.installments || generateInstallmentPlan(ord.totalAmount, ord.installmentCount || 1, ord.date)
+                    });
+                } else {
+                    existing.totalDebt = ord.totalAmount;
+                    existing.paidAmount = ord.paidAmount || 0;
+                    if(!existing.installments || existing.installments.length === 0) {
+                        existing.installments = generateInstallmentPlan(ord.totalAmount, existing.installmentCount || 1, existing.startDate || ord.date);
+                    }
+                }
+            });
+
+            // 2. Manuel Carilerden müşteri kartları oluştur
+            appData.manualLedgers.forEach(man => {
+                let existing = appData.customerCards.find(c => c.phone === man.phone || (c.name.toLowerCase() === man.name.toLowerCase()));
+                if(!existing) {
+                    appData.customerCards.push({
+                        id: 'CUST-MAN-' + man.id,
+                        name: man.name,
+                        phone: man.phone,
+                        address: '',
+                        source: 'Bireysel Cari Defter',
+                        refId: man.id,
+                        totalDebt: man.debt,
+                        paidAmount: man.paid || 0,
+                        installmentCount: man.installmentCount || 1,
+                        startDate: new Date().toLocaleDateString('tr-TR'),
+                        installments: man.installments || generateInstallmentPlan(man.debt, man.installmentCount || 1, new Date().toLocaleDateString('tr-TR'))
+                    });
+                } else {
+                    existing.totalDebt = man.debt;
+                    existing.paidAmount = man.paid || 0;
+                }
+            });
+
+            // 3. Toplu Montaj / Projelerden kartlar oluştur
+            appData.topluLedgers.forEach(top => {
+                let existing = appData.customerCards.find(c => c.phone === top.customerPhone || (c.name.toLowerCase() === top.customerName.toLowerCase()));
+                if(!existing) {
+                    appData.customerCards.push({
+                        id: 'CUST-TOP-' + top.id,
+                        name: top.customerName,
+                        phone: top.customerPhone,
+                        address: '',
+                        source: 'Toplu Montaj Projesi',
+                        refId: top.id,
+                        totalDebt: top.totalAmount,
+                        paidAmount: top.paidAmount || 0,
+                        installmentCount: top.installmentCount || 1,
+                        startDate: top.date || new Date().toLocaleDateString('tr-TR'),
+                        installments: top.installments || generateInstallmentPlan(top.totalAmount, top.installmentCount || 1, top.date || new Date().toLocaleDateString('tr-TR'))
+                    });
+                } else {
+                    existing.totalDebt = top.totalAmount;
+                    existing.paidAmount = top.paidAmount || 0;
+                }
+            });
+        }
+
+        function generateInstallmentPlan(totalAmount, count, dateStr) {
+            let plan = [];
+            let perInstallment = totalAmount / count;
+            
+            // Tarih milat olarak sipariş/kayıt tarihi alınır
+            let baseDate = new Date();
+            if(dateStr && dateStr.includes('.')) {
+                let parts = dateStr.split('.');
+                if(parts.length === 3) {
+                    baseDate = new Date(`${parts[2]}-${parts[1]}-${parts[0]}`);
+                }
+            }
+
+            for(let i = 1; i <= count; i++) {
+                let instDate = new Date(baseDate);
+                instDate.setMonth(instDate.getMonth() + (i - 1)); // Her ay bir taksit
+                
+                plan.push({
+                    no: i,
+                    amount: perInstallment,
+                    dueDate: instDate.toLocaleDateString('tr-TR'),
+                    isPaid: false
+                });
+            }
+            return plan;
+        }
+
+        function renderCustomerCards() {
+            const tbody = document.getElementById('customerCardsTableBody');
+            const tfoot = document.getElementById('customerCardsTableFoot');
+            if(!tbody || !tfoot) return;
+            
+            tbody.innerHTML = '';
+            const query = (document.getElementById('customerSearchInput')?.value || '').toLowerCase();
+            const filtered = appData.customerCards.filter(c => c.name.toLowerCase().includes(query) || c.phone.includes(query));
+            
+            document.getElementById('customerBadge').innerText = appData.customerCards.length;
+
+            let totalDebtSum = 0, totalPaidSum = 0;
+
+            if(filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="8" class="text-center py-8 text-slate-400">Kayıtlı müşteri kartı bulunmamaktadır.</td></tr>`;
+            } else {
+                filtered.forEach((cust, idx) => {
+                    totalDebtSum += cust.totalDebt;
+                    totalPaidSum += cust.paidAmount;
+                    let remaining = cust.totalDebt - cust.paidAmount;
+
+                    // Taksit durum özeti
+                    let paidInstCount = cust.installments ? cust.installments.filter(inst => inst.isPaid).length : 0;
+                    let totalInstCount = cust.installments ? cust.installments.length : 1;
+
+                    tbody.innerHTML += `
+                        <tr class="hover:bg-slate-50">
+                            <td class="p-3 font-bold text-slate-900">${escapeHTML(cust.name)}</td>
+                            <td class="p-3 text-slate-600">${escapeHTML(cust.phone)}<br><span class="text-[10px] text-slate-400">${escapeHTML(cust.address || '-')}</span></td>
+                            <td class="p-3 text-center"><span class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-[10px] font-bold">${cust.source}</span></td>
+                            <td class="p-3 text-right font-bold">${cust.totalDebt.toFixed(2)} ₺</td>
+                            <td class="p-3 text-right text-emerald-600 font-bold">${cust.paidAmount.toFixed(2)} ₺</td>
+                            <td class="p-3 text-right text-red-600 font-black">${remaining.toFixed(2)} ₺</td>
+                            <td class="p-3 text-center">
+                                <span class="bg-amber-100 text-amber-800 px-2.5 py-1 rounded-full text-xs font-bold">${paidInstCount} / ${totalInstCount} Taksit Ödendi</span>
+                            </td>
+                            <td class="p-3 text-center space-x-1.5 whitespace-nowrap">
+                                <button onclick="openCustomerCardModal('${cust.id}')" class="bg-blue-600 hover:bg-blue-700 text-white px-2.5 py-1 rounded text-xs font-semibold"><i class="fa-solid id-card"></i> Kartı Aç</button>
+                                <button onclick="editCustomerCard(${idx})" class="bg-amber-600 hover:bg-amber-700 text-white px-2.5 py-1 rounded text-xs font-semibold"><i class="fa-solid fa-pen-to-square"></i> Düzenle</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            }
+
+            let remSum = totalDebtSum - totalPaidSum;
+            tfoot.innerHTML = `
+                <tr class="bg-slate-900">
+                    <td colspan="3" class="p-3 text-right uppercase tracking-wider">MÜŞTERİ KARTLARI GENEL TOPLAM:</td>
+                    <td class="p-3 text-right">${totalDebtSum.toFixed(2)} ₺</td>
+                    <td class="p-3 text-right text-emerald-400">${totalPaidSum.toFixed(2)} ₺</td>
+                    <td class="p-3 text-right text-red-400">${remSum.toFixed(2)} ₺</td>
+                    <td colspan="2"></td>
+                </tr>
+            `;
+        }
+
+        function openCustomerCardModal(custId) {
+            const cust = appData.customerCards.find(c => c.id === custId);
+            if(!cust) return;
+
+            document.getElementById('modalCustomerTitle').innerHTML = `<i class="fa-solid fa-id-card text-blue-600"></i> Müşteri Kartı: ${escapeHTML(cust.name)}`;
+            
+            let installmentsHtml = '';
+            if(cust.installments && cust.installments.length > 0) {
+                cust.installments.forEach((inst, iIdx) => {
+                    installmentsHtml += `
+                        <div class="flex justify-between items-center bg-slate-50 p-2 rounded border border-slate-200 text-xs">
+                            <div><b>${inst.no}. Taksit</b> - Vade: <b>${inst.dueDate}</b></div>
+                            <div class="font-bold">${inst.amount.toFixed(2)} ₺</div>
+                            <div>
+                                <span class="px-2 py-1 rounded font-bold ${inst.isPaid ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}">
+                                    ${inst.isPaid ? 'Ödendi' : 'Ödenmedi'}
+                                </span>
+                                <button onclick="toggleInstallmentPayment('${cust.id}', ${iIdx})" class="ml-2 bg-slate-800 text-white px-2 py-1 rounded text-[11px]">
+                                    ${inst.isPaid ? 'İptal Et' : 'Öde / Tahsil Et'}
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                });
+            } else {
+                installmentsHtml = '<div class="text-slate-400 text-xs">Taksit planı bulunmuyor.</div>';
+            }
+
+            document.getElementById('modalCustomerContent').innerHTML = `
+                <div class="bg-slate-50 p-3 rounded-lg text-xs space-y-1">
+                    <div><b>Ad Soyad:</b> ${escapeHTML(cust.name)}</div>
+                    <div><b>Telefon:</b> ${escapeHTML(cust.phone)} | <b>Adres:</b> ${escapeHTML(cust.address || 'Belirtilmedi')}</div>
+                    <div><b>Toplam Borç:</b> ${cust.totalDebt.toFixed(2)} ₺ | <b>Ödenen:</b> ${cust.paidAmount.toFixed(2)} ₺ | <b>Kalan:</b> ${(cust.totalDebt - cust.paidAmount).toFixed(2)} ₺</div>
+                    <div><b>Kayıt Kaynağı:</b> ${cust.source} (${cust.startDate})</div>
+                </div>
+
+                <div class="space-y-2">
+                    <h4 class="font-bold text-xs text-slate-700 uppercase tracking-wide">Taksit Planı & Vade Takibi (Milat: ${cust.startDate})</h4>
+                    <div class="space-y-1.5 max-h-60 overflow-y-auto">${installmentsHtml}</div>
+                </div>
+            `;
+
+            document.getElementById('customerCardModal').classList.remove('hidden');
+        }
+
+        function closeCustomerCardModal() {
+            document.getElementById('customerCardModal').classList.add('hidden');
+        }
+
+        async function toggleInstallmentPayment(custId, instIdx) {
+            const cust = appData.customerCards.find(c => c.id === custId);
+            if(!cust || !cust.installments || !cust.installments[instIdx]) return;
+
+            let inst = cust.installments[instIdx];
+            inst.isPaid = !inst.isPaid;
+
+            // Ödenen miktarı güncelle
+            let newPaid = 0;
+            cust.installments.forEach(item => { if(item.isPaid) newPaid += item.amount; });
+            cust.paidAmount = newPaid;
+
+            // İlgili kaynak kayıtlarında da güncelle (Arşiv, Manuel cari veya Toplu montaj)
+            if(cust.source === 'Sipariş Arşivi') {
+                let arc = appData.archive.find(o => o.id === cust.refId);
+                if(arc) { arc.paidAmount = newPaid; arc.installments = cust.installments; }
+            } else if(cust.source === 'Bireysel Cari Defter') {
+                let man = appData.manualLedgers.find(m => m.id === cust.refId);
+                if(man) { man.paid = newPaid; man.installments = cust.installments; }
+            } else if(cust.source === 'Toplu Montaj Projesi') {
+                let top = appData.topluLedgers.find(t => t.id === cust.refId);
+                if(top) { top.paidAmount = newPaid; top.installments = cust.installments; }
+            }
+
+            // Kasaya tahsilat hareketi ekle veya düş
+            if(!appData.kasaHareketleri) appData.kasaHareketleri = [];
+            appData.kasaHareketleri.push({
+                date: new Date().toLocaleDateString('tr-TR') + ' ' + new Date().toLocaleTimeString('tr-TR'),
+                type: inst.isPaid ? 'Taksit Tahsilatı' : 'Taksit İptali',
+                desc: `${cust.name} (${inst.no}. Taksit)`,
+                amount: inst.isPaid ? inst.amount : -inst.amount
+            });
+
+            await saveLocalData();
+            logAuditEvent("Taksit Durumu Güncellendi", `${cust.name} - ${inst.no}. Taksit: ${inst.isPaid ? 'Ödendi' : 'Ödenmedi'}`);
+            openCustomerCardModal(custId);
+        }
+
+        function editCustomerCard(idx) {
+            const cust = appData.customerCards[idx];
+            if(!cust) return;
+
+            let newName = prompt("Müşteri Adı Soyadı:", cust.name);
+            if(newName === null) return;
+            let newPhone = prompt("Telefon Numarası:", cust.phone);
+            if(newPhone === null) return;
+            let newAddress = prompt("Adres:", cust.address || '');
+            if(newAddress === null) return;
+            let newInstCount = parseInt(prompt("Taksit Sayısı:", cust.installmentCount || 1)) || 1;
+
+            cust.name = escapeHTML(newName);
+            cust.phone = escapeHTML(newPhone);
+            cust.address = escapeHTML(newAddress);
+            cust.installmentCount = newInstCount;
+            cust.installments = generateInstallmentPlan(cust.totalDebt, newInstCount, cust.startDate);
+
+            saveLocalData();
+            alert("Müşteri kartı ve taksit planı başarıyla güncellendi!");
+        }
+
+        function checkInstallmentReminders() {
+            // Ödeme vadesi gelen taksitler için sistem içi kontrol / bildirim
+            let todayStr = new Date().toLocaleDateString('tr-TR');
+            if(!appData.customerCards) return;
+
+            let dueTodayCount = 0;
+            appData.customerCards.forEach(c => {
+                if(c.installments) {
+                    c.installments.forEach(inst => {
+                        if(!inst.isPaid && inst.dueDate === todayStr) {
+                            dueTodayCount++;
+                        }
+                    });
+                }
+            });
+
+            if(dueTodayCount > 0) {
+                console.log(`Bugün vadesi gelen ${dueTodayCount} adet taksit bulunmaktadır.`);
+            }
         }
 
         function addMeasureRow(initialData = null) {
@@ -1380,6 +1798,8 @@
                 totalAmount: parseFloat(document.getElementById('grandTotalDisplay').innerText) || 0,
                 status: 'Sipariş Alındı',
                 paidAmount: 0,
+                installmentCount: 1,
+                installments: generateInstallmentPlan(parseFloat(document.getElementById('grandTotalDisplay').innerText) || 0, 1, new Date().toLocaleDateString('tr-TR')),
                 items: items
             };
         }
@@ -1500,8 +1920,8 @@
                             </select>
                         </td>
                         <td class="p-3 text-center">
-                            <span class="px-2 py-0.5 rounded text-[11px] font-bold ${order.paidAmount >= order.totalAmount ? 'bg-emerald-100 text-emerald-700':'bg-amber-100 text-amber-700'}">
-                                ${order.paidAmount >= order.totalAmount ? 'Ödendi':'Kalan: ' + (order.totalAmount - order.paidAmount).toFixed(2) + ' ₺'}
+                            <span class="px-2 py-0.5 rounded text-[11px] font-bold ${(order.paidAmount || 0) >= order.totalAmount ? 'bg-emerald-100 text-emerald-700':'bg-amber-100 text-amber-700'}">
+                                ${(order.paidAmount || 0) >= order.totalAmount ? 'Ödendi':'Kalan: ' + (order.totalAmount - (order.paidAmount || 0)).toFixed(2) + ' ₺'}
                             </span>
                         </td>
                         <td class="p-3 text-center space-x-1.5 whitespace-nowrap">
@@ -1546,6 +1966,17 @@
             const ord = appData.archive[idx];
             logRecycleItem('Arşiv Siparişi Silindi', `${ord.customerName} - ${ord.id} arşivden silindi.`, ord.totalAmount);
             logAuditEvent("Arşiv Siparişi Silindi", `${ord.customerName} - ${ord.id}`);
+            
+            if(ord.paidAmount && ord.paidAmount > 0) {
+                if(!appData.kasaHareketleri) appData.kasaHareketleri = [];
+                appData.kasaHareketleri.push({
+                    date: new Date().toLocaleDateString('tr-TR') + ' ' + new Date().toLocaleTimeString('tr-TR'),
+                    type: 'Tahsilat İptali',
+                    desc: `${ord.customerName} (${ord.id}) silindiği için tahsilat iadesi`,
+                    amount: -ord.paidAmount
+                });
+            }
+
             appData.archive.splice(idx, 1);
             await saveLocalData();
         }
@@ -1564,25 +1995,142 @@
             switchLedgerSubTab('toplu');
         }
 
-        async function addManualTopluMontajLedger(e) {
+        // --- TOPLU MONTAJ DEFTERİNE MANUEL EKLENMESİ / DÜZENLENMESİ & ALT TOPLAM ---
+        async function addOrUpdateManualTopluMontajLedger(e) {
             e.preventDefault();
+            const editIdx = document.getElementById('editTopluIndex').value;
             const name = escapeHTML(document.getElementById('topluCustName').value.trim());
             const phone = escapeHTML(document.getElementById('topluCustPhone').value.trim());
             const debt = parseFloat(document.getElementById('topluCustDebt').value) || 0;
+            const instCount = parseInt(document.getElementById('topluCustInstallment').value) || 1;
 
             if(!appData.topluLedgers) appData.topluLedgers = [];
 
-            appData.topluLedgers.push({
-                id: 'PRJ-' + Date.now().toString().slice(-4),
-                customerName: name, customerPhone: phone, totalAmount: debt, paidAmount: 0, items: [], isManual: true
-            });
+            if(editIdx !== "" && !isNaN(editIdx) && appData.topluLedgers[editIdx]) {
+                appData.topluLedgers[editIdx].customerName = name;
+                appData.topluLedgers[editIdx].customerPhone = phone;
+                appData.topluLedgers[editIdx].totalAmount = debt;
+                appData.topluLedgers[editIdx].installmentCount = instCount;
+                appData.topluLedgers[editIdx].installments = generateInstallmentPlan(debt, instCount, appData.topluLedgers[editIdx].date || new Date().toLocaleDateString('tr-TR'));
+                logAuditEvent("Toplu Montaj Projesi Güncellendi", `${name} - ${debt} TL`);
+                alert('Toplu Montaj Projesi Güncellendi!');
+            } else {
+                appData.topluLedgers.push({
+                    id: 'PRJ-' + Date.now().toString().slice(-4),
+                    date: new Date().toLocaleDateString('tr-TR'),
+                    customerName: name, 
+                    customerPhone: phone, 
+                    totalAmount: debt, 
+                    paidAmount: 0, 
+                    installmentCount: instCount,
+                    installments: generateInstallmentPlan(debt, instCount, new Date().toLocaleDateString('tr-TR')),
+                    items: [], 
+                    isManual: true
+                });
+                logAuditEvent("Toplu Montaj Cari Eklendi", `${name} - ${debt} TL`);
+                alert('Toplu Montaj Defterine Proje Carisi Eklendi!');
+            }
 
+            resetTopluForm();
             await saveLocalData();
-            logAuditEvent("Toplu Montaj Cari Eklendi", `${name} - ${debt} TL`);
+        }
+
+        function editTopluLedger(idx) {
+            const t = appData.topluLedgers[idx];
+            if(!t) return;
+
+            document.getElementById('editTopluIndex').value = idx;
+            document.getElementById('topluCustName').value = t.customerName;
+            document.getElementById('topluCustPhone').value = t.customerPhone;
+            document.getElementById('topluCustDebt').value = t.totalAmount;
+            document.getElementById('topluCustInstallment').value = t.installmentCount || 1;
+
+            document.getElementById('topluSubmitBtn').innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Güncelle';
+            document.getElementById('topluCancelBtn').classList.remove('hidden');
+            document.getElementById('topluFormTitle').innerHTML = `<i class="fa-solid fa-city text-amber-600"></i> TOPLU MONTAJ PROJESİ DÜZENLE (${t.customerName})`;
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function resetTopluForm() {
+            document.getElementById('editTopluIndex').value = '';
             document.getElementById('topluCustName').value = '';
             document.getElementById('topluCustPhone').value = '';
             document.getElementById('topluCustDebt').value = '';
-            alert('Toplu Montaj Defterine Proje Carisi Eklendi!');
+            document.getElementById('topluCustInstallment').value = '1';
+            document.getElementById('topluSubmitBtn').innerHTML = '<i class="fa-solid fa-plus"></i> Ekle';
+            document.getElementById('topluCancelBtn').classList.add('hidden');
+            document.getElementById('topluFormTitle').innerHTML = `<i class="fa-solid fa-city text-amber-600"></i> TOPLU MONTAJ DEFTERİNE MANUEL PROJE / CARİ EKLENMESİ / DÜZENLENMESİ`;
+        }
+
+        function renderTopluLedger() {
+            const tbody = document.getElementById('topluMontajLedgerBody');
+            const tfoot = document.getElementById('topluLedgerTableFoot');
+            if(!tbody || !tfoot) return;
+            tbody.innerHTML = '';
+            if(!appData.topluLedgers) return;
+
+            let totalContract = 0, totalPaid = 0;
+
+            if(appData.topluLedgers.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="8" class="text-center py-6 text-slate-400">Toplu montaj projesi bulunmamaktadır.</td></tr>`;
+            } else {
+                appData.topluLedgers.forEach((t, idx) => {
+                    const paid = t.paidAmount || 0;
+                    const remaining = t.totalAmount - paid;
+                    totalContract += t.totalAmount;
+                    totalPaid += paid;
+
+                    tbody.innerHTML += `
+                        <tr class="hover:bg-purple-50/30">
+                            <td class="p-3 font-semibold flex items-center gap-2">
+                                ${t.items && t.items.length > 0 ? `<button onclick="openOrderDetailModal('${t.id}')" class="text-blue-600 hover:text-blue-800"><i class="fa-solid fa-magnifying-glass"></i></button>` : '<i class="fa-solid fa-building text-purple-600"></i>'}
+                                <span>${escapeHTML(t.customerName)}</span>
+                            </td>
+                            <td class="p-3 text-slate-500">${escapeHTML(t.customerPhone)}</td>
+                            <td class="p-3 font-bold">${t.id}</td>
+                            <td class="p-3 text-center font-bold">${t.items ? t.items.length : 0} Kalem</td>
+                            <td class="p-3 text-right font-bold">${t.totalAmount.toFixed(2)} ₺</td>
+                            <td class="p-3 text-right text-emerald-600 font-bold">${paid.toFixed(2)} ₺</td>
+                            <td class="p-3 text-right text-red-600 font-black">${remaining.toFixed(2)} ₺</td>
+                            <td class="p-3 text-center space-x-1.5 whitespace-nowrap">
+                                ${remaining > 0 ? `<button onclick="addPayment('toplu', '${t.id}')" class="bg-blue-600 text-white px-2.5 py-1 rounded text-xs font-semibold">Tahsilat</button>` : '<span class="text-emerald-600 font-bold text-xs">Kapandı</span>'}
+                                <button onclick="editTopluLedger(${idx})" class="bg-amber-600 hover:bg-amber-700 text-white px-2 py-1 rounded text-xs font-semibold" title="Düzenle"><i class="fa-solid fa-pen-to-square"></i> Düzenle</button>
+                                <button onclick="deleteTopluLedger(${idx})" class="text-red-500 hover:text-red-700 px-1 font-bold" title="Sil"><i class="fa-solid fa-trash text-sm"></i></button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            }
+
+            let remSum = totalContract - totalPaid;
+            tfoot.innerHTML = `
+                <tr class="bg-slate-900">
+                    <td colspan="4" class="p-3 text-right uppercase tracking-wider">TOPLU MONTAJ ALT TOPLAM:</td>
+                    <td class="p-3 text-right">${totalContract.toFixed(2)} ₺</td>
+                    <td class="p-3 text-right text-emerald-400">${totalPaid.toFixed(2)} ₺</td>
+                    <td class="p-3 text-right text-red-400">${remSum.toFixed(2)} ₺</td>
+                    <td></td>
+                </tr>
+            `;
+        }
+
+        async function deleteTopluLedger(idx) {
+            const t = appData.topluLedgers[idx];
+            logRecycleItem('Toplu Montaj Kaydı Silindi', `${t.customerName} (${t.id}) toplu montaj defterinden silindi.`, t.totalAmount);
+            logAuditEvent("Toplu Montaj Kaydı Silindi", `${t.customerName} - ${t.id}`);
+            
+            if(t.paidAmount && t.paidAmount > 0) {
+                if(!appData.kasaHareketleri) appData.kasaHareketleri = [];
+                appData.kasaHareketleri.push({
+                    date: new Date().toLocaleDateString('tr-TR') + ' ' + new Date().toLocaleTimeString('tr-TR'),
+                    type: 'Proje Tahsilat İptali',
+                    desc: `${t.customerName} projesi silindiği için tahsilat iadesi`,
+                    amount: -t.paidAmount
+                });
+            }
+
+            appData.topluLedgers.splice(idx, 1);
+            await saveLocalData();
         }
 
         function renderLedgerTab() {
@@ -1689,6 +2237,17 @@
             const man = appData.manualLedgers[idx];
             logRecycleItem('Manuel Cari Silindi', `${man.name} cari kaydı silindi.`, man.debt);
             logAuditEvent("Manuel Cari Silindi", `${man.name}`);
+            
+            if(man.paid && man.paid > 0) {
+                if(!appData.kasaHareketleri) appData.kasaHareketleri = [];
+                appData.kasaHareketleri.push({
+                    date: new Date().toLocaleDateString('tr-TR') + ' ' + new Date().toLocaleTimeString('tr-TR'),
+                    type: 'Cari İade / İptal',
+                    desc: `${man.name} manuel cari silindiği için tahsilat düşüşü`,
+                    amount: -man.paid
+                });
+            }
+
             appData.manualLedgers.splice(idx, 1);
             await saveLocalData();
         }
@@ -1704,6 +2263,7 @@
             document.getElementById('manCustPhone').value = m.phone;
             document.getElementById('manCustDebt').value = m.debt;
             document.getElementById('manCustDesc').value = m.desc || '';
+            document.getElementById('manCustInstallment').value = m.installmentCount || 1;
             
             document.getElementById('manualSubmitBtn').innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Güncelle';
             document.getElementById('manualCancelBtn').classList.remove('hidden');
@@ -1717,7 +2277,8 @@
             document.getElementById('manCustPhone').value = '';
             document.getElementById('manCustDebt').value = '';
             document.getElementById('manCustDesc').value = '';
-            document.getElementById('manualSubmitBtn').innerHTML = '<i class="fa-solid fa-plus"></i> Cari Deftere Ekle';
+            document.getElementById('manCustInstallment').value = '1';
+            document.getElementById('manualSubmitBtn').innerHTML = '<i class="fa-solid fa-plus"></i> Ekle';
             document.getElementById('manualCancelBtn').classList.add('hidden');
             document.getElementById('manualFormTitle').innerHTML = `<i class="fa-solid fa-address-book text-amber-600"></i> MANUEL MÜŞTERİ CARİ KARTI OLUŞTUR / BORÇLANDIR (AÇIKLAMA DESTEKLİ)`;
         }
@@ -1729,6 +2290,7 @@
             const phone = escapeHTML(document.getElementById('manCustPhone').value.trim());
             const newTotalDebt = parseFloat(document.getElementById('manCustDebt').value) || 0;
             const desc = escapeHTML(document.getElementById('manCustDesc').value.trim());
+            const instCount = parseInt(document.getElementById('manCustInstallment').value) || 1;
 
             if(!appData.manualLedgers) appData.manualLedgers = [];
 
@@ -1737,12 +2299,15 @@
                 appData.manualLedgers[editIdx].phone = phone;
                 appData.manualLedgers[editIdx].debt = newTotalDebt;
                 appData.manualLedgers[editIdx].desc = desc;
+                appData.manualLedgers[editIdx].installmentCount = instCount;
+                appData.manualLedgers[editIdx].installments = generateInstallmentPlan(newTotalDebt, instCount, new Date().toLocaleDateString('tr-TR'));
                 logAuditEvent("Manuel Cari Güncellendi", `${name} - Toplam Borç: ${newTotalDebt} TL`);
                 alert('Manuel Müşteri Cari Kartı Güncellendi!');
             } else {
                 appData.manualLedgers.push({
                     id: 'MAN-' + Date.now().toString().slice(-4),
-                    name, phone, debt: newTotalDebt, paid: 0, desc
+                    name, phone, debt: newTotalDebt, paid: 0, desc, installmentCount: instCount,
+                    installments: generateInstallmentPlan(newTotalDebt, instCount, new Date().toLocaleDateString('tr-TR'))
                 });
                 logAuditEvent("Manuel Cari Eklendi", `${name} - Borç: ${newTotalDebt} TL`);
                 alert('Manuel Müşteri Cari Kartı Deftere Eklendi!');
@@ -1752,54 +2317,17 @@
             await saveLocalData();
         }
 
-        function renderTopluLedger() {
-            const tbody = document.getElementById('topluMontajLedgerBody');
-            if(!tbody) return;
-            tbody.innerHTML = '';
-            if(!appData.topluLedgers) return;
-
-            appData.topluLedgers.forEach((t, idx) => {
-                const remaining = t.totalAmount - (t.paidAmount || 0);
-                tbody.innerHTML += `
-                    <tr class="hover:bg-purple-50/30">
-                        <td class="p-3 font-semibold flex items-center gap-2">
-                            ${t.items && t.items.length > 0 ? `<button onclick="openOrderDetailModal('${t.id}')" class="text-blue-600 hover:text-blue-800"><i class="fa-solid fa-magnifying-glass"></i></button>` : '<i class="fa-solid fa-building text-purple-600"></i>'}
-                            <span>${escapeHTML(t.customerName)}</span>
-                        </td>
-                        <td class="p-3 text-slate-500">${escapeHTML(t.customerPhone)}</td>
-                        <td class="p-3 font-bold">${t.id}</td>
-                        <td class="p-3 text-center font-bold">${t.items ? t.items.length : 0} Kalem</td>
-                        <td class="p-3 text-right font-bold">${t.totalAmount.toFixed(2)} ₺</td>
-                        <td class="p-3 text-right text-emerald-600 font-bold">${(t.paidAmount || 0).toFixed(2)} ₺</td>
-                        <td class="p-3 text-right text-red-600 font-black">${remaining.toFixed(2)} ₺</td>
-                        <td class="p-3 text-center space-x-1.5 whitespace-nowrap">
-                            ${remaining > 0 ? `<button onclick="addPayment('toplu', '${t.id}')" class="bg-blue-600 text-white px-2.5 py-1 rounded text-xs font-semibold">Tahsilat Ekle</button>` : '<span class="text-emerald-600 font-bold text-xs">Kapandı</span>'}
-                            <button onclick="deleteTopluLedger(${idx})" class="text-red-500 hover:text-red-700 px-1 font-bold"><i class="fa-solid fa-trash text-sm"></i></button>
-                        </td>
-                    </tr>
-                `;
-            });
-        }
-
-        async function deleteTopluLedger(idx) {
-            const t = appData.topluLedgers[idx];
-            logRecycleItem('Toplu Montaj Kaydı Silindi', `${t.customerName} (${t.id}) toplu montaj defterinden silindi.`, t.totalAmount);
-            logAuditEvent("Toplu Montaj Kaydı Silindi", `${t.customerName} - ${t.id}`);
-            appData.topluLedgers.splice(idx, 1);
-            await saveLocalData();
-        }
-
         function openOrderDetailModal(orderId) {
             const ord = appData.archive.find(o => o.id === orderId) || appData.cart.find(o => o.id === orderId) || (appData.topluLedgers && appData.topluLedgers.find(o => o.id === orderId));
             if(!ord) return;
 
             currentDetailOrder = ord;
-            document.getElementById('modalOrderTitle').innerHTML = `<i class="fa-solid fa-magnifying-glass text-blue-600"></i> ${escapeHTML(ord.customerName)} - ${ord.id} (${ord.date})`;
+            document.getElementById('modalOrderTitle').innerHTML = `<i class="fa-solid fa-magnifying-glass text-blue-600"></i> ${escapeHTML(ord.customerName || ord.name)} - ${ord.id || ''} (${ord.date || ''})`;
             
             let contentHtml = `
                 <div class="bg-slate-50 p-3 rounded-lg text-xs md:text-sm space-y-1">
-                    <div><b>Telefon:</b> ${escapeHTML(ord.customerPhone)} | <b>Adres:</b> ${escapeHTML(ord.customerAddress) || 'Belirtilmedi'}</div>
-                    <div><b>Toplam Tutar:</b> ${ord.totalAmount.toFixed(2)} ₺ | <b>Ödenen:</b> ${(ord.paidAmount || 0).toFixed(2)} ₺</div>
+                    <div><b>Telefon:</b> ${escapeHTML(ord.customerPhone || ord.phone)} | <b>Adres:</b> ${escapeHTML(ord.customerAddress || 'Belirtilmedi')}</div>
+                    <div><b>Toplam Tutar:</b> ${(ord.totalAmount || ord.debt || 0).toFixed(2)} ₺ | <b>Ödenen:</b> ${(ord.paidAmount || ord.paid || 0).toFixed(2)} ₺</div>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-xs md:text-sm border-collapse min-w-[600px]">
@@ -1836,7 +2364,7 @@
                     `;
                 });
             } else {
-                contentHtml += `<tr><td colspan="9" class="text-center py-4 text-slate-400">Manuel borç kaydı.</td></tr>`;
+                contentHtml += `<tr><td colspan="9" class="text-center py-4 text-slate-400">Ölçü kalemi bulunmuyor.</td></tr>`;
             }
 
             contentHtml += `</tbody></table></div>`;
@@ -1934,6 +2462,14 @@
                     target.paidAmount = (target.paidAmount || 0) + amt;
                 }
 
+                if(!appData.kasaHareketleri) appData.kasaHareketleri = [];
+                appData.kasaHareketleri.push({
+                    date: new Date().toLocaleDateString('tr-TR') + ' ' + new Date().toLocaleTimeString('tr-TR'),
+                    type: 'Cari Tahsilat',
+                    desc: `${target.customerName || target.name} (${target.id || 'Cari'}) tahsilatı`,
+                    amount: amt
+                });
+
                 await saveLocalData();
                 logAuditEvent("Tahsilat Eklendi", `${target.customerName || target.name} - Tutar: ${amt} TL`);
 
@@ -1986,29 +2522,6 @@
                         </div>
                     </div>
 
-                    <table style="width: 100%; border-collapse: collapse; font-size: 10pt; margin-bottom: 15px;">
-                        <thead>
-                            <tr style="background: #e2e8f0;">
-                                <th style="border: 1px solid #000; padding: 5px;">Ödeme Türü</th>
-                                <th style="border: 1px solid #000; padding: 5px;">Banka / Açıklama</th>
-                                <th style="border: 1px solid #000; padding: 5px;">Çek No</th>
-                                <th style="border: 1px solid #000; padding: 5px;">Vade</th>
-                                <th style="border: 1px solid #000; padding: 5px; text-align:right;">Tutar (₺)</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td style="border: 1px solid #000; padding: 5px; font-weight:bold;">NAKİT</td>
-                                <td style="border: 1px solid #000; padding: 5px;">Elden Tahsilat</td>
-                                <td style="border: 1px solid #000; padding: 5px;">-</td>
-                                <td style="border: 1px solid #000; padding: 5px;">-</td>
-                                <td style="border: 1px solid #000; padding: 5px; text-align:right; font-weight:bold;">${tahsilatTutari.toFixed(2)} ₺</td>
-                            </tr>
-                            <tr><td style="border: 1px solid #000; padding: 5px;">K. KARTI</td><td style="border: 1px solid #000; padding: 5px;"></td><td style="border: 1px solid #000; padding: 5px;"></td><td style="border: 1px solid #000; padding: 5px;"></td><td style="border: 1px solid #000; padding: 5px;"></td></tr>
-                            <tr><td style="border: 1px solid #000; padding: 5px;">ÇEK / SENET</td><td style="border: 1px solid #000; padding: 5px;"></td><td style="border: 1px solid #000; padding: 5px;"></td><td style="border: 1px solid #000; padding: 5px;"></td><td style="border: 1px solid #000; padding: 5px;"></td></tr>
-                        </tbody>
-                    </table>
-
                     <div style="display: flex; justify-content: space-between; font-size: 10pt; margin-top: 20px;">
                         <div>Tahsil Eden: <b>Kadir YILDIRIM</b></div>
                         <div>Müşteri İmza: ....................................................</div>
@@ -2018,43 +2531,131 @@
             window.print();
         }
 
+        // --- GELİR / GİDER & KASA (HAM MADDE & TEMİZLİK KATEGORİSİ DAHİL) ---
         function renderFinance() {
-            let totalSales = 0, totalCollected = 0;
-            appData.archive.forEach(o => { totalSales += o.totalAmount; totalCollected += (o.paidAmount || 0); });
-            appData.manualLedgers.forEach(m => { totalSales += m.debt; totalCollected += (m.paid || 0); });
-            if(appData.topluLedgers) appData.topluLedgers.forEach(t => { if(t.isManual) { totalSales += t.totalAmount; totalCollected += (t.paidAmount || 0); } });
+            let totalSales = 0, totalCollectedFromCari = 0;
+            appData.archive.forEach(o => { totalSales += o.totalAmount; totalCollectedFromCari += (o.paidAmount || 0); });
+            appData.manualLedgers.forEach(m => { totalSales += m.debt; totalCollectedFromCari += (m.paid || 0); });
+            if(appData.topluLedgers) appData.topluLedgers.forEach(t => { totalSales += t.totalAmount; totalCollectedFromCari += (t.paidAmount || 0); });
 
+            let manualIncomeTotal = 0;
+            if(!appData.kasaHareketleri) appData.kasaHareketleri = [];
+            appData.kasaHareketleri.forEach(kh => {
+                if(kh.amount > 0 && !kh.type.includes('Tahsilat')) {
+                    manualIncomeTotal += kh.amount;
+                }
+            });
+
+            let totalCollected = totalCollectedFromCari + manualIncomeTotal;
             let totalExpense = appData.expenses.reduce((sum, e) => sum + e.amount, 0);
+
+            // Gider kategorileri hesaplamaları
+            let hamMaddeTotal = 0, temizlikTotal = 0, digerTotal = 0;
+            appData.expenses.forEach(e => {
+                if(e.category === 'Hammadde') hamMaddeTotal += e.amount;
+                else if(e.category === 'Temizlik') temizlikTotal += e.amount;
+                else digerTotal += e.amount;
+            });
 
             if(document.getElementById('finTotalSales')) document.getElementById('finTotalSales').innerText = totalSales.toFixed(2) + ' ₺';
             if(document.getElementById('finTotalCollected')) document.getElementById('finTotalCollected').innerText = totalCollected.toFixed(2) + ' ₺';
-            if(document.getElementById('finTotalPending')) document.getElementById('finTotalPending').innerText = (totalSales - totalCollected).toFixed(2) + ' ₺';
+            if(document.getElementById('finTotalPending')) document.getElementById('finTotalPending').innerText = (totalSales - totalCollectedFromCari).toFixed(2) + ' ₺';
             if(document.getElementById('finTotalExpense')) document.getElementById('finTotalExpense').innerText = totalExpense.toFixed(2) + ' ₺';
 
+            if(document.getElementById('hamMaddeExpenseTotal')) document.getElementById('hamMaddeExpenseTotal').innerText = hamMaddeTotal.toFixed(2) + ' ₺';
+            if(document.getElementById('temizlikExpenseTotal')) document.getElementById('temizlikExpenseTotal').innerText = temizlikTotal.toFixed(2) + ' ₺';
+            if(document.getElementById('digerExpenseTotal')) document.getElementById('digerExpenseTotal').innerText = digerTotal.toFixed(2) + ' ₺';
+
+            // Kasa Hareketleri Tablosu Render (Tarih ve Saat Bilgili)
+            const kasaTbody = document.getElementById('kasaHareketleriTableBody');
+            if(kasaTbody) {
+                kasaTbody.innerHTML = '';
+                let combinedMovements = [];
+                appData.archive.forEach(o => {
+                    if(o.paidAmount && o.paidAmount > 0) {
+                        combinedMovements.push({ date: o.date + ' (Sipariş)', type: 'Cari Tahsilat', desc: `${o.customerName} (${o.id})`, amount: o.paidAmount });
+                    }
+                });
+                appData.manualLedgers.forEach(m => {
+                    if(m.paid && m.paid > 0) {
+                        combinedMovements.push({ date: 'Güncel', type: 'Cari Tahsilat (Manuel)', desc: `${m.name}`, amount: m.paid });
+                    }
+                });
+                appData.kasaHareketleri.forEach((kh, kidx) => {
+                    combinedMovements.push({ date: kh.date, type: kh.type, desc: kh.desc, amount: kh.amount, isManualKasa: true, index: kidx });
+                });
+
+                if(combinedMovements.length === 0) {
+                    kasaTbody.innerHTML = `<tr><td colspan="5" class="text-center py-6 text-slate-400">Henüz kasa hareketi bulunmuyor.</td></tr>`;
+                } else {
+                    combinedMovements.forEach(cm => {
+                        kasaTbody.innerHTML = `
+                            <tr>
+                                <td class="p-3 text-slate-500 whitespace-nowrap">${cm.date}</td>
+                                <td class="p-3 font-bold text-emerald-700">${escapeHTML(cm.type)}</td>
+                                <td class="p-3 font-medium">${escapeHTML(cm.desc)}</td>
+                                <td class="p-3 text-right font-black ${cm.amount >= 0 ? 'text-emerald-600':'text-red-600'}">${cm.amount.toFixed(2)} ₺</td>
+                                <td class="p-3 text-center">
+                                    ${cm.isManualKasa ? `<button onclick="deleteKasaHareket(${cm.index})" class="text-red-500 hover:text-red-700"><i class="fa-solid fa-trash"></i></button>` : '<span class="text-xs text-slate-400">Otomatik</span>'}
+                                </td>
+                            </tr>
+                        ` + kasaTbody.innerHTML;
+                    });
+                }
+            }
+
             const expTbody = document.getElementById('expenseTableBody');
-            if(!expTbody) return;
-            expTbody.innerHTML = '';
-            appData.expenses.forEach((e, idx) => {
-                expTbody.innerHTML += `
-                    <tr>
-                        <td class="p-2">${e.date}</td>
-                        <td class="p-2">${escapeHTML(e.desc)}</td>
-                        <td class="p-2 text-right font-bold text-red-600">${e.amount.toFixed(2)} ₺</td>
-                        <td class="p-2 text-center">
-                            <button onclick="deleteExpense(${idx})" class="text-red-500 hover:text-red-700" title="Gideri Sil"><i class="fa-solid fa-trash"></i></button>
-                        </td>
-                    </tr>
-                `;
-            });
+            if(expTbody) {
+                expTbody.innerHTML = '';
+                appData.expenses.forEach((e, idx) => {
+                    expTbody.innerHTML += `
+                        <tr>
+                            <td class="p-2 text-slate-500 whitespace-nowrap">${e.date}</td>
+                            <td class="p-2"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${e.category==='Hammadde'?'bg-red-100 text-red-700':e.category==='Temizlik'?'bg-orange-100 text-orange-700':'bg-slate-100 text-slate-700'}">${e.category || 'Genel'}</span></td>
+                            <td class="p-2 font-medium">${escapeHTML(e.desc)}</td>
+                            <td class="p-2 text-right font-bold text-red-600">${e.amount.toFixed(2)} ₺</td>
+                            <td class="p-2 text-center">
+                                <button onclick="deleteExpense(${idx})" class="text-red-500 hover:text-red-700" title="Gideri Sil"><i class="fa-solid fa-trash"></i></button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            }
+        }
+
+        async function addManualIncome(e) {
+            e.preventDefault();
+            const desc = escapeHTML(document.getElementById('incDesc').value);
+            const amount = parseFloat(document.getElementById('incAmount').value);
+            if(!appData.kasaHareketleri) appData.kasaHareketleri = [];
+            appData.kasaHareketleri.push({ date: new Date().toLocaleDateString('tr-TR') + ' ' + new Date().toLocaleTimeString('tr-TR'), type: 'Manuel Gelir', desc: desc, amount: amount });
+            await saveLocalData();
+            logAuditEvent("Kasaya Gelir Eklendi", `${desc} - ${amount} TL`);
+            document.getElementById('incDesc').value = '';
+            document.getElementById('incAmount').value = '';
+        }
+
+        async function deleteKasaHareket(idx) {
+            const kh = appData.kasaHareketleri[idx];
+            logRecycleItem('Kasa Geliri Silindi', `${kh.desc} gelir kaydı silindi.`, kh.amount);
+            appData.kasaHareketleri.splice(idx, 1);
+            await saveLocalData();
         }
 
         async function addExpense(e) {
             e.preventDefault();
             const desc = escapeHTML(document.getElementById('expDesc').value);
+            const category = document.getElementById('expCategory').value;
             const amount = parseFloat(document.getElementById('expAmount').value);
-            appData.expenses.push({ date: new Date().toLocaleDateString('tr-TR'), desc: desc, amount: amount });
+            
+            appData.expenses.push({ 
+                date: new Date().toLocaleDateString('tr-TR') + ' ' + new Date().toLocaleTimeString('tr-TR'), 
+                desc: desc, 
+                category: category,
+                amount: amount 
+            });
             await saveLocalData();
-            logAuditEvent("Kasa Gideri Eklendi", `${desc} - ${amount} TL`);
+            logAuditEvent("Kasa Gideri Eklendi", `[${category}] ${desc} - ${amount} TL`);
             document.getElementById('expDesc').value = '';
             document.getElementById('expAmount').value = '';
         }
