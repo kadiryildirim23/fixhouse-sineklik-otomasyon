@@ -434,102 +434,200 @@
 
         <!-- TAB 6: GELİR / GİDER & KASA -->
         <section id="sec-finance" class="space-y-6 hidden">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-                    <span class="text-xs font-semibold text-slate-500">TOPLAM CİRO / ALACAK</span>
-                    <div id="finTotalSales" class="text-xl font-bold text-slate-800 mt-1">0.00 ₺</div>
-                </div>
-                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-                    <span class="text-xs font-semibold text-slate-500">TOPLAM TAHSİLAT (KASA)</span>
-                    <div id="finTotalCollected" class="text-xl font-bold text-emerald-600 mt-1">0.00 ₺</div>
-                </div>
-                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-                    <span class="text-xs font-semibold text-slate-500">AÇIK HESAP / KALAN BORÇ</span>
-                    <div id="finTotalPending" class="text-xl font-bold text-amber-600 mt-1">0.00 ₺</div>
-                </div>
-                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-                    <span class="text-xs font-semibold text-slate-500">TOPLAM DÜKKAN GİDERİ</span>
-                    <div id="finTotalExpense" class="text-xl font-bold text-red-600 mt-1">0.00 ₺</div>
-                </div>
+            <!-- FINANCE SUB-TABS -->
+            <div class="flex border-b border-slate-200 gap-4 mb-2">
+                <button onclick="switchFinanceSubTab('kasa')" id="subtab-fin-kasa" class="py-2 px-4 border-b-2 border-emerald-600 font-bold text-xs md:text-sm text-emerald-700">
+                    Kasa & Genel Finans
+                </button>
+                <button onclick="switchFinanceSubTab('banks')" id="subtab-fin-banks" class="py-2 px-4 border-b-2 border-transparent font-medium text-xs md:text-sm text-slate-500 hover:text-emerald-600 flex items-center gap-1.5">
+                    <i class="fa-solid fa-building-columns"></i> Banka Hesapları & İşlemleri
+                </button>
             </div>
 
-            <!-- GÜNCELLENEN KASA HAREKETLERİ & TAHSİLAT DEFTERİ (TARİH/SAAT BİLGİLİ) -->
-            <div class="bg-white rounded-xl p-4 md:p-6 shadow-sm border border-slate-200 space-y-4">
-                <div class="flex justify-between items-center">
+            <!-- SUB-TAB 1: KASA & GENEL FİNANS -->
+            <div id="fin-sub-kasa" class="space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                        <span class="text-xs font-semibold text-slate-500">TOPLAM CİRO / ALACAK</span>
+                        <div id="finTotalSales" class="text-xl font-bold text-slate-800 mt-1">0.00 ₺</div>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                        <span class="text-xs font-semibold text-slate-500">TOPLAM TAHSİLAT (KASA)</span>
+                        <div id="finTotalCollected" class="text-xl font-bold text-emerald-600 mt-1">0.00 ₺</div>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                        <span class="text-xs font-semibold text-slate-500">AÇIK HESAP / KALAN BORÇ</span>
+                        <div id="finTotalPending" class="text-xl font-bold text-amber-600 mt-1">0.00 ₺</div>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                        <span class="text-xs font-semibold text-slate-500">TOPLAM DÜKKAN GİDERİ</span>
+                        <div id="finTotalExpense" class="text-xl font-bold text-red-600 mt-1">0.00 ₺</div>
+                    </div>
+                </div>
+
+                <!-- GÜNCELLENEN KASA HAREKETLERİ & TAHSİLAT DEFTERİ (TARİH/SAAT BİLGİLİ) -->
+                <div class="bg-white rounded-xl p-4 md:p-6 shadow-sm border border-slate-200 space-y-4">
+                    <div class="flex justify-between items-center">
+                        <h2 class="text-base md:text-lg font-bold text-slate-800 flex items-center gap-2">
+                            <i class="fa-solid fa-wallet text-emerald-600"></i> KASA HAREKETLERİ & TAHSİLAT DEFTERİ
+                        </h2>
+                        <span class="text-xs text-slate-500">Tüm tahsilat ve kasa hareketleri tarih ve saat bilgisiyle kayıt altındadır</span>
+                    </div>
+                    
+                    <form onsubmit="addManualIncome(event)" class="grid grid-cols-1 md:grid-cols-3 gap-3 p-3 bg-slate-50 rounded-xl border border-slate-200">
+                        <input type="text" id="incDesc" placeholder="Ek Gelir Açıklaması (Örn: Ekstra Malzeme Satışı)" required class="px-3 py-2 text-xs md:text-sm border border-slate-300 rounded-lg">
+                        <input type="number" id="incAmount" step="0.01" placeholder="Gelir Tutarı (₺)" required class="px-3 py-2 text-xs md:text-sm border border-slate-300 rounded-lg">
+                        <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs md:text-sm font-semibold rounded-lg py-2 flex items-center justify-center gap-1.5"><i class="fa-solid fa-plus"></i> Kasaya Gelir Ekle</button>
+                    </form>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs md:text-sm">
+                            <thead class="bg-slate-100 text-slate-700 font-semibold border-b">
+                                <tr>
+                                    <th class="p-3">Tarih / Saat</th>
+                                    <th class="p-3">İşlem Türü</th>
+                                    <th class="p-3">Açıklama / Müşteri</th>
+                                    <th class="p-3 text-right">Tutar (₺)</th>
+                                    <th class="p-3 text-center w-16">İşlem</th>
+                                </tr>
+                            </thead>
+                            <tbody id="kasaHareketleriTableBody" class="divide-y divide-slate-200"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- DÜKKAN GİDERLERİ (1. YER: KASA / FİNANS SEKMESİ İÇİNDE) -->
+                <div class="bg-white rounded-xl p-4 md:p-6 shadow-sm border border-slate-200 space-y-4">
                     <h2 class="text-base md:text-lg font-bold text-slate-800 flex items-center gap-2">
-                        <i class="fa-solid fa-wallet text-emerald-600"></i> KASA HAREKETLERİ & TAHSİLAT DEFTERİ
+                        <i class="fa-solid fa-receipt text-red-600"></i> DÜKKAN GİDER DEFTERİ (HAM MADDE & TEMİZLİK / İHTİYAÇ)
                     </h2>
-                    <span class="text-xs text-slate-500">Tüm tahsilat ve kasa hareketleri tarih ve saat bilgisiyle kayıt altındadır</span>
-                </div>
-                
-                <form onsubmit="addManualIncome(event)" class="grid grid-cols-1 md:grid-cols-3 gap-3 p-3 bg-slate-50 rounded-xl border border-slate-200">
-                    <input type="text" id="incDesc" placeholder="Ek Gelir Açıklaması (Örn: Ekstra Malzeme Satışı)" required class="px-3 py-2 text-xs md:text-sm border border-slate-300 rounded-lg">
-                    <input type="number" id="incAmount" step="0.01" placeholder="Gelir Tutarı (₺)" required class="px-3 py-2 text-xs md:text-sm border border-slate-300 rounded-lg">
-                    <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs md:text-sm font-semibold rounded-lg py-2 flex items-center justify-center gap-1.5"><i class="fa-solid fa-plus"></i> Kasaya Gelir Ekle</button>
-                </form>
+                    
+                    <!-- Gider Özet Kartları -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <div class="bg-red-50 p-3 rounded-lg border border-red-200">
+                            <span class="text-xs font-bold text-red-700">HAM MADDE GİDERLERİ</span>
+                            <div class="hamMaddeExpenseTotal text-lg font-black text-red-800 mt-1">0.00 ₺</div>
+                        </div>
+                        <div class="bg-orange-50 p-3 rounded-lg border border-orange-200">
+                            <span class="text-xs font-bold text-orange-700">İŞ YERİ TEMİZLİK & İHTİYAÇ</span>
+                            <div class="temizlikExpenseTotal text-lg font-black text-orange-800 mt-1">0.00 ₺</div>
+                        </div>
+                        <div class="bg-slate-100 p-3 rounded-lg border border-slate-200">
+                            <span class="text-xs font-bold text-slate-700">DİĞER / GENEL GİDERLER</span>
+                            <div class="digerExpenseTotal text-lg font-black text-slate-800 mt-1">0.00 ₺</div>
+                        </div>
+                    </div>
 
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-xs md:text-sm">
-                        <thead class="bg-slate-100 text-slate-700 font-semibold border-b">
-                            <tr>
-                                <th class="p-3">Tarih / Saat</th>
-                                <th class="p-3">İşlem Türü</th>
-                                <th class="p-3">Açıklama / Müşteri</th>
-                                <th class="p-3 text-right">Tutar (₺)</th>
-                                <th class="p-3 text-center w-16">İşlem</th>
-                            </tr>
-                        </thead>
-                        <tbody id="kasaHareketleriTableBody" class="divide-y divide-slate-200"></tbody>
-                    </table>
+                    <form onsubmit="addExpense(event)" class="grid grid-cols-1 md:grid-cols-4 gap-3 p-3 bg-slate-50 rounded-xl border border-slate-200">
+                        <input type="text" class="expDesc" placeholder="Gider Açıklaması (Kira, Boru, Deterjan vb.)" required class="px-3 py-2 text-xs md:text-sm border border-slate-300 rounded-lg">
+                        <select class="expCategory px-3 py-2 text-xs md:text-sm border border-slate-300 rounded-lg bg-white font-semibold text-slate-700">
+                            <option value="Hammadde">Ham Madde Gideri</option>
+                            <option value="Temizlik">İş Yeri Temizlik & İhtiyaç</option>
+                            <option value="Genel">Genel / Diğer Gider</option>
+                        </select>
+                        <input type="number" class="expAmount" step="0.01" placeholder="Tutar (₺)" required class="px-3 py-2 text-xs md:text-sm border border-slate-300 rounded-lg">
+                        <button type="submit" class="bg-red-600 hover:bg-red-700 text-white text-xs md:text-sm font-semibold rounded-lg py-2 flex items-center justify-center gap-1.5"><i class="fa-solid fa-plus"></i> Gider Ekle</button>
+                    </form>
+
+                    <div class="max-h-60 overflow-y-auto">
+                        <table class="w-full text-left text-xs md:text-sm">
+                            <thead class="bg-slate-100 font-semibold">
+                                <tr>
+                                    <th class="p-2">Tarih</th>
+                                    <th class="p-2">Kategori</th>
+                                    <th class="p-2">Açıklama</th>
+                                    <th class="p-2 text-right">Tutar</th>
+                                    <th class="p-2 text-center w-12">İşlem</th>
+                                </tr>
+                            </thead>
+                            <tbody class="expenseTableBody divide-y divide-slate-200"></tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
-            <!-- DÜKKAN GİDERLERİ: HAM MADDE VE TEMİZLİK KATEGORİLİ -->
-            <div class="bg-white rounded-xl p-4 md:p-6 shadow-sm border border-slate-200 space-y-4">
-                <h2 class="text-base md:text-lg font-bold text-slate-800 flex items-center gap-2">
-                    <i class="fa-solid fa-receipt text-red-600"></i> DÜKKAN GİDER DEFTERİ (HAM MADDE & TEMİZLİK / İHTİYAÇ)
-                </h2>
-                
-                <!-- Gider Özet Kartları -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-                    <div class="bg-red-50 p-3 rounded-lg border border-red-200">
-                        <span class="text-xs font-bold text-red-700">HAM MADDE GİDERLERİ</span>
-                        <div id="hamMaddeExpenseTotal" class="text-lg font-black text-red-800 mt-1">0.00 ₺</div>
-                    </div>
-                    <div class="bg-orange-50 p-3 rounded-lg border border-orange-200">
-                        <span class="text-xs font-bold text-orange-700">İŞ YERİ TEMİZLİK & İHTİYAÇ</span>
-                        <div id="temizlikExpenseTotal" class="text-lg font-black text-orange-800 mt-1">0.00 ₺</div>
-                    </div>
-                    <div class="bg-slate-100 p-3 rounded-lg border border-slate-200">
-                        <span class="text-xs font-bold text-slate-700">DİĞER / GENEL GİDERLER</span>
-                        <div id="digerExpenseTotal" class="text-lg font-black text-slate-800 mt-1">0.00 ₺</div>
-                    </div>
+            <!-- SUB-TAB 2: BANKA HESAPLARI & İŞLEMLERİ (YENİ) -->
+            <div id="fin-sub-banks" class="space-y-6 hidden">
+                <!-- BANKA EKLEME / DÜZENLEME FORMU -->
+                <div class="bg-white rounded-xl p-4 md:p-6 shadow-sm border border-slate-200">
+                    <h2 id="bankFormTitle" class="text-base md:text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-building-columns text-emerald-600"></i> MANUEL BANKA HESABI OLUŞTUR / DÜZENLE
+                    </h2>
+                    <form onsubmit="handleBankFormSubmit(event)" class="grid grid-cols-1 md:grid-cols-4 gap-3">
+                        <input type="hidden" id="editBankId" value="">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Banka Adı <span class="text-red-500">*</span></label>
+                            <input type="text" id="bankName" placeholder="Örn: Ziraat Bankası / Garanti" required class="w-full px-3 py-2 text-xs md:text-sm border border-slate-300 rounded-lg">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Hesap Sahibi / Şube</label>
+                            <input type="text" id="bankHolder" placeholder="Örn: Kadir Yıldırım / Merkez Şube" class="w-full px-3 py-2 text-xs md:text-sm border border-slate-300 rounded-lg">
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">IBAN Numarası <span class="text-red-500">*</span></label>
+                            <input type="text" id="bankIban" placeholder="TRXX XXXX XXXX XXXX XXXX XXXX XX" required class="w-full px-3 py-2 text-xs md:text-sm border border-slate-300 rounded-lg font-mono">
+                        </div>
+                        <div class="md:col-span-4 flex justify-end gap-2 pt-2">
+                            <button type="button" id="bankCancelBtn" onclick="resetBankForm()" class="hidden bg-slate-500 hover:bg-slate-600 text-white text-xs px-4 py-2 rounded-lg font-semibold">İptal</button>
+                            <button type="submit" id="bankSubmitBtn" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs md:text-sm px-5 py-2 rounded-lg font-semibold flex items-center gap-1.5">
+                                <i class="fa-solid fa-plus"></i> Banka Hesabını Kaydet
+                            </button>
+                        </div>
+                    </form>
                 </div>
 
-                <form onsubmit="addExpense(event)" class="grid grid-cols-1 md:grid-cols-4 gap-3 p-3 bg-slate-50 rounded-xl border border-slate-200">
-                    <input type="text" id="expDesc" placeholder="Gider Açıklaması (Kira, Boru, Deterjan vb.)" required class="px-3 py-2 text-xs md:text-sm border border-slate-300 rounded-lg">
-                    <select id="expCategory" class="px-3 py-2 text-xs md:text-sm border border-slate-300 rounded-lg bg-white font-semibold text-slate-700">
-                        <option value="Hammadde">Ham Madde Gideri</option>
-                        <option value="Temizlik">İş Yeri Temizlik & İhtiyaç</option>
-                        <option value="Genel">Genel / Diğer Gider</option>
-                    </select>
-                    <input type="number" id="expAmount" step="0.01" placeholder="Tutar (₺)" required class="px-3 py-2 text-xs md:text-sm border border-slate-300 rounded-lg">
-                    <button type="submit" class="bg-red-600 hover:bg-red-700 text-white text-xs md:text-sm font-semibold rounded-lg py-2 flex items-center justify-center gap-1.5"><i class="fa-solid fa-plus"></i> Gider Ekle</button>
-                </form>
+                <!-- BANKA HESAPLARI KARTLARI / LİSTESİ -->
+                <div class="bg-white rounded-xl p-4 md:p-6 shadow-sm border border-slate-200 space-y-4">
+                    <div class="flex justify-between items-center">
+                        <h2 class="text-base md:text-lg font-bold text-slate-800 flex items-center gap-2">
+                            <i class="fa-solid fa-credit-card text-emerald-600"></i> TANIMLI BANKA HESAPLARI VE BAKİYELERİ
+                        </h2>
+                    </div>
+                    <div id="bankAccountsContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+                </div>
 
-                <div class="max-h-60 overflow-y-auto">
-                    <table class="w-full text-left text-xs md:text-sm">
-                        <thead class="bg-slate-100 font-semibold">
-                            <tr>
-                                <th class="p-2">Tarih</th>
-                                <th class="p-2">Kategori</th>
-                                <th class="p-2">Açıklama</th>
-                                <th class="p-2 text-right">Tutar</th>
-                                <th class="p-2 text-center w-12">İşlem</th>
-                            </tr>
-                        </thead>
-                        <tbody id="expenseTableBody" class="divide-y divide-slate-200"></tbody>
-                    </table>
+                <!-- BANKA İŞLEM (GELİR / GİDER) EKLEME FORMU & GEÇMİŞİ -->
+                <div class="bg-white rounded-xl p-4 md:p-6 shadow-sm border border-slate-200 space-y-4">
+                    <div class="flex justify-between items-center">
+                        <h2 class="text-base md:text-lg font-bold text-slate-800 flex items-center gap-2">
+                            <i class="fa-solid fa-money-bill-transfer text-emerald-600"></i> BANKA HAREKETLERİ (GELİR & GİDER)
+                        </h2>
+                    </div>
+
+                    <form onsubmit="handleBankTxSubmit(event)" class="grid grid-cols-1 md:grid-cols-5 gap-3 p-3 bg-slate-50 rounded-xl border border-slate-200">
+                        <input type="hidden" id="editBankTxId" value="">
+                        <select id="txBankId" required class="px-3 py-2 text-xs md:text-sm border border-slate-300 rounded-lg bg-white font-semibold">
+                            <option value="">-- Banka Hesabı Seç --</option>
+                        </select>
+                        <select id="txType" required class="px-3 py-2 text-xs md:text-sm border border-slate-300 rounded-lg bg-white font-semibold">
+                            <option value="Gelir">Banka Geliri (Giren)</option>
+                            <option value="Gider">Banka Gideri (Çıkan)</option>
+                        </select>
+                        <input type="text" id="txDesc" placeholder="İşlem Açıklaması / Alıcı / Gönderici" required class="px-3 py-2 text-xs md:text-sm border border-slate-300 rounded-lg">
+                        <input type="number" id="txAmount" step="0.01" placeholder="Tutar (₺)" required class="px-3 py-2 text-xs md:text-sm border border-slate-300 rounded-lg">
+                        <div class="flex gap-2">
+                            <button type="button" id="txCancelBtn" onclick="resetBankTxForm()" class="hidden bg-slate-500 hover:bg-slate-600 text-white text-xs px-3 rounded-lg py-2">İptal</button>
+                            <button type="submit" id="txSubmitBtn" class="flex-grow bg-emerald-600 hover:bg-emerald-700 text-white text-xs md:text-sm font-semibold rounded-lg py-2 flex items-center justify-center gap-1.5">
+                                <i class="fa-solid fa-plus"></i> İşlem Ekle
+                            </button>
+                        </div>
+                    </form>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs md:text-sm">
+                            <thead class="bg-slate-100 text-slate-700 font-semibold border-b">
+                                <tr>
+                                    <th class="p-3">Tarih / Saat</th>
+                                    <th class="p-3">Banka Hesabı</th>
+                                    <th class="p-3">Tür</th>
+                                    <th class="p-3">Açıklama</th>
+                                    <th class="p-3 text-right">Tutar (₺)</th>
+                                    <th class="p-3 text-center w-24">İşlemler</th>
+                                </tr>
+                            </thead>
+                            <tbody id="bankTransactionsTableBody" class="divide-y divide-slate-200"></tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </section>
@@ -596,8 +694,56 @@
             </div>
         </section>
 
-        <!-- TAB 8: AYARLAR & YÖNETİM -->
+        <!-- TAB 8: AYARLAR & YÖNETİM (2. DÜKKAN GİDER DEFTERİ BURADA YER ALIYOR) -->
         <section id="sec-settings" class="space-y-6 hidden">
+
+            <!-- DÜKKAN GİDERLERİ (2. YER: AYARLAR SEKMESİ İÇİNDE) -->
+            <div class="bg-white rounded-xl p-4 md:p-6 shadow-sm border border-slate-200 space-y-4">
+                <h2 class="text-base md:text-lg font-bold text-slate-800 flex items-center gap-2">
+                    <i class="fa-solid fa-receipt text-red-600"></i> DÜKKAN GİDER DEFTERİ (HAM MADDE & TEMİZLİK / İHTİYAÇ)
+                </h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <div class="bg-red-50 p-3 rounded-lg border border-red-200">
+                        <span class="text-xs font-bold text-red-700">HAM MADDE GİDERLERİ</span>
+                        <div class="hamMaddeExpenseTotal text-lg font-black text-red-800 mt-1">0.00 ₺</div>
+                    </div>
+                    <div class="bg-orange-50 p-3 rounded-lg border border-orange-200">
+                        <span class="text-xs font-bold text-orange-700">İŞ YERİ TEMİZLİK & İHTİYAÇ</span>
+                        <div class="temizlikExpenseTotal text-lg font-black text-orange-800 mt-1">0.00 ₺</div>
+                    </div>
+                    <div class="bg-slate-100 p-3 rounded-lg border border-slate-200">
+                        <span class="text-xs font-bold text-slate-700">DİĞER / GENEL GİDERLER</span>
+                        <div class="digerExpenseTotal text-lg font-black text-slate-800 mt-1">0.00 ₺</div>
+                    </div>
+                </div>
+
+                <form onsubmit="addExpense(event)" class="grid grid-cols-1 md:grid-cols-4 gap-3 p-3 bg-slate-50 rounded-xl border border-slate-200">
+                    <input type="text" class="expDesc" placeholder="Gider Açıklaması (Kira, Boru, Deterjan vb.)" required class="px-3 py-2 text-xs md:text-sm border border-slate-300 rounded-lg">
+                    <select class="expCategory px-3 py-2 text-xs md:text-sm border border-slate-300 rounded-lg bg-white font-semibold text-slate-700">
+                        <option value="Hammadde">Ham Madde Gideri</option>
+                        <option value="Temizlik">İş Yeri Temizlik & İhtiyaç</option>
+                        <option value="Genel">Genel / Diğer Gider</option>
+                    </select>
+                    <input type="number" class="expAmount" step="0.01" placeholder="Tutar (₺)" required class="px-3 py-2 text-xs md:text-sm border border-slate-300 rounded-lg">
+                    <button type="submit" class="bg-red-600 hover:bg-red-700 text-white text-xs md:text-sm font-semibold rounded-lg py-2 flex items-center justify-center gap-1.5"><i class="fa-solid fa-plus"></i> Gider Ekle</button>
+                </form>
+
+                <div class="max-h-60 overflow-y-auto">
+                    <table class="w-full text-left text-xs md:text-sm">
+                        <thead class="bg-slate-100 font-semibold">
+                            <tr>
+                                <th class="p-2">Tarih</th>
+                                <th class="p-2">Kategori</th>
+                                <th class="p-2">Açıklama</th>
+                                <th class="p-2 text-right">Tutar</th>
+                                <th class="p-2 text-center w-12">İşlem</th>
+                            </tr>
+                        </thead>
+                        <tbody class="expenseTableBody divide-y divide-slate-200"></tbody>
+                    </table>
+                </div>
+            </div>
 
             <!-- WHATSAPP HAZIR MESAJLAR & OTOMATİK BİLGİLENDİRME AYARLARI -->
             <div class="bg-emerald-50 rounded-xl p-4 md:p-6 shadow-sm border border-emerald-200 space-y-4">
@@ -699,7 +845,7 @@
 
     </main>
 
-    <!-- MÜŞTERİ KARTI & TAKSİT YÖNETİM MODALI -->
+    <!-- MÜŞTERİ KARTI & TAKSİT YÖNETİM MODALI (ÖDEME YAPMA, DÜZENLEME, SİLME DÜĞMELİ) -->
     <div id="customerCardModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden no-print px-3">
         <div class="bg-white rounded-xl p-4 md:p-6 w-full max-w-2xl shadow-2xl space-y-4 max-h-[90vh] flex flex-col">
             <div class="flex justify-between items-center border-b pb-3">
@@ -711,7 +857,8 @@
             
             <div class="overflow-y-auto flex-grow space-y-4" id="modalCustomerContent"></div>
 
-            <div class="flex justify-end gap-2 pt-3 border-t">
+            <div class="flex justify-between items-center pt-3 border-t">
+                <div class="flex gap-2" id="modalCustomerActionBtns"></div>
                 <button onclick="closeCustomerCardModal()" class="px-4 py-2 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-100">Kapat</button>
             </div>
         </div>
@@ -748,7 +895,7 @@
 
     <script>
         const SHEETS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxPwtNChpye0O2n3ugRPgk_saqel4mo5kxBWicCfEdUc6HNpTuSwBkrDIPMCAVGx4h2/exec";
-        const STORAGE_KEY = "fix_house_23_data_v750";
+        const STORAGE_KEY = "fix_house_23_data_v761";
 
         const DEFAULT_SETTINGS = {
             montajPrice: 220,
@@ -789,8 +936,10 @@
             expenses: [],
             manualLedgers: [],
             topluLedgers: [],
-            customerCards: [], // Müşteri kartları ve taksit planları veritabanı
+            customerCards: [],
             kasaHareketleri: [],
+            bankAccounts: [],
+            bankTransactions: [],
             recycleBin: [],
             auditLogs: [],
             whatsappTemplates: {}
@@ -829,6 +978,8 @@
                         appData.topluLedgers = cloudData.topluLedgers || [];
                         appData.customerCards = cloudData.customerCards || [];
                         appData.kasaHareketleri = cloudData.kasaHareketleri || [];
+                        appData.bankAccounts = cloudData.bankAccounts || [];
+                        appData.bankTransactions = cloudData.bankTransactions || [];
                         appData.recycleBin = cloudData.recycleBin || [];
                         appData.auditLogs = cloudData.auditLogs || [];
                         appData.whatsappTemplates = cloudData.whatsappTemplates || {};
@@ -871,6 +1022,8 @@
             renderArchive();
             renderCustomerCards();
             renderFinance();
+            renderBankAccounts();
+            renderBankTransactions();
             renderLedgerTab();
             renderTopluLedger();
             renderRecycleBin();
@@ -909,6 +1062,19 @@
             if(tabName === 'ledger') renderLedgerTab();
             if(tabName === 'finance') renderFinance();
             if(tabName === 'recycle') { renderRecycleBin(); renderAuditLogs(); }
+        }
+
+        function switchFinanceSubTab(sub) {
+            document.getElementById('fin-sub-kasa').classList.toggle('hidden', sub !== 'kasa');
+            document.getElementById('fin-sub-banks').classList.toggle('hidden', sub !== 'banks');
+
+            document.getElementById('subtab-fin-kasa').className = sub === 'kasa' ? 'py-2 px-4 border-b-2 border-emerald-600 font-bold text-xs md:text-sm text-emerald-700' : 'py-2 px-4 border-b-2 border-transparent font-medium text-xs md:text-sm text-slate-500 hover:text-emerald-600';
+            document.getElementById('subtab-fin-banks').className = sub === 'banks' ? 'py-2 px-4 border-b-2 border-emerald-600 font-bold text-xs md:text-sm text-emerald-700 flex items-center gap-1.5' : 'py-2 px-4 border-b-2 border-transparent font-medium text-xs md:text-sm text-slate-500 hover:text-emerald-600 flex items-center gap-1.5';
+            
+            if(sub === 'banks') {
+                renderBankAccounts();
+                renderBankTransactions();
+            }
         }
 
         function switchLedgerSubTab(sub) {
@@ -1013,7 +1179,6 @@
         function syncCustomerCardsFromSources() {
             if(!appData.customerCards) appData.customerCards = [];
 
-            // 1. Arşiv siparişlerinden müşteri kartları eşitle veya oluştur
             appData.archive.forEach(ord => {
                 let existing = appData.customerCards.find(c => c.phone === ord.customerPhone || (c.name.toLowerCase() === ord.customerName.toLowerCase()));
                 if(!existing) {
@@ -1039,7 +1204,6 @@
                 }
             });
 
-            // 2. Manuel Carilerden müşteri kartları oluştur
             appData.manualLedgers.forEach(man => {
                 let existing = appData.customerCards.find(c => c.phone === man.phone || (c.name.toLowerCase() === man.name.toLowerCase()));
                 if(!existing) {
@@ -1062,7 +1226,6 @@
                 }
             });
 
-            // 3. Toplu Montaj / Projelerden kartlar oluştur
             appData.topluLedgers.forEach(top => {
                 let existing = appData.customerCards.find(c => c.phone === top.customerPhone || (c.name.toLowerCase() === top.customerName.toLowerCase()));
                 if(!existing) {
@@ -1090,7 +1253,6 @@
             let plan = [];
             let perInstallment = totalAmount / count;
             
-            // Tarih milat olarak sipariş/kayıt tarihi alınır
             let baseDate = new Date();
             if(dateStr && dateStr.includes('.')) {
                 let parts = dateStr.split('.');
@@ -1101,7 +1263,7 @@
 
             for(let i = 1; i <= count; i++) {
                 let instDate = new Date(baseDate);
-                instDate.setMonth(instDate.getMonth() + (i - 1)); // Her ay bir taksit
+                instDate.setMonth(instDate.getMonth() + (i - 1));
                 
                 plan.push({
                     no: i,
@@ -1134,7 +1296,6 @@
                     totalPaidSum += cust.paidAmount;
                     let remaining = cust.totalDebt - cust.paidAmount;
 
-                    // Taksit durum özeti
                     let paidInstCount = cust.installments ? cust.installments.filter(inst => inst.isPaid).length : 0;
                     let totalInstCount = cust.installments ? cust.installments.length : 1;
 
@@ -1150,7 +1311,7 @@
                                 <span class="bg-amber-100 text-amber-800 px-2.5 py-1 rounded-full text-xs font-bold">${paidInstCount} / ${totalInstCount} Taksit Ödendi</span>
                             </td>
                             <td class="p-3 text-center space-x-1.5 whitespace-nowrap">
-                                <button onclick="openCustomerCardModal('${cust.id}')" class="bg-blue-600 hover:bg-blue-700 text-white px-2.5 py-1 rounded text-xs font-semibold"><i class="fa-solid id-card"></i> Kartı Aç</button>
+                                <button onclick="openCustomerCardModal('${cust.id}')" class="bg-blue-600 hover:bg-blue-700 text-white px-2.5 py-1 rounded text-xs font-semibold"><i class="fa-solid fa-id-card"></i> Kartı Aç</button>
                                 <button onclick="editCustomerCard(${idx})" class="bg-amber-600 hover:bg-amber-700 text-white px-2.5 py-1 rounded text-xs font-semibold"><i class="fa-solid fa-pen-to-square"></i> Düzenle</button>
                             </td>
                         </tr>
@@ -1212,11 +1373,99 @@
                 </div>
             `;
 
+            const actionBtnsContainer = document.getElementById('modalCustomerActionBtns');
+            let custIdx = appData.customerCards.findIndex(c => c.id === custId);
+            actionBtnsContainer.innerHTML = `
+                <div class="flex gap-2">
+                    <button onclick="addPaymentFromCustomerModal('${cust.id}')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1">
+                        <i class="fa-solid fa-wallet"></i> Ödeme Al / Tahsilat
+                    </button>
+                    <button onclick="editCustomerCard(${custIdx}); closeCustomerCardModal();" class="bg-amber-600 hover:bg-amber-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1">
+                        <i class="fa-solid fa-pen-to-square"></i> Düzenle
+                    </button>
+                    <button onclick="deleteCustomerCardModalItem('${cust.id}')" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1">
+                        <i class="fa-solid fa-trash"></i> Sil
+                    </button>
+                </div>
+            `;
+
             document.getElementById('customerCardModal').classList.remove('hidden');
         }
 
         function closeCustomerCardModal() {
             document.getElementById('customerCardModal').classList.add('hidden');
+        }
+
+        async function addPaymentFromCustomerModal(custId) {
+            const cust = appData.customerCards.find(c => c.id === custId);
+            if(!cust) return;
+            let remaining = cust.totalDebt - cust.paidAmount;
+            
+            const amtStr = prompt(`Alınan tahsilat tutarı (Kalan Borç: ${remaining.toFixed(2)} ₺):`);
+            if(amtStr === null) return;
+            const amt = parseFloat(amtStr);
+            
+            if(!isNaN(amt) && amt > 0) {
+                if(amt > remaining) {
+                    alert('Tahsilat tutarı kalan bakiyeden büyük olamaz!');
+                    return;
+                }
+
+                cust.paidAmount += amt;
+
+                if(cust.source === 'Sipariş Arşivi') {
+                    let arc = appData.archive.find(o => o.id === cust.refId);
+                    if(arc) arc.paidAmount = cust.paidAmount;
+                } else if(cust.source === 'Bireysel Cari Defter') {
+                    let man = appData.manualLedgers.find(m => m.id === cust.refId);
+                    if(man) man.paid = cust.paidAmount;
+                } else if(cust.source === 'Toplu Montaj Projesi') {
+                    let top = appData.topluLedgers.find(t => t.id === cust.refId);
+                    if(top) top.paidAmount = cust.paidAmount;
+                }
+
+                if(!appData.kasaHareketleri) appData.kasaHareketleri = [];
+                appData.kasaHareketleri.push({
+                    date: new Date().toLocaleDateString('tr-TR') + ' ' + new Date().toLocaleTimeString('tr-TR'),
+                    type: 'Cari Tahsilat',
+                    desc: `${cust.name} müşteri kartı tahsilatı`,
+                    amount: amt
+                });
+
+                await saveLocalData();
+                logAuditEvent("Müşteri Kartından Tahsilat", `${cust.name} - Tutar: ${amt} TL`);
+                openCustomerCardModal(custId);
+                alert("Tahsilat başarıyla kaydedildi!");
+            } else if(amtStr !== "") {
+                alert("Lütfen geçerli bir tutar giriniz!");
+            }
+        }
+
+        async function deleteCustomerCardModalItem(custId) {
+            const custIdx = appData.customerCards.findIndex(c => c.id === custId);
+            if(custIdx === -1) return;
+            let cust = appData.customerCards[custIdx];
+
+            if(confirm(`"${cust.name}" müşteri kartını ve bağlı olduğu kayıtları silmek istiyor musunuz?`)) {
+                logRecycleItem('Müşteri Kartı Silindi', `${cust.name} müşteri kartı silindi.`, cust.totalDebt);
+                logAuditEvent("Müşteri Kartı Silindi", `${cust.name}`);
+
+                if(cust.source === 'Sipariş Arşivi') {
+                    let aIdx = appData.archive.findIndex(o => o.id === cust.refId);
+                    if(aIdx !== -1) appData.archive.splice(aIdx, 1);
+                } else if(cust.source === 'Bireysel Cari Defter') {
+                    let mIdx = appData.manualLedgers.findIndex(m => m.id === cust.refId);
+                    if(mIdx !== -1) appData.manualLedgers.splice(mIdx, 1);
+                } else if(cust.source === 'Toplu Montaj Projesi') {
+                    let tIdx = appData.topluLedgers.findIndex(t => t.id === cust.refId);
+                    if(tIdx !== -1) appData.topluLedgers.splice(tIdx, 1);
+                }
+
+                appData.customerCards.splice(custIdx, 1);
+                await saveLocalData();
+                closeCustomerCardModal();
+                alert("Müşteri kartı silindi!");
+            }
         }
 
         async function toggleInstallmentPayment(custId, instIdx) {
@@ -1226,12 +1475,10 @@
             let inst = cust.installments[instIdx];
             inst.isPaid = !inst.isPaid;
 
-            // Ödenen miktarı güncelle
             let newPaid = 0;
             cust.installments.forEach(item => { if(item.isPaid) newPaid += item.amount; });
             cust.paidAmount = newPaid;
 
-            // İlgili kaynak kayıtlarında da güncelle (Arşiv, Manuel cari veya Toplu montaj)
             if(cust.source === 'Sipariş Arşivi') {
                 let arc = appData.archive.find(o => o.id === cust.refId);
                 if(arc) { arc.paidAmount = newPaid; arc.installments = cust.installments; }
@@ -1243,7 +1490,6 @@
                 if(top) { top.paidAmount = newPaid; top.installments = cust.installments; }
             }
 
-            // Kasaya tahsilat hareketi ekle veya düş
             if(!appData.kasaHareketleri) appData.kasaHareketleri = [];
             appData.kasaHareketleri.push({
                 date: new Date().toLocaleDateString('tr-TR') + ' ' + new Date().toLocaleTimeString('tr-TR'),
@@ -1280,7 +1526,6 @@
         }
 
         function checkInstallmentReminders() {
-            // Ödeme vadesi gelen taksitler için sistem içi kontrol / bildirim
             let todayStr = new Date().toLocaleDateString('tr-TR');
             if(!appData.customerCards) return;
 
@@ -1995,7 +2240,6 @@
             switchLedgerSubTab('toplu');
         }
 
-        // --- TOPLU MONTAJ DEFTERİNE MANUEL EKLENMESİ / DÜZENLENMESİ & ALT TOPLAM ---
         async function addOrUpdateManualTopluMontajLedger(e) {
             e.preventDefault();
             const editIdx = document.getElementById('editTopluIndex').value;
@@ -2317,6 +2561,238 @@
             await saveLocalData();
         }
 
+        // --- MANUEL BANKA HESAPLARI & İŞLEMLERİ ---
+        async function handleBankFormSubmit(e) {
+            e.preventDefault();
+            const editId = document.getElementById('editBankId').value;
+            const name = escapeHTML(document.getElementById('bankName').value.trim());
+            const holder = escapeHTML(document.getElementById('bankHolder').value.trim());
+            const iban = escapeHTML(document.getElementById('bankIban').value.trim());
+
+            if(!appData.bankAccounts) appData.bankAccounts = [];
+
+            if(editId !== "") {
+                const acc = appData.bankAccounts.find(b => b.id === editId);
+                if(acc) {
+                    acc.name = name;
+                    acc.holder = holder;
+                    acc.iban = iban;
+                    logAuditEvent("Banka Hesabı Güncellendi", `${name} (${iban})`);
+                    alert("Banka hesabı başarıyla güncellendi!");
+                }
+            } else {
+                appData.bankAccounts.push({
+                    id: 'BNK-' + Date.now().toString().slice(-4),
+                    name: name,
+                    holder: holder,
+                    iban: iban
+                });
+                logAuditEvent("Banka Hesabı Eklendi", `${name} (${iban})`);
+                alert("Banka hesabı başarıyla oluşturuldu!");
+            }
+
+            resetBankForm();
+            await saveLocalData();
+        }
+
+        function editBankAccount(bankId) {
+            const acc = appData.bankAccounts.find(b => b.id === bankId);
+            if(!acc) return;
+
+            document.getElementById('editBankId').value = acc.id;
+            document.getElementById('bankName').value = acc.name;
+            document.getElementById('bankHolder').value = acc.holder || '';
+            document.getElementById('bankIban').value = acc.iban;
+
+            document.getElementById('bankSubmitBtn').innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Güncelle';
+            document.getElementById('bankCancelBtn').classList.remove('hidden');
+            document.getElementById('bankFormTitle').innerHTML = `<i class="fa-solid fa-pen-to-square text-emerald-600"></i> BANKA HESABI DÜZENLE (${acc.name})`;
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function resetBankForm() {
+            document.getElementById('editBankId').value = '';
+            document.getElementById('bankName').value = '';
+            document.getElementById('bankHolder').value = '';
+            document.getElementById('bankIban').value = '';
+            document.getElementById('bankSubmitBtn').innerHTML = '<i class="fa-solid fa-plus"></i> Banka Hesabını Kaydet';
+            document.getElementById('bankCancelBtn').classList.add('hidden');
+            document.getElementById('bankFormTitle').innerHTML = `<i class="fa-solid fa-building-columns text-emerald-600"></i> MANUEL BANKA HESABI OLUŞTUR / DÜZENLE`;
+        }
+
+        async function deleteBankAccount(bankId) {
+            const idx = appData.bankAccounts.findIndex(b => b.id === bankId);
+            if(idx === -1) return;
+            const acc = appData.bankAccounts[idx];
+
+            if(confirm(`"${acc.name}" banka hesabını ve bu hesaba ait tüm hareketleri silmek istiyor musunuz?`)) {
+                logRecycleItem('Banka Hesabı Silindi', `${acc.name} (${acc.iban}) silindi.`, 0);
+                logAuditEvent("Banka Hesabı Silindi", `${acc.name}`);
+
+                appData.bankAccounts.splice(idx, 1);
+                if(appData.bankTransactions) {
+                    appData.bankTransactions = appData.bankTransactions.filter(tx => tx.bankId !== bankId);
+                }
+
+                await saveLocalData();
+                alert("Banka hesabı silindi!");
+            }
+        }
+
+        function renderBankAccounts() {
+            const container = document.getElementById('bankAccountsContainer');
+            const selectEl = document.getElementById('txBankId');
+            if(!container || !selectEl) return;
+
+            container.innerHTML = '';
+            let selectHtml = '<option value="">-- Banka Hesabı Seç --</option>';
+
+            if(!appData.bankAccounts || appData.bankAccounts.length === 0) {
+                container.innerHTML = `<div class="col-span-full text-center py-6 text-slate-400">Henüz tanımlanmış banka hesabı bulunmuyor.</div>`;
+                selectEl.innerHTML = selectHtml;
+                return;
+            }
+
+            appData.bankAccounts.forEach(acc => {
+                let balance = 0;
+                if(appData.bankTransactions) {
+                    appData.bankTransactions.filter(tx => tx.bankId === acc.id).forEach(tx => {
+                        if(tx.type === 'Gelir') balance += tx.amount;
+                        else balance -= tx.amount;
+                    });
+                }
+
+                selectHtml += `<option value="${acc.id}">${acc.name} - ${acc.iban}</option>`;
+
+                container.innerHTML += `
+                    <div class="bg-slate-50 rounded-xl p-4 border border-slate-200 shadow-sm flex flex-col justify-between space-y-3">
+                        <div>
+                            <div class="flex justify-between items-start">
+                                <h3 class="font-bold text-slate-900 text-base">${escapeHTML(acc.name)}</h3>
+                                <div class="space-x-1">
+                                    <button onclick="editBankAccount('${acc.id}')" class="text-amber-600 hover:text-amber-700 p-1" title="Düzenle"><i class="fa-solid fa-pen-to-square"></i></button>
+                                    <button onclick="deleteBankAccount('${acc.id}')" class="text-red-500 hover:text-red-700 p-1" title="Sil"><i class="fa-solid fa-trash"></i></button>
+                                </div>
+                            </div>
+                            <p class="text-xs text-slate-500 mt-0.5">${escapeHTML(acc.holder || 'Şube / Sahip belirtilmedi')}</p>
+                            <p class="text-xs font-mono text-slate-700 bg-white p-1.5 rounded border border-slate-200 mt-2">${escapeHTML(acc.iban)}</p>
+                        </div>
+                        <div class="border-t border-slate-200 pt-2 flex justify-between items-center">
+                            <span class="text-xs font-semibold text-slate-500">Net Bakiye:</span>
+                            <span class="text-base font-black ${balance >= 0 ? 'text-emerald-600':'text-red-600'}">${balance.toFixed(2)} ₺</span>
+                        </div>
+                    </div>
+                `;
+            });
+
+            selectEl.innerHTML = selectHtml;
+        }
+
+        async function handleBankTxSubmit(e) {
+            e.preventDefault();
+            const editId = document.getElementById('editBankTxId').value;
+            const bankId = document.getElementById('txBankId').value;
+            const type = document.getElementById('txType').value;
+            const desc = escapeHTML(document.getElementById('txDesc').value.trim());
+            const amount = parseFloat(document.getElementById('txAmount').value) || 0;
+
+            if(!appData.bankTransactions) appData.bankTransactions = [];
+
+            if(editId !== "") {
+                const tx = appData.bankTransactions.find(t => t.id === editId);
+                if(tx) {
+                    tx.bankId = bankId;
+                    tx.type = type;
+                    tx.desc = desc;
+                    tx.amount = amount;
+                    logAuditEvent("Banka İşlemi Güncellendi", `${type} - ${desc}: ${amount} TL`);
+                    alert("Banka işlemi başarıyla güncellendi!");
+                }
+            } else {
+                appData.bankTransactions.push({
+                    id: 'BTX-' + Date.now().toString().slice(-4),
+                    date: new Date().toLocaleDateString('tr-TR') + ' ' + new Date().toLocaleTimeString('tr-TR'),
+                    bankId: bankId,
+                    type: type,
+                    desc: desc,
+                    amount: amount
+                });
+                logAuditEvent("Banka İşlemi Eklendi", `${type} - ${desc}: ${amount} TL`);
+                alert("Banka işlemi başarıyla eklendi!");
+            }
+
+            resetBankTxForm();
+            await saveLocalData();
+        }
+
+        function editBankTransaction(txId) {
+            const tx = appData.bankTransactions.find(t => t.id === txId);
+            if(!tx) return;
+
+            document.getElementById('editBankTxId').value = tx.id;
+            document.getElementById('txBankId').value = tx.bankId;
+            document.getElementById('txType').value = tx.type;
+            document.getElementById('txDesc').value = tx.desc;
+            document.getElementById('txAmount').value = tx.amount;
+
+            document.getElementById('txSubmitBtn').innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Güncelle';
+            document.getElementById('txCancelBtn').classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function resetBankTxForm() {
+            document.getElementById('editBankTxId').value = '';
+            document.getElementById('txBankId').value = '';
+            document.getElementById('txType').value = 'Gelir';
+            document.getElementById('txDesc').value = '';
+            document.getElementById('txAmount').value = '';
+            document.getElementById('txSubmitBtn').innerHTML = '<i class="fa-solid fa-plus"></i> İşlem Ekle';
+            document.getElementById('txCancelBtn').classList.add('hidden');
+        }
+
+        async function deleteBankTransaction(txId) {
+            const idx = appData.bankTransactions.findIndex(t => t.id === txId);
+            if(idx === -1) return;
+            const tx = appData.bankTransactions[idx];
+
+            if(confirm("Bu banka işlemini silmek istediğinize emin misiniz?")) {
+                logRecycleItem('Banka Hareketi Silindi', `${tx.type} - ${tx.desc}`, tx.amount);
+                logAuditEvent("Banka Hareketi Silindi", `${tx.desc}`);
+
+                appData.bankTransactions.splice(idx, 1);
+                await saveLocalData();
+            }
+        }
+
+        function renderBankTransactions() {
+            const tbody = document.getElementById('bankTransactionsTableBody');
+            if(!tbody) return;
+            tbody.innerHTML = '';
+
+            if(!appData.bankTransactions || appData.bankTransactions.length === 0) {
+                return tbody.innerHTML = `<tr><td colspan="6" class="text-center py-6 text-slate-400">Henüz banka hareketi bulunmuyor.</td></tr>`;
+            }
+
+            appData.bankTransactions.forEach(tx => {
+                const bank = (appData.bankAccounts || []).find(b => b.id === tx.bankId);
+                const bankName = bank ? bank.name : 'Bilinmeyen Banka';
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td class="p-3 text-slate-500 whitespace-nowrap">${tx.date}</td>
+                        <td class="p-3 font-semibold text-slate-800">${escapeHTML(bankName)}</td>
+                        <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${tx.type === 'Gelir' ? 'bg-emerald-100 text-emerald-700':'bg-red-100 text-red-700'}">${tx.type}</span></td>
+                        <td class="p-3 font-medium">${escapeHTML(tx.desc)}</td>
+                        <td class="p-3 text-right font-black ${tx.type === 'Gelir' ? 'text-emerald-600':'text-red-600'}">${tx.amount.toFixed(2)} ₺</td>
+                        <td class="p-3 text-center space-x-1.5 whitespace-nowrap">
+                            <button onclick="editBankTransaction('${tx.id}')" class="bg-amber-600 hover:bg-amber-700 text-white px-2.5 py-1 rounded text-xs font-semibold" title="Düzenle"><i class="fa-solid fa-pen-to-square"></i></button>
+                            <button onclick="deleteBankTransaction('${tx.id}')" class="text-red-500 hover:text-red-700 p-1" title="Sil"><i class="fa-solid fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
         function openOrderDetailModal(orderId) {
             const ord = appData.archive.find(o => o.id === orderId) || appData.cart.find(o => o.id === orderId) || (appData.topluLedgers && appData.topluLedgers.find(o => o.id === orderId));
             if(!ord) return;
@@ -2531,7 +3007,7 @@
             window.print();
         }
 
-        // --- GELİR / GİDER & KASA (HAM MADDE & TEMİZLİK KATEGORİSİ DAHİL) ---
+        // --- GELİR / GİDER & KASA ---
         function renderFinance() {
             let totalSales = 0, totalCollectedFromCari = 0;
             appData.archive.forEach(o => { totalSales += o.totalAmount; totalCollectedFromCari += (o.paidAmount || 0); });
@@ -2549,7 +3025,6 @@
             let totalCollected = totalCollectedFromCari + manualIncomeTotal;
             let totalExpense = appData.expenses.reduce((sum, e) => sum + e.amount, 0);
 
-            // Gider kategorileri hesaplamaları
             let hamMaddeTotal = 0, temizlikTotal = 0, digerTotal = 0;
             appData.expenses.forEach(e => {
                 if(e.category === 'Hammadde') hamMaddeTotal += e.amount;
@@ -2562,11 +3037,10 @@
             if(document.getElementById('finTotalPending')) document.getElementById('finTotalPending').innerText = (totalSales - totalCollectedFromCari).toFixed(2) + ' ₺';
             if(document.getElementById('finTotalExpense')) document.getElementById('finTotalExpense').innerText = totalExpense.toFixed(2) + ' ₺';
 
-            if(document.getElementById('hamMaddeExpenseTotal')) document.getElementById('hamMaddeExpenseTotal').innerText = hamMaddeTotal.toFixed(2) + ' ₺';
-            if(document.getElementById('temizlikExpenseTotal')) document.getElementById('temizlikExpenseTotal').innerText = temizlikTotal.toFixed(2) + ' ₺';
-            if(document.getElementById('digerExpenseTotal')) document.getElementById('digerExpenseTotal').innerText = digerTotal.toFixed(2) + ' ₺';
+            document.querySelectorAll('.hamMaddeExpenseTotal').forEach(el => el.innerText = hamMaddeTotal.toFixed(2) + ' ₺');
+            document.querySelectorAll('.temizlikExpenseTotal').forEach(el => el.innerText = temizlikTotal.toFixed(2) + ' ₺');
+            document.querySelectorAll('.digerExpenseTotal').forEach(el => el.innerText = digerTotal.toFixed(2) + ' ₺');
 
-            // Kasa Hareketleri Tablosu Render (Tarih ve Saat Bilgili)
             const kasaTbody = document.getElementById('kasaHareketleriTableBody');
             if(kasaTbody) {
                 kasaTbody.innerHTML = '';
@@ -2604,23 +3078,23 @@
                 }
             }
 
-            const expTbody = document.getElementById('expenseTableBody');
-            if(expTbody) {
-                expTbody.innerHTML = '';
-                appData.expenses.forEach((e, idx) => {
-                    expTbody.innerHTML += `
-                        <tr>
-                            <td class="p-2 text-slate-500 whitespace-nowrap">${e.date}</td>
-                            <td class="p-2"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${e.category==='Hammadde'?'bg-red-100 text-red-700':e.category==='Temizlik'?'bg-orange-100 text-orange-700':'bg-slate-100 text-slate-700'}">${e.category || 'Genel'}</span></td>
-                            <td class="p-2 font-medium">${escapeHTML(e.desc)}</td>
-                            <td class="p-2 text-right font-bold text-red-600">${e.amount.toFixed(2)} ₺</td>
-                            <td class="p-2 text-center">
-                                <button onclick="deleteExpense(${idx})" class="text-red-500 hover:text-red-700" title="Gideri Sil"><i class="fa-solid fa-trash"></i></button>
-                            </td>
-                        </tr>
-                    `;
-                });
-            }
+            let expenseTableHtml = '';
+            appData.expenses.forEach((e, idx) => {
+                expenseTableHtml += `
+                    <tr>
+                        <td class="p-2 text-slate-500 whitespace-nowrap">${e.date}</td>
+                        <td class="p-2"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${e.category==='Hammadde'?'bg-red-100 text-red-700':e.category==='Temizlik'?'bg-orange-100 text-orange-700':'bg-slate-100 text-slate-700'}">${e.category || 'Genel'}</span></td>
+                        <td class="p-2 font-medium">${escapeHTML(e.desc)}</td>
+                        <td class="p-2 text-right font-bold text-red-600">${e.amount.toFixed(2)} ₺</td>
+                        <td class="p-2 text-center">
+                            <button onclick="deleteExpense(${idx})" class="text-red-500 hover:text-red-700" title="Gideri Sil"><i class="fa-solid fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `;
+            });
+            document.querySelectorAll('.expenseTableBody').forEach(tbody => {
+                tbody.innerHTML = expenseTableHtml || `<tr><td colspan="5" class="text-center py-4 text-slate-400">Kayıtlı gider bulunmuyor.</td></tr>`;
+            });
         }
 
         async function addManualIncome(e) {
@@ -2644,9 +3118,10 @@
 
         async function addExpense(e) {
             e.preventDefault();
-            const desc = escapeHTML(document.getElementById('expDesc').value);
-            const category = document.getElementById('expCategory').value;
-            const amount = parseFloat(document.getElementById('expAmount').value);
+            const form = e.target;
+            const desc = escapeHTML(form.querySelector('.expDesc').value);
+            const category = form.querySelector('.expCategory').value;
+            const amount = parseFloat(form.querySelector('.expAmount').value);
             
             appData.expenses.push({ 
                 date: new Date().toLocaleDateString('tr-TR') + ' ' + new Date().toLocaleTimeString('tr-TR'), 
@@ -2656,8 +3131,7 @@
             });
             await saveLocalData();
             logAuditEvent("Kasa Gideri Eklendi", `[${category}] ${desc} - ${amount} TL`);
-            document.getElementById('expDesc').value = '';
-            document.getElementById('expAmount').value = '';
+            form.reset();
         }
 
         async function deleteExpense(idx) {
