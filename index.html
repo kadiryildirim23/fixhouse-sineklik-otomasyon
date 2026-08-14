@@ -1833,7 +1833,7 @@
 
             if(pType === 'plise') {
                 const isYatayDir = !isDikey;
-                let perimeterCm = isYatayDir ? ((rawEn * 2) + (rawBoy * 3)) : ((rawEn * 3) + (rawBoy * 2));
+                let perimeterCm = isYatayDir ? ((inputEn * 2) + (inputBoy * 3)) : ((inputEn * 3) + (inputBoy * 2));
                 multiplier = (perimeterCm / 100) * qty;
 
                 if(mType === 'ic') {
@@ -1871,7 +1871,7 @@
                 }
             } else {
                 let isKapi = menteseliTipSelect && menteseliTipSelect.value === 'kapi';
-                let perimeterCm = isKapi ? ((rawEn * 4) + (rawBoy * 2)) : ((rawEn * 2) + (rawBoy * 2));
+                let perimeterCm = isKapi ? ((inputEn * 4) + (inputBoy * 2)) : ((inputEn * 2) + (inputBoy * 2));
                 multiplier = (perimeterCm / 100) * qty;
 
                 if(mType === 'dis') {
@@ -1920,7 +1920,8 @@
 
             if(pType === 'plise' && magnetSelect && magnetSelect.value === 'var') {
                 let magnetMeterCost = getRecipeCost('pg-plise', 'acc-serit-miknatis');
-                let perimeterM = (perimeterCm / 100);
+                let perimeterCmForMagnet = isDikey ? ((inputEn * 3) + (inputBoy * 2)) : ((inputEn * 2) + (inputBoy * 3));
+                let perimeterM = (perimeterCmForMagnet / 100);
                 rowPrice += perimeterM * magnetMeterCost * qty;
             }
 
@@ -3353,40 +3354,68 @@
             appData.settings.minM2 = parseFloat(document.getElementById('settingMinM2').value) || 1.0;
             await saveLocalData();
             logAuditEvent("Fiyatlandırma Ayarları Güncellendi", `Montajlı: ${appData.settings.montajPrice} TL, Perakende: ${appData.settings.perakendePrice} TL`);
-            alert('Ayarlar Başarıyla Kaydedildi ve Buluta Yüklendi!');
-            calculateAllRows();
+            alert('Ayarlar Başarıyla Kaydedildi ve Buluta İşlendi!');
         }
 
         function exportFullBackup() {
-            const a = document.createElement('a');
-            a.href = URL.createObjectURL(new Blob([JSON.stringify(appData, null, 2)], { type: 'application/json' }));
-            a.download = `fixhouse23_yedek_${new Date().toISOString().slice(0,10)}.json`;
-            a.click();
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appData, null, 2));
+            const dlAnchor = document.createElement('a');
+            dlAnchor.setAttribute("href", dataStr);
+            dlAnchor.setAttribute("download", `fix_house_23_backup_${new Date().toISOString().slice(0,10)}.json`);
+            document.body.appendChild(dlAnchor);
+            dlAnchor.click();
+            dlAnchor.remove();
         }
 
-        async function importBackup(e) {
+        async function importBackup(event) {
+            const file = event.target.files[0];
+            if(!file) return;
             const reader = new FileReader();
-            reader.onload = async function(evt) {
-                try { 
-                    appData = JSON.parse(evt.target.result); 
-                    await saveLocalData(); 
-                    location.reload(); 
-                } catch(err) { 
-                    alert('Hatalı veya bozuk yedek dosyası!'); 
+            reader.onload = async function(e) {
+                try {
+                    const parsed = JSON.parse(e.target.result);
+                    if(parsed && parsed.settings) {
+                        appData = parsed;
+                        await saveLocalData();
+                        alert("Yedek başarıyla geri yüklendi!");
+                    } else {
+                        alert("Geçersiz yedek dosyası!");
+                    }
+                } catch(err) {
+                    alert("Yedek okunurken hata oluştu: " + err.message);
                 }
             };
-            if(e.target.files[0]) reader.readAsText(e.target.files[0]);
+            reader.readAsText(file);
         }
 
         function exportArchiveExcel() {
-            if (typeof XLSX === 'undefined') return alert('Excel kütüphanesi hazır değil.');
-            const exportData = appData.archive.map(o => ({
-                'Sipariş ID': o.id, 'Tarih': o.date, 'Müşteri': o.customerName, 'Telefon': o.customerPhone, 'Toplam Tutar (₺)': o.totalAmount, 'Durum': o.status
-            }));
-            const worksheet = XLSX.utils.json_to_sheet(exportData);
+            if(!appData.archive || appData.archive.length === 0) return alert('Dışa aktarılacak arşiv siparişi bulunmuyor.');
+            let exportRows = [];
+            appData.archive.forEach(ord => {
+                ord.items.forEach(i => {
+                    exportRows.push({
+                        "Sipariş ID": ord.id,
+                        "Tarih": ord.date,
+                        "Müşteri": ord.customerName,
+                        "Telefon": ord.customerPhone,
+                        "Adres": ord.customerAddress || '',
+                        "Ürün": i.pType === 'plise' ? 'Plise' : 'Menteşeli',
+                        "Ölçü Tipi": i.mType === 'ic' ? 'İç' : 'Dış',
+                        "Renk": i.color,
+                        "EN (cm)": i.en,
+                        "BOY (cm)": i.boy,
+                        "Not": i.note || '',
+                        "Çevre/m²": i.m2,
+                        "Tutar (₺)": ord.totalAmount,
+                        "Durum": ord.status
+                    });
+                });
+            });
+
+            const worksheet = XLSX.utils.json_to_sheet(exportRows);
             const workbook = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(workbook, worksheet, "Siparişler");
-            XLSX.writeFile(workbook, "fixhouse23_arsiv.xlsx");
+            XLSX.utils.book_append_sheet(workbook, worksheet, "SiparisArsivi");
+            XLSX.writeFile(workbook, `FixHouse23_Arsiv_${new Date().toISOString().slice(0,10)}.xlsx`);
         }
     </script>
 </body>
