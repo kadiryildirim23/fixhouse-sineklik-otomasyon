@@ -90,419 +90,635 @@
 </head>
 <body class="min-h-screen flex flex-col text-slate-800">
 
-    <!-- TOP HEADER -->
-    <header class="bg-slate-900 text-white shadow-lg no-print w-full">
-        <div class="w-full px-4 md:px-8 py-3 flex flex-col md:flex-row justify-between items-center gap-3">
-            <div class="flex items-center space-x-3 w-full md:w-auto justify-between md:justify-start">
-                <div class="flex items-center space-x-3">
-                    <div class="bg-blue-600 p-2 rounded-lg text-white font-bold text-xl">
-                        <i class="fa-solid fa-house-chimney-window"></i>
-                    </div>
-                    <div>
-                        <h1 class="text-lg md:text-xl font-bold tracking-wide">FİX HOUSE 23</h1>
-                        <p class="text-[11px] md:text-xs text-slate-400">İmalat, Satış & Muhasebe Otomasyonu</p>
+    <!-- GÜVENLİK DUVARI: GİRİŞ EKRANI -->
+    <div id="loginScreen" class="fixed inset-0 bg-slate-900 z-[100] flex items-center justify-center">
+        <div class="bg-white p-8 rounded-xl shadow-2xl max-w-sm w-full text-center">
+            <div class="bg-blue-600 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 text-white text-2xl">
+                <i class="fa-solid fa-lock"></i>
+            </div>
+            <h2 class="text-xl font-bold text-slate-800 mb-2">Fix House 23'e Giriş</h2>
+            <p class="text-xs text-slate-500 mb-6">Lütfen yetkili erişim şifrenizi girin.</p>
+            
+            <input type="password" id="appPassword" class="w-full px-4 py-3 border border-slate-300 rounded-lg mb-4 text-center text-lg tracking-widest" placeholder="••••••">
+            
+            <button onclick="checkPassword()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition">
+                Giriş Yap
+            </button>
+            <p id="loginError" class="text-red-500 text-xs mt-3 hidden">Hatalı şifre, lütfen tekrar deneyin.</p>
+        </div>
+    </div>
+
+    <!-- ANA UYGULAMA (Başlangıçta Gizli) -->
+    <div id="appContainer" style="display: none;" class="flex-grow flex-col w-full">
+
+        <!-- TOP HEADER -->
+        <header class="bg-slate-900 text-white shadow-lg no-print w-full">
+            <div class="w-full px-4 md:px-8 py-3 flex flex-col md:flex-row justify-between items-center gap-3">
+                <div class="flex items-center space-x-3 w-full md:w-auto justify-between md:justify-start">
+                    <div class="flex items-center space-x-3">
+                        <div class="bg-blue-600 p-2 rounded-lg text-white font-bold text-xl">
+                            <i class="fa-solid fa-house-chimney-window"></i>
+                        </div>
+                        <div>
+                            <h1 class="text-lg md:text-xl font-bold tracking-wide">FİX HOUSE 23</h1>
+                            <p class="text-[11px] md:text-xs text-slate-400">İmalat, Satış & Muhasebe Otomasyonu</p>
+                        </div>
                     </div>
                 </div>
+                <div class="flex items-center space-x-3 w-full md:w-auto justify-between md:justify-end">
+                    <button onclick="manualCloudSync(true)" id="syncButton" class="text-[11px] bg-emerald-800 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-lg border border-emerald-600 flex items-center gap-1.5 font-medium transition shadow-sm">
+                        <i class="fa-solid fa-rotate text-emerald-300" id="syncIcon" style="display:none;"></i> <span id="syncText">Google Sheets Bulut Senkron</span>
+                    </button>
+                    <span class="text-xs bg-slate-800 text-slate-300 px-3 py-1.5 rounded-lg border border-slate-700 flex items-center gap-2">
+                        <i class="fa-regular fa-calendar-days text-blue-400"></i> <span id="clock">--.--.---- --:--:--</span>
+                    </span>
+                </div>
             </div>
-            <div class="flex items-center space-x-3 w-full md:w-auto justify-between md:justify-end">
-                <button onclick="manualCloudSync(true)" id="syncButton" class="text-[11px] bg-emerald-800 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-lg border border-emerald-600 flex items-center gap-1.5 font-medium transition shadow-sm">
-                    <i class="fa-solid fa-rotate text-emerald-300" id="syncIcon" style="display:none;"></i> <span id="syncText">Google Sheets Bulut Senkron</span>
+        </header>
+
+        <!-- NAVIGATION TABS -->
+        <nav class="bg-white border-b border-slate-200 shadow-sm no-print sticky top-0 z-40 w-full">
+            <div class="w-full px-4 md:px-8 flex space-x-2 overflow-x-auto py-2.5" id="navTabsContainer">
+                <button onclick="switchTab('order')" id="tab-order" class="tab-btn active px-3.5 py-2 rounded-lg font-medium text-xs md:text-sm text-slate-600 hover:text-blue-600 transition flex items-center gap-2 border border-transparent whitespace-nowrap">
+                    <i class="fa-solid fa-pen-to-square"></i> Sipariş & Ölçü Girişi
                 </button>
-                <span class="text-xs bg-slate-800 text-slate-300 px-3 py-1.5 rounded-lg border border-slate-700 flex items-center gap-2">
-                    <i class="fa-regular fa-calendar-days text-blue-400"></i> <span id="clock">--.--.---- --:--:--</span>
-                </span>
+                <button onclick="switchTab('cart')" id="tab-cart" class="tab-btn px-3.5 py-2 rounded-lg font-medium text-xs md:text-sm text-slate-600 hover:text-blue-600 transition flex items-center gap-2 border border-transparent whitespace-nowrap">
+                    <i class="fa-solid fa-cart-shopping"></i> Aktif Sepet <span id="cartBadge" class="bg-blue-100 text-blue-700 text-xs px-2 py-0.5 rounded-full font-bold">0</span>
+                </button>
+                <button onclick="switchTab('archive')" id="tab-archive" class="tab-btn px-3.5 py-2 rounded-lg font-medium text-xs md:text-sm text-slate-600 hover:text-blue-600 transition flex items-center gap-2 border border-transparent whitespace-nowrap">
+                    <i class="fa-solid fa-box-archive"></i> Sipariş Arşivi
+                </button>
+                <button onclick="switchTab('customers')" id="tab-customers" class="tab-btn px-3.5 py-2 rounded-lg font-medium text-xs md:text-sm text-slate-600 hover:text-blue-600 transition flex items-center gap-2 border border-transparent whitespace-nowrap">
+                    <i class="fa-solid fa-id-card text-blue-600"></i> Müşteri Kartları & Taksitler <span id="customerBadge" class="bg-blue-100 text-blue-700 text-xs px-2 py-0.5 rounded-full font-bold">0</span>
+                </button>
+                <button onclick="switchTab('ledger')" id="tab-ledger" class="tab-btn px-3.5 py-2 rounded-lg font-medium text-xs md:text-sm text-slate-600 hover:text-blue-600 transition flex items-center gap-2 border border-transparent whitespace-nowrap">
+                    <i class="fa-solid fa-book-bookmark text-amber-600"></i> Müşteri Cari Defteri
+                </button>
+                <button onclick="switchTab('finance')" id="tab-finance" class="tab-btn px-3.5 py-2 rounded-lg font-medium text-xs md:text-sm text-slate-600 hover:text-blue-600 transition flex items-center gap-2 border border-transparent whitespace-nowrap">
+                    <i class="fa-solid fa-chart-line"></i> Gelir / Gider & Kasa
+                </button>
+                <button onclick="switchTab('recycle')" id="tab-recycle" class="tab-btn px-3.5 py-2 rounded-lg font-medium text-xs md:text-sm text-slate-600 hover:text-blue-600 transition flex items-center gap-2 border border-transparent whitespace-nowrap">
+                    <i class="fa-solid fa-trash-can text-red-600"></i> Çöp Kovası & Denetim <span id="recycleBadge" class="bg-red-100 text-red-700 text-xs px-2 py-0.5 rounded-full font-bold">0</span>
+                </button>
+                <button onclick="switchTab('settings')" id="tab-settings" class="tab-btn px-3.5 py-2 rounded-lg font-medium text-xs md:text-sm text-slate-600 hover:text-blue-600 transition flex items-center gap-2 border border-transparent whitespace-nowrap">
+                    <i class="fa-solid fa-sliders"></i> Ayarlar & Yönetim
+                </button>
             </div>
-        </div>
-    </header>
+        </nav>
 
-    <!-- NAVIGATION TABS -->
-    <nav class="bg-white border-b border-slate-200 shadow-sm no-print sticky top-0 z-40 w-full">
-        <div class="w-full px-4 md:px-8 flex space-x-2 overflow-x-auto py-2.5" id="navTabsContainer">
-            <button onclick="switchTab('order')" id="tab-order" class="tab-btn active px-3.5 py-2 rounded-lg font-medium text-xs md:text-sm text-slate-600 hover:text-blue-600 transition flex items-center gap-2 border border-transparent whitespace-nowrap">
-                <i class="fa-solid fa-pen-to-square"></i> Sipariş & Ölçü Girişi
-            </button>
-            <button onclick="switchTab('cart')" id="tab-cart" class="tab-btn px-3.5 py-2 rounded-lg font-medium text-xs md:text-sm text-slate-600 hover:text-blue-600 transition flex items-center gap-2 border border-transparent whitespace-nowrap">
-                <i class="fa-solid fa-cart-shopping"></i> Aktif Sepet <span id="cartBadge" class="bg-blue-100 text-blue-700 text-xs px-2 py-0.5 rounded-full font-bold">0</span>
-            </button>
-            <button onclick="switchTab('archive')" id="tab-archive" class="tab-btn px-3.5 py-2 rounded-lg font-medium text-xs md:text-sm text-slate-600 hover:text-blue-600 transition flex items-center gap-2 border border-transparent whitespace-nowrap">
-                <i class="fa-solid fa-box-archive"></i> Sipariş Arşivi
-            </button>
-            <button onclick="switchTab('customers')" id="tab-customers" class="tab-btn px-3.5 py-2 rounded-lg font-medium text-xs md:text-sm text-slate-600 hover:text-blue-600 transition flex items-center gap-2 border border-transparent whitespace-nowrap">
-                <i class="fa-solid fa-id-card text-blue-600"></i> Müşteri Kartları & Taksitler <span id="customerBadge" class="bg-blue-100 text-blue-700 text-xs px-2 py-0.5 rounded-full font-bold">0</span>
-            </button>
-            <button onclick="switchTab('ledger')" id="tab-ledger" class="tab-btn px-3.5 py-2 rounded-lg font-medium text-xs md:text-sm text-slate-600 hover:text-blue-600 transition flex items-center gap-2 border border-transparent whitespace-nowrap">
-                <i class="fa-solid fa-book-bookmark text-amber-600"></i> Müşteri Cari Defteri
-            </button>
-            <button onclick="switchTab('finance')" id="tab-finance" class="tab-btn px-3.5 py-2 rounded-lg font-medium text-xs md:text-sm text-slate-600 hover:text-blue-600 transition flex items-center gap-2 border border-transparent whitespace-nowrap">
-                <i class="fa-solid fa-chart-line"></i> Gelir / Gider & Kasa
-            </button>
-            <button onclick="switchTab('recycle')" id="tab-recycle" class="tab-btn px-3.5 py-2 rounded-lg font-medium text-xs md:text-sm text-slate-600 hover:text-blue-600 transition flex items-center gap-2 border border-transparent whitespace-nowrap">
-                <i class="fa-solid fa-trash-can text-red-600"></i> Çöp Kovası & Denetim <span id="recycleBadge" class="bg-red-100 text-red-700 text-xs px-2 py-0.5 rounded-full font-bold">0</span>
-            </button>
-            <button onclick="switchTab('settings')" id="tab-settings" class="tab-btn px-3.5 py-2 rounded-lg font-medium text-xs md:text-sm text-slate-600 hover:text-blue-600 transition flex items-center gap-2 border border-transparent whitespace-nowrap">
-                <i class="fa-solid fa-sliders"></i> Ayarlar & Yönetim
-            </button>
-        </div>
-    </nav>
+        <!-- MAIN CONTENT -->
+        <main class="w-full px-4 md:px-8 py-6 flex-grow no-print">
 
-    <!-- MAIN CONTENT -->
-    <main class="w-full px-4 md:px-8 py-6 flex-grow no-print">
-
-        <!-- TAB 1: SİPARİŞ & ÖLÇÜ GİRİŞİ -->
-        <section id="sec-order" class="space-y-6">
-            <div class="bg-white rounded-xl p-4 md:p-6 shadow-sm border border-slate-200">
-                <h2 class="text-base md:text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-                    <i class="fa-solid fa-user-tag text-blue-600"></i> MÜŞTERİ BİLGİLERİ <span class="text-xs text-red-500 font-normal">* Ad Soyad ve Telefon zorunludur</span>
-                </h2>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">Müşteri Adı Soyadı <span class="text-red-500">*</span></label>
-                        <input type="text" id="custName" class="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-sm md:text-base focus:ring-2 focus:ring-blue-500" placeholder="Örn: Mehmet Bey">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">Telefon Numarası <span class="text-red-500">*</span></label>
-                        <input type="tel" id="custPhone" class="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-sm md:text-base focus:ring-2 focus:ring-blue-500" placeholder="05XX XXX XX XX">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">Teslimat / Montaj Adresi</label>
-                        <input type="text" id="custAddress" class="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-sm md:text-base focus:ring-2 focus:ring-blue-500" placeholder="Sürsürü Mah. / Elazığ">
-                    </div>
-                </div>
-            </div>
-
-            <!-- ÖLÇÜ & ÜRÜN KONFİGÜRASYONU -->
-            <div class="bg-white rounded-xl p-4 md:p-6 shadow-sm border border-slate-200">
-                <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-base md:text-lg font-bold text-slate-800 flex items-center gap-2">
-                        <i class="fa-solid fa-ruler-combined text-blue-600"></i> ÖLÇÜ & ÜRÜN KONFİGÜRASYONU
+            <!-- TAB 1: SİPARİŞ & ÖLÇÜ GİRİŞİ -->
+            <section id="sec-order" class="space-y-6">
+                <div class="bg-white rounded-xl p-4 md:p-6 shadow-sm border border-slate-200">
+                    <h2 class="text-base md:text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-user-tag text-blue-600"></i> MÜŞTERİ BİLGİLERİ <span class="text-xs text-red-500 font-normal">* Ad Soyad ve Telefon zorunludur</span>
                     </h2>
-                    <span class="text-xs text-slate-500 hidden md:inline">Şerit Mıknatıs & Reçete Bazlı Fiyatlandırma Aktif</span>
-                </div>
-
-                <div id="measureRowsContainer" class="space-y-4"></div>
-
-                <div class="flex justify-end mt-4 pt-3 border-t border-slate-100">
-                    <button onclick="addMeasureRow()" class="w-full md:w-auto bg-blue-600 hover:bg-blue-700 text-white text-xs md:text-sm px-5 py-3 rounded-lg font-semibold transition flex items-center justify-center gap-2 shadow-sm">
-                        <i class="fa-solid fa-plus"></i> Yeni Ölçü Ekle
-                    </button>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-xl p-4 md:p-6 shadow-sm border border-slate-200">
-                <h2 class="text-base md:text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-                    <i class="fa-solid fa-calculator text-blue-600"></i> SATIŞ FİNANSMAN & İŞLEMLER
-                </h2>
-
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">Satış Tarifesi <span class="text-red-500">*</span></label>
-                        <select id="salesTariff" onchange="calculateAllRows()" class="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-sm md:text-base bg-amber-50 font-bold text-slate-800">
-                            <option value="">-- Lütfen Tarife Seçiniz --</option>
-                            <option value="montajli">Montajlı Satış</option>
-                            <option value="perakende">Perakende Satış</option>
-                        </select>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">Ekstra İşçilik / Montaj Ücreti (₺)</label>
-                        <input type="number" id="extraLabor" value="0" min="0" oninput="calculateAllRows()" class="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-sm md:text-base">
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">KDV Durumu</label>
-                        <select id="kdvStatus" onchange="calculateAllRows()" class="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-sm md:text-base bg-white">
-                            <option value="haric">KDV Hariç</option>
-                            <option value="dahil">KDV Dahil (+%20 Ekle)</option>
-                        </select>
-                    </div>
-
-                    <div class="bg-slate-900 text-white rounded-xl p-4 flex flex-col justify-center items-end">
-                        <span class="text-xs text-slate-400">HESAPLANAN TOPLAM TUTAR</span>
-                        <div id="grandTotalDisplay" class="text-2xl md:text-3xl font-black text-emerald-400">Tarife Seçiniz</div>
-                        <span id="estimatedCostDisplay" class="text-[11px] text-slate-400 mt-1">Hammadde Maliyeti: 0.00 ₺</span>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Müşteri Adı Soyadı <span class="text-red-500">*</span></label>
+                            <input type="text" id="custName" class="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-sm md:text-base focus:ring-2 focus:ring-blue-500" placeholder="Örn: Mehmet Bey">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Telefon Numarası <span class="text-red-500">*</span></label>
+                            <input type="tel" id="custPhone" class="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-sm md:text-base focus:ring-2 focus:ring-blue-500" placeholder="05XX XXX XX XX">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Teslimat / Montaj Adresi</label>
+                            <input type="text" id="custAddress" class="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-sm md:text-base focus:ring-2 focus:ring-blue-500" placeholder="Sürsürü Mah. / Elazığ">
+                        </div>
                     </div>
                 </div>
 
-                <div class="flex flex-wrap gap-3 justify-end border-t border-slate-200 pt-4">
-                    <button onclick="addToCart()" class="w-full md:w-auto bg-blue-600 hover:bg-blue-700 text-white text-xs md:text-sm px-5 py-3 rounded-lg font-semibold transition flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-cart-plus"></i> Siparişi Sepete At
-                    </button>
-                    <button onclick="printDirectA4('draft')" class="w-full md:w-auto bg-slate-700 hover:bg-slate-800 text-white text-xs md:text-sm px-5 py-3 rounded-lg font-semibold transition flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-print"></i> Tek Sayfa A4 Yazdır
-                    </button>
-                    <button onclick="printZebraLabels('draft')" class="w-full md:w-auto bg-amber-600 hover:bg-amber-700 text-white text-xs md:text-sm px-5 py-3 rounded-lg font-semibold transition flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-barcode"></i> Zebra Etiket Yazdır (50x100mm)
-                    </button>
-                </div>
-            </div>
-        </section>
+                <!-- ÖLÇÜ & ÜRÜN KONFİGÜRASYONU -->
+                <div class="bg-white rounded-xl p-4 md:p-6 shadow-sm border border-slate-200">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-base md:text-lg font-bold text-slate-800 flex items-center gap-2">
+                            <i class="fa-solid fa-ruler-combined text-blue-600"></i> ÖLÇÜ & ÜRÜN KONFİGÜRASYONU
+                        </h2>
+                        <span class="text-xs text-slate-500 hidden md:inline">Şerit Mıknatıs & Reçete Bazlı Fiyatlandırma Aktif</span>
+                    </div>
 
-        <!-- TAB 2: AKTİF SEPET -->
-        <section id="sec-cart" class="space-y-6 hidden">
-            <div class="bg-white rounded-xl p-4 md:p-6 shadow-sm border border-slate-200">
-                <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-base md:text-lg font-bold text-slate-800 flex items-center gap-2">
-                        <i class="fa-solid fa-cart-shopping text-blue-600"></i> ONAYLANAN SİPARİŞLER (SEPET)
-                    </h2>
-                    <span class="text-xs text-slate-500">Yazdırıldığında otomatik arşive, cariye ve müşteri kartına aktarılır</span>
-                </div>
-                <div id="cartListContainer" class="space-y-4"></div>
-            </div>
-        </section>
+                    <div id="measureRowsContainer" class="space-y-4"></div>
 
-        <!-- TAB 3: SİPARİŞ ARŞİVİ -->
-        <section id="sec-archive" class="space-y-6 hidden">
-            <div class="bg-white rounded-xl p-4 md:p-6 shadow-sm border border-slate-200">
-                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
-                    <h2 class="text-base md:text-lg font-bold text-slate-800 flex items-center gap-2">
-                        <i class="fa-solid fa-box-archive text-blue-600"></i> GEÇMİŞ SİPARİŞ ARŞİVİ
-                    </h2>
-                    <div class="flex gap-2 w-full md:w-auto">
-                        <input type="text" id="archiveSearch" oninput="renderArchive()" placeholder="Müşteri veya tel ara..." class="px-3 py-2 text-xs md:text-sm border border-slate-300 rounded-lg w-full md:w-64">
-                        <button onclick="exportArchiveExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs md:text-sm px-4 py-2 rounded-lg font-semibold flex items-center gap-1.5 whitespace-nowrap">
-                            <i class="fa-solid fa-file-excel"></i> Excel
+                    <div class="flex justify-end mt-4 pt-3 border-t border-slate-100">
+                        <button onclick="addMeasureRow()" class="w-full md:w-auto bg-blue-600 hover:bg-blue-700 text-white text-xs md:text-sm px-5 py-3 rounded-lg font-semibold transition flex items-center justify-center gap-2 shadow-sm">
+                            <i class="fa-solid fa-plus"></i> Yeni Ölçü Ekle
                         </button>
                     </div>
                 </div>
 
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-xs md:text-sm min-w-[700px]">
-                        <thead>
-                            <tr class="bg-slate-100 text-slate-700 font-semibold border-b border-slate-200">
-                                <th class="p-3">Sipariş ID</th>
-                                <th class="p-3">Tarih</th>
-                                <th class="p-3">Müşteri</th>
-                                <th class="p-3">Telefon</th>
-                                <th class="p-3 text-center">Kalem</th>
-                                <th class="p-3 text-right">Toplam Tutar</th>
-                                <th class="p-3 text-center">Üretim Konumu & WhatsApp</th>
-                                <th class="p-3 text-center">Ödeme Durumu</th>
-                                <th class="p-3 text-center">İşlemler</th>
-                            </tr>
-                        </thead>
-                        <tbody id="archiveTableBody" class="divide-y divide-slate-200"></tbody>
-                    </table>
-                </div>
-            </div>
-        </section>
-
-        <!-- TAB 4: MÜŞTERİ KARTLARI & TAKSİTLER -->
-        <section id="sec-customers" class="space-y-6 hidden">
-            <div class="bg-white rounded-xl p-4 md:p-6 shadow-sm border border-slate-200">
-                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
-                    <h2 class="text-base md:text-lg font-bold text-slate-800 flex items-center gap-2">
-                        <i class="fa-solid fa-id-card text-blue-600"></i> MÜŞTERİ KARTLARI & TAKSİTLİ SATIŞ YÖNETİMİ
-                    </h2>
-                    <div class="flex gap-2 w-full md:w-auto">
-                        <input type="text" id="customerSearchInput" oninput="renderCustomerCards()" placeholder="Müşteri adı veya telefon ara..." class="px-3 py-2 text-xs md:text-sm border border-slate-300 rounded-lg w-full md:w-64">
-                    </div>
-                </div>
-
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-xs md:text-sm min-w-[800px]">
-                        <thead>
-                            <tr class="bg-slate-100 font-semibold border-b border-slate-200 text-slate-700">
-                                <th class="p-3">Müşteri Adı Soyadı</th>
-                                <th class="p-3">Telefon / Adres</th>
-                                <th class="p-3 text-center">Kayıt Türü</th>
-                                <th class="p-3 text-right">Toplam Borç</th>
-                                <th class="p-3 text-right">Ödenen</th>
-                                <th class="p-3 text-right">Kalan Bakiye</th>
-                                <th class="p-3 text-center">Taksit Durumu</th>
-                                <th class="p-3 text-center">İşlemler</th>
-                            </tr>
-                        </thead>
-                        <tbody id="customerCardsTableBody" class="divide-y divide-slate-200"></tbody>
-                        <tfoot id="customerCardsTableFoot" class="bg-slate-900 text-white font-bold text-xs md:text-sm"></tfoot>
-                    </table>
-                </div>
-            </div>
-        </section>
-
-        <!-- TAB 5: MÜŞTERİ CARİ DEFTERİ -->
-        <section id="sec-ledger" class="space-y-6 hidden">
-            <div class="flex border-b border-slate-200 gap-4 mb-2">
-                <button onclick="switchLedgerSubTab('standart')" id="subtab-ledger-standart" class="py-2 px-4 border-b-2 border-amber-600 font-bold text-xs md:text-sm text-amber-700">
-                    Bireysel / Standart Cari Defter
-                </button>
-                <button onclick="switchLedgerSubTab('toplu')" id="subtab-ledger-toplu" class="py-2 px-4 border-b-2 border-transparent font-medium text-xs md:text-sm text-slate-500 hover:text-amber-600">
-                    Toplu Montaj Defteri
-                </button>
-            </div>
-
-            <div id="ledger-sub-standart" class="space-y-6">
                 <div class="bg-white rounded-xl p-4 md:p-6 shadow-sm border border-slate-200">
-                    <h2 id="manualFormTitle" class="text-base md:text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-                        <i class="fa-solid fa-address-book text-amber-600"></i> MANUEL MÜŞTERİ CARİ KARTI OLUŞTUR / BORÇLANDIR (AÇIKLAMA DESTEKLİ)
+                    <h2 class="text-base md:text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-calculator text-blue-600"></i> SATIŞ FİNANSMAN & İŞLEMLER
                     </h2>
-                    <form onsubmit="handleManualCustomerSubmit(event)" class="grid grid-cols-1 md:grid-cols-6 gap-3">
-                        <input type="hidden" id="editManualIndex" value="">
-                        <input type="text" id="manCustName" placeholder="Müşteri Adı Soyadı *" required class="px-3 py-2.5 text-xs md:text-sm border border-slate-300 rounded-lg">
-                        <input type="tel" id="manCustPhone" placeholder="Telefon Numarası *" required class="px-3 py-2.5 text-xs md:text-sm border border-slate-300 rounded-lg">
-                        <input type="number" id="manCustDebt" step="0.01" placeholder="Açılış Borç Tutarı (₺) *" required class="px-3 py-2.5 text-xs md:text-sm border border-slate-300 rounded-lg">
-                        <input type="text" id="manCustDesc" placeholder="İşlem Açıklaması" class="px-3 py-2.5 text-xs md:text-sm border border-slate-300 rounded-lg">
-                        <div class="flex gap-2">
-                            <input type="number" id="manCustInstallment" min="1" value="1" placeholder="Taksit Sayısı" class="w-24 px-2 py-2.5 text-xs md:text-sm border border-slate-300 rounded-lg text-center font-bold" title="Taksit Sayısı">
-                        </div>
-                        <div class="flex gap-2">
-                            <button type="submit" id="manualSubmitBtn" class="flex-grow bg-amber-600 hover:bg-amber-700 text-white text-xs md:text-sm font-semibold rounded-lg py-2.5">
-                                <i class="fa-solid fa-plus"></i> Ekle
-                            </button>
-                            <button type="button" id="manualCancelBtn" onclick="resetManualForm()" class="hidden bg-slate-500 hover:bg-slate-600 text-white text-xs px-3 rounded-lg py-2.5">İptal</button>
-                        </div>
-                    </form>
-                </div>
 
-                <div class="bg-white rounded-xl p-4 md:p-6 shadow-sm border border-slate-200">
-                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
-                        <h2 class="text-base md:text-lg font-bold text-slate-800 flex items-center gap-2">
-                            <i class="fa-solid fa-book-open text-amber-600"></i> MÜŞTERİ CARİ BORÇ & ALACAK DEFTERİ
-                        </h2>
-                        <div class="flex gap-2 w-full md:w-auto">
-                            <input type="text" id="ledgerSearchInput" oninput="renderLedgerTab()" placeholder="Cari Müşteri veya Tel Ara..." class="px-3 py-2 text-xs md:text-sm border border-slate-300 rounded-lg w-full md:w-64">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Satış Tarifesi <span class="text-red-500">*</span></label>
+                            <select id="salesTariff" onchange="calculateAllRows()" class="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-sm md:text-base bg-amber-50 font-bold text-slate-800">
+                                <option value="">-- Lütfen Tarife Seçiniz --</option>
+                                <option value="montajli">Montajlı Satış</option>
+                                <option value="perakende">Perakende Satış</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Ekstra İşçilik / Montaj Ücreti (₺)</label>
+                            <input type="number" id="extraLabor" value="0" min="0" oninput="calculateAllRows()" class="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-sm md:text-base">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">KDV Durumu</label>
+                            <select id="kdvStatus" onchange="calculateAllRows()" class="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-sm md:text-base bg-white">
+                                <option value="haric">KDV Hariç</option>
+                                <option value="dahil">KDV Dahil (+%20 Ekle)</option>
+                            </select>
+                        </div>
+
+                        <div class="bg-slate-900 text-white rounded-xl p-4 flex flex-col justify-center items-end">
+                            <span class="text-xs text-slate-400">HESAPLANAN TOPLAM TUTAR</span>
+                            <div id="grandTotalDisplay" class="text-2xl md:text-3xl font-black text-emerald-400">Tarife Seçiniz</div>
+                            <span id="estimatedCostDisplay" class="text-[11px] text-slate-400 mt-1">Hammadde Maliyeti: 0.00 ₺</span>
                         </div>
                     </div>
 
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left text-xs md:text-sm min-w-[700px]">
-                            <thead>
-                                <tr class="bg-slate-100 font-semibold border-b border-slate-200 text-slate-700">
-                                    <th class="p-3">Müşteri Adı</th>
-                                    <th class="p-3">Telefon</th>
-                                    <th class="p-3">Kaynak / Açıklama</th>
-                                    <th class="p-3 text-right">Toplam Borç (₺)</th>
-                                    <th class="p-3 text-right">Ödenen (₺)</th>
-                                    <th class="p-3 text-right">Kalan Bakiye (₺)</th>
-                                    <th class="p-3 text-center">İşlemler</th>
-                                </tr>
-                            </thead>
-                            <tbody id="fullCustomerLedgerBody" class="divide-y divide-slate-200"></tbody>
-                            <tfoot id="ledgerTableFoot" class="bg-slate-900 text-white font-bold text-xs md:text-sm"></tfoot>
-                        </table>
+                    <div class="flex flex-wrap gap-3 justify-end border-t border-slate-200 pt-4">
+                        <button onclick="addToCart()" class="w-full md:w-auto bg-blue-600 hover:bg-blue-700 text-white text-xs md:text-sm px-5 py-3 rounded-lg font-semibold transition flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-cart-plus"></i> Siparişi Sepete At
+                        </button>
+                        <button onclick="printDirectA4('draft')" class="w-full md:w-auto bg-slate-700 hover:bg-slate-800 text-white text-xs md:text-sm px-5 py-3 rounded-lg font-semibold transition flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-print"></i> Tek Sayfa A4 Yazdır
+                        </button>
+                        <button onclick="printZebraLabels('draft')" class="w-full md:w-auto bg-amber-600 hover:bg-amber-700 text-white text-xs md:text-sm px-5 py-3 rounded-lg font-semibold transition flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-barcode"></i> Zebra Etiket Yazdır (50x100mm)
+                        </button>
                     </div>
                 </div>
-            </div>
+            </section>
 
-            <div id="ledger-sub-toplu" class="space-y-6 hidden">
-                <div class="bg-white rounded-xl p-4 md:p-6 shadow-sm border border-slate-200">
-                    <h2 id="topluFormTitle" class="text-base md:text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-                        <i class="fa-solid fa-city text-amber-600"></i> TOPLU MONTAJ DEFTERİNE MANUEL PROJE / CARİ EKLENMESİ / DÜZENLENMESİ
-                    </h2>
-                    <form onsubmit="addOrUpdateManualTopluMontajLedger(event)" class="grid grid-cols-1 md:grid-cols-5 gap-3">
-                        <input type="hidden" id="editTopluIndex" value="">
-                        <input type="text" id="topluCustName" placeholder="Proje / Müşteri Adı *" required class="px-3 py-2.5 text-xs md:text-sm border border-slate-300 rounded-lg">
-                        <input type="tel" id="topluCustPhone" placeholder="Telefon Numarası *" required class="px-3 py-2.5 text-xs md:text-sm border border-slate-300 rounded-lg">
-                        <input type="number" id="topluCustDebt" step="0.01" placeholder="Proje / Montaj Borç Tutarı (₺) *" required class="px-3 py-2.5 text-xs md:text-sm border border-slate-300 rounded-lg">
-                        <input type="number" id="topluCustInstallment" min="1" value="1" placeholder="Taksit Sayısı" class="px-3 py-2.5 text-xs md:text-sm border border-slate-300 rounded-lg text-center font-bold">
-                        <div class="flex gap-2">
-                            <button type="submit" id="topluSubmitBtn" class="flex-grow bg-purple-600 hover:bg-purple-700 text-white text-xs md:text-sm font-semibold rounded-lg py-2.5">
-                                <i class="fa-solid fa-plus"></i> Ekle
-                            </button>
-                            <button type="button" id="topluCancelBtn" onclick="resetTopluForm()" class="hidden bg-slate-500 hover:bg-slate-600 text-white text-xs px-3 rounded-lg py-2.5">İptal</button>
-                        </div>
-                    </form>
-                </div>
-
+            <!-- TAB 2: AKTİF SEPET -->
+            <section id="sec-cart" class="space-y-6 hidden">
                 <div class="bg-white rounded-xl p-4 md:p-6 shadow-sm border border-slate-200">
                     <div class="flex justify-between items-center mb-4">
                         <h2 class="text-base md:text-lg font-bold text-slate-800 flex items-center gap-2">
-                            <i class="fa-solid fa-city text-purple-600"></i> TOPLU MONTAJ SİPARİŞLERİ & PROJE TAKİP DEFTERİ
+                            <i class="fa-solid fa-cart-shopping text-blue-600"></i> ONAYLANAN SİPARİŞLER (SEPET)
                         </h2>
+                        <span class="text-xs text-slate-500">Yazdırıldığında otomatik arşive, cariye ve müşteri kartına aktarılır</span>
+                    </div>
+                    <div id="cartListContainer" class="space-y-4"></div>
+                </div>
+            </section>
+
+            <!-- TAB 3: SİPARİŞ ARŞİVİ -->
+            <section id="sec-archive" class="space-y-6 hidden">
+                <div class="bg-white rounded-xl p-4 md:p-6 shadow-sm border border-slate-200">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
+                        <h2 class="text-base md:text-lg font-bold text-slate-800 flex items-center gap-2">
+                            <i class="fa-solid fa-box-archive text-blue-600"></i> GEÇMİŞ SİPARİŞ ARŞİVİ
+                        </h2>
+                        <div class="flex gap-2 w-full md:w-auto">
+                            <input type="text" id="archiveSearch" oninput="renderArchive()" placeholder="Müşteri veya tel ara..." class="px-3 py-2 text-xs md:text-sm border border-slate-300 rounded-lg w-full md:w-64">
+                            <button onclick="exportArchiveExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs md:text-sm px-4 py-2 rounded-lg font-semibold flex items-center gap-1.5 whitespace-nowrap">
+                                <i class="fa-solid fa-file-excel"></i> Excel
+                            </button>
+                        </div>
                     </div>
 
                     <div class="overflow-x-auto">
                         <table class="w-full text-left text-xs md:text-sm min-w-[700px]">
                             <thead>
-                                <tr class="bg-slate-100 font-semibold border-b border-slate-200 text-slate-700">
-                                    <th class="p-3">Proje / Müşteri</th>
-                                    <th class="p-3">Telefon</th>
+                                <tr class="bg-slate-100 text-slate-700 font-semibold border-b border-slate-200">
                                     <th class="p-3">Sipariş ID</th>
-                                    <th class="p-3 text-center">Montaj Kalemi</th>
-                                    <th class="p-3 text-right">Sözleşme Tutarı</th>
-                                    <th class="p-3 text-right">Tahsil Edilen</th>
-                                    <th class="p-3 text-right">Kalan Proje Borcu</th>
+                                    <th class="p-3">Tarih</th>
+                                    <th class="p-3">Müşteri</th>
+                                    <th class="p-3">Telefon</th>
+                                    <th class="p-3 text-center">Kalem</th>
+                                    <th class="p-3 text-right">Toplam Tutar</th>
+                                    <th class="p-3 text-center">Üretim Konumu & WhatsApp</th>
+                                    <th class="p-3 text-center">Ödeme Durumu</th>
                                     <th class="p-3 text-center">İşlemler</th>
                                 </tr>
                             </thead>
-                            <tbody id="topluMontajLedgerBody" class="divide-y divide-slate-200"></tbody>
-                            <tfoot id="topluLedgerTableFoot" class="bg-slate-900 text-white font-bold text-xs md:text-sm"></tfoot>
+                            <tbody id="archiveTableBody" class="divide-y divide-slate-200"></tbody>
                         </table>
                     </div>
                 </div>
-            </div>
-        </section>
+            </section>
 
-        <!-- TAB 6: GELİR / GİDER & KASA -->
-        <section id="sec-finance" class="space-y-6 hidden">
-            <!-- FINANCE SUB-TABS -->
-            <div class="flex border-b border-slate-200 gap-4 mb-2">
-                <button onclick="switchFinanceSubTab('kasa')" id="subtab-fin-kasa" class="py-2 px-4 border-b-2 border-emerald-600 font-bold text-xs md:text-sm text-emerald-700">
-                    Kasa & Genel Finans
-                </button>
-                <button onclick="switchFinanceSubTab('banks')" id="subtab-fin-banks" class="py-2 px-4 border-b-2 border-transparent font-medium text-xs md:text-sm text-slate-500 hover:text-emerald-600 flex items-center gap-1.5">
-                    <i class="fa-solid fa-building-columns"></i> Banka Hesapları & İşlemleri
-                </button>
-            </div>
-
-            <!-- SUB-TAB 1: KASA & GENEL FİNANS -->
-            <div id="fin-sub-kasa" class="space-y-6">
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-                        <span class="text-xs font-semibold text-slate-500">TOPLAM CİRO / ALACAK</span>
-                        <div id="finTotalSales" class="text-xl font-bold text-slate-800 mt-1">0.00 ₺</div>
-                    </div>
-                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-                        <span class="text-xs font-semibold text-slate-500">TOPLAM TAHSİLAT (KASA)</span>
-                        <div id="finTotalCollected" class="text-xl font-bold text-emerald-600 mt-1">0.00 ₺</div>
-                    </div>
-                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-                        <span class="text-xs font-semibold text-slate-500">AÇIK HESAP / KALAN BORÇ</span>
-                        <div id="finTotalPending" class="text-xl font-bold text-amber-600 mt-1">0.00 ₺</div>
-                    </div>
-                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-                        <span class="text-xs font-semibold text-slate-500">TOPLAM DÜKKAN GİDERİ</span>
-                        <div id="finTotalExpense" class="text-xl font-bold text-red-600 mt-1">0.00 ₺</div>
-                    </div>
-                </div>
-
-                <!-- GÜNCELLENEN KASA HAREKETLERİ & TAHSİLAT DEFTERİ (TARİH/SAAT BİLGİLİ) -->
-                <div class="bg-white rounded-xl p-4 md:p-6 shadow-sm border border-slate-200 space-y-4">
-                    <div class="flex justify-between items-center">
+            <!-- TAB 4: MÜŞTERİ KARTLARI & TAKSİTLER -->
+            <section id="sec-customers" class="space-y-6 hidden">
+                <div class="bg-white rounded-xl p-4 md:p-6 shadow-sm border border-slate-200">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
                         <h2 class="text-base md:text-lg font-bold text-slate-800 flex items-center gap-2">
-                            <i class="fa-solid fa-wallet text-emerald-600"></i> KASA HAREKETLERİ & TAHSİLAT DEFTERİ
+                            <i class="fa-solid fa-id-card text-blue-600"></i> MÜŞTERİ KARTLARI & TAKSİTLİ SATIŞ YÖNETİMİ
                         </h2>
-                        <span class="text-xs text-slate-500">Tüm tahsilat ve kasa hareketleri tarih ve saat bilgisiyle kayıt altındadır</span>
+                        <div class="flex gap-2 w-full md:w-auto">
+                            <input type="text" id="customerSearchInput" oninput="renderCustomerCards()" placeholder="Müşteri adı veya telefon ara..." class="px-3 py-2 text-xs md:text-sm border border-slate-300 rounded-lg w-full md:w-64">
+                        </div>
                     </div>
-                    
-                    <form onsubmit="addManualIncome(event)" class="grid grid-cols-1 md:grid-cols-3 gap-3 p-3 bg-slate-50 rounded-xl border border-slate-200">
-                        <input type="text" id="incDesc" placeholder="Ek Gelir Açıklaması (Örn: Ekstra Malzeme Satışı)" required class="px-3 py-2 text-xs md:text-sm border border-slate-300 rounded-lg">
-                        <input type="number" id="incAmount" step="0.01" placeholder="Gelir Tutarı (₺)" required class="px-3 py-2 text-xs md:text-sm border border-slate-300 rounded-lg">
-                        <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs md:text-sm font-semibold rounded-lg py-2 flex items-center justify-center gap-1.5"><i class="fa-solid fa-plus"></i> Kasaya Gelir Ekle</button>
-                    </form>
 
                     <div class="overflow-x-auto">
-                        <table class="w-full text-left text-xs md:text-sm">
-                            <thead class="bg-slate-100 text-slate-700 font-semibold border-b">
-                                <tr>
-                                    <th class="p-3">Tarih / Saat</th>
-                                    <th class="p-3">İşlem Türü</th>
-                                    <th class="p-3">Açıklama / Müşteri</th>
-                                    <th class="p-3 text-right">Tutar (₺)</th>
-                                    <th class="p-3 text-center w-16">İşlem</th>
+                        <table class="w-full text-left text-xs md:text-sm min-w-[800px]">
+                            <thead>
+                                <tr class="bg-slate-100 font-semibold border-b border-slate-200 text-slate-700">
+                                    <th class="p-3">Müşteri Adı Soyadı</th>
+                                    <th class="p-3">Telefon / Adres</th>
+                                    <th class="p-3 text-center">Kayıt Türü</th>
+                                    <th class="p-3 text-right">Toplam Borç</th>
+                                    <th class="p-3 text-right">Ödenen</th>
+                                    <th class="p-3 text-right">Kalan Bakiye</th>
+                                    <th class="p-3 text-center">Taksit Durumu</th>
+                                    <th class="p-3 text-center">İşlemler</th>
                                 </tr>
                             </thead>
-                            <tbody id="kasaHareketleriTableBody" class="divide-y divide-slate-200"></tbody>
+                            <tbody id="customerCardsTableBody" class="divide-y divide-slate-200"></tbody>
+                            <tfoot id="customerCardsTableFoot" class="bg-slate-900 text-white font-bold text-xs md:text-sm"></tfoot>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 5: MÜŞTERİ CARİ DEFTERİ -->
+            <section id="sec-ledger" class="space-y-6 hidden">
+                <div class="flex border-b border-slate-200 gap-4 mb-2">
+                    <button onclick="switchLedgerSubTab('standart')" id="subtab-ledger-standart" class="py-2 px-4 border-b-2 border-amber-600 font-bold text-xs md:text-sm text-amber-700">
+                        Bireysel / Standart Cari Defter
+                    </button>
+                    <button onclick="switchLedgerSubTab('toplu')" id="subtab-ledger-toplu" class="py-2 px-4 border-b-2 border-transparent font-medium text-xs md:text-sm text-slate-500 hover:text-amber-600">
+                        Toplu Montaj Defteri
+                    </button>
+                </div>
+
+                <div id="ledger-sub-standart" class="space-y-6">
+                    <div class="bg-white rounded-xl p-4 md:p-6 shadow-sm border border-slate-200">
+                        <h2 id="manualFormTitle" class="text-base md:text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+                            <i class="fa-solid fa-address-book text-amber-600"></i> MANUEL MÜŞTERİ CARİ KARTI OLUŞTUR / BORÇLANDIR (AÇIKLAMA DESTEKLİ)
+                        </h2>
+                        <form onsubmit="handleManualCustomerSubmit(event)" class="grid grid-cols-1 md:grid-cols-6 gap-3">
+                            <input type="hidden" id="editManualIndex" value="">
+                            <input type="text" id="manCustName" placeholder="Müşteri Adı Soyadı *" required class="px-3 py-2.5 text-xs md:text-sm border border-slate-300 rounded-lg">
+                            <input type="tel" id="manCustPhone" placeholder="Telefon Numarası *" required class="px-3 py-2.5 text-xs md:text-sm border border-slate-300 rounded-lg">
+                            <input type="number" id="manCustDebt" step="0.01" placeholder="Açılış Borç Tutarı (₺) *" required class="px-3 py-2.5 text-xs md:text-sm border border-slate-300 rounded-lg">
+                            <input type="text" id="manCustDesc" placeholder="İşlem Açıklaması" class="px-3 py-2.5 text-xs md:text-sm border border-slate-300 rounded-lg">
+                            <div class="flex gap-2">
+                                <input type="number" id="manCustInstallment" min="1" value="1" placeholder="Taksit Sayısı" class="w-24 px-2 py-2.5 text-xs md:text-sm border border-slate-300 rounded-lg text-center font-bold" title="Taksit Sayısı">
+                            </div>
+                            <div class="flex gap-2">
+                                <button type="submit" id="manualSubmitBtn" class="flex-grow bg-amber-600 hover:bg-amber-700 text-white text-xs md:text-sm font-semibold rounded-lg py-2.5">
+                                    <i class="fa-solid fa-plus"></i> Ekle
+                                </button>
+                                <button type="button" id="manualCancelBtn" onclick="resetManualForm()" class="hidden bg-slate-500 hover:bg-slate-600 text-white text-xs px-3 rounded-lg py-2.5">İptal</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="bg-white rounded-xl p-4 md:p-6 shadow-sm border border-slate-200">
+                        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
+                            <h2 class="text-base md:text-lg font-bold text-slate-800 flex items-center gap-2">
+                                <i class="fa-solid fa-book-open text-amber-600"></i> MÜŞTERİ CARİ BORÇ & ALACAK DEFTERİ
+                            </h2>
+                            <div class="flex gap-2 w-full md:w-auto">
+                                <input type="text" id="ledgerSearchInput" oninput="renderLedgerTab()" placeholder="Cari Müşteri veya Tel Ara..." class="px-3 py-2 text-xs md:text-sm border border-slate-300 rounded-lg w-full md:w-64">
+                            </div>
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-xs md:text-sm min-w-[700px]">
+                                <thead>
+                                    <tr class="bg-slate-100 font-semibold border-b border-slate-200 text-slate-700">
+                                        <th class="p-3">Müşteri Adı</th>
+                                        <th class="p-3">Telefon</th>
+                                        <th class="p-3">Kaynak / Açıklama</th>
+                                        <th class="p-3 text-right">Toplam Borç (₺)</th>
+                                        <th class="p-3 text-right">Ödenen (₺)</th>
+                                        <th class="p-3 text-right">Kalan Bakiye (₺)</th>
+                                        <th class="p-3 text-center">İşlemler</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="fullCustomerLedgerBody" class="divide-y divide-slate-200"></tbody>
+                                <tfoot id="ledgerTableFoot" class="bg-slate-900 text-white font-bold text-xs md:text-sm"></tfoot>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="ledger-sub-toplu" class="space-y-6 hidden">
+                    <div class="bg-white rounded-xl p-4 md:p-6 shadow-sm border border-slate-200">
+                        <h2 id="topluFormTitle" class="text-base md:text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+                            <i class="fa-solid fa-city text-amber-600"></i> TOPLU MONTAJ DEFTERİNE MANUEL PROJE / CARİ EKLENMESİ / DÜZENLENMESİ
+                        </h2>
+                        <form onsubmit="addOrUpdateManualTopluMontajLedger(event)" class="grid grid-cols-1 md:grid-cols-5 gap-3">
+                            <input type="hidden" id="editTopluIndex" value="">
+                            <input type="text" id="topluCustName" placeholder="Proje / Müşteri Adı *" required class="px-3 py-2.5 text-xs md:text-sm border border-slate-300 rounded-lg">
+                            <input type="tel" id="topluCustPhone" placeholder="Telefon Numarası *" required class="px-3 py-2.5 text-xs md:text-sm border border-slate-300 rounded-lg">
+                            <input type="number" id="topluCustDebt" step="0.01" placeholder="Proje / Montaj Borç Tutarı (₺) *" required class="px-3 py-2.5 text-xs md:text-sm border border-slate-300 rounded-lg">
+                            <input type="number" id="topluCustInstallment" min="1" value="1" placeholder="Taksit Sayısı" class="px-3 py-2.5 text-xs md:text-sm border border-slate-300 rounded-lg text-center font-bold">
+                            <div class="flex gap-2">
+                                <button type="submit" id="topluSubmitBtn" class="flex-grow bg-purple-600 hover:bg-purple-700 text-white text-xs md:text-sm font-semibold rounded-lg py-2.5">
+                                    <i class="fa-solid fa-plus"></i> Ekle
+                                </button>
+                                <button type="button" id="topluCancelBtn" onclick="resetTopluForm()" class="hidden bg-slate-500 hover:bg-slate-600 text-white text-xs px-3 rounded-lg py-2.5">İptal</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="bg-white rounded-xl p-4 md:p-6 shadow-sm border border-slate-200">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-base md:text-lg font-bold text-slate-800 flex items-center gap-2">
+                                <i class="fa-solid fa-city text-purple-600"></i> TOPLU MONTAJ SİPARİŞLERİ & PROJE TAKİP DEFTERİ
+                            </h2>
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-xs md:text-sm min-w-[700px]">
+                                <thead>
+                                    <tr class="bg-slate-100 font-semibold border-b border-slate-200 text-slate-700">
+                                        <th class="p-3">Proje / Müşteri</th>
+                                        <th class="p-3">Telefon</th>
+                                        <th class="p-3">Sipariş ID</th>
+                                        <th class="p-3 text-center">Montaj Kalemi</th>
+                                        <th class="p-3 text-right">Sözleşme Tutarı</th>
+                                        <th class="p-3 text-right">Tahsil Edilen</th>
+                                        <th class="p-3 text-right">Kalan Proje Borcu</th>
+                                        <th class="p-3 text-center">İşlemler</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="topluMontajLedgerBody" class="divide-y divide-slate-200"></tbody>
+                                <tfoot id="topluLedgerTableFoot" class="bg-slate-900 text-white font-bold text-xs md:text-sm"></tfoot>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 6: GELİR / GİDER & KASA -->
+            <section id="sec-finance" class="space-y-6 hidden">
+                <!-- FINANCE SUB-TABS -->
+                <div class="flex border-b border-slate-200 gap-4 mb-2">
+                    <button onclick="switchFinanceSubTab('kasa')" id="subtab-fin-kasa" class="py-2 px-4 border-b-2 border-emerald-600 font-bold text-xs md:text-sm text-emerald-700">
+                        Kasa & Genel Finans
+                    </button>
+                    <button onclick="switchFinanceSubTab('banks')" id="subtab-fin-banks" class="py-2 px-4 border-b-2 border-transparent font-medium text-xs md:text-sm text-slate-500 hover:text-emerald-600 flex items-center gap-1.5">
+                        <i class="fa-solid fa-building-columns"></i> Banka Hesapları & İşlemleri
+                    </button>
+                </div>
+
+                <!-- SUB-TAB 1: KASA & GENEL FİNANS -->
+                <div id="fin-sub-kasa" class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                            <span class="text-xs font-semibold text-slate-500">TOPLAM CİRO / ALACAK</span>
+                            <div id="finTotalSales" class="text-xl font-bold text-slate-800 mt-1">0.00 ₺</div>
+                        </div>
+                        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                            <span class="text-xs font-semibold text-slate-500">TOPLAM TAHSİLAT (KASA)</span>
+                            <div id="finTotalCollected" class="text-xl font-bold text-emerald-600 mt-1">0.00 ₺</div>
+                        </div>
+                        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                            <span class="text-xs font-semibold text-slate-500">AÇIK HESAP / KALAN BORÇ</span>
+                            <div id="finTotalPending" class="text-xl font-bold text-amber-600 mt-1">0.00 ₺</div>
+                        </div>
+                        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                            <span class="text-xs font-semibold text-slate-500">TOPLAM DÜKKAN GİDERİ</span>
+                            <div id="finTotalExpense" class="text-xl font-bold text-red-600 mt-1">0.00 ₺</div>
+                        </div>
+                    </div>
+
+                    <!-- GÜNCELLENEN KASA HAREKETLERİ & TAHSİLAT DEFTERİ (TARİH/SAAT BİLGİLİ) -->
+                    <div class="bg-white rounded-xl p-4 md:p-6 shadow-sm border border-slate-200 space-y-4">
+                        <div class="flex justify-between items-center">
+                            <h2 class="text-base md:text-lg font-bold text-slate-800 flex items-center gap-2">
+                                <i class="fa-solid fa-wallet text-emerald-600"></i> KASA HAREKETLERİ & TAHSİLAT DEFTERİ
+                            </h2>
+                            <span class="text-xs text-slate-500">Tüm tahsilat ve kasa hareketleri tarih ve saat bilgisiyle kayıt altındadır</span>
+                        </div>
+                        
+                        <form onsubmit="addManualIncome(event)" class="grid grid-cols-1 md:grid-cols-3 gap-3 p-3 bg-slate-50 rounded-xl border border-slate-200">
+                            <input type="text" id="incDesc" placeholder="Ek Gelir Açıklaması (Örn: Ekstra Malzeme Satışı)" required class="px-3 py-2 text-xs md:text-sm border border-slate-300 rounded-lg">
+                            <input type="number" id="incAmount" step="0.01" placeholder="Gelir Tutarı (₺)" required class="px-3 py-2 text-xs md:text-sm border border-slate-300 rounded-lg">
+                            <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs md:text-sm font-semibold rounded-lg py-2 flex items-center justify-center gap-1.5"><i class="fa-solid fa-plus"></i> Kasaya Gelir Ekle</button>
+                        </form>
+
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-xs md:text-sm">
+                                <thead class="bg-slate-100 text-slate-700 font-semibold border-b">
+                                    <tr>
+                                        <th class="p-3">Tarih / Saat</th>
+                                        <th class="p-3">İşlem Türü</th>
+                                        <th class="p-3">Açıklama / Müşteri</th>
+                                        <th class="p-3 text-right">Tutar (₺)</th>
+                                        <th class="p-3 text-center w-16">İşlem</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="kasaHareketleriTableBody" class="divide-y divide-slate-200"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- DÜKKAN GİDERLERİ -->
+                    <div class="bg-white rounded-xl p-4 md:p-6 shadow-sm border border-slate-200 space-y-4">
+                        <h2 class="text-base md:text-lg font-bold text-slate-800 flex items-center gap-2">
+                            <i class="fa-solid fa-receipt text-red-600"></i> DÜKKAN GİDER DEFTERİ (HAM MADDE & TEMİZLİK / İHTİYAÇ)
+                        </h2>
+                        
+                        <!-- Gider Özet Kartları -->
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                            <div class="bg-red-50 p-3 rounded-lg border border-red-200">
+                                <span class="text-xs font-bold text-red-700">HAM MADDE GİDERLERİ</span>
+                                <div class="hamMaddeExpenseTotal text-lg font-black text-red-800 mt-1">0.00 ₺</div>
+                            </div>
+                            <div class="bg-orange-50 p-3 rounded-lg border border-orange-200">
+                                <span class="text-xs font-bold text-orange-700">İŞ YERİ TEMİZLİK & İHTİYAÇ</span>
+                                <div class="temizlikExpenseTotal text-lg font-black text-orange-800 mt-1">0.00 ₺</div>
+                            </div>
+                            <div class="bg-slate-100 p-3 rounded-lg border border-slate-200">
+                                <span class="text-xs font-bold text-slate-700">DİĞER / GENEL GİDERLER</span>
+                                <div class="digerExpenseTotal text-lg font-black text-slate-800 mt-1">0.00 ₺</div>
+                            </div>
+                        </div>
+
+                        <form onsubmit="addExpense(event)" class="grid grid-cols-1 md:grid-cols-4 gap-3 p-3 bg-slate-50 rounded-xl border border-slate-200">
+                            <input type="text" class="expDesc" placeholder="Gider Açıklaması (Kira, Boru, Deterjan vb.)" required class="px-3 py-2 text-xs md:text-sm border border-slate-300 rounded-lg">
+                            <select class="expCategory px-3 py-2 text-xs md:text-sm border border-slate-300 rounded-lg bg-white font-semibold text-slate-700">
+                                <option value="Hammadde">Ham Madde Gideri</option>
+                                <option value="Temizlik">İş Yeri Temizlik & İhtiyaç</option>
+                                <option value="Genel">Genel / Diğer Gider</option>
+                            </select>
+                            <input type="number" class="expAmount" step="0.01" placeholder="Tutar (₺)" required class="px-3 py-2 text-xs md:text-sm border border-slate-300 rounded-lg">
+                            <button type="submit" class="bg-red-600 hover:bg-red-700 text-white text-xs md:text-sm font-semibold rounded-lg py-2 flex items-center justify-center gap-1.5"><i class="fa-solid fa-plus"></i> Gider Ekle</button>
+                        </form>
+
+                        <div class="max-h-60 overflow-y-auto">
+                            <table class="w-full text-left text-xs md:text-sm">
+                                <thead class="bg-slate-100 font-semibold">
+                                    <tr>
+                                        <th class="p-2">Tarih</th>
+                                        <th class="p-2">Kategori</th>
+                                        <th class="p-2">Açıklama</th>
+                                        <th class="p-2 text-right">Tutar</th>
+                                        <th class="p-2 text-center w-12">İşlem</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="expenseTableBody divide-y divide-slate-200"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SUB-TAB 2: BANKA HESAPLARI & İŞLEMLERİ -->
+                <div id="fin-sub-banks" class="space-y-6 hidden">
+                    <div class="bg-white rounded-xl p-4 md:p-6 shadow-sm border border-slate-200">
+                        <h2 id="bankFormTitle" class="text-base md:text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+                            <i class="fa-solid fa-building-columns text-emerald-600"></i> MANUEL BANKA HESABI OLUŞTUR / DÜZENLE
+                        </h2>
+                        <form onsubmit="handleBankFormSubmit(event)" class="grid grid-cols-1 md:grid-cols-4 gap-3">
+                            <input type="hidden" id="editBankId" value="">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 mb-1">Banka Adı <span class="text-red-500">*</span></label>
+                                <input type="text" id="bankName" placeholder="Örn: Ziraat Bankası / Garanti" required class="w-full px-3 py-2 text-xs md:text-sm border border-slate-300 rounded-lg">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 mb-1">Hesap Sahibi / Şube</label>
+                                <input type="text" id="bankHolder" placeholder="Örn: Kadir Yıldırım / Merkez Şube" class="w-full px-3 py-2 text-xs md:text-sm border border-slate-300 rounded-lg">
+                            </div>
+                            <div class="md:col-span-2">
+                                <label class="block text-xs font-semibold text-slate-600 mb-1">IBAN Numarası <span class="text-red-500">*</span></label>
+                                <input type="text" id="bankIban" placeholder="TRXX XXXX XXXX XXXX XXXX XXXX XX" required class="w-full px-3 py-2 text-xs md:text-sm border border-slate-300 rounded-lg font-mono">
+                            </div>
+                            <div class="md:col-span-4 flex justify-end gap-2 pt-2">
+                                <button type="button" id="bankCancelBtn" onclick="resetBankForm()" class="hidden bg-slate-500 hover:bg-slate-600 text-white text-xs px-4 py-2 rounded-lg font-semibold">İptal</button>
+                                <button type="submit" id="bankSubmitBtn" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs md:text-sm px-5 py-2 rounded-lg font-semibold flex items-center gap-1.5">
+                                    <i class="fa-solid fa-plus"></i> Banka Hesabını Kaydet
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="bg-white rounded-xl p-4 md:p-6 shadow-sm border border-slate-200 space-y-4">
+                        <div class="flex justify-between items-center">
+                            <h2 class="text-base md:text-lg font-bold text-slate-800 flex items-center gap-2">
+                                <i class="fa-solid fa-credit-card text-emerald-600"></i> TANIMLI BANKA HESAPLARI VE BAKİYELERİ
+                            </h2>
+                        </div>
+                        <div id="bankAccountsContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+                    </div>
+
+                    <div class="bg-white rounded-xl p-4 md:p-6 shadow-sm border border-slate-200 space-y-4">
+                        <div class="flex justify-between items-center">
+                            <h2 class="text-base md:text-lg font-bold text-slate-800 flex items-center gap-2">
+                                <i class="fa-solid fa-money-bill-transfer text-emerald-600"></i> BANKA HAREKETLERİ (GELİR & GİDER)
+                            </h2>
+                        </div>
+
+                        <form onsubmit="handleBankTxSubmit(event)" class="grid grid-cols-1 md:grid-cols-5 gap-3 p-3 bg-slate-50 rounded-xl border border-slate-200">
+                            <input type="hidden" id="editBankTxId" value="">
+                            <select id="txBankId" required class="px-3 py-2 text-xs md:text-sm border border-slate-300 rounded-lg bg-white font-semibold">
+                                <option value="">-- Banka Hesabı Seç --</option>
+                            </select>
+                            <select id="txType" required class="px-3 py-2 text-xs md:text-sm border border-slate-300 rounded-lg bg-white font-semibold">
+                                <option value="Gelir">Banka Geliri (Giren)</option>
+                                <option value="Gider">Banka Gideri (Çıkan)</option>
+                            </select>
+                            <input type="text" id="txDesc" placeholder="İşlem Açıklaması / Alıcı / Gönderici" required class="px-3 py-2 text-xs md:text-sm border border-slate-300 rounded-lg">
+                            <input type="number" id="txAmount" step="0.01" placeholder="Tutar (₺)" required class="px-3 py-2 text-xs md:text-sm border border-slate-300 rounded-lg">
+                            <div class="flex gap-2">
+                                <button type="button" id="txCancelBtn" onclick="resetBankTxForm()" class="hidden bg-slate-500 hover:bg-slate-600 text-white text-xs px-3 rounded-lg py-2">İptal</button>
+                                <button type="submit" id="txSubmitBtn" class="flex-grow bg-emerald-600 hover:bg-emerald-700 text-white text-xs md:text-sm font-semibold rounded-lg py-2 flex items-center justify-center gap-1.5">
+                                    <i class="fa-solid fa-plus"></i> İşlem Ekle
+                                </button>
+                            </div>
+                        </form>
+
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-xs md:text-sm">
+                                <thead class="bg-slate-100 text-slate-700 font-semibold border-b">
+                                    <tr>
+                                        <th class="p-3">Tarih / Saat</th>
+                                        <th class="p-3">Banka Hesabı</th>
+                                        <th class="p-3">Tür</th>
+                                        <th class="p-3">Açıklama</th>
+                                        <th class="p-3 text-right">Tutar (₺)</th>
+                                        <th class="p-3 text-center w-24">İşlemler</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="bankTransactionsTableBody" class="divide-y divide-slate-200"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 7: GERİ DÖNÜŞÜM KUTUSU & DENETİM İZLERİ -->
+            <section id="sec-recycle" class="space-y-6 hidden">
+                <div class="flex border-b border-slate-200 gap-4 mb-2">
+                    <button onclick="switchRecycleSubTab('deleted')" id="subtab-recycle-deleted" class="py-2 px-4 border-b-2 border-red-600 font-bold text-xs md:text-sm text-red-700">
+                        Silinen Kayıtlar (Çöp Kovası)
+                    </button>
+                    <button onclick="switchRecycleSubTab('audit')" id="subtab-recycle-audit" class="py-2 px-4 border-b-2 border-transparent font-medium text-xs md:text-sm text-slate-500 hover:text-red-600">
+                        İşlem Logları
+                    </button>
+                </div>
+
+                <div id="recycle-sub-deleted" class="bg-white rounded-xl p-4 md:p-6 shadow-sm border border-slate-200 space-y-4">
+                    <div class="flex justify-between items-center">
+                        <h2 class="text-base md:text-lg font-bold text-slate-800 flex items-center gap-2">
+                            <i class="fa-solid fa-trash-can text-red-600"></i> GERİ DÖNÜŞÜM KUTUSU
+                        </h2>
+                        <button onclick="emptyRecycleBin()" class="bg-red-600 hover:bg-red-700 text-white text-xs md:text-sm px-3.5 py-2 rounded-lg font-semibold flex items-center gap-1">
+                            <i class="fa-solid fa-dumpster"></i> Çöp Kovasını Boşalt
+                        </button>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs md:text-sm min-w-[600px]">
+                            <thead>
+                                <tr class="bg-slate-100 font-semibold border-b text-slate-700">
+                                    <th class="p-3">Silinme Tarihi</th>
+                                    <th class="p-3">İşlem Türü</th>
+                                    <th class="p-3">Açıklama / İçerik</th>
+                                    <th class="p-3 text-right">Tutar (₺)</th>
+                                    <th class="p-3 text-center w-12">Sil</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recycleTableBody" class="divide-y divide-slate-200"></tbody>
                         </table>
                     </div>
                 </div>
 
-                <!-- DÜKKAN GİDERLERİ (1. YER: KASA / FİNANS SEKMESİ İÇİNDE) -->
+                <div id="recycle-sub-audit" class="bg-white rounded-xl p-4 md:p-6 shadow-sm border border-slate-200 space-y-4 hidden">
+                    <div class="flex justify-between items-center">
+                        <h2 class="text-base md:text-lg font-bold text-slate-800 flex items-center gap-2">
+                            <i class="fa-solid fa-clock-rotate-left text-blue-600"></i> İŞLEM DENETİM LOGLARI
+                        </h2>
+                        <button onclick="clearAuditLogs()" class="bg-slate-700 hover:bg-slate-800 text-white text-xs md:text-sm px-3.5 py-2 rounded-lg font-semibold flex items-center gap-1">
+                            <i class="fa-solid fa-broom"></i> Logları Temizle
+                        </button>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs md:text-sm min-w-[600px]">
+                            <thead>
+                                <tr class="bg-slate-100 font-semibold border-b text-slate-700">
+                                    <th class="p-3">Zaman</th>
+                                    <th class="p-3">Eylem Kategorisi</th>
+                                    <th class="p-3">İşlem Detayı</th>
+                                </tr>
+                            </thead>
+                            <tbody id="auditLogsTableBody" class="divide-y divide-slate-200"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 8: AYARLAR & YÖNETİM -->
+            <section id="sec-settings" class="space-y-6 hidden">
                 <div class="bg-white rounded-xl p-4 md:p-6 shadow-sm border border-slate-200 space-y-4">
                     <h2 class="text-base md:text-lg font-bold text-slate-800 flex items-center gap-2">
                         <i class="fa-solid fa-receipt text-red-600"></i> DÜKKAN GİDER DEFTERİ (HAM MADDE & TEMİZLİK / İHTİYAÇ)
                     </h2>
                     
-                    <!-- Gider Özet Kartları -->
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
                         <div class="bg-red-50 p-3 rounded-lg border border-red-200">
                             <span class="text-xs font-bold text-red-700">HAM MADDE GİDERLERİ</span>
@@ -544,308 +760,111 @@
                         </table>
                     </div>
                 </div>
-            </div>
 
-            <!-- SUB-TAB 2: BANKA HESAPLARI & İŞLEMLERİ (YENİ) -->
-            <div id="fin-sub-banks" class="space-y-6 hidden">
-                <!-- BANKA EKLEME / DÜZENLEME FORMU -->
+                <div class="bg-emerald-50 rounded-xl p-4 md:p-6 shadow-sm border border-emerald-200 space-y-4">
+                    <h2 class="text-base md:text-lg font-bold text-emerald-900 flex items-center gap-2">
+                        <i class="fa-brands fa-whatsapp text-emerald-600 text-xl"></i> WHATSAPP HAZIR MESAJ & OTOMATİK KONUM BİLGİLENDİRME
+                    </h2>
+                    <p class="text-xs text-emerald-700">Sipariş üretim konumları değiştikçe müşteriye otomatik gönderilecek WhatsApp mesaj şablonlarını buradan yönetebilir, manuel mesaj gönderebilirsin.</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="bg-white p-3 rounded-xl border border-emerald-200 space-y-2">
+                            <label class="block text-xs font-bold text-slate-700">📍 Sipariş Alındı Mesajı</label>
+                            <textarea id="wa_msg_alinan" rows="2" class="w-full p-2 text-xs border rounded-lg">Sayın {MUSTERI}, Fix House sineklik siparişiniz alınmıştır. Bizi tercih ettiğiniz için teşekkür ederiz.</textarea>
+                        </div>
+                        <div class="bg-white p-3 rounded-xl border border-emerald-200 space-y-2">
+                            <label class="block text-xs font-bold text-slate-700">⚙️ Üretime Başlandı / Konum Mesajı</label>
+                            <textarea id="wa_msg_uretim" rows="2" class="w-full p-2 text-xs border rounded-lg">Sayın {MUSTERI}, {SIPARIS_ID} numaralı sineklik siparişiniz üretime alınmıştır. Sürsürü Mah. / Elazığ showroomumuza bekleriz.</textarea>
+                        </div>
+                        <div class="bg-white p-3 rounded-xl border border-emerald-200 space-y-2">
+                            <label class="block text-xs font-bold text-slate-700">🚚 Montaja Hazır / Yola Çıktı Mesajı</label>
+                            <textarea id="wa_msg_montaj" rows="2" class="w-full p-2 text-xs border rounded-lg">Sayın {MUSTERI}, sineklikleriniz hazırlanmış olup montaj/sevkiyat için yola çıkmaktadır.</textarea>
+                        </div>
+                        <div class="bg-white p-3 rounded-xl border border-emerald-200 space-y-2">
+                            <label class="block text-xs font-bold text-slate-700">✅ Tamamlandı / Teslim Edildi Mesajı</label>
+                            <textarea id="wa_msg_bitti" rows="2" class="w-full p-2 text-xs border rounded-lg">Sayın {MUSTERI}, montajınız başarıyla tamamlanmıştır.</textarea>
+                        </div>
+                    </div>
+                    <div class="flex justify-end">
+                        <button onclick="saveWhatsAppTemplates()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs px-4 py-2 rounded-lg font-semibold flex items-center gap-1.5">
+                            <i class="fa-solid fa-floppy-disk"></i> WhatsApp Şablonlarını Kaydet
+                        </button>
+                    </div>
+                </div>
+
                 <div class="bg-white rounded-xl p-4 md:p-6 shadow-sm border border-slate-200">
-                    <h2 id="bankFormTitle" class="text-base md:text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-                        <i class="fa-solid fa-building-columns text-emerald-600"></i> MANUEL BANKA HESABI OLUŞTUR / DÜZENLE
+                    <h2 class="text-base md:text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-sliders text-blue-600"></i> GENEL FİYATLANDIRMA PARAMETRELERİ
                     </h2>
-                    <form onsubmit="handleBankFormSubmit(event)" class="grid grid-cols-1 md:grid-cols-4 gap-3">
-                        <input type="hidden" id="editBankId" value="">
+
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
                         <div>
-                            <label class="block text-xs font-semibold text-slate-600 mb-1">Banka Adı <span class="text-red-500">*</span></label>
-                            <input type="text" id="bankName" placeholder="Örn: Ziraat Bankası / Garanti" required class="w-full px-3 py-2 text-xs md:text-sm border border-slate-300 rounded-lg">
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Montajlı Satış m² Fiyatı (₺)</label>
+                            <input type="number" id="settingMontajPrice" class="w-full px-3 py-2 border rounded-lg text-sm md:text-base">
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold text-slate-600 mb-1">Hesap Sahibi / Şube</label>
-                            <input type="text" id="bankHolder" placeholder="Örn: Kadir Yıldırım / Merkez Şube" class="w-full px-3 py-2 text-xs md:text-sm border border-slate-300 rounded-lg">
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Perakende Satış m² Fiyatı (₺)</label>
+                            <input type="number" id="settingPerakendePrice" class="w-full px-3 py-2 border rounded-lg text-sm md:text-base">
                         </div>
-                        <div class="md:col-span-2">
-                            <label class="block text-xs font-semibold text-slate-600 mb-1">IBAN Numarası <span class="text-red-500">*</span></label>
-                            <input type="text" id="bankIban" placeholder="TRXX XXXX XXXX XXXX XXXX XXXX XX" required class="w-full px-3 py-2 text-xs md:text-sm border border-slate-300 rounded-lg font-mono">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">KDV Oranı (%)</label>
+                            <input type="number" id="settingKdvRate" class="w-full px-3 py-2 border rounded-lg text-sm md:text-base">
                         </div>
-                        <div class="md:col-span-4 flex justify-end gap-2 pt-2">
-                            <button type="button" id="bankCancelBtn" onclick="resetBankForm()" class="hidden bg-slate-500 hover:bg-slate-600 text-white text-xs px-4 py-2 rounded-lg font-semibold">İptal</button>
-                            <button type="submit" id="bankSubmitBtn" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs md:text-sm px-5 py-2 rounded-lg font-semibold flex items-center gap-1.5">
-                                <i class="fa-solid fa-plus"></i> Banka Hesabını Kaydet
-                            </button>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Minimum m² Barajı</label>
+                            <input type="number" id="settingMinM2" step="0.1" class="w-full px-3 py-2 border rounded-lg text-sm md:text-base">
                         </div>
-                    </form>
+                    </div>
                 </div>
 
-                <!-- BANKA HESAPLARI KARTLARI / LİSTESİ -->
-                <div class="bg-white rounded-xl p-4 md:p-6 shadow-sm border border-slate-200 space-y-4">
-                    <div class="flex justify-between items-center">
-                        <h2 class="text-base md:text-lg font-bold text-slate-800 flex items-center gap-2">
-                            <i class="fa-solid fa-credit-card text-emerald-600"></i> TANIMLI BANKA HESAPLARI VE BAKİYELERİ
-                        </h2>
-                    </div>
-                    <div id="bankAccountsContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
-                </div>
-
-                <!-- BANKA İŞLEM (GELİR / GİDER) EKLEME FORMU & GEÇMİŞİ -->
-                <div class="bg-white rounded-xl p-4 md:p-6 shadow-sm border border-slate-200 space-y-4">
-                    <div class="flex justify-between items-center">
-                        <h2 class="text-base md:text-lg font-bold text-slate-800 flex items-center gap-2">
-                            <i class="fa-solid fa-money-bill-transfer text-emerald-600"></i> BANKA HAREKETLERİ (GELİR & GİDER)
-                        </h2>
-                    </div>
-
-                    <form onsubmit="handleBankTxSubmit(event)" class="grid grid-cols-1 md:grid-cols-5 gap-3 p-3 bg-slate-50 rounded-xl border border-slate-200">
-                        <input type="hidden" id="editBankTxId" value="">
-                        <select id="txBankId" required class="px-3 py-2 text-xs md:text-sm border border-slate-300 rounded-lg bg-white font-semibold">
-                            <option value="">-- Banka Hesabı Seç --</option>
-                        </select>
-                        <select id="txType" required class="px-3 py-2 text-xs md:text-sm border border-slate-300 rounded-lg bg-white font-semibold">
-                            <option value="Gelir">Banka Geliri (Giren)</option>
-                            <option value="Gider">Banka Gideri (Çıkan)</option>
-                        </select>
-                        <input type="text" id="txDesc" placeholder="İşlem Açıklaması / Alıcı / Gönderici" required class="px-3 py-2 text-xs md:text-sm border border-slate-300 rounded-lg">
-                        <input type="number" id="txAmount" step="0.01" placeholder="Tutar (₺)" required class="px-3 py-2 text-xs md:text-sm border border-slate-300 rounded-lg">
+                <div class="bg-white rounded-xl p-4 md:p-6 shadow-sm border border-slate-200">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 mb-4">
+                        <div>
+                            <h2 class="text-base md:text-lg font-bold text-slate-800 flex items-center gap-2">
+                                <i class="fa-solid fa-boxes-packing text-blue-600"></i> ÜRÜN & AKSESUAR BİRİM MALİYET REÇETESİ
+                            </h2>
+                        </div>
                         <div class="flex gap-2">
-                            <button type="button" id="txCancelBtn" onclick="resetBankTxForm()" class="hidden bg-slate-500 hover:bg-slate-600 text-white text-xs px-3 rounded-lg py-2">İptal</button>
-                            <button type="submit" id="txSubmitBtn" class="flex-grow bg-emerald-600 hover:bg-emerald-700 text-white text-xs md:text-sm font-semibold rounded-lg py-2 flex items-center justify-center gap-1.5">
-                                <i class="fa-solid fa-plus"></i> İşlem Ekle
+                            <button onclick="addNewProductGroupPrompt()" class="bg-blue-600 hover:bg-blue-700 text-white text-xs md:text-sm px-3.5 py-2 rounded-lg font-semibold flex items-center gap-1">
+                                <i class="fa-solid fa-folder-plus"></i> Ürün Grubu Ekle
+                            </button>
+                            <button onclick="saveSettings()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs md:text-sm px-3.5 py-2 rounded-lg font-semibold flex items-center gap-1">
+                                <i class="fa-solid fa-floppy-disk"></i> Ayarları Kaydet
                             </button>
                         </div>
-                    </form>
-
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left text-xs md:text-sm">
-                            <thead class="bg-slate-100 text-slate-700 font-semibold border-b">
-                                <tr>
-                                    <th class="p-3">Tarih / Saat</th>
-                                    <th class="p-3">Banka Hesabı</th>
-                                    <th class="p-3">Tür</th>
-                                    <th class="p-3">Açıklama</th>
-                                    <th class="p-3 text-right">Tutar (₺)</th>
-                                    <th class="p-3 text-center w-24">İşlemler</th>
-                                </tr>
-                            </thead>
-                            <tbody id="bankTransactionsTableBody" class="divide-y divide-slate-200"></tbody>
-                        </table>
                     </div>
+                    
+                    <div id="productRecipesContainer" class="space-y-6"></div>
                 </div>
-            </div>
-        </section>
 
-        <!-- TAB 7: GERİ DÖNÜŞÜM KUTUSU & DENETİM İZLERİ -->
-        <section id="sec-recycle" class="space-y-6 hidden">
-            <div class="flex border-b border-slate-200 gap-4 mb-2">
-                <button onclick="switchRecycleSubTab('deleted')" id="subtab-recycle-deleted" class="py-2 px-4 border-b-2 border-red-600 font-bold text-xs md:text-sm text-red-700">
-                    Silinen Kayıtlar (Çöp Kovası)
-                </button>
-                <button onclick="switchRecycleSubTab('audit')" id="subtab-recycle-audit" class="py-2 px-4 border-b-2 border-transparent font-medium text-xs md:text-sm text-slate-500 hover:text-red-600">
-                    İşlem Logları
-                </button>
-            </div>
-
-            <div id="recycle-sub-deleted" class="bg-white rounded-xl p-4 md:p-6 shadow-sm border border-slate-200 space-y-4">
-                <div class="flex justify-between items-center">
-                    <h2 class="text-base md:text-lg font-bold text-slate-800 flex items-center gap-2">
-                        <i class="fa-solid fa-trash-can text-red-600"></i> GERİ DÖNÜŞÜM KUTUSU
+                <!-- MASTER RESET & BACKUP -->
+                <div class="bg-white rounded-xl p-4 md:p-6 shadow-sm border border-slate-200">
+                    <h2 class="text-base md:text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-database text-blue-600"></i> VERİ YÖNETİMİ & YEDEKLEME
                     </h2>
-                    <button onclick="emptyRecycleBin()" class="bg-red-600 hover:bg-red-700 text-white text-xs md:text-sm px-3.5 py-2 rounded-lg font-semibold flex items-center gap-1">
-                        <i class="fa-solid fa-dumpster"></i> Çöp Kovasını Boşalt
-                    </button>
-                </div>
 
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-xs md:text-sm min-w-[600px]">
-                        <thead>
-                            <tr class="bg-slate-100 font-semibold border-b text-slate-700">
-                                <th class="p-3">Silinme Tarihi</th>
-                                <th class="p-3">İşlem Türü</th>
-                                <th class="p-3">Açıklama / İçerik</th>
-                                <th class="p-3 text-right">Tutar (₺)</th>
-                                <th class="p-3 text-center w-12">Sil</th>
-                            </tr>
-                        </thead>
-                        <tbody id="recycleTableBody" class="divide-y divide-slate-200"></tbody>
-                    </table>
-                </div>
-            </div>
-
-            <div id="recycle-sub-audit" class="bg-white rounded-xl p-4 md:p-6 shadow-sm border border-slate-200 space-y-4 hidden">
-                <div class="flex justify-between items-center">
-                    <h2 class="text-base md:text-lg font-bold text-slate-800 flex items-center gap-2">
-                        <i class="fa-solid fa-clock-rotate-left text-blue-600"></i> İŞLEM DENETİM LOGLARI
-                    </h2>
-                    <button onclick="clearAuditLogs()" class="bg-slate-700 hover:bg-slate-800 text-white text-xs md:text-sm px-3.5 py-2 rounded-lg font-semibold flex items-center gap-1">
-                        <i class="fa-solid fa-broom"></i> Logları Temizle
-                    </button>
-                </div>
-
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-xs md:text-sm min-w-[600px]">
-                        <thead>
-                            <tr class="bg-slate-100 font-semibold border-b text-slate-700">
-                                <th class="p-3">Zaman</th>
-                                <th class="p-3">Eylem Kategorisi</th>
-                                <th class="p-3">İşlem Detayı</th>
-                            </tr>
-                        </thead>
-                        <tbody id="auditLogsTableBody" class="divide-y divide-slate-200"></tbody>
-                    </table>
-                </div>
-            </div>
-        </section>
-
-        <!-- TAB 8: AYARLAR & YÖNETİM (2. DÜKKAN GİDER DEFTERİ BURADA YER ALIYOR) -->
-        <section id="sec-settings" class="space-y-6 hidden">
-
-            <!-- DÜKKAN GİDERLERİ (2. YER: AYARLAR SEKMESİ İÇİNDE) -->
-            <div class="bg-white rounded-xl p-4 md:p-6 shadow-sm border border-slate-200 space-y-4">
-                <h2 class="text-base md:text-lg font-bold text-slate-800 flex items-center gap-2">
-                    <i class="fa-solid fa-receipt text-red-600"></i> DÜKKAN GİDER DEFTERİ (HAM MADDE & TEMİZLİK / İHTİYAÇ)
-                </h2>
-                
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-                    <div class="bg-red-50 p-3 rounded-lg border border-red-200">
-                        <span class="text-xs font-bold text-red-700">HAM MADDE GİDERLERİ</span>
-                        <div class="hamMaddeExpenseTotal text-lg font-black text-red-800 mt-1">0.00 ₺</div>
-                    </div>
-                    <div class="bg-orange-50 p-3 rounded-lg border border-orange-200">
-                        <span class="text-xs font-bold text-orange-700">İŞ YERİ TEMİZLİK & İHTİYAÇ</span>
-                        <div class="temizlikExpenseTotal text-lg font-black text-orange-800 mt-1">0.00 ₺</div>
-                    </div>
-                    <div class="bg-slate-100 p-3 rounded-lg border border-slate-200">
-                        <span class="text-xs font-bold text-slate-700">DİĞER / GENEL GİDERLER</span>
-                        <div class="digerExpenseTotal text-lg font-black text-slate-800 mt-1">0.00 ₺</div>
-                    </div>
-                </div>
-
-                <form onsubmit="addExpense(event)" class="grid grid-cols-1 md:grid-cols-4 gap-3 p-3 bg-slate-50 rounded-xl border border-slate-200">
-                    <input type="text" class="expDesc" placeholder="Gider Açıklaması (Kira, Boru, Deterjan vb.)" required class="px-3 py-2 text-xs md:text-sm border border-slate-300 rounded-lg">
-                    <select class="expCategory px-3 py-2 text-xs md:text-sm border border-slate-300 rounded-lg bg-white font-semibold text-slate-700">
-                        <option value="Hammadde">Ham Madde Gideri</option>
-                        <option value="Temizlik">İş Yeri Temizlik & İhtiyaç</option>
-                        <option value="Genel">Genel / Diğer Gider</option>
-                    </select>
-                    <input type="number" class="expAmount" step="0.01" placeholder="Tutar (₺)" required class="px-3 py-2 text-xs md:text-sm border border-slate-300 rounded-lg">
-                    <button type="submit" class="bg-red-600 hover:bg-red-700 text-white text-xs md:text-sm font-semibold rounded-lg py-2 flex items-center justify-center gap-1.5"><i class="fa-solid fa-plus"></i> Gider Ekle</button>
-                </form>
-
-                <div class="max-h-60 overflow-y-auto">
-                    <table class="w-full text-left text-xs md:text-sm">
-                        <thead class="bg-slate-100 font-semibold">
-                            <tr>
-                                <th class="p-2">Tarih</th>
-                                <th class="p-2">Kategori</th>
-                                <th class="p-2">Açıklama</th>
-                                <th class="p-2 text-right">Tutar</th>
-                                <th class="p-2 text-center w-12">İşlem</th>
-                            </tr>
-                        </thead>
-                        <tbody class="expenseTableBody divide-y divide-slate-200"></tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- WHATSAPP HAZIR MESAJLAR & OTOMATİK BİLGİLENDİRME AYARLARI -->
-            <div class="bg-emerald-50 rounded-xl p-4 md:p-6 shadow-sm border border-emerald-200 space-y-4">
-                <h2 class="text-base md:text-lg font-bold text-emerald-900 flex items-center gap-2">
-                    <i class="fa-brands fa-whatsapp text-emerald-600 text-xl"></i> WHATSAPP HAZIR MESAJ & OTOMATİK KONUM BİLGİLENDİRME
-                </h2>
-                <p class="text-xs text-emerald-700">Sipariş üretim konumları değiştikçe müşteriye otomatik gönderilecek WhatsApp mesaj şablonlarını buradan yönetebilir, manuel mesaj gönderebilirsin.</p>
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="bg-white p-3 rounded-xl border border-emerald-200 space-y-2">
-                        <label class="block text-xs font-bold text-slate-700">📍 Sipariş Alındı Mesajı</label>
-                        <textarea id="wa_msg_alinan" rows="2" class="w-full p-2 text-xs border rounded-lg">Sayın {MUSTERI}, Fix House sineklik siparişiniz alınmıştır. Bizi tercih ettiğiniz için teşekkür ederiz.</textarea>
-                    </div>
-                    <div class="bg-white p-3 rounded-xl border border-emerald-200 space-y-2">
-                        <label class="block text-xs font-bold text-slate-700">⚙️ Üretime Başlandı / Konum Mesajı</label>
-                        <textarea id="wa_msg_uretim" rows="2" class="w-full p-2 text-xs border rounded-lg">Sayın {MUSTERI}, {SIPARIS_ID} numaralı sineklik siparişiniz üretime alınmıştır. Sürsürü Mah. / Elazığ showroomumuza bekleriz.</textarea>
-                    </div>
-                    <div class="bg-white p-3 rounded-xl border border-emerald-200 space-y-2">
-                        <label class="block text-xs font-bold text-slate-700">🚚 Montaja Hazır / Yola Çıktı Mesajı</label>
-                        <textarea id="wa_msg_montaj" rows="2" class="w-full p-2 text-xs border rounded-lg">Sayın {MUSTERI}, sineklikleriniz hazırlanmış olup montaj/sevkiyat için yola çıkmaktadır.</textarea>
-                    </div>
-                    <div class="bg-white p-3 rounded-xl border border-emerald-200 space-y-2">
-                        <label class="block text-xs font-bold text-slate-700">✅ Tamamlandı / Teslim Edildi Mesajı</label>
-                        <textarea id="wa_msg_bitti" rows="2" class="w-full p-2 text-xs border rounded-lg">Sayın {MUSTERI}, montajınız başarıyla tamamlanmıştır.</textarea>
-                    </div>
-                </div>
-                <div class="flex justify-end">
-                    <button onclick="saveWhatsAppTemplates()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs px-4 py-2 rounded-lg font-semibold flex items-center gap-1.5">
-                        <i class="fa-solid fa-floppy-disk"></i> WhatsApp Şablonlarını Kaydet
-                    </button>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-xl p-4 md:p-6 shadow-sm border border-slate-200">
-                <h2 class="text-base md:text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-                    <i class="fa-solid fa-sliders text-blue-600"></i> GENEL FİYATLANDIRMA PARAMETRELERİ
-                </h2>
-
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">Montajlı Satış m² Fiyatı (₺)</label>
-                        <input type="number" id="settingMontajPrice" class="w-full px-3 py-2 border rounded-lg text-sm md:text-base">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">Perakende Satış m² Fiyatı (₺)</label>
-                        <input type="number" id="settingPerakendePrice" class="w-full px-3 py-2 border rounded-lg text-sm md:text-base">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">KDV Oranı (%)</label>
-                        <input type="number" id="settingKdvRate" class="w-full px-3 py-2 border rounded-lg text-sm md:text-base">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">Minimum m² Barajı</label>
-                        <input type="number" id="settingMinM2" step="0.1" class="w-full px-3 py-2 border rounded-lg text-sm md:text-base">
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-xl p-4 md:p-6 shadow-sm border border-slate-200">
-                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 mb-4">
-                    <div>
-                        <h2 class="text-base md:text-lg font-bold text-slate-800 flex items-center gap-2">
-                            <i class="fa-solid fa-boxes-packing text-blue-600"></i> ÜRÜN & AKSESUAR BİRİM MALİYET REÇETESİ
-                        </h2>
-                    </div>
-                    <div class="flex gap-2">
-                        <button onclick="addNewProductGroupPrompt()" class="bg-blue-600 hover:bg-blue-700 text-white text-xs md:text-sm px-3.5 py-2 rounded-lg font-semibold flex items-center gap-1">
-                            <i class="fa-solid fa-folder-plus"></i> Ürün Grubu Ekle
+                    <div class="flex flex-wrap gap-3">
+                        <button onclick="exportFullBackup()" class="bg-slate-700 hover:bg-slate-800 text-white text-xs md:text-sm px-4 py-2.5 rounded-lg font-semibold">
+                            <i class="fa-solid fa-download"></i> Hafızayı Dışa Aktar (JSON)
                         </button>
-                        <button onclick="saveSettings()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs md:text-sm px-3.5 py-2 rounded-lg font-semibold flex items-center gap-1">
-                            <i class="fa-solid fa-floppy-disk"></i> Ayarları Kaydet
+                        <label class="bg-slate-700 hover:bg-slate-800 text-white text-xs md:text-sm px-4 py-2.5 rounded-lg font-semibold cursor-pointer">
+                            <i class="fa-solid fa-upload"></i> Yedeği Geri Yükle
+                            <input type="file" onchange="importBackup(event)" class="hidden" accept=".json">
+                        </label>
+                        <button onclick="openAutoBackupModal()" class="bg-blue-600 hover:bg-blue-700 text-white text-xs md:text-sm px-4 py-2.5 rounded-lg font-semibold flex items-center gap-1.5 shadow-sm">
+                            <i class="fa-solid fa-clock-rotate-left"></i> Otomatik Geçmişe Dön
+                        </button>
+                        <button onclick="masterReset()" class="bg-red-600 hover:bg-red-700 text-white text-xs md:text-sm px-4 py-2.5 rounded-lg font-semibold ml-auto flex items-center gap-1.5">
+                            <i class="fa-solid fa-triangle-exclamation"></i> Fabrika Ayarlarına Dön
                         </button>
                     </div>
                 </div>
-                
-                <div id="productRecipesContainer" class="space-y-6"></div>
-            </div>
+            </section>
 
-            <!-- MASTER RESET & BACKUP -->
-            <div class="bg-white rounded-xl p-4 md:p-6 shadow-sm border border-slate-200">
-                <h2 class="text-base md:text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-                    <i class="fa-solid fa-database text-blue-600"></i> VERİ YÖNETİMİ & YEDEKLEME
-                </h2>
+        </main>
+    </div> <!-- APP CONTAINER BİTİŞİ -->
 
-                <div class="flex flex-wrap gap-3">
-                    <button onclick="exportFullBackup()" class="bg-slate-700 hover:bg-slate-800 text-white text-xs md:text-sm px-4 py-2.5 rounded-lg font-semibold">
-                        <i class="fa-solid fa-download"></i> Hafızayı Dışa Aktar (JSON)
-                    </button>
-                    <label class="bg-slate-700 hover:bg-slate-800 text-white text-xs md:text-sm px-4 py-2.5 rounded-lg font-semibold cursor-pointer">
-                        <i class="fa-solid fa-upload"></i> Yedeği Geri Yükle
-                        <input type="file" onchange="importBackup(event)" class="hidden" accept=".json">
-                    </label>
-                    <button onclick="masterReset()" class="bg-red-600 hover:bg-red-700 text-white text-xs md:text-sm px-4 py-2.5 rounded-lg font-semibold ml-auto flex items-center gap-1.5">
-                        <i class="fa-solid fa-triangle-exclamation"></i> Fabrika Ayarlarına Dön
-                    </button>
-                </div>
-            </div>
-        </section>
-
-    </main>
-
-    <!-- MÜŞTERİ KARTI & TAKSİT YÖNETİM MODALI (ÖDEME YAPMA, DÜZENLEME, SİLME DÜĞMELİ) -->
+    <!-- MÜŞTERİ KARTI & TAKSİT YÖNETİM MODALI -->
     <div id="customerCardModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden no-print px-3">
         <div class="bg-white rounded-xl p-4 md:p-6 w-full max-w-2xl shadow-2xl space-y-4 max-h-[90vh] flex flex-col">
             <div class="flex justify-between items-center border-b pb-3">
@@ -854,9 +873,7 @@
                 </h3>
                 <button onclick="closeCustomerCardModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
-            
             <div class="overflow-y-auto flex-grow space-y-4" id="modalCustomerContent"></div>
-
             <div class="flex justify-between items-center pt-3 border-t">
                 <div class="flex gap-2" id="modalCustomerActionBtns"></div>
                 <button onclick="closeCustomerCardModal()" class="px-4 py-2 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-100">Kapat</button>
@@ -873,9 +890,7 @@
                 </h3>
                 <button onclick="closeOrderDetailModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
-            
             <div class="overflow-y-auto flex-grow space-y-3" id="modalOrderContent"></div>
-
             <div class="flex justify-end gap-2 pt-3 border-t">
                 <button onclick="closeOrderDetailModal()" class="px-4 py-2 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-100">Kapat</button>
                 <button id="modalPrintA4Btn" class="px-4 py-2 rounded-lg text-xs font-semibold bg-slate-800 text-white hover:bg-slate-900 flex items-center gap-1.5">
@@ -888,14 +903,52 @@
         </div>
     </div>
 
+    <!-- OTOMATİK YEDEK KURTARMA MODALI (ZAMAN MAKİNESİ) -->
+    <div id="autoBackupModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-[110] flex items-center justify-center hidden px-3">
+        <div class="bg-white rounded-xl p-4 md:p-6 w-full max-w-3xl shadow-2xl space-y-4 max-h-[90vh] flex flex-col">
+            <div class="flex justify-between items-center border-b pb-3">
+                <h3 class="font-bold text-slate-800 text-sm md:text-base flex items-center gap-2">
+                    <i class="fa-solid fa-clock-rotate-left text-blue-600"></i> Sistem Geri Yükleme Noktaları (Otomatik Yedekler)
+                </h3>
+                <button onclick="closeAutoBackupModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <div class="bg-blue-50 p-3 rounded-lg border border-blue-200 text-xs text-blue-800">
+                Sistem, her işlem yaptığınızda arka planda otomatik bir kopyalama yapar (Son 15 işlem). Yanlış bir silme veya bozulma durumunda buradan eski bir tarihe anında dönebilirsiniz.
+            </div>
+            <div class="overflow-y-auto flex-grow space-y-3">
+                <table class="w-full text-left text-xs md:text-sm">
+                    <thead class="bg-slate-100 font-semibold border-b">
+                        <tr>
+                            <th class="p-2">Yedek Alma Zamanı</th>
+                            <th class="p-2 text-center">İşlem Hacmi (Kayıtlar)</th>
+                            <th class="p-2 text-right">İşlem</th>
+                        </tr>
+                    </thead>
+                    <tbody id="autoBackupTableBody" class="divide-y divide-slate-200"></tbody>
+                </table>
+            </div>
+            <div class="flex justify-end pt-3 border-t">
+                <button onclick="closeAutoBackupModal()" class="px-4 py-2 rounded-lg text-xs font-semibold bg-slate-200 text-slate-700 hover:bg-slate-300">Kapat</button>
+            </div>
+        </div>
+    </div>
+
     <!-- PRINT SHADOW TEMPLATES -->
     <div id="printContainerA4" class="print-only"></div>
     <div id="printContainerZebra" class="print-only"></div>
     <div id="printContainerMakbuz" class="print-only"></div>
 
     <script>
-        const SHEETS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxPwtNChpye0O2n3ugRPgk_saqel4mo5kxBWicCfEdUc6HNpTuSwBkrDIPMCAVGx4h2/exec";
+        const SHEETS_WEB_APP_URL = "const SHEETS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxtiptNUI-R-Wk3QVbLkXBsjgGIGeUkyQLMyjD2qPxRk-fTGy-h3Al8H3TbvnEnQ6-oxQ/exec";
         const STORAGE_KEY = "fix_house_23_data_v761";
+
+        // GÜVENLİK İÇİN EKLENEN ANAHTARLAR
+        const APP_SECRET_PIN = "232323"; 
+        const SECRET_API_KEY = "FixHouse_Guvence_2026_!XyZ"; 
+
+        // YEDEKLEME SİSTEMİ İÇİN SABİTLER
+        const AUTO_BACKUP_KEY = "fix_house_23_auto_backups";
+        const MAX_BACKUPS = 15;
 
         const DEFAULT_SETTINGS = {
             montajPrice: 220,
@@ -948,17 +1001,142 @@
         let currentRowId = 0;
         let currentDetailOrder = null;
 
+        // --- GÜVENLİK EKRANI LOGIC ---
+        function checkPassword() {
+            const entered = document.getElementById('appPassword').value;
+            if (entered === APP_SECRET_PIN) {
+                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('appContainer').style.display = 'flex';
+                
+                startApp();
+            } else {
+                document.getElementById('loginError').classList.remove('hidden');
+            }
+        }
+
         window.addEventListener('DOMContentLoaded', async () => {
             updateClock();
             setInterval(updateClock, 1000);
             
+            const passInput = document.getElementById('appPassword');
+            if (passInput) {
+                passInput.addEventListener('keypress', function (e) {
+                    if (e.key === 'Enter') checkPassword();
+                });
+            }
+        });
+
+        async function startApp() {
             await manualCloudSync(true);
             setInterval(() => manualCloudSync(false), 5000);
             
             addMeasureRow();
             checkInstallmentReminders();
-        });
+        }
 
+        // --------- OTOMATİK YEDEKLEME (ZAMAN MAKİNESİ) SİSTEMİ ---------
+        function createAutoBackup() {
+            try {
+                let backups = JSON.parse(localStorage.getItem(AUTO_BACKUP_KEY)) || [];
+                const currentDataStr = JSON.stringify(appData);
+                
+                if (backups.length > 0 && backups[0].dataStr === currentDataStr) return; 
+
+                const snapshot = {
+                    timestamp: new Date().toLocaleString('tr-TR'),
+                    dataStr: currentDataStr,
+                    summary: `Sipariş: ${appData.archive.length} | Kasa: ${appData.kasaHareketleri.length}`
+                };
+
+                backups.unshift(snapshot); 
+
+                if (backups.length > MAX_BACKUPS) backups.pop();
+
+                localStorage.setItem(AUTO_BACKUP_KEY, JSON.stringify(backups));
+            } catch(e) {
+                console.error("Otomatik yedek oluşturulamadı (Hafıza dolu olabilir):", e);
+            }
+        }
+
+        function openAutoBackupModal() {
+            const tbody = document.getElementById('autoBackupTableBody');
+            tbody.innerHTML = '';
+            const backups = JSON.parse(localStorage.getItem(AUTO_BACKUP_KEY)) || [];
+
+            if (backups.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="3" class="text-center py-6 text-slate-400">Henüz otomatik yedek bulunmuyor. Sistem işlem yaptıkça burası dolacaktır.</td></tr>`;
+            } else {
+                backups.forEach((b, index) => {
+                    tbody.innerHTML += `
+                        <tr class="hover:bg-slate-50">
+                            <td class="p-3 font-bold text-slate-700">${b.timestamp} ${index === 0 ? '<span class="ml-2 text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded">En Güncel</span>' : ''}</td>
+                            <td class="p-3 text-center text-slate-500">${b.summary}</td>
+                            <td class="p-3 text-right">
+                                <button onclick="restoreAutoBackup(${index})" class="bg-amber-500 hover:bg-amber-600 text-white px-3 py-1.5 rounded text-xs font-bold transition shadow-sm">
+                                    <i class="fa-solid fa-backward"></i> Bu Tarihe Dön
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            }
+            document.getElementById('autoBackupModal').classList.remove('hidden');
+        }
+
+        function closeAutoBackupModal() {
+            document.getElementById('autoBackupModal').classList.add('hidden');
+        }
+
+        async function restoreAutoBackup(index) {
+            const backups = JSON.parse(localStorage.getItem(AUTO_BACKUP_KEY)) || [];
+            const targetBackup = backups[index];
+
+            if (!targetBackup) return;
+
+            if (confirm(`DİKKAT: Sistemi "${targetBackup.timestamp}" anındaki haline döndürmek üzeresiniz. O tarihten sonra yaptığınız kayıtlar silinecek. Onaylıyor musunuz?`)) {
+                try {
+                    appData = JSON.parse(targetBackup.dataStr); 
+                    localStorage.setItem(STORAGE_KEY, targetBackup.dataStr); 
+                    
+                    logAuditEvent("Sistem Geri Yüklendi", `Zaman Makinesi ile ${targetBackup.timestamp} tarihine dönüldü.`);
+                    
+                    closeAutoBackupModal();
+                    refreshAllViews(); 
+                    saveLocalData(); 
+                    
+                    alert(`Sistem başarıyla ${targetBackup.timestamp} anındaki durumuna kurtarıldı!`);
+                } catch(e) {
+                    alert("Geri yükleme sırasında bir hata oluştu: " + e);
+                }
+            }
+        }
+        // ---------------------------------------------------------------
+
+        // GÜÇLENDİRİLMİŞ KAYDETME FONKSİYONU
+        async function saveLocalData() {
+            try {
+                createAutoBackup(); 
+
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
+                refreshAllViews();
+
+                const payload = {
+                    apiKey: SECRET_API_KEY, 
+                    data: appData
+                };
+
+                await fetch(SHEETS_WEB_APP_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                });
+            } catch(e) {
+                console.error("Bulut kayıt hatası:", e);
+            }
+        }
+
+        // GÜÇLENDİRİLMİŞ BULUT SENKRONİZASYONU (Çarpışma Korumalı)
         async function manualCloudSync(isInitial = false) {
             const syncText = document.getElementById('syncText');
             const syncIcon = document.getElementById('syncIcon');
@@ -969,8 +1147,10 @@
                 const response = await fetch(SHEETS_WEB_APP_URL);
                 if(response.ok) {
                     const cloudData = await response.json();
-                    if(cloudData) {
-                        appData.settings = cloudData.settings || DEFAULT_SETTINGS;
+                    
+                    // GÜVENLİK KONTROLÜ
+                    if(cloudData && typeof cloudData === 'object' && cloudData.settings && Array.isArray(cloudData.archive)) {
+                        appData.settings = cloudData.settings;
                         appData.cart = cloudData.cart || [];
                         appData.archive = cloudData.archive || [];
                         appData.expenses = cloudData.expenses || [];
@@ -985,10 +1165,14 @@
                         appData.whatsappTemplates = cloudData.whatsappTemplates || {};
 
                         localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
+                        createAutoBackup(); 
                         refreshAllViews();
+                    } else {
+                        console.warn("Buluttan geçersiz veri geldi. Lokal veri korundu.");
                     }
                 }
             } catch(e) {
+                console.warn("Bulutla senkronize olunamadı. Lokal verilerle devam ediliyor.");
                 const saved = localStorage.getItem(STORAGE_KEY);
                 if (saved) {
                     appData = JSON.parse(saved);
@@ -997,22 +1181,6 @@
             } finally {
                 if(syncText) syncText.innerText = "Google Sheets Bulut Senkron";
                 if(syncIcon) syncIcon.style.display = "none";
-            }
-        }
-
-        async function saveLocalData() {
-            try {
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
-                refreshAllViews();
-
-                await fetch(SHEETS_WEB_APP_URL, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(appData)
-                });
-            } catch(e) {
-                console.error("Bulut kayıt hatası:", e);
             }
         }
 
@@ -1175,7 +1343,6 @@
             logAuditEvent("WhatsApp Mesaj Gönderildi", `${ord.customerName || ord.name} - Durum: ${newStatus}`);
         }
 
-        // --- MÜŞTERİ KARTI & TAKSİT YÖNETİMİ ---
         function syncCustomerCardsFromSources() {
             if(!appData.customerCards) appData.customerCards = [];
 
@@ -1539,10 +1706,6 @@
                     });
                 }
             });
-
-            if(dueTodayCount > 0) {
-                console.log(`Bugün vadesi gelen ${dueTodayCount} adet taksit bulunmaktadır.`);
-            }
         }
 
         function addMeasureRow(initialData = null) {
@@ -2562,7 +2725,6 @@
             await saveLocalData();
         }
 
-        // --- MANUEL BANKA HESAPLARI & İŞLEMLERİ ---
         async function handleBankFormSubmit(e) {
             e.preventDefault();
             const editId = document.getElementById('editBankId').value;
