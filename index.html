@@ -115,14 +115,13 @@
         </div>
     </div>
 
-    <!-- ANA UYGULAMA (APP CONTAINER) - FLEX ROW FOR SIDEBAR -->
+    <!-- ANA UYGULAMA (APP CONTAINER) -->
     <div id="appContainer" style="display: none;" class="flex-grow flex flex-col md:flex-row w-full h-screen overflow-hidden bg-slate-50">
 
         <!-- SIDEBAR (Desktop) & TOPNAV (Mobile) -->
         <aside class="md:w-64 bg-petrol-950 text-white flex flex-col shadow-2xl z-30 flex-shrink-0">
             <!-- BRANDING -->
             <div class="p-4 md:p-6 border-b border-petrol-800 flex justify-between md:justify-start items-center gap-3 relative overflow-hidden">
-                <!-- BG Accent -->
                 <div class="absolute -right-4 -top-4 text-petrol-800 opacity-50 transform rotate-12">
                     <i class="fa-solid fa-layer-group text-6xl"></i>
                 </div>
@@ -167,16 +166,14 @@
                 </button>
             </nav>
             
-            <!-- Sidebar Footer (Desktop) -->
             <div class="hidden md:block p-4 mt-auto border-t border-petrol-800 text-center">
-                <p class="text-[10px] text-petrol-400 font-medium">v1.2.0 • Güvenli Bağlantı</p>
+                <p class="text-[10px] text-petrol-400 font-medium">v1.2.5 • Güvenli Bağlantı</p>
             </div>
         </aside>
 
         <!-- RIGHT CONTENT AREA -->
         <div class="flex-1 flex flex-col relative overflow-hidden w-full">
             
-            <!-- DESKTOP TOP HEADER -->
             <header class="hidden md:flex bg-white shadow-sm border-b border-slate-200 px-6 py-3 justify-between items-center z-10 flex-shrink-0">
                 <div class="text-sm font-black text-petrol-900 flex items-center gap-2 uppercase tracking-wide">
                     <i class="fa-solid fa-desktop text-petrol-500"></i> Kontrol Paneli
@@ -220,9 +217,7 @@
                                 <i class="fa-solid fa-ruler-combined text-petrol-500"></i> ÖLÇÜ & ÜRÜN KONFİGÜRASYONU
                             </h2>
                         </div>
-
                         <div id="measureRowsContainer" class="space-y-4"></div>
-
                         <div class="flex justify-end mt-4 pt-4 border-t border-slate-100">
                             <button onclick="addMeasureRow()" class="w-full md:w-auto bg-petrol-800 hover:bg-petrol-900 text-white text-xs px-5 py-2.5 rounded-lg font-bold transition flex items-center justify-center gap-2 shadow">
                                 <i class="fa-solid fa-plus"></i> Yeni Ölçü Satırı Ekle
@@ -234,7 +229,6 @@
                         <h2 class="text-sm md:text-base font-extrabold text-petrol-950 mb-4 flex items-center gap-2 border-b pb-2">
                             <i class="fa-solid fa-calculator text-petrol-500"></i> SATIŞ FİNANSMAN & İŞLEMLER
                         </h2>
-
                         <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-5">
                             <div class="bg-slate-50 p-3 rounded border border-slate-200">
                                 <label class="block text-[11px] font-bold text-slate-500 mb-1.5 uppercase">Satış Tarifesi *</label>
@@ -724,7 +718,6 @@
                     </div>
 
                     <div class="bg-petrol-950 rounded-xl p-4 md:p-5 shadow-lg border border-petrol-900 relative overflow-hidden">
-                        <!-- BG Element -->
                         <div class="absolute -right-10 -bottom-10 text-petrol-800 opacity-20"><i class="fa-solid fa-database text-9xl"></i></div>
                         <h2 class="text-sm font-extrabold text-white border-b border-petrol-800 pb-3 mb-4 flex items-center gap-2 relative z-10">
                             <i class="fa-solid fa-shield-halved text-petrol-400"></i> VERİ YÖNETİMİ & FELAKET KURTARMA
@@ -974,8 +967,12 @@
                 createAutoBackup(); 
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
                 refreshAllViews();
+                
+                // CORS Engelini Aşmak İçin: content-type text/plain
                 fetch(SHEETS_WEB_APP_URL, {
-                    method: 'POST', mode: 'no-cors', headers: { "Content-Type": "application/json" },
+                    method: 'POST', 
+                    mode: 'no-cors',
+                    headers: { "Content-Type": "text/plain;charset=utf-8" },
                     body: JSON.stringify({ apiKey: SECRET_API_KEY, data: appData })
                 });
             } catch(e) { console.error("Bulut kayıt hatası:", e); }
@@ -1090,7 +1087,7 @@
         async function deleteSingleRecycleItem(idx) { if(confirm("Kalıcı olarak silinecek, onaylıyor musunuz?")) { appData.recycleBin.splice(idx,1); await saveLocalData(); renderRecycleBin(); } }
         async function emptyRecycleBin() { if(confirm("Tamamen boşaltılacak, geri alınamaz. Emin misiniz?")) { appData.recycleBin = []; await saveLocalData(); renderRecycleBin(); } }
 
-        // --- WHATSAPP CRM (YENİ) ---
+        // --- WHATSAPP CRM ---
         let currentWaData = { name: '', phone: '', remaining: 0 };
         function openWhatsAppModal(name, phone, remaining) {
             currentWaData = { name: escapeHTML(name), phone: phone, remaining: parseFloat(remaining) || 0 };
@@ -1116,8 +1113,6 @@
             closeWaModal();
             logAuditEvent("WhatsApp CRM Mesajı", `${currentWaData.name} - Şablon: ${document.getElementById('waModalTemplate').value}`);
         }
-
-        // WhatsApp Şablonları (Otomatik Üretim Mesajları)
         function saveWhatsAppTemplates() {
             if(!appData.whatsappTemplates) appData.whatsappTemplates = {};
             appData.whatsappTemplates.alinan = document.getElementById('wa_msg_alinan').value;
@@ -1143,8 +1138,6 @@
         // --- CARİ VE TAKSİT MOTORU ---
         function syncCustomerCardsFromSources() {
             if(!appData.customerCards) appData.customerCards = [];
-            
-            // Arşiv
             appData.archive.forEach(ord => {
                 let ex = appData.customerCards.find(c => c.refId === ord.id);
                 if(!ex) {
@@ -1154,26 +1147,19 @@
                     if(!ex.installments) ex.installments = generateInstallmentPlan(ord.totalAmount, ex.installmentCount||1, ex.startDate);
                 }
             });
-            // Manuel
             appData.manualLedgers.forEach(man => {
                 let ex = appData.customerCards.find(c => c.refId === man.id);
                 if(!ex) {
                     appData.customerCards.push({ id: 'CUST-'+man.id, name: man.name, phone: man.phone, address: '', source: 'Bireysel Cari Defter', refId: man.id, totalDebt: man.debt, paidAmount: man.paid||0, installmentCount: man.installmentCount||1, startDate: new Date().toLocaleDateString('tr-TR'), installments: man.installments||generateInstallmentPlan(man.debt, man.installmentCount||1, new Date().toLocaleDateString('tr-TR')) });
-                } else {
-                    ex.totalDebt = man.debt; ex.paidAmount = man.paid||0; ex.name = man.name; ex.phone = man.phone;
-                }
+                } else { ex.totalDebt = man.debt; ex.paidAmount = man.paid||0; ex.name = man.name; ex.phone = man.phone; }
             });
-            // Toplu
             if(appData.topluLedgers) appData.topluLedgers.forEach(top => {
                 let ex = appData.customerCards.find(c => c.refId === top.id);
                 if(!ex) {
                     appData.customerCards.push({ id: 'CUST-'+top.id, name: top.customerName, phone: top.customerPhone, address: '', source: 'Toplu Montaj Projesi', refId: top.id, totalDebt: top.totalAmount, paidAmount: top.paidAmount||0, installmentCount: top.installmentCount||1, startDate: top.date||new Date().toLocaleDateString('tr-TR'), installments: top.installments||generateInstallmentPlan(top.totalAmount, top.installmentCount||1, top.date) });
-                } else {
-                    ex.totalDebt = top.totalAmount; ex.paidAmount = top.paidAmount||0; ex.name = top.customerName; ex.phone = top.customerPhone;
-                }
+                } else { ex.totalDebt = top.totalAmount; ex.paidAmount = top.paidAmount||0; ex.name = top.customerName; ex.phone = top.customerPhone; }
             });
         }
-
         function generateInstallmentPlan(totalAmount, count, dateStr) {
             let plan = []; let per = totalAmount / (count||1);
             let baseDate = new Date();
@@ -1184,18 +1170,15 @@
             }
             return plan;
         }
-
         function openCustomerCardByRef(refId) {
             syncCustomerCardsFromSources();
             const cust = appData.customerCards.find(c => c.refId === refId);
             if(cust) openCustomerCardModal(cust.id); else alert("Kart verisi henüz oluşturulmamış.");
         }
-
         function openCustomerCardModal(custId) {
             const cust = appData.customerCards.find(c => c.id === custId);
             if(!cust) return;
             document.getElementById('modalCustomerTitle').innerHTML = `<i class="fa-solid fa-id-card text-petrol-600"></i> Müşteri Cari: ${escapeHTML(cust.name)}`;
-            
             let instHtml = '';
             if(cust.installments && cust.installments.length>0) {
                 cust.installments.forEach((inst, iIdx) => {
@@ -1246,8 +1229,7 @@
             appData.kasaHareketleri.push({ date: new Date().toLocaleString('tr-TR'), type: inst.isPaid?'Taksit Tahsilatı':'Taksit İptali', desc: `${cust.name} (${inst.no}. Taksit)`, amount: inst.isPaid?inst.amount:-inst.amount });
             await saveLocalData(); openCustomerCardModal(custId);
         }
-
-        function checkInstallmentReminders() { /* Sessiz hatırlatma motoru. */ }
+        function checkInstallmentReminders() { /* Background reminder logic */ }
 
         // --- SİPARİŞ VE ÖLÇÜ GİRİŞİ ---
         function addMeasureRow(initialData = null) {
@@ -1360,7 +1342,6 @@
             if(pT==='plise' && c.querySelector('.opt-magnet')?.value==='var') p += (((isDikey?((en*3)+(boy*2)):((en*2)+(boy*3)))/100)*getRecipeCost('pg-plise','acc-serit-miknatis'))*qty;
             if(c.querySelector('.opt-case')?.value==='kasali') p *= 2;
 
-            // ERP Accessory calculation (Cost * AccessoryQty * MeasureRowQty)
             c.querySelectorAll('.custom-acc-item').forEach(itm => {
                 const s = itm.querySelector('.acc-select'); const qI = itm.querySelector('.acc-qty');
                 if(s && s.value) { p += (parseFloat(s.selectedOptions[0].getAttribute('data-cost'))||0) * (parseFloat(qI.value)||1) * qty; }
@@ -1579,6 +1560,15 @@
         function exportFullBackup() { let a=document.createElement('a'); a.href="data:text/json;charset=utf-8,"+encodeURIComponent(JSON.stringify(appData)); a.download=`erp_tam_yedek_${new Date().toISOString().slice(0,10)}.json`; a.click(); }
         function importBackup(e) { const r=new FileReader(); r.onload=async(ev)=>{try{let d=JSON.parse(ev.target.result); if(d&&d.settings){appData=d; await saveLocalData(); alert("Dış yedek sisteme yüklendi!");} }catch(err){alert("Dosya okuma hatası!");}}; r.readAsText(e.target.files[0]); }
         function exportArchiveExcel() { if(!appData.archive?.length) return; let rows=[]; appData.archive.forEach(o=>o.items.forEach(i=>rows.push({"Sipariş ID":o.id, "Tarih":o.date, "Müşteri":o.customerName, "Telefon":o.customerPhone, "Tipi":i.mType==='ic'?'İç':'Dış', "Ürün":i.pType, "Renk":i.color, "EN":i.en, "BOY":i.boy, "M2":i.m2, "Tutar":o.totalAmount, "Durum":o.status}))); let ws=XLSX.utils.json_to_sheet(rows); let wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,"Arsiv"); XLSX.writeFile(wb, `FixHouseERP_${Date.now()}.xlsx`); }
+
+        function openOrderDetailModal(id) {
+            let o=appData.archive.find(x=>x.id===id)||appData.cart.find(x=>x.id===id)||appData.topluLedgers?.find(x=>x.id===id); if(!o) return; currentDetailOrder=o;
+            document.getElementById('modalOrderTitle').innerHTML=`<i class="fa-solid fa-magnifying-glass text-slate-400"></i> ${escapeHTML(o.customerName||o.name)} - ${o.id}`;
+            document.getElementById('modalOrderContent').innerHTML=`<div class="bg-slate-50 border border-slate-200 p-3 rounded text-xs space-y-1 mb-2"><div><b>Telefon:</b> ${escapeHTML(o.customerPhone||o.phone)} | <b>Adres:</b> ${escapeHTML(o.customerAddress||'-')}</div><div><b>Toplam Tutar:</b> ${(o.totalAmount||o.debt||0).toFixed(2)} ₺</div></div><div class="overflow-x-auto border border-slate-200 rounded"><table class="w-full text-left text-xs"><thead class="bg-slate-100 font-bold border-b text-slate-500 uppercase text-[10px]"><tr><th class="p-2 text-center">#</th><th class="p-2 text-center">Adet</th><th class="p-2">Tipi</th><th class="p-2">Ürün</th><th class="p-2">Renk</th><th class="p-2 text-center">EN</th><th class="p-2 text-center">BOY</th><th class="p-2 text-center">KANAT</th><th class="p-2">Not</th></tr></thead><tbody class="divide-y divide-slate-100">${o.items?.map(i=>`<tr><td class="p-2 text-center font-bold">${i.seq}</td><td class="p-2 text-center font-bold text-blue-600">${i.qty||1}</td><td class="p-2">${i.mType==='ic'?'İç':'Dış'}</td><td class="p-2">${i.pType}</td><td class="p-2">${i.color}</td><td class="p-2 text-center font-bold">${i.en}</td><td class="p-2 text-center font-bold">${i.boy}</td><td class="p-2 text-center font-bold text-slate-600">${i.kanat}</td><td class="p-2 text-slate-400">${escapeHTML(i.note)||'-'}</td></tr>`).join('')||`<tr><td colspan="9" class="p-2 text-center">Ölçü yok.</td></tr>`}</tbody></table></div>`;
+            document.getElementById('modalPrintA4Btn').onclick=()=>printDirectA4('order',o); document.getElementById('modalPrintZebraBtn').onclick=()=>printZebraLabels('order',o);
+            document.getElementById('orderDetailModal').classList.remove('hidden');
+        }
+        function closeOrderDetailModal() { document.getElementById('orderDetailModal').classList.add('hidden'); }
 
         function printDirectA4(type, data=null) {
             let o=data||getOrderData(); document.getElementById('printContainerZebra').innerHTML=''; document.getElementById('printContainerMakbuz').innerHTML='';
