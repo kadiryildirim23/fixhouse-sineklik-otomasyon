@@ -167,7 +167,7 @@
             </nav>
             
             <div class="hidden md:block p-4 mt-auto border-t border-petrol-800 text-center">
-                <p class="text-[10px] text-petrol-400 font-medium">v1.2.5 • Güvenli Bağlantı</p>
+                <p class="text-[10px] text-petrol-400 font-medium">v1.3.0 • Güvenli Bağlantı</p>
             </div>
         </aside>
 
@@ -984,7 +984,8 @@
             if(syncText && isInitial) syncText.innerText = "Yükleniyor...";
             if(syncIcon) syncIcon.style.display = "inline-block";
             try {
-                const response = await fetch(SHEETS_WEB_APP_URL);
+                // CACHE-BUSTER: Mobil ve Desktop tarayıcıların eski veriyi çekmesini engeller
+                const response = await fetch(SHEETS_WEB_APP_URL + "?t=" + new Date().getTime(), { cache: "no-store" });
                 if(response.ok) {
                     const cloudData = await response.json();
                     if(cloudData && typeof cloudData === 'object' && cloudData.settings) {
@@ -995,6 +996,7 @@
                     }
                 }
             } catch(e) {
+                console.warn("Bulut bağlantısı koptu. Lokal veriler gösteriliyor.", e);
                 const saved = localStorage.getItem(STORAGE_KEY);
                 if (saved) { appData = JSON.parse(saved); refreshAllViews(); }
             } finally {
