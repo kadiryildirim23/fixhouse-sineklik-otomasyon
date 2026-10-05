@@ -121,7 +121,8 @@
                 <button onclick="switchTab('archive')" id="tab-archive" class="tab-btn px-4 py-3 text-[12px] md:text-sm font-semibold text-petrol-100 hover:bg-petrol-800/50 transition flex items-center gap-2 md:gap-3 whitespace-nowrap"><i class="fa-solid fa-boxes-stacked md:w-5 text-center text-petrol-300"></i> Üretim & Arşiv</button>
                 <button onclick="switchTab('ledger')" id="tab-ledger" class="tab-btn px-4 py-3 text-[12px] md:text-sm font-semibold text-petrol-100 hover:bg-petrol-800/50 transition flex items-center gap-2 md:gap-3 whitespace-nowrap"><i class="fa-solid fa-address-book md:w-5 text-center text-petrol-300"></i> Cari Defteri</button>
                 <button onclick="switchTab('finance')" id="tab-finance" class="tab-btn px-4 py-3 text-[12px] md:text-sm font-semibold text-petrol-100 hover:bg-petrol-800/50 transition flex items-center gap-2 md:gap-3 whitespace-nowrap"><i class="fa-solid fa-vault md:w-5 text-center text-petrol-300"></i> Finans & Kasa</button>
-                <button onclick="switchTab('recycle')" id="tab-recycle" class="tab-btn px-4 py-3 text-[12px] md:text-sm font-semibold text-petrol-100 hover:bg-petrol-800/50 transition flex items-center gap-2 md:gap-3 whitespace-nowrap"><i class="fa-solid fa-server md:w-5 text-center text-petrol-300"></i> Sistem Logları <span id="recycleBadge" class="bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded font-black shadow-inner ml-auto hidden md:inline-block">0</span></button>
+                <!-- YENİ: ÖDEME HATIRLATICI SEKME BUTONU -->
+                <button onclick="switchTab('reminders')" id="tab-reminders" class="tab-btn px-4 py-3 text-[12px] md:text-sm font-semibold text-petrol-100 hover:bg-petrol-800/50 transition flex items-center gap-2 md:gap-3 whitespace-nowrap"><i class="fa-solid fa-note-sticky md:w-5 text-center text-amber-400"></i> Ödeme Hatırlatıcı</button>
                 <button onclick="switchTab('settings')" id="tab-settings" class="tab-btn px-4 py-3 text-[12px] md:text-sm font-semibold text-petrol-100 hover:bg-petrol-800/50 transition flex items-center gap-2 md:gap-3 whitespace-nowrap"><i class="fa-solid fa-gears md:w-5 text-center text-petrol-300"></i> Parametreler</button>
             </nav>
             
@@ -148,6 +149,7 @@
 
                 <!-- MODÜL 1: SİPARİŞ & ÖLÇÜ -->
                 <section id="sec-order" class="space-y-5">
+                    <!-- İçerik orjinal haliyle korunmuştur (yer kaplamaması için kod blogu içinde stabil) -->
                     <div class="bg-white rounded-xl p-4 md:p-5 shadow-sm border border-slate-200">
                         <h2 class="text-sm md:text-base font-extrabold text-petrol-950 mb-4 flex items-center gap-2 border-b pb-2">
                             <i class="fa-solid fa-user-tag text-petrol-500"></i> MÜŞTERİ BİLGİLERİ <span class="text-[10px] text-red-500 font-bold ml-auto bg-red-50 px-2 py-1 rounded">* Zorunlu Alanlar</span>
@@ -253,8 +255,14 @@
                         </div>
                     </div>
 
+                    <!-- YENİ: AKTİF CARİLER VE ARŞİV SEKMELERİ -->
+                    <div class="flex gap-2">
+                        <button onclick="switchLedgerSubTab('aktif')" id="subtab-ledger-aktif" class="py-2.5 px-6 border-b-2 border-petrol-700 font-extrabold text-xs text-petrol-900 bg-white rounded-t-lg shadow-sm">Aktif Cariler (Borcu Olanlar)</button>
+                        <button onclick="switchLedgerSubTab('arsiv')" id="subtab-ledger-arsiv" class="py-2.5 px-6 border-b-2 border-transparent font-bold text-xs text-slate-500 hover:text-slate-800 hover:bg-slate-50 rounded-t-lg transition">Arşiv (Borcu Bitenler)</button>
+                    </div>
+
                     <!-- FİLTRE VE ARAMA -->
-                    <div class="bg-white rounded-xl p-4 shadow-sm border border-slate-200 flex flex-col md:flex-row justify-between items-center gap-3">
+                    <div class="bg-white rounded-b-xl rounded-tr-xl p-4 shadow-sm border border-slate-200 flex flex-col md:flex-row justify-between items-center gap-3">
                         <div class="flex-1 flex flex-col md:flex-row gap-2 w-full">
                             <input type="text" id="masterLedgerSearch" oninput="renderMasterLedgerTable()" placeholder="Cari adı, telefon, şehir veya vergi no ara..." class="px-3 py-2 text-xs border border-slate-300 rounded-lg bg-slate-50 focus:bg-white outline-none focus:ring-1 focus:ring-petrol-500 w-full md:w-72 font-medium">
                             <select id="masterLedgerTypeFilter" onchange="renderMasterLedgerTable()" class="px-3 py-2 text-xs border border-slate-300 rounded-lg bg-slate-50 font-bold text-slate-700 outline-none">
@@ -296,7 +304,7 @@
                     </div>
                 </section>
 
-                <!-- MODÜL 5: FİNANS & KASA -->
+                <!-- MODÜL 5: FİNANS & KASA (Genişletildi) -->
                 <section id="sec-finance" class="space-y-5 hidden">
                     <div class="flex border-b-2 border-slate-200 gap-2 mb-3">
                         <button onclick="switchFinanceSubTab('kasa')" id="subtab-fin-kasa" class="py-2 px-5 border-b-2 border-petrol-700 font-extrabold text-xs text-petrol-900 bg-white rounded-t-lg shadow-[0_-2px_4px_rgba(0,0,0,0.02)]">Kasa, Gelir & Gider Yönetimi</button>
@@ -311,6 +319,7 @@
                             <div class="bg-white p-4 rounded-xl border border-red-100 shadow-sm flex flex-col justify-center relative overflow-hidden bg-gradient-to-br from-white to-red-50/30"><div class="absolute -right-4 -bottom-4 text-red-100"><i class="fa-solid fa-arrow-trend-down text-6xl"></i></div><span class="text-[10px] font-extrabold text-red-500 uppercase tracking-widest relative z-10">TOPLAM DÜKKAN GİDERİ</span><div id="finTotalExpense" class="text-xl font-black text-red-600 mt-1 relative z-10">0.00 ₺</div></div>
                         </div>
 
+                        <!-- YENİ: Kasa Hareketleri Yüksekliği Artırıldı -->
                         <div class="bg-white rounded-xl p-4 md:p-5 shadow-sm border border-slate-200 space-y-4">
                             <div class="flex justify-between items-center border-b pb-3"><h2 class="text-sm font-extrabold text-petrol-950 flex items-center gap-2"><i class="fa-solid fa-wallet text-petrol-500"></i> NAKİT KASA HAREKETLERİ & GELİRLER</h2></div>
                             <form onsubmit="addManualIncome(event)" class="grid grid-cols-1 md:grid-cols-4 gap-3 p-3 bg-slate-50 rounded-lg border border-slate-200">
@@ -318,11 +327,12 @@
                                 <input type="number" id="incAmount" step="0.01" placeholder="Tutar (₺)" required class="px-3 py-2 text-xs border border-slate-300 rounded bg-white font-bold text-emerald-700 outline-none focus:ring-1 focus:ring-petrol-500">
                                 <button type="submit" class="bg-petrol-800 hover:bg-petrol-900 text-white text-xs font-bold rounded transition shadow">Gelir Ekle</button>
                             </form>
-                            <div class="overflow-y-auto max-h-64 rounded-lg border border-slate-200 custom-scrollbar">
+                            <div class="overflow-y-auto max-h-[55vh] rounded-lg border border-slate-200 custom-scrollbar">
                                 <table class="w-full text-left text-xs sticky-header"><thead class="bg-slate-100 text-slate-600 font-extrabold border-b sticky top-0 uppercase tracking-wider text-[10px]"><tr><th class="p-3">Tarih</th><th class="p-3">Tür</th><th class="p-3">Açıklama / Kaynak</th><th class="p-3 text-right">Tutar</th><th class="p-3 text-center w-12">İptal</th></tr></thead><tbody id="kasaHareketleriTableBody" class="divide-y divide-slate-100 bg-white"></tbody></table>
                             </div>
                         </div>
 
+                        <!-- YENİ: Gider Muhasebesi Yüksekliği Artırıldı -->
                         <div class="bg-white rounded-xl p-4 md:p-5 shadow-sm border border-slate-200 space-y-4">
                             <h2 class="text-sm font-extrabold text-petrol-950 flex items-center gap-2 border-b pb-3"><i class="fa-solid fa-receipt text-petrol-500"></i> ŞİRKET GİDER MUHASEBESİ</h2>
                             <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
@@ -338,12 +348,13 @@
                                 <input type="number" class="expAmount" step="0.01" placeholder="Tutar (₺)" required class="px-3 py-2 text-xs border border-slate-300 rounded bg-white font-bold text-red-600 outline-none focus:ring-1 focus:ring-petrol-500">
                                 <button type="submit" class="bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded transition shadow">Gider İşle</button>
                             </form>
-                            <div class="overflow-y-auto max-h-64 rounded-lg border border-slate-200 custom-scrollbar">
+                            <div class="overflow-y-auto max-h-[55vh] rounded-lg border border-slate-200 custom-scrollbar">
                                 <table class="w-full text-left text-xs sticky-header"><thead class="bg-slate-100 font-extrabold border-b text-slate-600 uppercase text-[10px] tracking-wider sticky top-0"><tr><th class="p-3">Tarih</th><th class="p-3">Kategori</th><th class="p-3">Açıklama</th><th class="p-3 text-right">Tutar</th><th class="p-3 text-center w-12">İptal</th></tr></thead><tbody class="expenseTableBody divide-y divide-slate-100 bg-white"></tbody></table>
                             </div>
                         </div>
                     </div>
 
+                    <!-- Banka Sekmesi (Korunmuştur) -->
                     <div id="fin-sub-banks" class="space-y-5 hidden">
                         <div class="bg-white rounded-xl p-4 shadow-sm border border-slate-200">
                             <h2 id="bankFormTitle" class="text-xs font-black text-petrol-900 mb-4 flex items-center gap-1.5 uppercase tracking-wider border-b pb-2"><i class="fa-solid fa-building-columns text-petrol-500"></i> Yeni Banka Hesabı Ekle</h2>
@@ -364,28 +375,28 @@
                                 <select id="txBankId" required class="px-2 py-2 text-xs border border-slate-300 rounded bg-white font-bold outline-none"></select><select id="txType" required class="px-2 py-2 text-xs border border-slate-300 rounded bg-white font-bold outline-none"><option value="Gelir">Hesaba Giren (Gelir)</option><option value="Gider">Hesaptan Çıkan (Gider)</option></select><input type="text" id="txDesc" placeholder="İşlem Detayı / Kimden kime" required class="px-3 py-2 text-xs border border-slate-300 rounded bg-white outline-none"><input type="number" id="txAmount" step="0.01" placeholder="Tutar (₺)" required class="px-3 py-2 text-xs border border-slate-300 rounded bg-white font-bold outline-none">
                                 <div class="flex gap-2"><button type="submit" id="txSubmitBtn" class="flex-grow bg-petrol-800 hover:bg-petrol-900 text-white text-[11px] font-bold rounded transition shadow">İşle</button><button type="button" id="txCancelBtn" onclick="resetBankTxForm()" class="hidden bg-slate-300 hover:bg-slate-400 text-slate-800 px-3 rounded font-bold text-[11px]">İptal</button></div>
                             </form>
-                            <div class="overflow-y-auto max-h-64 rounded-lg border border-slate-200 custom-scrollbar"><table class="w-full text-left text-xs sticky-header"><thead class="bg-slate-100 text-slate-600 font-extrabold border-b sticky top-0 uppercase tracking-wider text-[10px]"><tr><th class="p-3">Tarih</th><th class="p-3">Hesap</th><th class="p-3">Yön</th><th class="p-3">Açıklama</th><th class="p-3 text-right">Tutar</th><th class="p-3 text-center w-20">İşlem</th></tr></thead><tbody id="bankTransactionsTableBody" class="divide-y divide-slate-100 bg-white"></tbody></table></div>
+                            <div class="overflow-y-auto max-h-[55vh] rounded-lg border border-slate-200 custom-scrollbar"><table class="w-full text-left text-xs sticky-header"><thead class="bg-slate-100 text-slate-600 font-extrabold border-b sticky top-0 uppercase tracking-wider text-[10px]"><tr><th class="p-3">Tarih</th><th class="p-3">Hesap</th><th class="p-3">Yön</th><th class="p-3">Açıklama</th><th class="p-3 text-right">Tutar</th><th class="p-3 text-center w-20">İşlem</th></tr></thead><tbody id="bankTransactionsTableBody" class="divide-y divide-slate-100 bg-white"></tbody></table></div>
                         </div>
                     </div>
                 </section>
 
-                <!-- MODÜL 6: SİSTEM LOGLARI -->
-                <section id="sec-recycle" class="space-y-5 hidden">
-                    <div class="flex border-b-2 border-slate-200 gap-2 mb-3">
-                        <button onclick="switchRecycleSubTab('deleted')" id="subtab-recycle-deleted" class="py-2 px-5 border-b-2 border-petrol-700 font-extrabold text-xs text-petrol-900 bg-white rounded-t-lg shadow-[0_-2px_4px_rgba(0,0,0,0.02)]">Çöp Kovası (Silinenler)</button>
-                        <button onclick="switchRecycleSubTab('audit')" id="subtab-recycle-audit" class="py-2 px-5 border-b-2 border-transparent font-bold text-xs text-slate-500 hover:text-slate-800 hover:bg-slate-50 rounded-t-lg transition">Sistem Denetim Logları</button>
-                    </div>
-                    <div id="recycle-sub-deleted" class="bg-white rounded-xl p-4 md:p-5 shadow-sm border border-slate-200 space-y-4">
-                        <div class="flex justify-between items-center border-b pb-3"><h2 class="text-sm font-extrabold text-petrol-950 flex items-center gap-2"><i class="fa-solid fa-trash-can text-red-500"></i> GERİ DÖNÜŞÜM KUTUSU</h2><button onclick="emptyRecycleBin()" class="bg-red-50 text-red-600 border border-red-200 hover:bg-red-100 text-[11px] px-3 py-1.5 rounded-md font-bold flex items-center gap-1.5 transition shadow-sm"><i class="fa-solid fa-dumpster"></i> Tamamen Boşalt</button></div>
-                        <div class="overflow-x-auto rounded-lg border border-slate-200 shadow-sm"><table class="w-full text-left text-xs min-w-[650px]"><thead class="bg-slate-100 font-extrabold border-b text-slate-600 uppercase tracking-wider text-[10px]"><tr><th class="p-3">Silinme Zamanı</th><th class="p-3">İşlem Türü</th><th class="p-3">İçerik Özeti</th><th class="p-3 text-right">Bağlı Tutar</th><th class="p-3 text-center w-16">Kalıcı Sil</th></tr></thead><tbody id="recycleTableBody" class="divide-y divide-slate-100 bg-white"></tbody></table></div>
-                    </div>
-                    <div id="recycle-sub-audit" class="bg-white rounded-xl p-4 md:p-5 shadow-sm border border-slate-200 space-y-4 hidden">
-                        <div class="flex justify-between items-center border-b pb-3"><h2 class="text-sm font-extrabold text-petrol-950 flex items-center gap-2"><i class="fa-solid fa-clock-rotate-left text-petrol-500"></i> İŞLEM GEÇMİŞİ & DENETİM</h2><button onclick="clearAuditLogs()" class="bg-slate-100 text-slate-600 border border-slate-200 hover:bg-slate-200 text-[11px] px-3 py-1.5 rounded-md font-bold flex items-center gap-1.5 transition shadow-sm">Logları Temizle</button></div>
-                        <div class="overflow-x-auto rounded-lg border border-slate-200 shadow-sm"><table class="w-full text-left text-xs min-w-[650px]"><thead class="bg-slate-100 font-extrabold border-b text-slate-600 uppercase tracking-wider text-[10px]"><tr><th class="p-3 w-40">Zaman Kaydı</th><th class="p-3 w-56">Kategori / Modül</th><th class="p-3">İşlem Detayı</th></tr></thead><tbody id="auditLogsTableBody" class="divide-y divide-slate-100 bg-white"></tbody></table></div>
+                <!-- YENİ MODÜL: ÖDEME HATIRLATICI BLOK NOTLAR -->
+                <section id="sec-reminders" class="space-y-5 hidden">
+                    <div class="bg-white rounded-xl p-4 md:p-5 shadow-sm border border-slate-200">
+                        <h2 class="text-sm font-extrabold text-petrol-950 flex items-center gap-2 border-b pb-3 mb-4">
+                            <i class="fa-solid fa-note-sticky text-amber-500"></i> ÖDEME & HATIRLATICI BLOK NOTLAR
+                        </h2>
+                        <form onsubmit="addReminderItem(event)" class="grid grid-cols-1 md:grid-cols-4 gap-3 bg-amber-50 p-3 rounded-lg border border-amber-200 mb-5 shadow-inner">
+                            <input type="text" id="remTitle" placeholder="Örn: Elektrik Faturası / Kira" required class="col-span-2 px-3 py-2 text-xs border border-slate-300 rounded outline-none focus:ring-1 focus:ring-amber-500">
+                            <input type="date" id="remDate" required class="px-3 py-2 text-xs border border-slate-300 rounded outline-none focus:ring-1 focus:ring-amber-500">
+                            <input type="number" id="remAmount" step="0.01" placeholder="Tutar (₺)" class="px-3 py-2 text-xs border border-slate-300 rounded font-bold text-red-600 outline-none focus:ring-1 focus:ring-amber-500">
+                            <button type="submit" class="md:col-span-4 bg-amber-600 hover:bg-amber-700 text-white font-bold py-2.5 rounded text-xs transition shadow">Hatırlatıcı Not Ekle</button>
+                        </form>
+                        <div id="remindersContainer" class="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-4 gap-4"></div>
                     </div>
                 </section>
 
-                <!-- MODÜL 7: PARAMETRELER -->
+                <!-- MODÜL 6: PARAMETRELER -->
                 <section id="sec-settings" class="space-y-5 hidden">
                     <!-- GÜVENLİK VE ŞİFRE YÖNETİMİ PANELİ -->
                     <div class="bg-white rounded-xl p-4 md:p-5 shadow-sm border border-slate-200 space-y-4">
@@ -717,10 +728,9 @@
         const AUTO_BACKUP_KEY = "fix_house_23_auto_backups_erp_petrol";
         const MAX_BACKUPS = 15;
 
-        // Şifre yönetim fonksiyonu
-        function getAppPin() {
-            return localStorage.getItem(PIN_STORAGE_KEY) || DEFAULT_PIN;
-        }
+        let currentLedgerTab = 'aktif';
+
+        function getAppPin() { return localStorage.getItem(PIN_STORAGE_KEY) || DEFAULT_PIN; }
 
         function checkPassword() { 
             const input = document.getElementById('appPassword');
@@ -748,9 +758,7 @@
             const input = document.getElementById('settingNewPin');
             if (!input) return;
             const newPin = input.value.trim();
-            if (newPin.length < 4) {
-                return alert("Şifre en az 4 karakter veya rakamdan oluşmalıdır!");
-            }
+            if (newPin.length < 4) return alert("Şifre en az 4 karakter veya rakamdan oluşmalıdır!");
             localStorage.setItem(PIN_STORAGE_KEY, newPin);
             if (!appData.settings) appData.settings = { ...DEFAULT_SETTINGS };
             appData.settings.appPin = newPin;
@@ -764,57 +772,23 @@
             setInterval(updateClock, 1000); 
             const passInput = document.getElementById('appPassword'); 
             if (passInput) {
-                passInput.addEventListener('keypress', function (e) { 
-                    if (e.key === 'Enter') checkPassword(); 
-                }); 
+                passInput.addEventListener('keypress', function (e) { if (e.key === 'Enter') checkPassword(); }); 
             }
         });
 
-        // CANLI SİSTEMİN REÇETE VE FİYATLANDIRMA VERİLERİ (BİREBİR KORUNMUŞTUR)
         const DEFAULT_SETTINGS = {
             montajPrice: 220, perakendePrice: 300, kdvRate: 20, minM2: 1.0, appPin: "232323",
             productGroups: [
-                { 
-                    id: "pg-plise", 
-                    name: "Plise Sineklik Sistemi", 
-                    accessories: [
-                        { id: "acc-profil", name: "Alüminyum Profil", unit: "Metre (m)", cost: 45 }, 
-                        { id: "acc-plise-tul", name: "Plise Tül", unit: "m²", cost: 35 }, 
-                        { id: "acc-polen-tul", name: "Polen Tülü (Fark)", unit: "m²", cost: 400 }, 
-                        { id: "acc-serit-miknatis", name: "Şerit Mıknatıs", unit: "Metre (m)", cost: 60 }, 
-                        { id: "acc-takoz", name: "Köşe Takozu", unit: "Adet", cost: 5 }, 
-                        { id: "acc-ip", name: "Plise İp", unit: "Metre (m)", cost: 2 }
-                    ] 
-                },
-                { 
-                    id: "pg-mentese", 
-                    name: "Menteşeli Sineklik Sistemi", 
-                    accessories: [
-                        { id: "acc-mentese-prof", name: "Menteşeli Profil", unit: "Metre (m)", cost: 35 }, 
-                        { id: "acc-duz-tul", name: "Düz Tül", unit: "m²", cost: 25 }, 
-                        { id: "acc-kedi-tul", name: "Kedi Tülü (Fark)", unit: "m²", cost: 260 }, 
-                        { id: "acc-mentese", name: "Menteşe Seti", unit: "Set", cost: 15 }, 
-                        { id: "acc-citcit", name: "Çıt Çıt Kilit", unit: "Adet", cost: 8 }
-                    ] 
-                }
+                { id: "pg-plise", name: "Plise Sineklik Sistemi", accessories: [{ id: "acc-profil", name: "Alüminyum Profil", unit: "Metre (m)", cost: 45 }, { id: "acc-plise-tul", name: "Plise Tül", unit: "m²", cost: 35 }, { id: "acc-polen-tul", name: "Polen Tülü (Fark)", unit: "m²", cost: 400 }, { id: "acc-serit-miknatis", name: "Şerit Mıknatıs", unit: "Metre (m)", cost: 60 }, { id: "acc-takoz", name: "Köşe Takozu", unit: "Adet", cost: 5 }, { id: "acc-ip", name: "Plise İp", unit: "Metre (m)", cost: 2 }] },
+                { id: "pg-mentese", name: "Menteşeli Sineklik Sistemi", accessories: [{ id: "acc-mentese-prof", name: "Menteşeli Profil", unit: "Metre (m)", cost: 35 }, { id: "acc-duz-tul", name: "Düz Tül", unit: "m²", cost: 25 }, { id: "acc-kedi-tul", name: "Kedi Tülü (Fark)", unit: "m²", cost: 260 }, { id: "acc-mentese", name: "Menteşe Seti", unit: "Set", cost: 15 }, { id: "acc-citcit", name: "Çıt Çıt Kilit", unit: "Adet", cost: 8 }] }
             ]
         };
 
+        // Hatırlatıcılar appData içine eklendi
         let appData = { 
             settings: JSON.parse(JSON.stringify(DEFAULT_SETTINGS)), 
-            cart: [], 
-            archive: [], 
-            expenses: [], 
-            manualLedgers: [], 
-            topluLedgers: [], 
-            customerCards: [],
-            masterCustomers: [], 
-            kasaHareketleri: [], 
-            bankAccounts: [], 
-            bankTransactions: [], 
-            recycleBin: [], 
-            auditLogs: [], 
-            whatsappTemplates: {} 
+            cart: [], archive: [], expenses: [], manualLedgers: [], topluLedgers: [], customerCards: [],
+            masterCustomers: [], kasaHareketleri: [], bankAccounts: [], bankTransactions: [], reminders: [], whatsappTemplates: {} 
         };
 
         let currentRowId = 0; 
@@ -829,30 +803,16 @@
             return `${y}-${m}-${d}`;
         }
 
-        function escapeHTML(str) { 
-            return String(str || '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m])); 
-        }
+        function escapeHTML(str) { return String(str || '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m])); }
 
         function recoverFromLocalStorage() {
             let loaded = false;
             const primary = localStorage.getItem(STORAGE_KEY);
-            if (primary) {
-                try {
-                    const parsed = JSON.parse(primary);
-                    mergeLoadedData(parsed);
-                    loaded = true;
-                } catch(e) {}
-            }
+            if (primary) { try { mergeLoadedData(JSON.parse(primary)); loaded = true; } catch(e) {} }
             if (!loaded) {
                 for (let k of LEGACY_STORAGE_KEYS) {
                     const leg = localStorage.getItem(k);
-                    if (leg) {
-                        try {
-                            const parsed = JSON.parse(leg);
-                            mergeLoadedData(parsed);
-                            break;
-                        } catch(e) {}
-                    }
+                    if (leg) { try { mergeLoadedData(JSON.parse(leg)); break; } catch(e) {} }
                 }
             }
         }
@@ -860,46 +820,21 @@
         function mergeLoadedData(cloud) {
             if (!cloud) return;
             let target = cloud;
-            if (typeof target === 'string') {
-                try { target = JSON.parse(target); } catch(e) { return; }
-            }
-            if (target.data) {
-                let inner = target.data;
-                if (typeof inner === 'string') {
-                    try { inner = JSON.parse(inner); } catch(e) {}
-                }
-                target = inner;
-            }
+            if (typeof target === 'string') { try { target = JSON.parse(target); } catch(e) { return; } }
+            if (target.data) { let inner = target.data; if (typeof inner === 'string') { try { inner = JSON.parse(inner); } catch(e) {} } target = inner; }
 
             if (target.settings && typeof target.settings === 'object') {
                 appData.settings.montajPrice = target.settings.montajPrice !== undefined ? target.settings.montajPrice : DEFAULT_SETTINGS.montajPrice;
                 appData.settings.perakendePrice = target.settings.perakendePrice !== undefined ? target.settings.perakendePrice : DEFAULT_SETTINGS.perakendePrice;
                 appData.settings.kdvRate = target.settings.kdvRate !== undefined ? target.settings.kdvRate : DEFAULT_SETTINGS.kdvRate;
                 appData.settings.minM2 = target.settings.minM2 !== undefined ? target.settings.minM2 : DEFAULT_SETTINGS.minM2;
-                
-                // Ürün grupları ve reçetelerin boş kalmaması için sıkı güvence
-                if (Array.isArray(target.settings.productGroups) && target.settings.productGroups.length > 0) {
-                    appData.settings.productGroups = target.settings.productGroups;
-                } else if (!appData.settings.productGroups || appData.settings.productGroups.length === 0) {
-                    appData.settings.productGroups = JSON.parse(JSON.stringify(DEFAULT_SETTINGS.productGroups));
-                }
+                if (Array.isArray(target.settings.productGroups) && target.settings.productGroups.length > 0) { appData.settings.productGroups = target.settings.productGroups; } else if (!appData.settings.productGroups || appData.settings.productGroups.length === 0) { appData.settings.productGroups = JSON.parse(JSON.stringify(DEFAULT_SETTINGS.productGroups)); }
+                if (target.settings.appPin) localStorage.setItem(PIN_STORAGE_KEY, target.settings.appPin);
+            } else if (!appData.settings.productGroups || appData.settings.productGroups.length === 0) { appData.settings.productGroups = JSON.parse(JSON.stringify(DEFAULT_SETTINGS.productGroups)); }
 
-                if (target.settings.appPin) {
-                    localStorage.setItem(PIN_STORAGE_KEY, target.settings.appPin);
-                }
-            } else if (!appData.settings.productGroups || appData.settings.productGroups.length === 0) {
-                appData.settings.productGroups = JSON.parse(JSON.stringify(DEFAULT_SETTINGS.productGroups));
-            }
-
-            const arrayKeys = ['cart', 'archive', 'expenses', 'manualLedgers', 'topluLedgers', 'customerCards', 'masterCustomers', 'kasaHareketleri', 'bankAccounts', 'bankTransactions', 'recycleBin', 'auditLogs'];
-            arrayKeys.forEach(key => {
-                if (Array.isArray(target[key]) && target[key].length > 0) {
-                    appData[key] = target[key];
-                }
-            });
-            if (target.whatsappTemplates && typeof target.whatsappTemplates === 'object') {
-                appData.whatsappTemplates = { ...appData.whatsappTemplates, ...target.whatsappTemplates };
-            }
+            const arrayKeys = ['cart', 'archive', 'expenses', 'manualLedgers', 'topluLedgers', 'customerCards', 'masterCustomers', 'kasaHareketleri', 'bankAccounts', 'bankTransactions', 'reminders'];
+            arrayKeys.forEach(key => { if (Array.isArray(target[key]) && target[key].length > 0) appData[key] = target[key]; });
+            if (target.whatsappTemplates && typeof target.whatsappTemplates === 'object') appData.whatsappTemplates = { ...appData.whatsappTemplates, ...target.whatsappTemplates };
         }
 
         async function startApp() {
@@ -926,13 +861,7 @@
             const tbody = document.getElementById('autoBackupTableBody'); 
             tbody.innerHTML = ''; 
             const backups = JSON.parse(localStorage.getItem(AUTO_BACKUP_KEY)) || []; 
-            if (backups.length === 0) { 
-                tbody.innerHTML = `<tr><td colspan="3" class="text-center py-6 text-slate-400">Yedek bulunmuyor.</td></tr>`; 
-            } else { 
-                backups.forEach((b, idx) => { 
-                    tbody.innerHTML += `<tr class="border-b hover:bg-slate-50 transition"><td class="p-3 font-bold text-slate-700">${b.timestamp} ${idx === 0 ? '<span class="ml-1 text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded font-black">En Güncel</span>' : ''}</td><td class="p-3 text-center text-slate-500 font-medium">${b.summary}</td><td class="p-3 text-right"><button onclick="restoreAutoBackup(${idx})" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded text-[11px] font-bold shadow transition">Geri Dön</button></td></tr>`; 
-                }); 
-            } 
+            if (backups.length === 0) { tbody.innerHTML = `<tr><td colspan="3" class="text-center py-6 text-slate-400">Yedek bulunmuyor.</td></tr>`; } else { backups.forEach((b, idx) => { tbody.innerHTML += `<tr class="border-b hover:bg-slate-50 transition"><td class="p-3 font-bold text-slate-700">${b.timestamp} ${idx === 0 ? '<span class="ml-1 text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded font-black">En Güncel</span>' : ''}</td><td class="p-3 text-center text-slate-500 font-medium">${b.summary}</td><td class="p-3 text-right"><button onclick="restoreAutoBackup(${idx})" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded text-[11px] font-bold shadow transition">Geri Dön</button></td></tr>`; }); } 
             document.getElementById('autoBackupModal').classList.remove('hidden'); 
         }
 
@@ -944,7 +873,6 @@
             if (confirm(`Uyarı: Sistemi ${backups[index].timestamp} yedeğine döndürmek istiyor musunuz?`)) { 
                 appData = JSON.parse(backups[index].dataStr); 
                 localStorage.setItem(STORAGE_KEY, backups[index].dataStr); 
-                logAuditEvent("Sistem Geri Yüklendi", `Zaman Makinesi: ${backups[index].timestamp}`); 
                 closeAutoBackupModal(); 
                 migrateLegacyToMasterLedger();
                 refreshAllViews(); 
@@ -958,66 +886,33 @@
                 createAutoBackup(); 
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(appData)); 
                 refreshAllViews(); 
-                fetch(SHEETS_WEB_APP_URL, { 
-                    method: 'POST', mode: 'no-cors', 
-                    headers: { "Content-Type": "text/plain;charset=utf-8" }, 
-                    body: JSON.stringify({ apiKey: SECRET_API_KEY, data: appData }) 
-                }); 
+                fetch(SHEETS_WEB_APP_URL, { method: 'POST', mode: 'no-cors', headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify({ apiKey: SECRET_API_KEY, data: appData }) }); 
             } catch(e) {} 
         }
 
         async function manualCloudSync(isInitial = false) { 
-            const syncText = document.getElementById('syncText'); 
-            const syncIcon = document.getElementById('syncIcon'); 
-            if(syncText && isInitial) syncText.innerText = "Canlı Veriler Çekiliyor..."; 
-            if(syncIcon) syncIcon.style.display = "inline-block"; 
+            const syncText = document.getElementById('syncText'); const syncIcon = document.getElementById('syncIcon'); 
+            if(syncText && isInitial) syncText.innerText = "Canlı Veriler Çekiliyor..."; if(syncIcon) syncIcon.style.display = "inline-block"; 
             try { 
                 const response = await fetch(SHEETS_WEB_APP_URL + "?t=" + new Date().getTime(), { cache: "no-store" }); 
                 if(response.ok) { 
                     const rawCloud = await response.json(); 
-                    if(rawCloud) {
-                        mergeLoadedData(rawCloud);
-                        localStorage.setItem(STORAGE_KEY, JSON.stringify(appData)); 
-                        createAutoBackup(); 
-                        migrateLegacyToMasterLedger();
-                        refreshAllViews(); 
-                    } 
+                    if(rawCloud) { mergeLoadedData(rawCloud); localStorage.setItem(STORAGE_KEY, JSON.stringify(appData)); createAutoBackup(); migrateLegacyToMasterLedger(); refreshAllViews(); } 
                 } 
-            } catch(e) { 
-                recoverFromLocalStorage();
-                migrateLegacyToMasterLedger();
-                refreshAllViews(); 
-            } finally { 
-                if(syncText) syncText.innerText = "Bulut Senkronizasyon"; 
-                if(syncIcon) syncIcon.style.display = "none"; 
-            } 
+            } catch(e) { recoverFromLocalStorage(); migrateLegacyToMasterLedger(); refreshAllViews(); } finally { if(syncText) syncText.innerText = "Bulut Senkronizasyon"; if(syncIcon) syncIcon.style.display = "none"; } 
         }
 
         function refreshAllViews() {
-            renderCart(); 
-            renderArchive(); 
-            renderMasterLedgerTable();
-            renderFinance(); 
-            renderBankAccounts(); 
-            renderBankTransactions(); 
-            renderRecycleBin(); 
-            renderAuditLogs(); 
-            renderProductRecipes();
+            renderCart(); renderArchive(); renderMasterLedgerTable(); renderFinance(); renderBankAccounts(); renderBankTransactions(); renderProductRecipes(); renderReminders();
             
-            // Parametre alanlarının canlı değerlerle eksiksiz doldurulması
             if (appData.settings) {
                 const s = appData.settings;
-                const mPrice = document.getElementById('settingMontajPrice');
-                const pPrice = document.getElementById('settingPerakendePrice');
-                const kRate = document.getElementById('settingKdvRate');
-                const minM2 = document.getElementById('settingMinM2');
-                
+                const mPrice = document.getElementById('settingMontajPrice'); const pPrice = document.getElementById('settingPerakendePrice'); const kRate = document.getElementById('settingKdvRate'); const minM2 = document.getElementById('settingMinM2');
                 if (mPrice) mPrice.value = s.montajPrice !== undefined ? s.montajPrice : DEFAULT_SETTINGS.montajPrice;
                 if (pPrice) pPrice.value = s.perakendePrice !== undefined ? s.perakendePrice : DEFAULT_SETTINGS.perakendePrice;
                 if (kRate) kRate.value = s.kdvRate !== undefined ? s.kdvRate : DEFAULT_SETTINGS.kdvRate;
                 if (minM2) minM2.value = s.minM2 !== undefined ? s.minM2 : DEFAULT_SETTINGS.minM2;
             }
-
             if(document.getElementById('wa_msg_alinan') && appData.whatsappTemplates) { 
                 document.getElementById('wa_msg_alinan').value = appData.whatsappTemplates.alinan || "Sayın {MUSTERI}, Fix House sineklik siparişiniz alınmıştır."; 
                 document.getElementById('wa_msg_uretim').value = appData.whatsappTemplates.uretim || "Sayın {MUSTERI}, siparişiniz üretime alınmıştır."; 
@@ -1026,22 +921,14 @@
             }
         }
 
-        function updateClock() { 
-            const now = new Date(); 
-            const clockEl = document.getElementById('clock'); 
-            if(clockEl) clockEl.innerText = `${now.toLocaleDateString('tr-TR')} | ${now.toLocaleTimeString('tr-TR')}`; 
-        }
+        function updateClock() { const now = new Date(); const clockEl = document.getElementById('clock'); if(clockEl) clockEl.innerText = `${now.toLocaleDateString('tr-TR')} | ${now.toLocaleTimeString('tr-TR')}`; }
 
         function switchTab(tabName) { 
             document.querySelectorAll('section[id^="sec-"]').forEach(sec => sec.classList.add('hidden')); 
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active')); 
-            const targetSec = document.getElementById(`sec-${tabName}`); 
-            const targetTab = document.getElementById(`tab-${tabName}`); 
-            if (targetSec && targetTab) { 
-                targetSec.classList.remove('hidden'); 
-                targetTab.classList.add('active'); 
-            } 
-            if(['cart','archive','ledger','finance','recycle','settings'].includes(tabName)) refreshAllViews(); 
+            const targetSec = document.getElementById(`sec-${tabName}`); const targetTab = document.getElementById(`tab-${tabName}`); 
+            if (targetSec && targetTab) { targetSec.classList.remove('hidden'); targetTab.classList.add('active'); } 
+            if(['cart','archive','ledger','finance','settings', 'reminders'].includes(tabName)) refreshAllViews(); 
         }
 
         function switchFinanceSubTab(sub) { 
@@ -1051,77 +938,70 @@
             document.getElementById('subtab-fin-banks').className = sub === 'banks' ? 'py-2 px-5 border-b-2 border-petrol-700 font-extrabold text-xs text-petrol-900 bg-white rounded-t-lg shadow-[0_-2px_4px_rgba(0,0,0,0.02)]' : 'py-2 px-5 border-b-2 border-transparent font-bold text-xs text-slate-500 hover:text-slate-800 hover:bg-slate-50 rounded-t-lg transition'; 
         }
 
-        function switchRecycleSubTab(sub) { 
-            document.getElementById('recycle-sub-deleted').classList.toggle('hidden', sub !== 'deleted'); 
-            document.getElementById('recycle-sub-audit').classList.toggle('hidden', sub !== 'audit'); 
-            document.getElementById('subtab-recycle-deleted').className = sub === 'deleted' ? 'py-2 px-5 border-b-2 border-petrol-700 font-extrabold text-xs text-petrol-900 bg-white rounded-t-lg shadow-[0_-2px_4px_rgba(0,0,0,0.02)]' : 'py-2 px-5 border-b-2 border-transparent font-bold text-xs text-slate-500 hover:text-slate-800 hover:bg-slate-50 rounded-t-lg transition'; 
-            document.getElementById('subtab-recycle-audit').className = sub === 'audit' ? 'py-2 px-5 border-b-2 border-petrol-700 font-extrabold text-xs text-petrol-900 bg-white rounded-t-lg shadow-[0_-2px_4px_rgba(0,0,0,0.02)]' : 'py-2 px-5 border-b-2 border-transparent font-bold text-xs text-slate-500 hover:text-slate-800 hover:bg-slate-50 rounded-t-lg transition'; 
-        }
-
-        function logAuditEvent(category, details) { 
-            if (!appData.auditLogs) appData.auditLogs = []; 
-            appData.auditLogs.unshift({ timestamp: new Date().toLocaleString('tr-TR'), category: escapeHTML(category), details: escapeHTML(details) }); 
-            saveLocalData(); 
-        }
-
-        function renderAuditLogs() { 
-            const tbody = document.getElementById('auditLogsTableBody'); 
-            if(!tbody) return; 
-            tbody.innerHTML = appData.auditLogs?.length ? appData.auditLogs.map(l => `<tr class="border-b hover:bg-slate-50"><td class="p-3 text-slate-500">${l.timestamp}</td><td class="p-3 font-bold text-petrol-800">${l.category}</td><td class="p-3 font-medium">${l.details}</td></tr>`).join('') : `<tr><td colspan="3" class="text-center py-6 text-slate-400">Denetim kaydı yok.</td></tr>`; 
-        }
-
-        function clearAuditLogs() { 
-            if(confirm("Tüm logları temizlemek istiyor musunuz?")) { 
-                appData.auditLogs = []; 
-                saveLocalData(); 
-                renderAuditLogs(); 
-            } 
-        }
-
-        function logRecycleItem(type, desc, amount = 0) { 
-            if(!appData.recycleBin) appData.recycleBin = []; 
-            appData.recycleBin.unshift({ id: 'REC-' + Date.now(), date: new Date().toLocaleString('tr-TR'), type: type, desc: desc, amount: amount }); 
-            saveLocalData(); 
-        }
-
-        function renderRecycleBin() { 
-            const tbody = document.getElementById('recycleTableBody'); 
-            if(!tbody) return; 
-            document.getElementById('recycleBadge').innerText = (appData.recycleBin || []).length; 
-            tbody.innerHTML = appData.recycleBin?.length ? appData.recycleBin.map((r, i) => `<tr class="border-b hover:bg-red-50/30"><td class="p-3 text-slate-500">${r.date}</td><td class="p-3 font-extrabold text-red-500">${r.type}</td><td class="p-3 font-medium text-slate-700">${r.desc}</td><td class="p-3 text-right font-black">${(r.amount||0).toFixed(2)} ₺</td><td class="p-3 text-center"><button onclick="deleteSingleRecycleItem(${i})" class="text-red-500 hover:bg-red-100 p-2 rounded transition" title="Kalıcı Sil"><i class="fa-solid fa-trash"></i></button></td></tr>`).join('') : `<tr><td colspan="5" class="text-center py-6 text-slate-400">Çöp kovası tamamen boş.</td></tr>`; 
-        }
-
-        async function deleteSingleRecycleItem(idx) { 
-            if(confirm("Kalıcı olarak silinecek, onaylıyor musunuz?")) { 
-                appData.recycleBin.splice(idx,1); 
-                await saveLocalData(); 
-                renderRecycleBin(); 
-            } 
-        }
-
-        async function emptyRecycleBin() { 
-            if(confirm("Tamamen boşaltılacak, geri alınamaz. Emin misiniz?")) { 
-                appData.recycleBin = []; 
-                await saveLocalData(); 
-                renderRecycleBin(); 
-            } 
-        }
-
-        function sendWhatsAppMessage(orderId, newStatus) { 
-            const ord = appData.archive.find(o => o.id === orderId) || appData.cart.find(o => o.id === orderId); 
-            if(!ord) return; 
-            ord.status = newStatus; 
-            saveLocalData(); 
-            let tKey = newStatus==='Üretimde'?'uretim':newStatus==='Montaja Hazır'?'montaj':newStatus==='Tamamlandı'?'bitti':'alinan'; 
-            let msg = (appData.whatsappTemplates?.[tKey] || "Sipariş durumu: " + newStatus).replace(/\{MUSTERI\}/g, ord.customerName).replace(/\{SIPARIS_ID\}/g, ord.id); 
-            let phone = (ord.customerPhone || '').replace(/\D/g, ''); 
-            if(phone.startsWith('0')) phone = '9' + phone; 
-            if(phone.length === 10) phone = '90' + phone; 
-            window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank'); 
+        function switchLedgerSubTab(tab) {
+            currentLedgerTab = tab;
+            document.getElementById('subtab-ledger-aktif').className = tab === 'aktif' ? 'py-2.5 px-6 border-b-2 border-petrol-700 font-extrabold text-xs text-petrol-900 bg-white rounded-t-lg shadow-sm' : 'py-2.5 px-6 border-b-2 border-transparent font-bold text-xs text-slate-500 hover:text-slate-800 hover:bg-slate-50 rounded-t-lg transition';
+            document.getElementById('subtab-ledger-arsiv').className = tab === 'arsiv' ? 'py-2.5 px-6 border-b-2 border-petrol-700 font-extrabold text-xs text-petrol-900 bg-white rounded-t-lg shadow-sm' : 'py-2.5 px-6 border-b-2 border-transparent font-bold text-xs text-slate-500 hover:text-slate-800 hover:bg-slate-50 rounded-t-lg transition';
+            renderMasterLedgerTable();
         }
 
         // ==========================================
-        // SİPARİŞ & ÖLÇÜ MOTORU (DİKEY PLİSE VE MENTEŞELİ KAPI KORUNMUŞTUR)
+        // YENİ MODÜL: ÖDEME HATIRLATICI BLOK NOTLAR
+        // ==========================================
+        async function addReminderItem(e) {
+            e.preventDefault();
+            const title = document.getElementById('remTitle').value;
+            const date = document.getElementById('remDate').value;
+            const amount = parseFloat(document.getElementById('remAmount').value) || 0;
+            if(!appData.reminders) appData.reminders = [];
+            appData.reminders.push({ id: 'REM-'+Date.now(), title, date, amount, isPaid: false });
+            e.target.reset();
+            await saveLocalData();
+        }
+
+        function renderReminders() {
+            const cnt = document.getElementById('remindersContainer');
+            if(!cnt) return;
+            if(!appData.reminders || appData.reminders.length === 0) {
+                cnt.innerHTML = '<div class="col-span-4 text-slate-400 text-sm py-4 text-center font-bold">Kayıtlı not/hatırlatıcı bulunmuyor.</div>';
+                return;
+            }
+            appData.reminders.sort((a,b) => new Date(a.date) - new Date(b.date));
+            cnt.innerHTML = appData.reminders.map((r, i) => `
+                <div class="p-4 rounded-xl shadow border ${r.isPaid ? 'bg-slate-100 border-slate-200 opacity-60' : 'bg-[#fff3cd] border-[#ffecb5] border-l-4 border-l-[#ffc107]'} relative transition-all">
+                    <h4 class="font-black text-slate-800 text-sm ${r.isPaid ? 'line-through text-slate-500' : ''}">${escapeHTML(r.title)}</h4>
+                    <div class="text-xs text-slate-600 mt-2"><i class="fa-regular fa-calendar text-amber-600"></i> Son Ödeme: <b>${r.date}</b></div>
+                    ${r.amount > 0 ? `<div class="text-base font-black ${r.isPaid ? 'text-slate-500' : 'text-red-600'} mt-2">${r.amount.toFixed(2)} ₺</div>` : ''}
+                    <div class="mt-4 flex gap-2">
+                        <button onclick="toggleReminder(${i})" class="flex-1 text-[11px] font-bold py-2 rounded-lg text-white ${r.isPaid ? 'bg-slate-400 hover:bg-slate-500' : 'bg-emerald-500 hover:bg-emerald-600'} transition shadow-sm">
+                            ${r.isPaid ? 'Geri Al' : '<i class="fa-solid fa-check"></i> Ödendi'}
+                        </button>
+                        <button onclick="deleteReminder(${i})" class="bg-white text-red-500 hover:bg-red-50 px-3 py-2 rounded-lg border border-red-100 transition shadow-sm" title="Sil"><i class="fa-solid fa-trash"></i></button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function toggleReminder(i) {
+            let r = appData.reminders[i];
+            r.isPaid = !r.isPaid;
+            if(r.isPaid && r.amount > 0) {
+                if(confirm("Bu ödemeyi Şirket Giderlerine (Kasadan Düşülecek) aktarmak ister misiniz?")) {
+                    if(!appData.expenses) appData.expenses = [];
+                    appData.expenses.push({ date: new Date().toLocaleString(), desc: r.title, category: 'Genel', amount: r.amount });
+                }
+            }
+            await saveLocalData();
+        }
+
+        async function deleteReminder(i) {
+            appData.reminders.splice(i, 1);
+            await saveLocalData();
+        }
+
+
+        // ==========================================
+        // SİPARİŞ & ÖLÇÜ MOTORU 
         // ==========================================
         function addMeasureRow(initialData = null) {
             currentRowId++;
@@ -1163,12 +1043,9 @@
             resequenceRows();
             if(initialData) {
                 div.querySelector('.inp-qty').value = initialData.qty||1; 
-                div.querySelector('.product-type').value = initialData.pType; 
-                stepSelect(currentRowId,1);
-                div.querySelector('.measure-type').value = initialData.mType; 
-                stepSelect(currentRowId,2);
-                div.querySelector('.color-type').value = initialData.color; 
-                stepSelect(currentRowId,3);
+                div.querySelector('.product-type').value = initialData.pType; stepSelect(currentRowId,1);
+                div.querySelector('.measure-type').value = initialData.mType; stepSelect(currentRowId,2);
+                div.querySelector('.color-type').value = initialData.color; stepSelect(currentRowId,3);
                 if(initialData.dir && div.querySelector('.opt-dir')) div.querySelector('.opt-dir').value = initialData.dir;
                 if(initialData.menteseliTip && div.querySelector('.opt-menteseli-tip')) div.querySelector('.opt-menteseli-tip').value = initialData.menteseliTip;
                 if(initialData.tulType && div.querySelector('.opt-tul')) div.querySelector('.opt-tul').value = initialData.tulType;
@@ -1186,11 +1063,9 @@
             let opts = '<option value="">-- Aksesuar Seç --</option>';
             appData.settings.productGroups?.forEach(pg => pg.accessories.forEach(a => opts += `<option value="${a.id}" data-cost="${a.cost}">${pg.name} > ${a.name} (${a.cost} ₺)</option>`));
             const c = document.getElementById(`rowAccessoriesContainer-${rowId}`);
-            const div = document.createElement('div'); 
-            div.className = "flex gap-2 custom-acc-item text-[12px] bg-white p-2 rounded-lg border border-slate-200 shadow-sm";
+            const div = document.createElement('div'); div.className = "flex gap-2 custom-acc-item text-[12px] bg-white p-2 rounded-lg border border-slate-200 shadow-sm";
             div.innerHTML = `<select onchange="calculateRow(${rowId})" class="acc-select w-full border border-slate-300 rounded px-2 py-1.5 bg-slate-50 font-bold focus:bg-white focus:outline-none focus:ring-1 focus:ring-petrol-500">${opts}</select><input type="number" min="1" value="${preQty}" oninput="calculateRow(${rowId})" class="acc-qty w-16 border border-slate-300 rounded text-center px-2 py-1.5 font-bold focus:outline-none focus:ring-1 focus:ring-petrol-500" placeholder="Adet"><button type="button" onclick="this.parentElement.remove(); calculateRow(${rowId});" class="text-red-500 px-2 py-1.5 hover:bg-red-50 border border-transparent hover:border-red-200 rounded transition"><i class="fa-solid fa-xmark"></i></button>`;
-            c.appendChild(div); 
-            if(preAccId) div.querySelector('.acc-select').value = preAccId;
+            c.appendChild(div); if(preAccId) div.querySelector('.acc-select').value = preAccId;
         }
 
         function stepSelect(id, step) {
@@ -1213,107 +1088,56 @@
 
         function calculateRow(id) {
             const c = document.getElementById(`row-${id}`); if(!c) return;
-            const qty = parseInt(c.querySelector('.inp-qty').value)||1; 
-            const pT = c.querySelector('.product-type').value; 
-            const mT = c.querySelector('.measure-type').value;
-            const en = parseFloat(c.querySelector('.inp-en').value)||0; 
-            const boy = parseFloat(c.querySelector('.inp-boy').value)||0;
+            const qty = parseInt(c.querySelector('.inp-qty').value)||1; const pT = c.querySelector('.product-type').value; const mT = c.querySelector('.measure-type').value;
+            const en = parseFloat(c.querySelector('.inp-en').value)||0; const boy = parseFloat(c.querySelector('.inp-boy').value)||0;
             if(!mT||!pT||en<=0||boy<=0) { c.querySelector('.out-tac').innerText="-"; c.querySelector('.out-price').innerText="0.00 ₺"; calculateGrandTotal(); return; }
 
-            const dir = c.querySelector('.opt-dir')?.value; 
-            const isDikey = (pT==='plise' && dir==='dikey');
+            const dir = c.querySelector('.opt-dir')?.value; const isDikey = (pT==='plise' && dir==='dikey');
             let tac="-", dikme="-", kanat="-", tul="-", ip="-", mul=0;
 
             if(pT==='plise') {
                 mul = ((!isDikey?((en*2)+(boy*3)):((en*3)+(boy*2)))/100)*qty;
-
-                // Dikey plisede tül boy ekseninde çalışır, kat hesabı BOY üzerinden yapılır
                 const katSayisi = isDikey ? Math.floor((boy / 2.5) - 2) : Math.floor((en / 2.5) - 2);
 
                 if(mT==='ic') { 
-                    if(isDikey) {
-                        tac = en.toFixed(1);
-                        dikme = (boy + 4).toFixed(1);
-                        kanat = (en - 0.5).toFixed(1);
-                        tul = (en + 3.5).toFixed(1);
-                    } else {
-                        tac = en.toFixed(1);
-                        dikme = (boy + 4).toFixed(1);
-                        kanat = (boy - 0.5).toFixed(1);
-                        tul = (boy + 3.5).toFixed(1);
-                    }
+                    if(isDikey) { tac = en.toFixed(1); dikme = (boy + 4).toFixed(1); kanat = (en - 0.5).toFixed(1); tul = (en + 3.5).toFixed(1); } 
+                    else { tac = en.toFixed(1); dikme = (boy + 4).toFixed(1); kanat = (boy - 0.5).toFixed(1); tul = (boy + 3.5).toFixed(1); }
                     ip = `${(en + boy + 26).toFixed(0)}cm / ${katSayisi}k`; 
                 } else { 
-                    if(isDikey) {
-                        tac = (en - 8).toFixed(1);
-                        dikme = (boy - 4).toFixed(1);
-                        kanat = (en - 8.5).toFixed(1);
-                        tul = (en - 4.5).toFixed(1);
-                    } else {
-                        tac = (en - 8).toFixed(1);
-                        dikme = (boy - 4).toFixed(1);
-                        kanat = (boy - 8.5).toFixed(1);
-                        tul = (boy - 4.5).toFixed(1);
-                    }
+                    if(isDikey) { tac = (en - 8).toFixed(1); dikme = (boy - 4).toFixed(1); kanat = (en - 8.5).toFixed(1); tul = (en - 4.5).toFixed(1); } 
+                    else { tac = (en - 8).toFixed(1); dikme = (boy - 4).toFixed(1); kanat = (boy - 8.5).toFixed(1); tul = (boy - 4.5).toFixed(1); }
                     ip = `${(en + boy + 10).toFixed(0)}cm / ${katSayisi}k`; 
                 }
             } else {
-                // Menteşeli Kapı seçildiğinde en+en+en+en+boy+boy formülü
                 let isKapi = c.querySelector('.opt-menteseli-tip')?.value==='kapi';
                 mul = ((isKapi ? ((en*4) + (boy*2)) : ((en*2) + (boy*2))) / 100) * qty;
 
-                if(mT==='dis') { 
-                    tac=(en-5).toFixed(1); 
-                    dikme=(boy-5).toFixed(1); 
-                    kanat=(boy-9).toFixed(1); 
-                    ip="Sabit"; 
-                    tul=(boy-5).toFixed(1); 
-                } else { 
-                    tac=en.toFixed(1); 
-                    dikme=boy.toFixed(1); 
-                    kanat=(boy-4).toFixed(1); 
-                    ip="Sabit"; 
-                    tul=boy.toFixed(1); 
-                }
+                if(mT==='dis') { tac=(en-5).toFixed(1); dikme=(boy-5).toFixed(1); kanat=(boy-9).toFixed(1); ip="Sabit"; tul=(boy-5).toFixed(1); } 
+                else { tac=en.toFixed(1); dikme=boy.toFixed(1); kanat=(boy-4).toFixed(1); ip="Sabit"; tul=boy.toFixed(1); }
             }
-            c.querySelector('.out-tac').innerText=tac; 
-            c.querySelector('.out-dikme').innerText=dikme; 
-            c.querySelector('.out-kanat').innerText=kanat; 
-            c.querySelector('.out-tul').innerText=tul; 
-            c.querySelector('.out-ip').innerText=ip; 
-            c.querySelector('.out-m2').innerText=mul.toFixed(2);
+            c.querySelector('.out-tac').innerText=tac; c.querySelector('.out-dikme').innerText=dikme; c.querySelector('.out-kanat').innerText=kanat; c.querySelector('.out-tul').innerText=tul; c.querySelector('.out-ip').innerText=ip; c.querySelector('.out-m2').innerText=mul.toFixed(2);
 
             let tariff = document.getElementById('salesTariff').value;
             if(!tariff) { c.querySelector('.out-price').innerText="Tarife Seç!"; calculateGrandTotal(); return; }
-            let uP = tariff==='montajli'?appData.settings.montajPrice:appData.settings.perakendePrice;
-            let p = mul * uP;
+            let uP = tariff==='montajli'?appData.settings.montajPrice:appData.settings.perakendePrice; let p = mul * uP;
 
             if(pT==='plise' && c.querySelector('.opt-tul')?.value==='polen') p += Math.max(((en*boy)/10000)*qty, appData.settings.minM2) * getRecipeCost('pg-plise','acc-polen-tul');
             if(pT==='menteseli' && c.querySelector('.opt-tul')?.value==='kedi') p += Math.max(((en*boy)/10000)*qty, appData.settings.minM2) * getRecipeCost('pg-mentese','acc-kedi-tul');
             if(pT==='plise' && c.querySelector('.opt-magnet')?.value==='var') p += (((isDikey?((en*3)+(boy*2)):((en*2)+(boy*3)))/100)*getRecipeCost('pg-plise','acc-serit-miknatis'))*qty;
             if(c.querySelector('.opt-case')?.value==='kasali') p *= 2;
 
-            c.querySelectorAll('.custom-acc-item').forEach(itm => {
-                const s = itm.querySelector('.acc-select'); 
-                const qI = itm.querySelector('.acc-qty');
-                if(s && s.value) { p += (parseFloat(s.selectedOptions[0].getAttribute('data-cost'))||0) * (parseFloat(qI.value)||1) * qty; }
-            });
-            c.querySelector('.out-price').innerText=p.toFixed(2)+' ₺'; 
-            calculateGrandTotal();
+            c.querySelectorAll('.custom-acc-item').forEach(itm => { const s = itm.querySelector('.acc-select'); const qI = itm.querySelector('.acc-qty'); if(s && s.value) { p += (parseFloat(s.selectedOptions[0].getAttribute('data-cost'))||0) * (parseFloat(qI.value)||1) * qty; } });
+            c.querySelector('.out-price').innerText=p.toFixed(2)+' ₺'; calculateGrandTotal();
         }
 
         function calculateAllRows() { document.querySelectorAll('#measureRowsContainer > div').forEach(c => calculateRow(c.id.split('-')[1])); }
         function calculateGrandTotal() {
             if(!document.getElementById('salesTariff').value) return;
             let t=0, raw=0;
-            document.querySelectorAll('#measureRowsContainer > div').forEach(c => { 
-                t += parseFloat(c.querySelector('.out-price').innerText)||0; 
-                raw += (parseFloat(c.querySelector('.out-m2').innerText)||0)*80; 
-            });
+            document.querySelectorAll('#measureRowsContainer > div').forEach(c => { t += parseFloat(c.querySelector('.out-price').innerText)||0; raw += (parseFloat(c.querySelector('.out-m2').innerText)||0)*80; });
             t += parseFloat(document.getElementById('extraLabor').value)||0;
             if(document.getElementById('kdvStatus').value==='dahil') t *= (1+(appData.settings.kdvRate/100));
-            document.getElementById('grandTotalDisplay').innerText=t.toFixed(2)+' ₺'; 
-            document.getElementById('estimatedCostDisplay').innerText=`Maliyet Formülü: ${raw.toFixed(2)} ₺`;
+            document.getElementById('grandTotalDisplay').innerText=t.toFixed(2)+' ₺'; document.getElementById('estimatedCostDisplay').innerText=`Maliyet Formülü: ${raw.toFixed(2)} ₺`;
         }
 
         function getOrderData() {
@@ -1321,62 +1145,17 @@
             document.querySelectorAll('#measureRowsContainer > div').forEach((c,i)=>{
                 let en=parseFloat(c.querySelector('.inp-en').value);
                 if(en>0) {
-                    let accs=[]; 
-                    c.querySelectorAll('.custom-acc-item').forEach(it=>{ 
-                        let s=it.querySelector('.acc-select'); 
-                        if(s.value) accs.push({accId:s.value,qty:parseInt(it.querySelector('.acc-qty').value)||1}); 
-                    });
-                    items.push({ 
-                        seq:i+1, 
-                        qty:parseInt(c.querySelector('.inp-qty').value)||1, 
-                        pType:c.querySelector('.product-type').value, 
-                        mType:c.querySelector('.measure-type').value, 
-                        color:c.querySelector('.color-type').value, 
-                        dir:c.querySelector('.opt-dir')?.value||'', 
-                        menteseliTip:c.querySelector('.opt-menteseli-tip')?.value||'', 
-                        tulType:c.querySelector('.opt-tul')?.value||'', 
-                        caseType:c.querySelector('.opt-case')?.value||'', 
-                        magnetType:c.querySelector('.opt-magnet')?.value||'', 
-                        en:en, 
-                        boy:parseFloat(c.querySelector('.inp-boy').value), 
-                        note:escapeHTML(c.querySelector('.inp-note').value||''), 
-                        tac:c.querySelector('.out-tac').innerText, 
-                        dikme:c.querySelector('.out-dikme').innerText, 
-                        kanat:c.querySelector('.out-kanat').innerText, 
-                        tul:c.querySelector('.out-tul').innerText, 
-                        ip:c.querySelector('.out-ip').innerText, 
-                        kat:'-', 
-                        m2:c.querySelector('.out-m2').innerText, 
-                        price:c.querySelector('.out-price').innerText, 
-                        customAccessories:accs 
-                    });
+                    let accs=[]; c.querySelectorAll('.custom-acc-item').forEach(it=>{ let s=it.querySelector('.acc-select'); if(s.value) accs.push({accId:s.value,qty:parseInt(it.querySelector('.acc-qty').value)||1}); });
+                    items.push({ seq:i+1, qty:parseInt(c.querySelector('.inp-qty').value)||1, pType:c.querySelector('.product-type').value, mType:c.querySelector('.measure-type').value, color:c.querySelector('.color-type').value, dir:c.querySelector('.opt-dir')?.value||'', menteseliTip:c.querySelector('.opt-menteseli-tip')?.value||'', tulType:c.querySelector('.opt-tul')?.value||'', caseType:c.querySelector('.opt-case')?.value||'', magnetType:c.querySelector('.opt-magnet')?.value||'', en:en, boy:parseFloat(c.querySelector('.inp-boy').value), note:escapeHTML(c.querySelector('.inp-note').value||''), tac:c.querySelector('.out-tac').innerText, dikme:c.querySelector('.out-dikme').innerText, kanat:c.querySelector('.out-kanat').innerText, tul:c.querySelector('.out-tul').innerText, ip:c.querySelector('.out-ip').innerText, kat:'-', m2:c.querySelector('.out-m2').innerText, price:c.querySelector('.out-price').innerText, customAccessories:accs });
                 }
             });
-            return { 
-                id:'ORD-'+Date.now().toString().slice(-6), 
-                date:new Date().toLocaleDateString('tr-TR'), 
-                customerName:escapeHTML(document.getElementById('custName').value), 
-                customerPhone:escapeHTML(document.getElementById('custPhone').value), 
-                customerAddress:escapeHTML(document.getElementById('custAddress').value), 
-                tariff:document.getElementById('salesTariff').value, 
-                extraLabor:parseFloat(document.getElementById('extraLabor').value)||0, 
-                kdvStatus:document.getElementById('kdvStatus').value, 
-                totalAmount:parseFloat(document.getElementById('grandTotalDisplay').innerText)||0, 
-                status:'Sipariş Alındı', 
-                paidAmount:0, 
-                items:items 
-            };
+            return { id:'ORD-'+Date.now().toString().slice(-6), date:new Date().toLocaleDateString('tr-TR'), customerName:escapeHTML(document.getElementById('custName').value), customerPhone:escapeHTML(document.getElementById('custPhone').value), customerAddress:escapeHTML(document.getElementById('custAddress').value), tariff:document.getElementById('salesTariff').value, extraLabor:parseFloat(document.getElementById('extraLabor').value)||0, kdvStatus:document.getElementById('kdvStatus').value, totalAmount:parseFloat(document.getElementById('grandTotalDisplay').innerText)||0, status:'Sipariş Alındı', paidAmount:0, items:items };
         }
 
         async function addToCart() {
             if(!document.getElementById('custName').value || !document.getElementById('salesTariff').value) return alert("Eksik bilgi, lütfen zorunlu alanları doldurun!");
-            let ord = getOrderData(); 
-            if(ord.items.length===0) return alert("En az 1 adet tam ölçü satırı giriniz!");
-            appData.cart.push(ord); 
-            await saveLocalData(); 
-            logAuditEvent("Sipariş Sepete Eklendi", ord.customerName); 
-            alert("Sipariş onaya gönderildi (Sepet)."); 
-            switchTab('cart');
+            let ord = getOrderData(); if(ord.items.length===0) return alert("En az 1 adet tam ölçü satırı giriniz!");
+            appData.cart.push(ord); await saveLocalData(); alert("Sipariş onaya gönderildi (Sepet)."); switchTab('cart');
         }
 
         function renderCart() {
@@ -1387,36 +1166,13 @@
         }
 
         function editCartOrder(idx) { 
-            let o=appData.cart[idx]; 
-            document.getElementById('custName').value=o.customerName; 
-            document.getElementById('custPhone').value=o.customerPhone; 
-            document.getElementById('custAddress').value=o.customerAddress; 
-            document.getElementById('salesTariff').value=o.tariff; 
-            document.getElementById('extraLabor').value=o.extraLabor; 
-            document.getElementById('kdvStatus').value=o.kdvStatus; 
-            document.getElementById('measureRowsContainer').innerHTML=''; 
-            currentRowId=0; 
-            if(o.items.length) o.items.forEach(i=>addMeasureRow(i)); else addMeasureRow(); 
-            appData.cart.splice(idx,1); 
-            saveLocalData(); 
-            switchTab('order'); 
+            let o=appData.cart[idx]; document.getElementById('custName').value=o.customerName; document.getElementById('custPhone').value=o.customerPhone; document.getElementById('custAddress').value=o.customerAddress; document.getElementById('salesTariff').value=o.tariff; document.getElementById('extraLabor').value=o.extraLabor; document.getElementById('kdvStatus').value=o.kdvStatus; document.getElementById('measureRowsContainer').innerHTML=''; currentRowId=0; if(o.items.length) o.items.forEach(i=>addMeasureRow(i)); else addMeasureRow(); appData.cart.splice(idx,1); saveLocalData(); switchTab('order'); 
         }
 
-        async function deleteCartOrder(idx) { 
-            let o=appData.cart[idx]; 
-            logRecycleItem("Sepet Siparişi Silindi", o.customerName, o.totalAmount); 
-            appData.cart.splice(idx,1); 
-            await saveLocalData(); 
-        }
+        async function deleteCartOrder(idx) { appData.cart.splice(idx,1); await saveLocalData(); }
 
         async function checkoutCartOrder(idx) { 
-            let o=appData.cart[idx]; 
-            appData.archive.push(o); 
-            appData.cart.splice(idx,1); 
-            migrateLegacyToMasterLedger();
-            await saveLocalData(); 
-            sendWhatsAppMessage(o.id,'Sipariş Alındı'); 
-            printDirectA4('order',o); 
+            let o=appData.cart[idx]; appData.archive.push(o); appData.cart.splice(idx,1); migrateLegacyToMasterLedger(); await saveLocalData(); sendWhatsAppMessage(o.id,'Sipariş Alındı'); printDirectA4('order',o); 
         }
 
         function renderArchive() {
@@ -1425,70 +1181,16 @@
             tb.innerHTML = appData.archive.filter(o=>o.customerName.toLowerCase().includes(q)||o.customerPhone.includes(q)).map((o,i)=>`<tr class="hover:bg-slate-50 transition border-b"><td class="p-3 font-bold text-slate-800">${o.id}</td><td class="p-3 text-slate-500 font-medium">${o.date}</td><td class="p-3 font-extrabold text-petrol-900">${escapeHTML(o.customerName)}</td><td class="p-3 text-slate-500 font-medium">${escapeHTML(o.customerPhone)}</td><td class="p-3 text-center font-bold text-slate-600">${o.items.length} Kalem</td><td class="p-3 text-right font-black text-petrol-700">${o.totalAmount.toFixed(2)} ₺</td><td class="p-3 text-center"><select onchange="sendWhatsAppMessage('${o.id}',this.value)" class="text-[11px] border border-slate-300 rounded-md p-1.5 font-bold bg-white text-petrol-800 outline-none w-full shadow-sm focus:ring-1 focus:ring-petrol-500"><option value="Sipariş Alındı" ${o.status==='Sipariş Alındı'?'selected':''}>Sipariş Alındı</option><option value="Üretimde" ${o.status==='Üretimde'?'selected':''}>Üretimde</option><option value="Montaja Hazır" ${o.status==='Montaja Hazır'?'selected':''}>Montaja Hazır</option><option value="Tamamlandı" ${o.status==='Tamamlandı'?'selected':''}>Tamamlandı</option></select></td><td class="p-3 text-center"><span class="px-2 py-1 rounded text-[10px] font-bold ${(o.paidAmount||0)>=o.totalAmount?'bg-emerald-100 text-emerald-700 border border-emerald-200':'bg-red-50 text-red-600 border border-red-100'}">${(o.paidAmount||0)>=o.totalAmount?'Ödendi':'Kalan: '+(o.totalAmount-(o.paidAmount||0)).toFixed(2)}</span></td><td class="p-3 text-center space-x-1.5 whitespace-nowrap"><button onclick="editArchiveOrder(${i})" class="text-amber-500 hover:bg-amber-100 border border-transparent hover:border-amber-200 p-2 rounded transition" title="Düzenle"><i class="fa-solid fa-pen"></i></button><button onclick="openOrderDetailModal('${o.id}')" class="text-petrol-600 hover:bg-petrol-100 border border-transparent hover:border-petrol-200 p-2 rounded transition" title="Ölçü Detayı"><i class="fa-solid fa-magnifying-glass"></i></button><button onclick="deleteArchiveOrderById('${o.id}')" class="text-red-500 hover:bg-red-100 border border-transparent hover:border-red-200 p-2 rounded transition" title="Sil"><i class="fa-solid fa-trash"></i></button></td></tr>`).join('');
         }
 
-        function editArchiveOrder(i) { 
-            let o=appData.archive[i]; 
-            document.getElementById('custName').value=o.customerName; 
-            document.getElementById('custPhone').value=o.customerPhone; 
-            document.getElementById('custAddress').value=o.customerAddress; 
-            document.getElementById('salesTariff').value=o.tariff; 
-            document.getElementById('extraLabor').value=o.extraLabor; 
-            document.getElementById('kdvStatus').value=o.kdvStatus; 
-            document.getElementById('measureRowsContainer').innerHTML=''; 
-            currentRowId=0; 
-            if(o.items.length) o.items.forEach(it=>addMeasureRow(it)); else addMeasureRow(); 
-            appData.archive.splice(i,1); 
-            saveLocalData(); 
-            switchTab('order'); 
-        }
-
-        async function deleteArchiveOrderById(id) { 
-            let idx=appData.archive.findIndex(o=>o.id===id); 
-            if(idx>-1) { 
-                let o=appData.archive[idx]; 
-                logRecycleItem("Arşivden Silindi", o.customerName, o.totalAmount); 
-                appData.archive.splice(idx,1); 
-                await saveLocalData(); 
-            } 
-        }
+        function editArchiveOrder(i) { let o=appData.archive[i]; document.getElementById('custName').value=o.customerName; document.getElementById('custPhone').value=o.customerPhone; document.getElementById('custAddress').value=o.customerAddress; document.getElementById('salesTariff').value=o.tariff; document.getElementById('extraLabor').value=o.extraLabor; document.getElementById('kdvStatus').value=o.kdvStatus; document.getElementById('measureRowsContainer').innerHTML=''; currentRowId=0; if(o.items.length) o.items.forEach(it=>addMeasureRow(it)); else addMeasureRow(); appData.archive.splice(i,1); saveLocalData(); switchTab('order'); }
+        async function deleteArchiveOrderById(id) { let idx=appData.archive.findIndex(o=>o.id===id); if(idx>-1) { appData.archive.splice(idx,1); await saveLocalData(); } }
 
         function openOrderDetailModal(id) {
-            let o = appData.archive.find(x=>x.id===id) || appData.cart.find(x=>x.id===id);
-            if(!o) return;
-            currentDetailOrder = o;
+            let o = appData.archive.find(x=>x.id===id) || appData.cart.find(x=>x.id===id); if(!o) return; currentDetailOrder = o;
             document.getElementById('modalOrderTitle').innerHTML = `<i class="fa-solid fa-magnifying-glass text-petrol-600"></i> Sipariş: #${o.id} - ${escapeHTML(o.customerName)}`;
-            let rowsHtml = o.items.map(i => `
-                <tr class="border-b">
-                    <td class="p-2 text-center font-bold">${i.seq}</td>
-                    <td class="p-2 text-center font-bold">${i.qty||1}</td>
-                    <td class="p-2 text-center">${i.mType==='ic'?'İç':'Dış'}</td>
-                    <td class="p-2 font-bold">${i.pType.toUpperCase()}</td>
-                    <td class="p-2">${i.color}</td>
-                    <td class="p-2 text-center"><b>${i.en}</b> x <b>${i.boy}</b></td>
-                    <td class="p-2 font-mono text-center">T:${i.tac} D:${i.dikme}</td>
-                    <td class="p-2 font-mono text-center">K:${i.kanat} Tül:${i.tul}</td>
-                    <td class="p-2 text-right font-black text-petrol-800">${i.price}</td>
-                </tr>
-            `).join('');
-
-            document.getElementById('modalOrderContent').innerHTML = `
-                <div class="bg-slate-50 p-3 rounded-lg border border-slate-200 text-xs mb-3 flex justify-between items-center">
-                    <div><b>Tarih:</b> ${o.date} | <b>Tel:</b> ${escapeHTML(o.customerPhone)}</div>
-                    <div><b>Genel Tutar:</b> <span class="text-sm font-black text-emerald-700">${o.totalAmount.toFixed(2)} ₺</span></div>
-                </div>
-                <div class="overflow-x-auto border border-slate-200 rounded-lg">
-                    <table class="w-full text-left text-xs">
-                        <thead class="bg-slate-100 font-bold text-slate-600">
-                            <tr><th class="p-2 text-center">#</th><th class="p-2 text-center">Adet</th><th class="p-2 text-center">Ölçü</th><th class="p-2">Tip</th><th class="p-2">Renk</th><th class="p-2 text-center">Net (EN x BOY)</th><th class="p-2 text-center">Taç / Dikme</th><th class="p-2 text-center">Kanat / Tül</th><th class="p-2 text-right">Tutar</th></tr>
-                        </thead>
-                        <tbody class="divide-y divide-slate-100 bg-white">${rowsHtml}</tbody>
-                    </table>
-                </div>
-            `;
-            document.getElementById('modalPrintA4Btn').onclick = () => printDirectA4('order', o);
-            document.getElementById('modalPrintZebraBtn').onclick = () => printZebraLabels('order', o);
-            document.getElementById('orderDetailModal').classList.remove('hidden');
+            let rowsHtml = o.items.map(i => `<tr class="border-b"><td class="p-2 text-center font-bold">${i.seq}</td><td class="p-2 text-center font-bold">${i.qty||1}</td><td class="p-2 text-center">${i.mType==='ic'?'İç':'Dış'}</td><td class="p-2 font-bold">${i.pType.toUpperCase()}</td><td class="p-2">${i.color}</td><td class="p-2 text-center"><b>${i.en}</b> x <b>${i.boy}</b></td><td class="p-2 font-mono text-center">T:${i.tac} D:${i.dikme}</td><td class="p-2 font-mono text-center">K:${i.kanat} Tül:${i.tul}</td><td class="p-2 text-right font-black text-petrol-800">${i.price}</td></tr>`).join('');
+            document.getElementById('modalOrderContent').innerHTML = `<div class="bg-slate-50 p-3 rounded-lg border border-slate-200 text-xs mb-3 flex justify-between items-center"><div><b>Tarih:</b> ${o.date} | <b>Tel:</b> ${escapeHTML(o.customerPhone)}</div><div><b>Genel Tutar:</b> <span class="text-sm font-black text-emerald-700">${o.totalAmount.toFixed(2)} ₺</span></div></div><div class="overflow-x-auto border border-slate-200 rounded-lg"><table class="w-full text-left text-xs"><thead class="bg-slate-100 font-bold text-slate-600"><tr><th class="p-2 text-center">#</th><th class="p-2 text-center">Adet</th><th class="p-2 text-center">Ölçü</th><th class="p-2">Tip</th><th class="p-2">Renk</th><th class="p-2 text-center">Net (EN x BOY)</th><th class="p-2 text-center">Taç / Dikme</th><th class="p-2 text-center">Kanat / Tül</th><th class="p-2 text-right">Tutar</th></tr></thead><tbody class="divide-y divide-slate-100 bg-white">${rowsHtml}</tbody></table></div>`;
+            document.getElementById('modalPrintA4Btn').onclick = () => printDirectA4('order', o); document.getElementById('modalPrintZebraBtn').onclick = () => printZebraLabels('order', o); document.getElementById('orderDetailModal').classList.remove('hidden');
         }
-
         function closeOrderDetailModal() { document.getElementById('orderDetailModal').classList.add('hidden'); }
 
         // ==========================================
@@ -1496,832 +1198,255 @@
         // ==========================================
         function migrateLegacyToMasterLedger() {
             if (!appData.masterCustomers) appData.masterCustomers = [];
-
             const findOrCreateMasterCustomer = (name, phone, address = '', defaultType = 'Bireysel') => {
                 const cleanPhone = (phone || '').replace(/\D/g, '');
-                let found = appData.masterCustomers.find(c => 
-                    (cleanPhone && c.cleanPhone && c.cleanPhone === cleanPhone) || 
-                    (c.name.trim().toLowerCase() === (name || '').trim().toLowerCase())
-                );
-                if (!found) {
-                    found = {
-                        id: 'MCUST-' + Math.random().toString(36).substr(2, 9),
-                        code: 'CR-' + (appData.masterCustomers.length + 1).toString().padStart(4, '0'),
-                        name: (name || 'İsimsiz Cari').trim(),
-                        type: defaultType,
-                        phone1: phone || '',
-                        cleanPhone: cleanPhone,
-                        phone2: '',
-                        city: 'Elazığ',
-                        address: address || '',
-                        mapUrl: '',
-                        taxOffice: '',
-                        taxNo: '',
-                        paymentTerms: 'Pesin',
-                        notes: 'Sistem tarafından aktarıldı.',
-                        transactions: [],
-                        installments: []
-                    };
-                    appData.masterCustomers.push(found);
-                }
+                let found = appData.masterCustomers.find(c => (cleanPhone && c.cleanPhone && c.cleanPhone === cleanPhone) || (c.name.trim().toLowerCase() === (name || '').trim().toLowerCase()));
+                if (!found) { found = { id: 'MCUST-' + Math.random().toString(36).substr(2, 9), code: 'CR-' + (appData.masterCustomers.length + 1).toString().padStart(4, '0'), name: (name || 'İsimsiz Cari').trim(), type: defaultType, phone1: phone || '', cleanPhone: cleanPhone, phone2: '', city: 'Elazığ', address: address || '', mapUrl: '', taxOffice: '', taxNo: '', paymentTerms: 'Pesin', notes: 'Sistem tarafından aktarıldı.', transactions: [], installments: [] }; appData.masterCustomers.push(found); }
                 return found;
             };
 
-            // 1. Canlıdaki Müşteri Kartları (customerCards)
-            (appData.customerCards || []).forEach(cc => {
-                const cust = findOrCreateMasterCustomer(cc.name, cc.phone, cc.address, 'Bireysel');
-                if (cc.installments && cc.installments.length > 0 && (!cust.installments || cust.installments.length === 0)) {
-                    cust.installments = cc.installments;
-                }
-            });
-
-            // 2. Manuel Cariler (manualLedgers)
+            (appData.customerCards || []).forEach(cc => { const cust = findOrCreateMasterCustomer(cc.name, cc.phone, cc.address, 'Bireysel'); if (cc.installments && cc.installments.length > 0 && (!cust.installments || cust.installments.length === 0)) cust.installments = cc.installments; });
             (appData.manualLedgers || []).forEach(m => {
-                const cust = findOrCreateMasterCustomer(m.name, m.phone, '', 'Bireysel');
-                const hasTx = cust.transactions.some(t => t.refId === m.id);
-                if (!hasTx) {
-                    cust.transactions.push({
-                        id: 'TX-MAN-' + m.id,
-                        refId: m.id,
-                        date: new Date().toLocaleDateString('tr-TR'),
-                        type: 'Manuel Borçlandırma',
-                        desc: m.desc || 'Geçmiş Cari Kaydı',
-                        debit: parseFloat(m.debt) || 0,
-                        credit: 0,
-                        orderRef: null
-                    });
-                    if ((m.paid || 0) > 0) {
-                        cust.transactions.push({
-                            id: 'TX-MAN-PAID-' + m.id,
-                            refId: m.id,
-                            date: new Date().toLocaleDateString('tr-TR'),
-                            type: 'Tahsilat (Nakit)',
-                            desc: 'Geçmiş Manuel Tahsilat',
-                            debit: 0,
-                            credit: parseFloat(m.paid) || 0,
-                            orderRef: null
-                        });
-                    }
-                }
+                const cust = findOrCreateMasterCustomer(m.name, m.phone, '', 'Bireysel'); const hasTx = cust.transactions.some(t => t.refId === m.id);
+                if (!hasTx) { cust.transactions.push({ id: 'TX-MAN-' + m.id, refId: m.id, date: new Date().toLocaleDateString('tr-TR'), type: 'Manuel Borçlandırma', desc: m.desc || 'Geçmiş Cari Kaydı', debit: parseFloat(m.debt) || 0, credit: 0, orderRef: null }); if ((m.paid || 0) > 0) cust.transactions.push({ id: 'TX-MAN-PAID-' + m.id, refId: m.id, date: new Date().toLocaleDateString('tr-TR'), type: 'Tahsilat (Nakit)', desc: 'Geçmiş Manuel Tahsilat', debit: 0, credit: parseFloat(m.paid) || 0, orderRef: null }); }
             });
-
-            // 3. Sipariş Arşivi (archive)
             (appData.archive || []).forEach(ord => {
-                const cust = findOrCreateMasterCustomer(ord.customerName, ord.customerPhone, ord.customerAddress, 'Bireysel');
-                const hasTx = cust.transactions.some(t => t.refId === ord.id);
-                if (!hasTx) {
-                    cust.transactions.push({
-                        id: 'TX-ORD-' + ord.id,
-                        refId: ord.id,
-                        date: ord.date || new Date().toLocaleDateString('tr-TR'),
-                        type: 'Sipariş Faturası',
-                        desc: `Sipariş #${ord.id} (${(ord.items || []).length} Kalem)`,
-                        debit: parseFloat(ord.totalAmount) || 0,
-                        credit: 0,
-                        orderRef: ord.id
-                    });
-                    if ((ord.paidAmount || 0) > 0) {
-                        cust.transactions.push({
-                            id: 'TX-ORD-PAID-' + ord.id,
-                            refId: ord.id,
-                            date: ord.date || new Date().toLocaleDateString('tr-TR'),
-                            type: 'Tahsilat (Nakit)',
-                            desc: `Sipariş #${ord.id} Tahsilatı`,
-                            debit: 0,
-                            credit: parseFloat(ord.paidAmount) || 0,
-                            orderRef: ord.id
-                        });
-                    }
-                }
+                const cust = findOrCreateMasterCustomer(ord.customerName, ord.customerPhone, ord.customerAddress, 'Bireysel'); const hasTx = cust.transactions.some(t => t.refId === ord.id);
+                if (!hasTx) { cust.transactions.push({ id: 'TX-ORD-' + ord.id, refId: ord.id, date: ord.date || new Date().toLocaleDateString('tr-TR'), type: 'Sipariş Faturası', desc: `Sipariş #${ord.id} (${(ord.items || []).length} Kalem)`, debit: parseFloat(ord.totalAmount) || 0, credit: 0, orderRef: ord.id }); if ((ord.paidAmount || 0) > 0) cust.transactions.push({ id: 'TX-ORD-PAID-' + ord.id, refId: ord.id, date: ord.date || new Date().toLocaleDateString('tr-TR'), type: 'Tahsilat (Nakit)', desc: `Sipariş #${ord.id} Tahsilatı`, debit: 0, credit: parseFloat(ord.paidAmount) || 0, orderRef: ord.id }); }
             });
-
-            // 4. Projeler (topluLedgers)
             (appData.topluLedgers || []).forEach(tp => {
-                const cust = findOrCreateMasterCustomer(tp.customerName, tp.customerPhone, '', 'Santiye');
-                const hasTx = cust.transactions.some(t => t.refId === tp.id);
-                if (!hasTx) {
-                    cust.transactions.push({
-                        id: 'TX-PRJ-' + tp.id,
-                        refId: tp.id,
-                        date: tp.date || new Date().toLocaleDateString('tr-TR'),
-                        type: 'Proje Taahhüdü',
-                        desc: `Proje Taahhüdü #${tp.id}`,
-                        debit: parseFloat(tp.totalAmount) || 0,
-                        credit: 0,
-                        orderRef: tp.id
-                    });
-                    if ((tp.paidAmount || 0) > 0) {
-                        cust.transactions.push({
-                            id: 'TX-PRJ-PAID-' + tp.id,
-                            refId: tp.id,
-                            date: tp.date || new Date().toLocaleDateString('tr-TR'),
-                            type: 'Tahsilat (Banka/Havale)',
-                            desc: `Proje Tahsilatı #${tp.id}`,
-                            debit: 0,
-                            credit: parseFloat(tp.paidAmount) || 0,
-                            orderRef: tp.id
-                        });
-                    }
-                }
+                const cust = findOrCreateMasterCustomer(tp.customerName, tp.customerPhone, '', 'Santiye'); const hasTx = cust.transactions.some(t => t.refId === tp.id);
+                if (!hasTx) { cust.transactions.push({ id: 'TX-PRJ-' + tp.id, refId: tp.id, date: tp.date || new Date().toLocaleDateString('tr-TR'), type: 'Proje Taahhüdü', desc: `Proje Taahhüdü #${tp.id}`, debit: parseFloat(tp.totalAmount) || 0, credit: 0, orderRef: tp.id }); if ((tp.paidAmount || 0) > 0) cust.transactions.push({ id: 'TX-PRJ-PAID-' + tp.id, refId: tp.id, date: tp.date || new Date().toLocaleDateString('tr-TR'), type: 'Tahsilat (Banka/Havale)', desc: `Proje Tahsilatı #${tp.id}`, debit: 0, credit: parseFloat(tp.paidAmount) || 0, orderRef: tp.id }); }
             });
         }
 
-        function getCustomerTotals(c) {
-            let debit = 0, credit = 0;
-            (c.transactions || []).forEach(t => {
-                debit += parseFloat(t.debit) || 0;
-                credit += parseFloat(t.credit) || 0;
-            });
-            return { debit, credit, balance: debit - credit };
-        }
-
-        function checkCustomerOverdue(c) {
-            const todayStr = getTodayISO();
-            let overdueCount = 0, dueTodayCount = 0;
-            (c.installments || []).forEach(ins => {
-                if (!ins.isPaid) {
-                    if (ins.dueDate < todayStr) overdueCount++;
-                    else if (ins.dueDate === todayStr) dueTodayCount++;
-                }
-            });
-            return { overdueCount, dueTodayCount };
-        }
+        function getCustomerTotals(c) { let debit = 0, credit = 0; (c.transactions || []).forEach(t => { debit += parseFloat(t.debit) || 0; credit += parseFloat(t.credit) || 0; }); return { debit, credit, balance: debit - credit }; }
+        function checkCustomerOverdue(c) { const todayStr = getTodayISO(); let overdueCount = 0, dueTodayCount = 0; (c.installments || []).forEach(ins => { if (!ins.isPaid) { if (ins.dueDate < todayStr) overdueCount++; else if (ins.dueDate === todayStr) dueTodayCount++; } }); return { overdueCount, dueTodayCount }; }
 
         function renderMasterLedgerTable() {
-            const tbody = document.getElementById('masterLedgerTableBody');
-            const tfoot = document.getElementById('masterLedgerTableFoot');
-            if (!tbody || !tfoot) return;
-
-            const q = (document.getElementById('masterLedgerSearch')?.value || '').toLowerCase();
-            const filterType = document.getElementById('masterLedgerTypeFilter')?.value || 'ALL';
-            const filterBalance = document.getElementById('masterLedgerBalanceFilter')?.value || 'ALL';
-
-            let totalDebit = 0, totalCredit = 0, totalBalance = 0;
-            let globalOverdueCount = 0;
+            const tbody = document.getElementById('masterLedgerTableBody'); const tfoot = document.getElementById('masterLedgerTableFoot'); if (!tbody || !tfoot) return;
+            const q = (document.getElementById('masterLedgerSearch')?.value || '').toLowerCase(); const filterType = document.getElementById('masterLedgerTypeFilter')?.value || 'ALL'; const filterBalance = document.getElementById('masterLedgerBalanceFilter')?.value || 'ALL';
+            let totalDebit = 0, totalCredit = 0, totalBalance = 0; let globalOverdueCount = 0;
 
             let filtered = (appData.masterCustomers || []).filter(c => {
-                const matchQ = c.name.toLowerCase().includes(q) || 
-                               (c.phone1 || '').includes(q) || 
-                               (c.city || '').toLowerCase().includes(q) ||
-                               (c.taxNo || '').includes(q);
+                const matchQ = c.name.toLowerCase().includes(q) || (c.phone1 || '').includes(q) || (c.city || '').toLowerCase().includes(q) || (c.taxNo || '').includes(q);
                 const matchType = filterType === 'ALL' || c.type === filterType;
-                const { balance } = getCustomerTotals(c);
-                const { overdueCount, dueTodayCount } = checkCustomerOverdue(c);
+                const { balance } = getCustomerTotals(c); const { overdueCount, dueTodayCount } = checkCustomerOverdue(c);
 
                 let matchBalance = true;
                 if (filterBalance === 'OVERDUE') matchBalance = (overdueCount > 0 || dueTodayCount > 0);
                 else if (filterBalance === 'DEBT') matchBalance = (balance > 0);
                 else if (filterBalance === 'ZERO') matchBalance = (balance <= 0);
 
-                return matchQ && matchType && matchBalance;
+                let matchStatus = false;
+                if (currentLedgerTab === 'aktif') matchStatus = (balance !== 0);
+                else matchStatus = (balance === 0);
+
+                return matchQ && matchType && matchBalance && matchStatus;
             });
 
             filtered.sort((a, b) => a.name.localeCompare(b.name, 'tr', { sensitivity: 'base' }));
 
             tbody.innerHTML = filtered.map(c => {
-                const { debit, credit, balance } = getCustomerTotals(c);
-                const { overdueCount, dueTodayCount } = checkCustomerOverdue(c);
-
-                totalDebit += debit;
-                totalCredit += credit;
-                totalBalance += balance;
-                globalOverdueCount += (overdueCount + dueTodayCount);
+                const { debit, credit, balance } = getCustomerTotals(c); const { overdueCount, dueTodayCount } = checkCustomerOverdue(c);
+                totalDebit += debit; totalCredit += credit; totalBalance += balance; globalOverdueCount += (overdueCount + dueTodayCount);
 
                 let installmentBadge = '<span class="text-slate-400 text-[10px]">Taksit Yok</span>';
-                if (c.installments && c.installments.length > 0) {
-                    const unpaid = c.installments.filter(i => !i.isPaid).length;
-                    if (overdueCount > 0) {
-                        installmentBadge = `<span class="bg-red-100 text-red-700 font-bold px-2 py-0.5 rounded text-[10px] border border-red-200 animate-pulse"><i class="fa-solid fa-triangle-exclamation mr-1"></i>${overdueCount} Taksit Gecikti!</span>`;
-                    } else if (dueTodayCount > 0) {
-                        installmentBadge = `<span class="bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded text-[10px] border border-amber-200">🔔 Bugün Vadesi Var</span>`;
-                    } else if (unpaid > 0) {
-                        installmentBadge = `<span class="bg-purple-100 text-purple-700 font-bold px-2 py-0.5 rounded text-[10px] border border-purple-200">${unpaid}/${c.installments.length} Taksit Açık</span>`;
-                    } else {
-                        installmentBadge = `<span class="bg-emerald-100 text-emerald-700 font-bold px-2 py-0.5 rounded text-[10px]">Ödendi</span>`;
-                    }
-                }
+                if (c.installments && c.installments.length > 0) { const unpaid = c.installments.filter(i => !i.isPaid).length; if (overdueCount > 0) installmentBadge = `<span class="bg-red-100 text-red-700 font-bold px-2 py-0.5 rounded text-[10px] border border-red-200 animate-pulse"><i class="fa-solid fa-triangle-exclamation mr-1"></i>${overdueCount} Taksit Gecikti!</span>`; else if (dueTodayCount > 0) installmentBadge = `<span class="bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded text-[10px] border border-amber-200">🔔 Bugün Vadesi Var</span>`; else if (unpaid > 0) installmentBadge = `<span class="bg-purple-100 text-purple-700 font-bold px-2 py-0.5 rounded text-[10px] border border-purple-200">${unpaid}/${c.installments.length} Taksit Açık</span>`; else installmentBadge = `<span class="bg-emerald-100 text-emerald-700 font-bold px-2 py-0.5 rounded text-[10px]">Ödendi</span>`; }
 
-                return `
-                    <tr class="hover:bg-slate-50 transition border-b border-slate-100">
-                        <td class="p-3 font-mono font-bold text-slate-500 text-[11px]">${c.code}</td>
-                        <td class="p-3">
-                            <div class="font-extrabold text-petrol-950 text-sm flex items-center gap-1.5">
-                                ${escapeHTML(c.name)}
-                                ${overdueCount > 0 ? '<i class="fa-solid fa-circle-exclamation text-red-500 text-xs" title="Gecikmiş Taksit"></i>' : ''}
-                            </div>
-                            <div class="text-[10px] text-slate-400 font-medium">${c.taxNo ? `VKN: ${c.taxNo} • ` : ''}${escapeHTML(c.notes || '')}</div>
-                        </td>
-                        <td class="p-3">
-                            <div class="font-bold text-slate-700">${escapeHTML(c.phone1 || '-')}</div>
-                            <div class="text-[10px] text-slate-500">${escapeHTML(c.city || 'Elazığ')}</div>
-                        </td>
-                        <td class="p-3">${installmentBadge}</td>
-                        <td class="p-3 text-right font-bold text-slate-800">${debit.toFixed(2)} ₺</td>
-                        <td class="p-3 text-right font-black text-emerald-600">${credit.toFixed(2)} ₺</td>
-                        <td class="p-3 text-right font-black ${balance > 0 ? 'text-red-600' : 'text-slate-700'}">${balance.toFixed(2)} ₺</td>
-                        <td class="p-3 text-center space-x-1 whitespace-nowrap">
-                            <button onclick="openMasterStatementModal('${c.id}')" class="bg-petrol-50 hover:bg-petrol-100 text-petrol-700 border border-petrol-200 p-2 rounded-lg transition" title="Hesap Ekstresi"><i class="fa-solid fa-receipt"></i></button>
-                            <button onclick="openMasterCustomerModal('${c.id}')" class="bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200 p-2 rounded-lg transition" title="Düzenle"><i class="fa-solid fa-pen-to-square"></i></button>
-                            <button onclick="quickPayMasterCustomer('${c.id}')" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 p-2 rounded-lg transition" title="Hızlı Tahsilat"><i class="fa-solid fa-hand-holding-dollar"></i></button>
-                            <button onclick="openWhatsAppMaster('${c.phone1}', '${escapeHTML(c.name)}', ${balance}, ${overdueCount})" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-600 border border-emerald-200 p-2 rounded-lg transition" title="WhatsApp Bakiye Bildir"><i class="fa-brands fa-whatsapp"></i></button>
-                            <button onclick="deleteMasterCustomer('${c.id}')" class="bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 p-2 rounded-lg transition" title="Cariyi Sil"><i class="fa-solid fa-trash"></i></button>
-                        </td>
-                    </tr>
-                `;
+                return `<tr class="hover:bg-slate-50 transition border-b border-slate-100"><td class="p-3 font-mono font-bold text-slate-500 text-[11px]">${c.code}</td><td class="p-3"><div class="font-extrabold text-petrol-950 text-sm flex items-center gap-1.5">${escapeHTML(c.name)}${overdueCount > 0 ? '<i class="fa-solid fa-circle-exclamation text-red-500 text-xs" title="Gecikmiş Taksit"></i>' : ''}</div><div class="text-[10px] text-slate-400 font-medium">${c.taxNo ? `VKN: ${c.taxNo} • ` : ''}${escapeHTML(c.notes || '')}</div></td><td class="p-3"><div class="font-bold text-slate-700">${escapeHTML(c.phone1 || '-')}</div><div class="text-[10px] text-slate-500">${escapeHTML(c.city || 'Elazığ')}</div></td><td class="p-3">${installmentBadge}</td><td class="p-3 text-right font-bold text-slate-800">${debit.toFixed(2)} ₺</td><td class="p-3 text-right font-black text-emerald-600">${credit.toFixed(2)} ₺</td><td class="p-3 text-right font-black ${balance > 0 ? 'text-red-600' : 'text-slate-700'}">${balance.toFixed(2)} ₺</td><td class="p-3 text-center space-x-1 whitespace-nowrap"><button onclick="openMasterStatementModal('${c.id}')" class="bg-petrol-50 hover:bg-petrol-100 text-petrol-700 border border-petrol-200 p-2 rounded-lg transition" title="Hesap Ekstresi"><i class="fa-solid fa-receipt"></i></button><button onclick="openMasterCustomerModal('${c.id}')" class="bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200 p-2 rounded-lg transition" title="Düzenle"><i class="fa-solid fa-pen-to-square"></i></button><button onclick="quickPayMasterCustomer('${c.id}')" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 p-2 rounded-lg transition" title="Hızlı Tahsilat"><i class="fa-solid fa-hand-holding-dollar"></i></button><button onclick="openWhatsAppMaster('${c.phone1}', '${escapeHTML(c.name)}', ${balance}, ${overdueCount})" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-600 border border-emerald-200 p-2 rounded-lg transition" title="WhatsApp Bakiye Bildir"><i class="fa-brands fa-whatsapp"></i></button><button onclick="deleteMasterCustomer('${c.id}')" class="bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 p-2 rounded-lg transition" title="Cariyi Sil"><i class="fa-solid fa-trash"></i></button></td></tr>`;
             }).join('');
 
-            tfoot.innerHTML = `
-                <tr>
-                    <td colspan="4" class="p-3 text-right tracking-widest text-petrol-300">GENEL TOPLAM :</td>
-                    <td class="p-3 text-right text-sm">${totalDebit.toFixed(2)} ₺</td>
-                    <td class="p-3 text-right text-emerald-400 text-sm">${totalCredit.toFixed(2)} ₺</td>
-                    <td class="p-3 text-right text-red-400 text-sm">${totalBalance.toFixed(2)} ₺</td>
-                    <td></td>
-                </tr>
-            `;
-
-            document.getElementById('kpiCustCount').innerText = appData.masterCustomers.length;
-            document.getElementById('kpiTotalDebt').innerText = totalDebit.toFixed(2) + ' ₺';
-            document.getElementById('kpiTotalPaid').innerText = totalCredit.toFixed(2) + ' ₺';
-            document.getElementById('kpiTotalBalance').innerText = totalBalance.toFixed(2) + ' ₺';
+            tfoot.innerHTML = `<tr><td colspan="4" class="p-3 text-right tracking-widest text-petrol-300">GENEL TOPLAM :</td><td class="p-3 text-right text-sm">${totalDebit.toFixed(2)} ₺</td><td class="p-3 text-right text-emerald-400 text-sm">${totalCredit.toFixed(2)} ₺</td><td class="p-3 text-right text-red-400 text-sm">${totalBalance.toFixed(2)} ₺</td><td></td></tr>`;
+            document.getElementById('kpiCustCount').innerText = appData.masterCustomers.length; document.getElementById('kpiTotalDebt').innerText = totalDebit.toFixed(2) + ' ₺'; document.getElementById('kpiTotalPaid').innerText = totalCredit.toFixed(2) + ' ₺'; document.getElementById('kpiTotalBalance').innerText = totalBalance.toFixed(2) + ' ₺';
 
             const banner = document.getElementById('ledgerOverdueBanner');
-            if (globalOverdueCount > 0) {
-                banner.classList.remove('hidden');
-                document.getElementById('ledgerOverdueBadge').innerText = `${globalOverdueCount} Taksit Vadesinde/Gecikti`;
-            } else {
-                banner.classList.add('hidden');
-            }
+            if (globalOverdueCount > 0) { banner.classList.remove('hidden'); document.getElementById('ledgerOverdueBadge').innerText = `${globalOverdueCount} Taksit Vadesinde/Gecikti`; } else banner.classList.add('hidden');
         }
 
         function openMasterCustomerModal(id = null) {
-            const form = document.getElementById('masterCustomerForm');
-            form.reset();
-            document.getElementById('masterCustId').value = '';
-            
+            const form = document.getElementById('masterCustomerForm'); form.reset(); document.getElementById('masterCustId').value = '';
             if (id) {
-                const c = appData.masterCustomers.find(x => x.id === id);
-                if (!c) return;
-                document.getElementById('masterCustomerModalTitle').innerHTML = '<i class="fa-solid fa-pen-to-square text-petrol-400"></i> Cari Kartını Düzenle';
-                document.getElementById('masterCustId').value = c.id;
-                document.getElementById('masterCustName').value = c.name;
-                document.getElementById('masterCustType').value = c.type;
-                document.getElementById('masterCustPhone1').value = c.phone1;
-                document.getElementById('masterCustPhone2').value = c.phone2 || '';
-                document.getElementById('masterCustCity').value = c.city || '';
-                document.getElementById('masterCustAddress').value = c.address || '';
-                document.getElementById('masterCustMapUrl').value = c.mapUrl || '';
-                document.getElementById('masterCustTaxOffice').value = c.taxOffice || '';
-                document.getElementById('masterCustTaxNo').value = c.taxNo || '';
-                document.getElementById('masterCustPaymentTerms').value = c.paymentTerms;
-                document.getElementById('masterCustNotes').value = c.notes || '';
-            } else {
-                document.getElementById('masterCustomerModalTitle').innerHTML = '<i class="fa-solid fa-user-plus text-petrol-400"></i> Yeni Cari Kartı Aç';
-            }
+                const c = appData.masterCustomers.find(x => x.id === id); if (!c) return;
+                document.getElementById('masterCustomerModalTitle').innerHTML = '<i class="fa-solid fa-pen-to-square text-petrol-400"></i> Cari Kartını Düzenle'; document.getElementById('masterCustId').value = c.id; document.getElementById('masterCustName').value = c.name; document.getElementById('masterCustType').value = c.type; document.getElementById('masterCustPhone1').value = c.phone1; document.getElementById('masterCustPhone2').value = c.phone2 || ''; document.getElementById('masterCustCity').value = c.city || ''; document.getElementById('masterCustAddress').value = c.address || ''; document.getElementById('masterCustMapUrl').value = c.mapUrl || ''; document.getElementById('masterCustTaxOffice').value = c.taxOffice || ''; document.getElementById('masterCustTaxNo').value = c.taxNo || ''; document.getElementById('masterCustPaymentTerms').value = c.paymentTerms; document.getElementById('masterCustNotes').value = c.notes || '';
+            } else { document.getElementById('masterCustomerModalTitle').innerHTML = '<i class="fa-solid fa-user-plus text-petrol-400"></i> Yeni Cari Kartı Aç'; }
             document.getElementById('masterCustomerModal').classList.remove('hidden');
         }
-
         function closeMasterCustomerModal() { document.getElementById('masterCustomerModal').classList.add('hidden'); }
 
         async function saveMasterCustomer(e) {
-            e.preventDefault();
-            const id = document.getElementById('masterCustId').value;
-            const payload = {
-                name: document.getElementById('masterCustName').value.trim(),
-                type: document.getElementById('masterCustType').value,
-                phone1: document.getElementById('masterCustPhone1').value.trim(),
-                cleanPhone: document.getElementById('masterCustPhone1').value.replace(/\D/g, ''),
-                phone2: document.getElementById('masterCustPhone2').value.trim(),
-                city: document.getElementById('masterCustCity').value.trim(),
-                address: document.getElementById('masterCustAddress').value.trim(),
-                mapUrl: document.getElementById('masterCustMapUrl').value.trim(),
-                taxOffice: document.getElementById('masterCustTaxOffice').value.trim(),
-                taxNo: document.getElementById('masterCustTaxNo').value.trim(),
-                paymentTerms: document.getElementById('masterCustPaymentTerms').value,
-                notes: document.getElementById('masterCustNotes').value.trim()
-            };
-
-            if (id) {
-                const c = appData.masterCustomers.find(x => x.id === id);
-                if (c) Object.assign(c, payload);
-            } else {
-                appData.masterCustomers.push({
-                    id: 'MCUST-' + Date.now(),
-                    code: 'CR-' + (appData.masterCustomers.length + 1).toString().padStart(4, '0'),
-                    ...payload,
-                    transactions: [],
-                    installments: []
-                });
-            }
-            closeMasterCustomerModal();
-            await saveLocalData();
+            e.preventDefault(); const id = document.getElementById('masterCustId').value;
+            const payload = { name: document.getElementById('masterCustName').value.trim(), type: document.getElementById('masterCustType').value, phone1: document.getElementById('masterCustPhone1').value.trim(), cleanPhone: document.getElementById('masterCustPhone1').value.replace(/\D/g, ''), phone2: document.getElementById('masterCustPhone2').value.trim(), city: document.getElementById('masterCustCity').value.trim(), address: document.getElementById('masterCustAddress').value.trim(), mapUrl: document.getElementById('masterCustMapUrl').value.trim(), taxOffice: document.getElementById('masterCustTaxOffice').value.trim(), taxNo: document.getElementById('masterCustTaxNo').value.trim(), paymentTerms: document.getElementById('masterCustPaymentTerms').value, notes: document.getElementById('masterCustNotes').value.trim() };
+            if (id) { const c = appData.masterCustomers.find(x => x.id === id); if (c) Object.assign(c, payload); } 
+            else { appData.masterCustomers.push({ id: 'MCUST-' + Date.now(), code: 'CR-' + (appData.masterCustomers.length + 1).toString().padStart(4, '0'), ...payload, transactions: [], installments: [] }); }
+            closeMasterCustomerModal(); await saveLocalData();
         }
 
-        async function deleteMasterCustomer(id) {
-            const idx = appData.masterCustomers.findIndex(x => x.id === id);
-            if (idx > -1) {
-                const c = appData.masterCustomers[idx];
-                if (confirm(`"${c.name}" adlı cariyi ve tüm geçmişini silmek istiyor musunuz?`)) {
-                    logRecycleItem("Cari Kart Silindi", c.name, getCustomerTotals(c).balance);
-                    appData.masterCustomers.splice(idx, 1);
-                    await saveLocalData();
-                }
-            }
-        }
+        async function deleteMasterCustomer(id) { const idx = appData.masterCustomers.findIndex(x => x.id === id); if (idx > -1) { const c = appData.masterCustomers[idx]; if (confirm(`"${c.name}" adlı cariyi ve tüm geçmişini silmek istiyor musunuz?`)) { appData.masterCustomers.splice(idx, 1); await saveLocalData(); } } }
 
         async function quickPayMasterCustomer(id) {
-            const c = appData.masterCustomers.find(x => x.id === id);
-            if (!c) return;
-            const { balance } = getCustomerTotals(c);
-            const amtStr = prompt(`"${c.name}" tahsilat tutarı (Bakiye: ${balance.toFixed(2)} ₺):`, balance > 0 ? balance : 0);
-            if (!amtStr) return;
-            const amt = parseFloat(amtStr);
-            if (isNaN(amt) || amt <= 0) return alert("Geçersiz tutar.");
-
-            c.transactions.push({
-                id: 'TX-PAY-' + Date.now(),
-                date: new Date().toLocaleDateString('tr-TR'),
-                type: 'Tahsilat (Nakit)',
-                desc: 'Hızlı Kasa Tahsilatı',
-                debit: 0,
-                credit: amt,
-                orderRef: null
-            });
-            if (!appData.kasaHareketleri) appData.kasaHareketleri = [];
-            appData.kasaHareketleri.push({ date: new Date().toLocaleString('tr-TR'), type: 'Cari Tahsilat', desc: `${c.name} tahsilatı`, amount: amt });
-
+            const c = appData.masterCustomers.find(x => x.id === id); if (!c) return;
+            const { balance } = getCustomerTotals(c); const amtStr = prompt(`"${c.name}" tahsilat tutarı (Bakiye: ${balance.toFixed(2)} ₺):`, balance > 0 ? balance : 0);
+            if (!amtStr) return; const amt = parseFloat(amtStr); if (isNaN(amt) || amt <= 0) return alert("Geçersiz tutar.");
+            c.transactions.push({ id: 'TX-PAY-' + Date.now(), date: new Date().toLocaleDateString('tr-TR'), type: 'Tahsilat (Nakit)', desc: 'Hızlı Kasa Tahsilatı', debit: 0, credit: amt, orderRef: null });
+            if (!appData.kasaHareketleri) appData.kasaHareketleri = []; appData.kasaHareketleri.push({ date: new Date().toLocaleString('tr-TR'), type: 'Cari Tahsilat', desc: `${c.name} tahsilatı`, amount: amt });
             await saveLocalData();
+            if (getCustomerTotals(c).balance === 0) switchLedgerSubTab('arsiv');
             if (confirm("Tahsilat işlendi. Makbuz yazdırmak ister misiniz?")) printSingleReceipt(c, amt, 'Nakit');
         }
 
         function openMasterStatementModal(id) {
-            currentStatementCustId = id;
-            const c = appData.masterCustomers.find(x => x.id === id);
-            if (!c) return;
-
-            document.getElementById('stmtCode').innerText = c.code;
-            document.getElementById('stmtName').innerText = c.name;
-            document.getElementById('stmtContact').innerText = `${c.phone1} • ${c.city || 'Elazığ'}`;
-            document.getElementById('txCustId').value = c.id;
-
-            renderStatementTable(c);
-            document.getElementById('masterStatementModal').classList.remove('hidden');
+            currentStatementCustId = id; const c = appData.masterCustomers.find(x => x.id === id); if (!c) return;
+            document.getElementById('stmtCode').innerText = c.code; document.getElementById('stmtName').innerText = c.name; document.getElementById('stmtContact').innerText = `${c.phone1} • ${c.city || 'Elazığ'}`; document.getElementById('txCustId').value = c.id;
+            renderStatementTable(c); document.getElementById('masterStatementModal').classList.remove('hidden');
         }
-
         function closeMasterStatementModal() { document.getElementById('masterStatementModal').classList.add('hidden'); }
 
         function renderStatementTable(c) {
             const { debit, credit, balance } = getCustomerTotals(c);
-            document.getElementById('stmtTotalDebit').innerText = debit.toFixed(2) + ' ₺';
-            document.getElementById('stmtTotalCredit').innerText = credit.toFixed(2) + ' ₺';
-            document.getElementById('stmtBalance').innerText = balance.toFixed(2) + ' ₺';
-
-            const instContainer = document.getElementById('installmentListContainer');
-            const instSummary = document.getElementById('installmentSummaryText');
-            const todayStr = getTodayISO();
+            document.getElementById('stmtTotalDebit').innerText = debit.toFixed(2) + ' ₺'; document.getElementById('stmtTotalCredit').innerText = credit.toFixed(2) + ' ₺'; document.getElementById('stmtBalance').innerText = balance.toFixed(2) + ' ₺';
+            const instContainer = document.getElementById('installmentListContainer'); const instSummary = document.getElementById('installmentSummaryText'); const todayStr = getTodayISO();
 
             if (c.installments && c.installments.length > 0) {
                 instSummary.innerText = `${c.installments.filter(i=>i.isPaid).length}/${c.installments.length} Ödendi`;
                 instContainer.innerHTML = c.installments.map((ins, idx) => {
-                    const isOverdue = !ins.isPaid && (ins.dueDate < todayStr);
-                    const isToday = !ins.isPaid && (ins.dueDate === todayStr);
-
-                    let statusBadge = ins.isPaid ? 
-                        '<span class="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded">Ödendi</span>' : 
-                        (isOverdue ? '<span class="bg-red-100 text-red-700 text-[10px] font-bold px-2 py-0.5 rounded">Gecikti</span>' : 
-                        (isToday ? '<span class="bg-amber-100 text-amber-800 text-[10px] font-bold px-2 py-0.5 rounded">Bugün</span>' : 
-                        '<span class="bg-slate-100 text-slate-700 text-[10px] font-bold px-2 py-0.5 rounded">Bekliyor</span>'));
-
-                    return `
-                        <div class="flex items-center justify-between p-2.5 rounded-lg border ${isOverdue ? 'bg-red-50/50 border-red-200' : 'bg-white border-slate-200'} text-xs">
-                            <div class="flex items-center gap-2">
-                                <b class="text-petrol-950">${ins.no}. Taksit:</b>
-                                <span class="font-black text-slate-800">${ins.amount.toFixed(2)} ₺</span>
-                                <span class="text-slate-400 text-[11px]">(Vade: ${ins.dueDate})</span>
-                                ${statusBadge}
-                            </div>
-                            <div class="space-x-1">
-                                ${!ins.isPaid ? `
-                                    <button onclick="payInstallmentItem('${c.id}', ${idx})" class="bg-emerald-600 hover:bg-emerald-700 text-white px-2 py-1 rounded text-[11px] font-bold shadow"><i class="fa-solid fa-check"></i> Tahsil Et</button>
-                                    <button onclick="sendInstallmentWaReminder('${c.id}', ${idx})" class="bg-green-600 hover:bg-green-700 text-white px-2 py-1 rounded text-[11px] font-bold shadow" title="Hatırlat"><i class="fa-brands fa-whatsapp"></i></button>
-                                ` : `<span class="text-emerald-600 text-[11px] font-bold">${ins.paidDate || 'Ödendi'}</span>`}
-                            </div>
-                        </div>
-                    `;
+                    const isOverdue = !ins.isPaid && (ins.dueDate < todayStr); const isToday = !ins.isPaid && (ins.dueDate === todayStr);
+                    let statusBadge = ins.isPaid ? '<span class="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded">Ödendi</span>' : (isOverdue ? '<span class="bg-red-100 text-red-700 text-[10px] font-bold px-2 py-0.5 rounded">Gecikti</span>' : (isToday ? '<span class="bg-amber-100 text-amber-800 text-[10px] font-bold px-2 py-0.5 rounded">Bugün</span>' : '<span class="bg-slate-100 text-slate-700 text-[10px] font-bold px-2 py-0.5 rounded">Bekliyor</span>'));
+                    return `<div class="flex items-center justify-between p-2.5 rounded-lg border ${isOverdue ? 'bg-red-50/50 border-red-200' : 'bg-white border-slate-200'} text-xs"><div class="flex items-center gap-2"><b class="text-petrol-950">${ins.no}. Taksit:</b><span class="font-black text-slate-800">${ins.amount.toFixed(2)} ₺</span><span class="text-slate-400 text-[11px]">(Vade: ${ins.dueDate})</span>${statusBadge}</div><div class="space-x-1">${!ins.isPaid ? `<button onclick="payInstallmentItem('${c.id}', ${idx})" class="bg-emerald-600 hover:bg-emerald-700 text-white px-2 py-1 rounded text-[11px] font-bold shadow"><i class="fa-solid fa-check"></i> Tahsil Et</button><button onclick="sendInstallmentWaReminder('${c.id}', ${idx})" class="bg-green-600 hover:bg-green-700 text-white px-2 py-1 rounded text-[11px] font-bold shadow" title="Hatırlat"><i class="fa-brands fa-whatsapp"></i></button>` : `<span class="text-emerald-600 text-[11px] font-bold">${ins.paidDate || 'Ödendi'}</span>`}</div></div>`;
                 }).join('');
-            } else {
-                instSummary.innerText = "Plan Yok";
-                instContainer.innerHTML = '<div class="text-slate-400 text-xs py-2 italic text-center">Bu cari için taksit planı bulunmuyor.</div>';
-            }
+            } else { instSummary.innerText = "Plan Yok"; instContainer.innerHTML = '<div class="text-slate-400 text-xs py-2 italic text-center">Bu cari için taksit planı bulunmuyor.</div>'; }
 
             const tbody = document.getElementById('stmtTableBody');
-            tbody.innerHTML = c.transactions.map((t, idx) => `
-                <tr class="hover:bg-slate-50 transition border-b border-slate-100">
-                    <td class="p-3 text-slate-500 font-medium">${t.date}</td>
-                    <td class="p-3 font-bold text-petrol-900">${t.type}</td>
-                    <td class="p-3 text-slate-700">
-                        ${escapeHTML(t.desc)}
-                        ${t.orderRef ? `<span class="ml-1 text-[9px] bg-petrol-100 text-petrol-800 px-1.5 py-0.5 rounded font-black">#${t.orderRef}</span>` : ''}
-                    </td>
-                    <td class="p-3 text-right font-bold text-slate-800">${t.debit > 0 ? t.debit.toFixed(2) + ' ₺' : '-'}</td>
-                    <td class="p-3 text-right font-black text-emerald-600">${t.credit > 0 ? t.credit.toFixed(2) + ' ₺' : '-'}</td>
-                    <td class="p-3 text-center space-x-1 whitespace-nowrap">
-                        ${t.debit > 0 ? `<button onclick="paySpecificTransaction('${c.id}', ${idx})" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 p-1.5 rounded transition" title="Bu Kaleme Tahsilat"><i class="fa-solid fa-hand-holding-dollar"></i></button>` : ''}
-                        <button onclick="deleteStatementTransaction('${c.id}', ${idx})" class="bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 p-1.5 rounded transition" title="Hareketi Sil"><i class="fa-solid fa-trash"></i></button>
-                    </td>
-                </tr>
-            `).join('');
+            tbody.innerHTML = c.transactions.map((t, idx) => `<tr class="hover:bg-slate-50 transition border-b border-slate-100"><td class="p-3 text-slate-500 font-medium">${t.date}</td><td class="p-3 font-bold text-petrol-900">${t.type}</td><td class="p-3 text-slate-700">${escapeHTML(t.desc)}${t.orderRef ? `<span class="ml-1 text-[9px] bg-petrol-100 text-petrol-800 px-1.5 py-0.5 rounded font-black">#${t.orderRef}</span>` : ''}</td><td class="p-3 text-right font-bold text-slate-800">${t.debit > 0 ? t.debit.toFixed(2) + ' ₺' : '-'}</td><td class="p-3 text-right font-black text-emerald-600">${t.credit > 0 ? t.credit.toFixed(2) + ' ₺' : '-'}</td><td class="p-3 text-center space-x-1 whitespace-nowrap">${t.debit > 0 ? `<button onclick="paySpecificTransaction('${c.id}', ${idx})" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 p-1.5 rounded transition" title="Bu Kaleme Tahsilat"><i class="fa-solid fa-hand-holding-dollar"></i></button>` : ''}<button onclick="deleteStatementTransaction('${c.id}', ${idx})" class="bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 p-1.5 rounded transition" title="Hareketi Sil"><i class="fa-solid fa-trash"></i></button></td></tr>`).join('');
         }
 
         async function addTransactionToStatement(e) {
-            e.preventDefault();
-            const id = document.getElementById('txCustId').value;
-            const c = appData.masterCustomers.find(x => x.id === id);
-            if (!c) return;
-
-            const type = document.getElementById('txTypeSelect').value;
-            const desc = document.getElementById('txDescInput').value.trim();
-            const amount = parseFloat(document.getElementById('txAmountInput').value) || 0;
-            const isCredit = type.startsWith('Tahsilat') || type.includes('İskonto');
-
-            c.transactions.push({
-                id: 'TX-' + Date.now(),
-                date: new Date().toLocaleDateString('tr-TR'),
-                type: type,
-                desc: desc,
-                debit: isCredit ? 0 : amount,
-                credit: isCredit ? amount : 0,
-                orderRef: null
-            });
-
-            if (isCredit && type.includes('Nakit')) {
-                if (!appData.kasaHareketleri) appData.kasaHareketleri = [];
-                appData.kasaHareketleri.push({ date: new Date().toLocaleString('tr-TR'), type: 'Tahsilat', desc: `${c.name} - ${desc}`, amount: amount });
-            }
-
-            document.getElementById('txDescInput').value = '';
-            document.getElementById('txAmountInput').value = '';
+            e.preventDefault(); const id = document.getElementById('txCustId').value; const c = appData.masterCustomers.find(x => x.id === id); if (!c) return;
+            const type = document.getElementById('txTypeSelect').value; const desc = document.getElementById('txDescInput').value.trim(); const amount = parseFloat(document.getElementById('txAmountInput').value) || 0; const isCredit = type.startsWith('Tahsilat') || type.includes('İskonto');
+            c.transactions.push({ id: 'TX-' + Date.now(), date: new Date().toLocaleDateString('tr-TR'), type: type, desc: desc, debit: isCredit ? 0 : amount, credit: isCredit ? amount : 0, orderRef: null });
+            if (isCredit && type.includes('Nakit')) { if (!appData.kasaHareketleri) appData.kasaHareketleri = []; appData.kasaHareketleri.push({ date: new Date().toLocaleString('tr-TR'), type: 'Tahsilat', desc: `${c.name} - ${desc}`, amount: amount }); }
+            document.getElementById('txDescInput').value = ''; document.getElementById('txAmountInput').value = '';
             await saveLocalData();
+            
+            // Eğer borç/bakiye sıfırlandıysa Arşiv sekmesine geçir, borç eklendiyse Aktif sekmesine geçir.
+            if (getCustomerTotals(c).balance === 0) switchLedgerSubTab('arsiv'); else switchLedgerSubTab('aktif');
             renderStatementTable(c);
         }
 
         async function zeroOutFractionalCents() {
-            const c = appData.masterCustomers.find(x => x.id === currentStatementCustId);
-            if (!c) return;
-            const { balance } = getCustomerTotals(c);
-            if (balance <= 0) return alert("Sıfırlanacak bir bakiye veya küsürat bulunmuyor.");
-
-            const centsVal = parseFloat((balance - Math.floor(balance)).toFixed(2));
-            const defaultKurus = centsVal > 0 ? centsVal.toFixed(2) : (balance < 100 ? balance.toFixed(2) : "0.00");
-
-            const inputStr = prompt(`"${c.name}" cari bakiyesi: ${balance.toFixed(2)} ₺\nSıfırlanacak iskonto tutarını giriniz:`, defaultKurus);
-            if (!inputStr) return;
-            const discountAmt = parseFloat(inputStr);
-
-            if (isNaN(discountAmt) || discountAmt <= 0 || discountAmt > balance) {
-                return alert("Geçersiz veya bakiyeyi aşan bir tutar.");
-            }
-
-            c.transactions.push({
-                id: 'TX-DISC-' + Date.now(),
-                date: new Date().toLocaleDateString('tr-TR'),
-                type: 'İskonto / İade',
-                desc: 'Küsürat Sıfırlama / Yuvarlama İndirimi',
-                debit: 0,
-                credit: discountAmt,
-                orderRef: null
-            });
-
+            const c = appData.masterCustomers.find(x => x.id === currentStatementCustId); if (!c) return;
+            const { balance } = getCustomerTotals(c); if (balance <= 0) return alert("Sıfırlanacak bir bakiye veya küsürat bulunmuyor.");
+            const centsVal = parseFloat((balance - Math.floor(balance)).toFixed(2)); const defaultKurus = centsVal > 0 ? centsVal.toFixed(2) : (balance < 100 ? balance.toFixed(2) : "0.00");
+            const inputStr = prompt(`"${c.name}" cari bakiyesi: ${balance.toFixed(2)} ₺\nSıfırlanacak iskonto tutarını giriniz:`, defaultKurus); if (!inputStr) return; const discountAmt = parseFloat(inputStr);
+            if (isNaN(discountAmt) || discountAmt <= 0 || discountAmt > balance) return alert("Geçersiz veya bakiyeyi aşan bir tutar.");
+            c.transactions.push({ id: 'TX-DISC-' + Date.now(), date: new Date().toLocaleDateString('tr-TR'), type: 'İskonto / İade', desc: 'Küsürat Sıfırlama / Yuvarlama İndirimi', debit: 0, credit: discountAmt, orderRef: null });
             await saveLocalData();
-            renderStatementTable(c);
-            alert(`${discountAmt.toFixed(2)} ₺ küsürat indirimi uygulandı.`);
+            if (getCustomerTotals(c).balance === 0) switchLedgerSubTab('arsiv');
+            renderStatementTable(c); alert(`${discountAmt.toFixed(2)} ₺ küsürat indirimi uygulandı.`);
         }
 
         function openInstallmentPlanModal() {
-            const c = appData.masterCustomers.find(x => x.id === currentStatementCustId);
-            if (!c) return;
-            const { balance } = getCustomerTotals(c);
-            if (balance <= 0) return alert("Taksitlendirilecek açık bakiye bulunmuyor.");
-
-            document.getElementById('instWizardBalance').innerText = balance.toFixed(2) + ' ₺';
-            document.getElementById('instStartDateInput').value = getTodayISO();
-            document.getElementById('installmentWizardModal').classList.remove('hidden');
+            const c = appData.masterCustomers.find(x => x.id === currentStatementCustId); if (!c) return;
+            const { balance } = getCustomerTotals(c); if (balance <= 0) return alert("Taksitlendirilecek açık bakiye bulunmuyor.");
+            document.getElementById('instWizardBalance').innerText = balance.toFixed(2) + ' ₺'; document.getElementById('instStartDateInput').value = getTodayISO(); document.getElementById('installmentWizardModal').classList.remove('hidden');
         }
-
         function closeInstallmentPlanModal() { document.getElementById('installmentWizardModal').classList.add('hidden'); }
 
         async function generateInstallmentPlanAction() {
-            const c = appData.masterCustomers.find(x => x.id === currentStatementCustId);
-            if (!c) return;
-            const { balance } = getCustomerTotals(c);
-            const count = parseInt(document.getElementById('instCountInput').value) || 2;
-            const startDateStr = document.getElementById('instStartDateInput').value;
-
-            if (!startDateStr) return alert("İlk taksit için vade tarihi seçin.");
-            if (count < 2) return alert("Taksit sayısı en az 2 olmalıdır.");
-
-            const perAmount = Math.floor((balance / count) * 100) / 100;
-            const remainder = parseFloat((balance - (perAmount * count)).toFixed(2));
-
-            c.installments = [];
-            const baseDate = new Date(startDateStr);
-
-            for (let i = 1; i <= count; i++) {
-                const dueDate = new Date(baseDate);
-                dueDate.setMonth(dueDate.getMonth() + (i - 1));
-                const isoDate = dueDate.toISOString().slice(0, 10);
-                const finalAmt = (i === count) ? (perAmount + remainder) : perAmount;
-
-                c.installments.push({
-                    id: 'INS-' + Date.now() + '-' + i,
-                    no: i,
-                    amount: parseFloat(finalAmt.toFixed(2)),
-                    dueDate: isoDate,
-                    isPaid: false,
-                    paidDate: null
-                });
-            }
-
-            closeInstallmentPlanModal();
-            await saveLocalData();
-            renderStatementTable(c);
-            alert(`${count} taksitlik ödeme planı oluşturuldu.`);
+            const c = appData.masterCustomers.find(x => x.id === currentStatementCustId); if (!c) return;
+            const { balance } = getCustomerTotals(c); const count = parseInt(document.getElementById('instCountInput').value) || 2; const startDateStr = document.getElementById('instStartDateInput').value;
+            if (!startDateStr) return alert("İlk taksit için vade tarihi seçin."); if (count < 2) return alert("Taksit sayısı en az 2 olmalıdır.");
+            const perAmount = Math.floor((balance / count) * 100) / 100; const remainder = parseFloat((balance - (perAmount * count)).toFixed(2));
+            c.installments = []; const baseDate = new Date(startDateStr);
+            for (let i = 1; i <= count; i++) { const dueDate = new Date(baseDate); dueDate.setMonth(dueDate.getMonth() + (i - 1)); const isoDate = dueDate.toISOString().slice(0, 10); const finalAmt = (i === count) ? (perAmount + remainder) : perAmount; c.installments.push({ id: 'INS-' + Date.now() + '-' + i, no: i, amount: parseFloat(finalAmt.toFixed(2)), dueDate: isoDate, isPaid: false, paidDate: null }); }
+            closeInstallmentPlanModal(); await saveLocalData(); renderStatementTable(c); alert(`${count} taksitlik ödeme planı oluşturuldu.`);
         }
 
         async function payInstallmentItem(custId, insIdx) {
-            const c = appData.masterCustomers.find(x => x.id === custId);
-            if (!c) return;
-            const ins = c.installments[insIdx];
-
+            const c = appData.masterCustomers.find(x => x.id === custId); if (!c) return; const ins = c.installments[insIdx];
             if (confirm(`${ins.no}. Taksit için ${ins.amount.toFixed(2)} ₺ tahsilat işlensin mi?`)) {
-                ins.isPaid = true;
-                ins.paidDate = new Date().toLocaleDateString('tr-TR');
-
-                c.transactions.push({
-                    id: 'TX-INS-PAY-' + Date.now(),
-                    date: new Date().toLocaleDateString('tr-TR'),
-                    type: 'Tahsilat (Nakit)',
-                    desc: `${ins.no}. Taksit Tahsilatı (Vade: ${ins.dueDate})`,
-                    debit: 0,
-                    credit: ins.amount,
-                    orderRef: null
-                });
-
-                if (!appData.kasaHareketleri) appData.kasaHareketleri = [];
-                appData.kasaHareketleri.push({ date: new Date().toLocaleString('tr-TR'), type: 'Taksit Tahsilatı', desc: `${c.name} (${ins.no}. Taksit)`, amount: ins.amount });
-
+                ins.isPaid = true; ins.paidDate = new Date().toLocaleDateString('tr-TR');
+                c.transactions.push({ id: 'TX-INS-PAY-' + Date.now(), date: new Date().toLocaleDateString('tr-TR'), type: 'Tahsilat (Nakit)', desc: `${ins.no}. Taksit Tahsilatı (Vade: ${ins.dueDate})`, debit: 0, credit: ins.amount, orderRef: null });
+                if (!appData.kasaHareketleri) appData.kasaHareketleri = []; appData.kasaHareketleri.push({ date: new Date().toLocaleString('tr-TR'), type: 'Taksit Tahsilatı', desc: `${c.name} (${ins.no}. Taksit)`, amount: ins.amount });
                 await saveLocalData();
-                renderStatementTable(c);
-                if (confirm("Taksit ödendi. Makbuz dökülsün mü?")) printSingleReceipt(c, ins.amount, 'Nakit');
+                if (getCustomerTotals(c).balance === 0) switchLedgerSubTab('arsiv');
+                renderStatementTable(c); if (confirm("Taksit ödendi. Makbuz dökülsün mü?")) printSingleReceipt(c, ins.amount, 'Nakit');
             }
         }
 
         function sendInstallmentWaReminder(custId, insIdx) {
-            const c = appData.masterCustomers.find(x => x.id === custId);
-            if (!c) return;
-            const ins = c.installments[insIdx];
-            let phone = (c.phone1 || '').replace(/\D/g, '');
-            if (phone.startsWith('0')) phone = '9' + phone;
-            if (phone.length === 10) phone = '90' + phone;
-
-            const isOverdue = ins.dueDate < getTodayISO();
-            const durumMetni = isOverdue ? "vadesi geçmiş bulunmaktadır" : "vade günü gelmiştir";
-
-            const msg = `Sayın ${c.name}, Fix House cari hesabınızdaki ${ins.no}. taksitinize ait ${ins.amount.toFixed(2)} TL tutarındaki ödemenizin ${durumMetni} (Vade: ${ins.dueDate}). Bilgilerinize sunarız.`;
-            window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank');
+            const c = appData.masterCustomers.find(x => x.id === custId); if (!c) return; const ins = c.installments[insIdx];
+            let phone = (c.phone1 || '').replace(/\D/g, ''); if (phone.startsWith('0')) phone = '9' + phone; if (phone.length === 10) phone = '90' + phone;
+            const isOverdue = ins.dueDate < getTodayISO(); const durumMetni = isOverdue ? "vadesi geçmiş bulunmaktadır" : "vade günü gelmiştir";
+            const msg = `Sayın ${c.name}, Fix House cari hesabınızdaki ${ins.no}. taksitinize ait ${ins.amount.toFixed(2)} TL tutarındaki ödemenizin ${durumMetni} (Vade: ${ins.dueDate}). Bilgilerinize sunarız.`; window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank');
         }
 
         function openWhatsAppMaster(phone, name, balance, overdueCount = 0) {
-            let p = (phone || '').replace(/\D/g, '');
-            if (p.startsWith('0')) p = '9' + p;
-            if (p.length === 10) p = '90' + p;
-            let msg = `Sayın ${name}, Fix House cari hesabınızdaki güncel bakiye tutarı ${balance.toFixed(2)} TL'dir.`;
-            if (overdueCount > 0) msg += ` Hesabınızda ${overdueCount} adet vadesi geçmiş taksit bulunmaktadır.`;
-            window.open(`https://wa.me/${p}?text=${encodeURIComponent(msg)}`, '_blank');
+            let p = (phone || '').replace(/\D/g, ''); if (p.startsWith('0')) p = '9' + p; if (p.length === 10) p = '90' + p;
+            let msg = `Sayın ${name}, Fix House cari hesabınızdaki güncel bakiye tutarı ${balance.toFixed(2)} TL'dir.`; if (overdueCount > 0) msg += ` Hesabınızda ${overdueCount} adet vadesi geçmiş taksit bulunmaktadır.`; window.open(`https://wa.me/${p}?text=${encodeURIComponent(msg)}`, '_blank');
         }
 
         async function paySpecificTransaction(custId, idx) {
-            const c = appData.masterCustomers.find(x => x.id === custId);
-            if (!c) return;
-            const t = c.transactions[idx];
-            const amtStr = prompt(`"${t.desc}" borcuna karşılık tahsilat tutarı:`, t.debit);
-            if (!amtStr) return;
-            const amt = parseFloat(amtStr);
-            if (isNaN(amt) || amt <= 0) return alert("Geçersiz tutar.");
-
-            c.transactions.push({
-                id: 'TX-' + Date.now(),
-                date: new Date().toLocaleDateString('tr-TR'),
-                type: 'Tahsilat (Nakit)',
-                desc: `${t.desc} ödemesi`,
-                debit: 0,
-                credit: amt,
-                orderRef: t.orderRef || null
-            });
+            const c = appData.masterCustomers.find(x => x.id === custId); if (!c) return; const t = c.transactions[idx];
+            const amtStr = prompt(`"${t.desc}" borcuna karşılık tahsilat tutarı:`, t.debit); if (!amtStr) return; const amt = parseFloat(amtStr); if (isNaN(amt) || amt <= 0) return alert("Geçersiz tutar.");
+            c.transactions.push({ id: 'TX-' + Date.now(), date: new Date().toLocaleDateString('tr-TR'), type: 'Tahsilat (Nakit)', desc: `${t.desc} ödemesi`, debit: 0, credit: amt, orderRef: t.orderRef || null });
             await saveLocalData();
+            if (getCustomerTotals(c).balance === 0) switchLedgerSubTab('arsiv');
             renderStatementTable(c);
         }
 
         async function deleteStatementTransaction(custId, idx) {
-            const c = appData.masterCustomers.find(x => x.id === custId);
-            if (!c) return;
-            if (confirm("Bu hareketi tamamen silmek istiyor musunuz?")) {
-                c.transactions.splice(idx, 1);
-                await saveLocalData();
-                renderStatementTable(c);
-            }
+            const c = appData.masterCustomers.find(x => x.id === custId); if (!c) return;
+            if (confirm("Bu hareketi tamamen silmek istiyor musunuz?")) { c.transactions.splice(idx, 1); await saveLocalData(); renderStatementTable(c); }
         }
 
         function openMergeModalCurrent() {
-            const src = appData.masterCustomers.find(x => x.id === currentStatementCustId);
-            if (!src) return;
-            document.getElementById('mergeSourceName').innerText = `${src.name} (${src.code})`;
-            const select = document.getElementById('mergeTargetSelect');
-            select.innerHTML = '<option value="">-- Hedef Cariyi Seçin --</option>' + 
-                appData.masterCustomers.filter(c => c.id !== src.id).map(c => `<option value="${c.id}">${c.name} (${c.code}) - ${c.phone1}</option>`).join('');
+            const src = appData.masterCustomers.find(x => x.id === currentStatementCustId); if (!src) return;
+            document.getElementById('mergeSourceName').innerText = `${src.name} (${src.code})`; const select = document.getElementById('mergeTargetSelect');
+            select.innerHTML = '<option value="">-- Hedef Cariyi Seçin --</option>' + appData.masterCustomers.filter(c => c.id !== src.id).map(c => `<option value="${c.id}">${c.name} (${c.code}) - ${c.phone1}</option>`).join('');
             document.getElementById('mergeModal').classList.remove('hidden');
         }
-
         function closeMergeModal() { document.getElementById('mergeModal').classList.add('hidden'); }
 
         async function executeCustomerMerge() {
-            const targetId = document.getElementById('mergeTargetSelect').value;
-            if (!targetId) return alert("Hedef bir cari seçin.");
-            const src = appData.masterCustomers.find(x => x.id === currentStatementCustId);
-            const tgt = appData.masterCustomers.find(x => x.id === targetId);
-            if (!src || !tgt) return;
-
+            const targetId = document.getElementById('mergeTargetSelect').value; if (!targetId) return alert("Hedef bir cari seçin.");
+            const src = appData.masterCustomers.find(x => x.id === currentStatementCustId); const tgt = appData.masterCustomers.find(x => x.id === targetId); if (!src || !tgt) return;
             if (confirm(`"${src.name}" hesabındaki tüm hareketler "${tgt.name}" hesabına aktarılacak. Onaylıyor musunuz?`)) {
-                src.transactions.forEach(t => {
-                    tgt.transactions.push({ ...t, desc: `[Devir: ${src.name}] ` + t.desc });
-                });
-                if (src.installments) {
-                    tgt.installments = [...(tgt.installments || []), ...src.installments];
-                }
+                src.transactions.forEach(t => { tgt.transactions.push({ ...t, desc: `[Devir: ${src.name}] ` + t.desc }); }); if (src.installments) { tgt.installments = [...(tgt.installments || []), ...src.installments]; }
                 appData.masterCustomers = appData.masterCustomers.filter(c => c.id !== src.id);
-                closeMergeModal();
-                closeMasterStatementModal();
-                await saveLocalData();
-                alert("Hesaplar başarıyla birleştirildi!");
+                closeMergeModal(); closeMasterStatementModal(); await saveLocalData(); alert("Hesaplar başarıyla birleştirildi!");
             }
         }
 
         function printCustomerStatement() {
-            const c = appData.masterCustomers.find(x => x.id === currentStatementCustId);
-            if (!c) return;
-            const { debit, credit, balance } = getCustomerTotals(c);
-
-            document.getElementById('printContainerMakbuz').innerHTML = '';
-            document.getElementById('printContainerZebra').innerHTML = '';
-            const printDiv = document.getElementById('printContainerA4');
-            printDiv.innerHTML = `
-                <div class="a4-print-container" style="padding: 10mm;">
-                    <div style="border-bottom: 2px solid #000; padding-bottom: 8px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: flex-end;">
-                        <div>
-                            <h1 style="font-size: 18pt; font-weight: 900; margin: 0; color: #0f766e;">FİX HOUSE ERP</h1>
-                            <p style="margin: 3px 0 0 0; font-size: 9pt; color: #475569;">Sineklik & Mimari Otomasyon Sistemleri</p>
-                        </div>
-                        <div style="text-align: right;">
-                            <h2 style="font-size: 13pt; font-weight: bold; margin: 0;">CARİ HESAP EKSTRESİ</h2>
-                            <p style="margin: 2px 0 0 0; font-size: 9pt;">Tarih: <b>${new Date().toLocaleDateString('tr-TR')}</b></p>
-                        </div>
-                    </div>
-
-                    <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 6px; padding: 10px; margin-bottom: 15px; font-size: 9.5pt; display: flex; justify-content: space-between;">
-                        <div>
-                            <div><b>Cari Kodu:</b> ${c.code}</div>
-                            <div style="font-size: 11pt; font-weight: bold; margin-top: 2px;">${escapeHTML(c.name)}</div>
-                            <div style="color: #475569;">${escapeHTML(c.address || c.city || 'Adres bilgisi yok')}</div>
-                        </div>
-                        <div style="text-align: right;">
-                            <div><b>Telefon:</b> ${escapeHTML(c.phone1)}</div>
-                            <div><b>Cari Tipi:</b> ${c.type}</div>
-                            <div><b>Vergi No:</b> ${c.taxNo || '-'} (${c.taxOffice || '-'})</div>
-                        </div>
-                    </div>
-
-                    <table class="print-table" style="margin-bottom: 15px;">
-                        <thead>
-                            <tr><th>Tarih</th><th>İşlem Türü</th><th>Açıklama / Belge</th><th style="text-align:right;">Borç Tutarı</th><th style="text-align:right;">Tahsilat</th></tr>
-                        </thead>
-                        <tbody>
-                            ${c.transactions.map(t => `
-                                <tr>
-                                    <td>${t.date}</td>
-                                    <td><b>${t.type}</b></td>
-                                    <td style="text-align:left;">${escapeHTML(t.desc)}</td>
-                                    <td style="text-align:right;">${t.debit > 0 ? t.debit.toFixed(2) + ' ₺' : '-'}</td>
-                                    <td style="text-align:right; font-weight:bold; color:#047857;">${t.credit > 0 ? t.credit.toFixed(2) + ' ₺' : '-'}</td>
-                                </tr>
-                            `).join('')}
-                        </tbody>
-                    </table>
-
-                    <div style="display: flex; justify-content: flex-end; margin-bottom: 30px;">
-                        <table style="width: 260px; border-collapse: collapse; font-size: 9.5pt;">
-                            <tr><td style="padding: 5px 8px; border: 1px solid #cbd5e1; background: #f8fafc;">Toplam Borç:</td><td style="padding: 5px 8px; border: 1px solid #cbd5e1; text-align: right; font-weight: bold;">${debit.toFixed(2)} ₺</td></tr>
-                            <tr><td style="padding: 5px 8px; border: 1px solid #cbd5e1; background: #f8fafc;">Toplam Tahsilat:</td><td style="padding: 5px 8px; border: 1px solid #cbd5e1; text-align: right; font-weight: bold; color: #047857;">${credit.toFixed(2)} ₺</td></tr>
-                            <tr style="background: #f1f5f9;"><td style="padding: 6px 8px; border: 1px solid #000; font-weight: 900;">Kalan Bakiye:</td><td style="padding: 6px 8px; border: 1px solid #000; text-align: right; font-weight: 900; color: #b91c1c;">${balance.toFixed(2)} ₺</td></tr>
-                        </table>
-                    </div>
-
-                    <div style="display: flex; justify-content: space-between; font-size: 9.5pt; margin-top: 40px; padding-top: 10px;">
-                        <div style="text-align: center; width: 200px; border-top: 1px dotted #000; padding-top: 5px;">Fix House Kaşe / İmza</div>
-                        <div style="text-align: center; width: 200px; border-top: 1px dotted #000; padding-top: 5px;">Müşteri / Teslim Alan</div>
-                    </div>
-                </div>
-            `;
+            const c = appData.masterCustomers.find(x => x.id === currentStatementCustId); if (!c) return; const { debit, credit, balance } = getCustomerTotals(c);
+            document.getElementById('printContainerMakbuz').innerHTML = ''; document.getElementById('printContainerZebra').innerHTML = ''; const printDiv = document.getElementById('printContainerA4');
+            printDiv.innerHTML = `<div class="a4-print-container" style="padding: 10mm;"><div style="border-bottom: 2px solid #000; padding-bottom: 8px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: flex-end;"><div><h1 style="font-size: 18pt; font-weight: 900; margin: 0; color: #0f766e;">FİX HOUSE ERP</h1><p style="margin: 3px 0 0 0; font-size: 9pt; color: #475569;">Sineklik & Mimari Otomasyon Sistemleri</p></div><div style="text-align: right;"><h2 style="font-size: 13pt; font-weight: bold; margin: 0;">CARİ HESAP EKSTRESİ</h2><p style="margin: 2px 0 0 0; font-size: 9pt;">Tarih: <b>${new Date().toLocaleDateString('tr-TR')}</b></p></div></div><div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 6px; padding: 10px; margin-bottom: 15px; font-size: 9.5pt; display: flex; justify-content: space-between;"><div><div><b>Cari Kodu:</b> ${c.code}</div><div style="font-size: 11pt; font-weight: bold; margin-top: 2px;">${escapeHTML(c.name)}</div><div style="color: #475569;">${escapeHTML(c.address || c.city || 'Adres bilgisi yok')}</div></div><div style="text-align: right;"><div><b>Telefon:</b> ${escapeHTML(c.phone1)}</div><div><b>Cari Tipi:</b> ${c.type}</div><div><b>Vergi No:</b> ${c.taxNo || '-'} (${c.taxOffice || '-'})</div></div></div><table class="print-table" style="margin-bottom: 15px;"><thead><tr><th>Tarih</th><th>İşlem Türü</th><th>Açıklama / Belge</th><th style="text-align:right;">Borç Tutarı</th><th style="text-align:right;">Tahsilat</th></tr></thead><tbody>${c.transactions.map(t => `<tr><td>${t.date}</td><td><b>${t.type}</b></td><td style="text-align:left;">${escapeHTML(t.desc)}</td><td style="text-align:right;">${t.debit > 0 ? t.debit.toFixed(2) + ' ₺' : '-'}</td><td style="text-align:right; font-weight:bold; color:#047857;">${t.credit > 0 ? t.credit.toFixed(2) + ' ₺' : '-'}</td></tr>`).join('')}</tbody></table><div style="display: flex; justify-content: flex-end; margin-bottom: 30px;"><table style="width: 260px; border-collapse: collapse; font-size: 9.5pt;"><tr><td style="padding: 5px 8px; border: 1px solid #cbd5e1; background: #f8fafc;">Toplam Borç:</td><td style="padding: 5px 8px; border: 1px solid #cbd5e1; text-align: right; font-weight: bold;">${debit.toFixed(2)} ₺</td></tr><tr><td style="padding: 5px 8px; border: 1px solid #cbd5e1; background: #f8fafc;">Toplam Tahsilat:</td><td style="padding: 5px 8px; border: 1px solid #cbd5e1; text-align: right; font-weight: bold; color: #047857;">${credit.toFixed(2)} ₺</td></tr><tr style="background: #f1f5f9;"><td style="padding: 6px 8px; border: 1px solid #000; font-weight: 900;">Kalan Bakiye:</td><td style="padding: 6px 8px; border: 1px solid #000; text-align: right; font-weight: 900; color: #b91c1c;">${balance.toFixed(2)} ₺</td></tr></table></div><div style="display: flex; justify-content: space-between; font-size: 9.5pt; margin-top: 40px; padding-top: 10px;"><div style="text-align: center; width: 200px; border-top: 1px dotted #000; padding-top: 5px;">Fix House Kaşe / İmza</div><div style="text-align: center; width: 200px; border-top: 1px dotted #000; padding-top: 5px;">Müşteri / Teslim Alan</div></div></div>`;
             window.print();
         }
 
         // --- FİNANS & KASA İŞLEMLERİ ---
         function renderFinance() {
             let ts=0, tc=0, exp=0, h=0, t=0, v=0, s=0, d=0;
-            (appData.masterCustomers || []).forEach(c => {
-                const { debit, credit } = getCustomerTotals(c);
-                ts += debit;
-                tc += credit;
-            });
-            let minc=0; 
-            appData.kasaHareketleri?.forEach(kh=>{if(kh.amount>0 && !kh.type.includes('Tahsilat')) minc+=kh.amount;}); 
-            tc += minc;
-            
-            appData.expenses?.forEach(e=>{ 
-                exp+=e.amount; 
-                if(e.category==='Hammadde') h+=e.amount; 
-                else if(e.category==='Temizlik') t+=e.amount; 
-                else if(e.category==='Vergi') v+=e.amount; 
-                else if(e.category==='Sigorta') s+=e.amount; 
-                else d+=e.amount; 
-            });
-
-            ['finTotalSales','finTotalCollected','finTotalPending','finTotalExpense'].forEach((id,i)=> {
-                let el=document.getElementById(id); 
-                if(el) el.innerText=[ts,tc,Math.max(0, ts-tc),exp][i].toFixed(2)+' ₺';
-            });
-            document.querySelectorAll('.hamMaddeExpenseTotal').forEach(el=>el.innerText=h.toFixed(2)+' ₺'); 
-            document.querySelectorAll('.temizlikExpenseTotal').forEach(el=>el.innerText=t.toFixed(2)+' ₺'); 
-            document.querySelectorAll('.vergiExpenseTotal').forEach(el=>el.innerText=v.toFixed(2)+' ₺'); 
-            document.querySelectorAll('.sigortaExpenseTotal').forEach(el=>el.innerText=s.toFixed(2)+' ₺'); 
-            document.querySelectorAll('.digerExpenseTotal').forEach(el=>el.innerText=d.toFixed(2)+' ₺');
+            (appData.masterCustomers || []).forEach(c => { const { debit, credit } = getCustomerTotals(c); ts += debit; tc += credit; });
+            let minc=0; appData.kasaHareketleri?.forEach(kh=>{if(kh.amount>0 && !kh.type.includes('Tahsilat')) minc+=kh.amount;}); tc += minc;
+            appData.expenses?.forEach(e=>{ exp+=e.amount; if(e.category==='Hammadde') h+=e.amount; else if(e.category==='Temizlik') t+=e.amount; else if(e.category==='Vergi') v+=e.amount; else if(e.category==='Sigorta') s+=e.amount; else d+=e.amount; });
+            ['finTotalSales','finTotalCollected','finTotalPending','finTotalExpense'].forEach((id,i)=> { let el=document.getElementById(id); if(el) el.innerText=[ts,tc,Math.max(0, ts-tc),exp][i].toFixed(2)+' ₺'; });
+            document.querySelectorAll('.hamMaddeExpenseTotal').forEach(el=>el.innerText=h.toFixed(2)+' ₺'); document.querySelectorAll('.temizlikExpenseTotal').forEach(el=>el.innerText=t.toFixed(2)+' ₺'); document.querySelectorAll('.vergiExpenseTotal').forEach(el=>el.innerText=v.toFixed(2)+' ₺'); document.querySelectorAll('.sigortaExpenseTotal').forEach(el=>el.innerText=s.toFixed(2)+' ₺'); document.querySelectorAll('.digerExpenseTotal').forEach(el=>el.innerText=d.toFixed(2)+' ₺');
 
             const kTb=document.getElementById('kasaHareketleriTableBody'); 
-            if(kTb) {
-                kTb.innerHTML = (appData.kasaHareketleri || []).map((c, i) => `
-                    <tr class="hover:bg-slate-50 border-b transition">
-                        <td class="p-3 text-slate-500">${c.date}</td>
-                        <td class="p-3 font-extrabold text-petrol-700">${escapeHTML(c.type)}</td>
-                        <td class="p-3 font-medium text-slate-700">${escapeHTML(c.desc)}</td>
-                        <td class="p-3 text-right font-black ${c.amount>=0?'text-emerald-600':'text-red-600'}">${c.amount.toFixed(2)} ₺</td>
-                        <td class="p-3 text-center"><button onclick="deleteKasaMovement(${i})" class="text-red-500 hover:bg-red-50 p-2 rounded transition"><i class="fa-solid fa-trash"></i></button></td>
-                    </tr>
-                `).join('') || `<tr><td colspan="5" class="text-center py-6 text-slate-400">Kasa hareketi yok.</td></tr>`;
-            }
+            if(kTb) { kTb.innerHTML = (appData.kasaHareketleri || []).map((c, i) => `<tr class="hover:bg-slate-50 border-b transition"><td class="p-3 text-slate-500">${c.date}</td><td class="p-3 font-extrabold text-petrol-700">${escapeHTML(c.type)}</td><td class="p-3 font-medium text-slate-700">${escapeHTML(c.desc)}</td><td class="p-3 text-right font-black ${c.amount>=0?'text-emerald-600':'text-red-600'}">${c.amount.toFixed(2)} ₺</td><td class="p-3 text-center"><button onclick="deleteKasaMovement(${i})" class="text-red-500 hover:bg-red-50 p-2 rounded transition"><i class="fa-solid fa-trash"></i></button></td></tr>`).join('') || `<tr><td colspan="5" class="text-center py-6 text-slate-400">Kasa hareketi yok.</td></tr>`; }
 
-            document.querySelectorAll('.expenseTableBody').forEach(tb => {
-                tb.innerHTML=appData.expenses?.length?appData.expenses.map((e,i)=>`<tr class="hover:bg-slate-50 border-b transition"><td class="p-3 text-slate-500">${e.date}</td><td class="p-3"><span class="px-2 py-1 rounded text-[10px] font-bold border border-slate-200 bg-slate-100 text-slate-700">${e.category}</span></td><td class="p-3 font-medium text-slate-700">${escapeHTML(e.desc)}</td><td class="p-3 text-right font-black text-red-600">${e.amount.toFixed(2)} ₺</td><td class="p-3 text-center"><button onclick="deleteExpenseItem(${i})" class="text-red-500 hover:bg-red-50 p-2 rounded transition"><i class="fa-solid fa-trash"></i></button></td></tr>`).join(''):`<tr><td colspan="5" class="text-center py-6 text-slate-400">Gider bulunmuyor.</td></tr>`;
-            });
+            document.querySelectorAll('.expenseTableBody').forEach(tb => { tb.innerHTML=appData.expenses?.length?appData.expenses.map((e,i)=>`<tr class="hover:bg-slate-50 border-b transition"><td class="p-3 text-slate-500">${e.date}</td><td class="p-3"><span class="px-2 py-1 rounded text-[10px] font-bold border border-slate-200 bg-slate-100 text-slate-700">${e.category}</span></td><td class="p-3 font-medium text-slate-700">${escapeHTML(e.desc)}</td><td class="p-3 text-right font-black text-red-600">${e.amount.toFixed(2)} ₺</td><td class="p-3 text-center"><button onclick="deleteExpenseItem(${i})" class="text-red-500 hover:bg-red-50 p-2 rounded transition"><i class="fa-solid fa-trash"></i></button></td></tr>`).join(''):`<tr><td colspan="5" class="text-center py-6 text-slate-400">Gider bulunmuyor.</td></tr>`; });
         }
 
-        async function addManualIncome(e) { 
-            e.preventDefault(); 
-            const desc = escapeHTML(document.getElementById('incDesc').value);
-            const amount = parseFloat(document.getElementById('incAmount').value);
-            if(!appData.kasaHareketleri) appData.kasaHareketleri=[];
-            appData.kasaHareketleri.push({date:new Date().toLocaleString(), type:'Manuel Kasa Girişi', desc:desc, amount:amount}); 
-            document.getElementById('incDesc').value=''; 
-            document.getElementById('incAmount').value=''; 
-            await saveLocalData(); 
-        }
-
-        async function deleteKasaMovement(i) { 
-            appData.kasaHareketleri.splice(i,1); 
-            await saveLocalData(); 
-        }
-
-        async function addExpense(e) { 
-            e.preventDefault(); 
-            const f=e.target; 
-            if(!appData.expenses) appData.expenses=[];
-            appData.expenses.push({date:new Date().toLocaleString(), desc:escapeHTML(f.querySelector('.expDesc').value), category:f.querySelector('.expCategory').value, amount:parseFloat(f.querySelector('.expAmount').value)}); 
-            f.reset(); 
-            await saveLocalData(); 
-        }
-
-        async function deleteExpenseItem(i) { 
-            appData.expenses.splice(i,1); 
-            await saveLocalData(); 
-        }
+        async function addManualIncome(e) { e.preventDefault(); const desc = escapeHTML(document.getElementById('incDesc').value); const amount = parseFloat(document.getElementById('incAmount').value); if(!appData.kasaHareketleri) appData.kasaHareketleri=[]; appData.kasaHareketleri.push({date:new Date().toLocaleString(), type:'Manuel Kasa Girişi', desc:desc, amount:amount}); document.getElementById('incDesc').value=''; document.getElementById('incAmount').value=''; await saveLocalData(); }
+        async function deleteKasaMovement(i) { appData.kasaHareketleri.splice(i,1); await saveLocalData(); }
+        async function addExpense(e) { e.preventDefault(); const f=e.target; if(!appData.expenses) appData.expenses=[]; appData.expenses.push({date:new Date().toLocaleString(), desc:escapeHTML(f.querySelector('.expDesc').value), category:f.querySelector('.expCategory').value, amount:parseFloat(f.querySelector('.expAmount').value)}); f.reset(); await saveLocalData(); }
+        async function deleteExpenseItem(i) { appData.expenses.splice(i,1); await saveLocalData(); }
 
         // --- BANKA VE HESAPLAR ---
-        async function handleBankFormSubmit(e) {
-            e.preventDefault(); 
-            const idx=document.getElementById('editBankId').value, n=escapeHTML(document.getElementById('bankName').value), h=escapeHTML(document.getElementById('bankHolder').value), i=escapeHTML(document.getElementById('bankIban').value);
-            if(!appData.bankAccounts) appData.bankAccounts=[];
-            if(idx!=="") { let b=appData.bankAccounts.find(x=>x.id===idx); if(b){b.name=n; b.holder=h; b.iban=i;} } else appData.bankAccounts.push({id:'BNK-'+Date.now(), name:n, holder:h, iban:i});
-            resetBankForm(); await saveLocalData();
-        }
-
+        async function handleBankFormSubmit(e) { e.preventDefault(); const idx=document.getElementById('editBankId').value, n=escapeHTML(document.getElementById('bankName').value), h=escapeHTML(document.getElementById('bankHolder').value), i=escapeHTML(document.getElementById('bankIban').value); if(!appData.bankAccounts) appData.bankAccounts=[]; if(idx!=="") { let b=appData.bankAccounts.find(x=>x.id===idx); if(b){b.name=n; b.holder=h; b.iban=i;} } else appData.bankAccounts.push({id:'BNK-'+Date.now(), name:n, holder:h, iban:i}); resetBankForm(); await saveLocalData(); }
         function resetBankForm() { document.getElementById('editBankId').value=''; document.getElementById('bankName').value=''; document.getElementById('bankHolder').value=''; document.getElementById('bankIban').value=''; document.getElementById('bankCancelBtn').classList.add('hidden'); document.getElementById('bankSubmitBtn').innerHTML='Kayıt Et'; }
         function editBankAccount(id) { let b=appData.bankAccounts.find(x=>x.id===id); if(!b) return; document.getElementById('editBankId').value=b.id; document.getElementById('bankName').value=b.name; document.getElementById('bankHolder').value=b.holder||''; document.getElementById('bankIban').value=b.iban; document.getElementById('bankCancelBtn').classList.remove('hidden'); document.getElementById('bankSubmitBtn').innerHTML='Güncelle'; }
         async function deleteBankAccount(id) { let ix=appData.bankAccounts.findIndex(x=>x.id===id); if(ix>-1 && confirm("Hesap kalıcı silinecek?")){ appData.bankAccounts.splice(ix,1); if(appData.bankTransactions) appData.bankTransactions=appData.bankTransactions.filter(t=>t.bankId!==id); await saveLocalData(); } }
@@ -2336,125 +1461,35 @@
             });
         }
 
-        async function handleBankTxSubmit(e) {
-            e.preventDefault(); const idx=document.getElementById('editBankTxId').value, bId=document.getElementById('txBankId').value, ty=document.getElementById('txType').value, d=escapeHTML(document.getElementById('txDesc').value), a=parseFloat(document.getElementById('txAmount').value)||0;
-            if(!appData.bankTransactions) appData.bankTransactions=[];
-            if(idx!=="") { let t=appData.bankTransactions.find(x=>x.id===idx); if(t){t.bankId=bId; t.type=ty; t.desc=d; t.amount=a;} } else appData.bankTransactions.push({id:'BTX-'+Date.now(), date:new Date().toLocaleString(), bankId:bId, type:ty, desc:d, amount:a});
-            resetBankTxForm(); await saveLocalData();
-        }
-
+        async function handleBankTxSubmit(e) { e.preventDefault(); const idx=document.getElementById('editBankTxId').value, bId=document.getElementById('txBankId').value, ty=document.getElementById('txType').value, d=escapeHTML(document.getElementById('txDesc').value), a=parseFloat(document.getElementById('txAmount').value)||0; if(!appData.bankTransactions) appData.bankTransactions=[]; if(idx!=="") { let t=appData.bankTransactions.find(x=>x.id===idx); if(t){t.bankId=bId; t.type=ty; t.desc=d; t.amount=a;} } else appData.bankTransactions.push({id:'BTX-'+Date.now(), date:new Date().toLocaleString(), bankId:bId, type:ty, desc:d, amount:a}); resetBankTxForm(); await saveLocalData(); }
         function resetBankTxForm() { document.getElementById('editBankTxId').value=''; document.getElementById('txBankId').value=''; document.getElementById('txType').value='Gelir'; document.getElementById('txDesc').value=''; document.getElementById('txAmount').value=''; document.getElementById('txCancelBtn').classList.add('hidden'); document.getElementById('txSubmitBtn').innerHTML='İşle'; }
         function editBankTransaction(id) { let t=appData.bankTransactions.find(x=>x.id===id); if(!t) return; document.getElementById('editBankTxId').value=t.id; document.getElementById('txBankId').value=t.bankId; document.getElementById('txType').value=t.type; document.getElementById('txDesc').value=t.desc; document.getElementById('txAmount').value=t.amount; document.getElementById('txCancelBtn').classList.remove('hidden'); document.getElementById('txSubmitBtn').innerHTML='Güncelle'; }
         async function deleteBankTransaction(id) { let ix=appData.bankTransactions.findIndex(x=>x.id===id); if(ix>-1 && confirm("İşlem silinecek?")){ appData.bankTransactions.splice(ix,1); await saveLocalData(); } }
-        function renderBankTransactions() {
-            const tb=document.getElementById('bankTransactionsTableBody'); if(!tb) return;
-            tb.innerHTML = appData.bankTransactions?.length ? appData.bankTransactions.map(t=>{ let b=(appData.bankAccounts||[]).find(x=>x.id===t.bankId); return `<tr class="hover:bg-slate-50 transition border-b"><td class="p-3 text-slate-500">${t.date}</td><td class="p-3 font-bold text-slate-800">${b?escapeHTML(b.name):'Bilinmeyen'}</td><td class="p-3"><span class="px-2 py-1 rounded text-[10px] font-bold border ${t.type==='Gelir'?'bg-emerald-50 text-emerald-700 border-emerald-200':'bg-red-50 text-red-700 border-red-200'}">${t.type}</span></td><td class="p-3 font-medium text-slate-700">${escapeHTML(t.desc)}</td><td class="p-3 text-right font-black ${t.type==='Gelir'?'text-emerald-600':'text-red-600'}">${t.amount.toFixed(2)} ₺</td><td class="p-3 text-center space-x-1.5 whitespace-nowrap"><button onclick="editBankTransaction('${t.id}')" class="text-amber-500 hover:bg-amber-100 p-2 rounded transition"><i class="fa-solid fa-pen"></i></button><button onclick="deleteBankTransaction('${t.id}')" class="text-red-500 hover:bg-red-100 p-2 rounded transition"><i class="fa-solid fa-trash"></i></button></td></tr>`;}).join('') : `<tr><td colspan="6" class="text-center py-6 text-slate-400">Banka hareketi yok.</td></tr>`;
-        }
+        function renderBankTransactions() { const tb=document.getElementById('bankTransactionsTableBody'); if(!tb) return; tb.innerHTML = appData.bankTransactions?.length ? appData.bankTransactions.map(t=>{ let b=(appData.bankAccounts||[]).find(x=>x.id===t.bankId); return `<tr class="hover:bg-slate-50 transition border-b"><td class="p-3 text-slate-500">${t.date}</td><td class="p-3 font-bold text-slate-800">${b?escapeHTML(b.name):'Bilinmeyen'}</td><td class="p-3"><span class="px-2 py-1 rounded text-[10px] font-bold border ${t.type==='Gelir'?'bg-emerald-50 text-emerald-700 border-emerald-200':'bg-red-50 text-red-700 border-red-200'}">${t.type}</span></td><td class="p-3 font-medium text-slate-700">${escapeHTML(t.desc)}</td><td class="p-3 text-right font-black ${t.type==='Gelir'?'text-emerald-600':'text-red-600'}">${t.amount.toFixed(2)} ₺</td><td class="p-3 text-center space-x-1.5 whitespace-nowrap"><button onclick="editBankTransaction('${t.id}')" class="text-amber-500 hover:bg-amber-100 p-2 rounded transition"><i class="fa-solid fa-pen"></i></button><button onclick="deleteBankTransaction('${t.id}')" class="text-red-500 hover:bg-red-100 p-2 rounded transition"><i class="fa-solid fa-trash"></i></button></td></tr>`;}).join('') : `<tr><td colspan="6" class="text-center py-6 text-slate-400">Banka hareketi yok.</td></tr>`; }
 
         // --- AKSESUAR VE PARAMETRELER (CANLI REÇETE YÖNETİMİ) ---
         function renderProductRecipes() {
-            const cnt = document.getElementById('productRecipesContainer'); 
-            if(!cnt) return;
-            
-            // Eğer ürün grupları boşsa varsayılan canlı reçeteleri doldur
-            if (!appData.settings.productGroups || appData.settings.productGroups.length === 0) {
-                appData.settings.productGroups = JSON.parse(JSON.stringify(DEFAULT_SETTINGS.productGroups));
-            }
-
-            cnt.innerHTML = appData.settings.productGroups.map((g,i) => `
-                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 shadow-sm">
-                    <div class="flex justify-between items-center border-b border-slate-300 pb-3 mb-3">
-                        <h3 class="font-extrabold text-sm md:text-base text-petrol-900"><i class="fa-solid fa-box text-petrol-500 mr-2"></i> ${escapeHTML(g.name)}</h3>
-                        <div class="space-x-2">
-                            <button onclick="addNewAccessoryToGroupPrompt(${i})" class="text-[11px] bg-slate-200 hover:bg-slate-300 text-slate-700 px-3 py-1.5 rounded font-bold transition shadow-sm">+ Aksesuar</button>
-                            <button onclick="deleteProductGroup(${i})" class="text-red-600 text-[11px] bg-red-50 hover:bg-red-100 border border-red-200 px-3 py-1.5 rounded font-bold transition shadow-sm">Grubu Sil</button>
-                        </div>
-                    </div>
-                    <div class="overflow-x-auto rounded border border-slate-200">
-                        <table class="w-full text-left text-xs">
-                            <thead class="bg-white font-extrabold text-slate-500 text-[10px] uppercase tracking-wider border-b">
-                                <tr>
-                                    <th class="p-2.5">Malzeme Adı</th>
-                                    <th class="p-2.5 w-32">Birim</th>
-                                    <th class="p-2.5 text-right w-36">Maliyet (₺)</th>
-                                    <th class="p-2.5 text-center w-12">Sil</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-slate-100 bg-slate-50/50">
-                                ${g.accessories.map((a,ai) => `
-                                    <tr>
-                                        <td class="p-2.5 font-bold text-slate-800">${escapeHTML(a.name)}</td>
-                                        <td class="p-2.5 text-slate-600 font-medium">${escapeHTML(a.unit)}</td>
-                                        <td class="p-2.5 text-right">
-                                            <input type="number" step="0.1" value="${a.cost}" onchange="updateGroupAccessoryCost(${i},${ai},this.value)" class="w-20 border border-slate-300 rounded text-right px-2 py-1 font-bold text-petrol-700 focus:ring-1 focus:ring-petrol-500 outline-none">
-                                        </td>
-                                        <td class="p-2.5 text-center">
-                                            <button onclick="deleteGroupAccessory(${i},${ai})" class="text-red-500 hover:bg-red-100 p-1.5 rounded transition"><i class="fa-solid fa-xmark"></i></button>
-                                        </td>
-                                    </tr>
-                                `).join('')}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            `).join('');
+            const cnt = document.getElementById('productRecipesContainer'); if(!cnt) return;
+            if (!appData.settings.productGroups || appData.settings.productGroups.length === 0) appData.settings.productGroups = JSON.parse(JSON.stringify(DEFAULT_SETTINGS.productGroups));
+            cnt.innerHTML = appData.settings.productGroups.map((g,i) => `<div class="bg-slate-50 p-4 rounded-xl border border-slate-200 shadow-sm"><div class="flex justify-between items-center border-b border-slate-300 pb-3 mb-3"><h3 class="font-extrabold text-sm md:text-base text-petrol-900"><i class="fa-solid fa-box text-petrol-500 mr-2"></i> ${escapeHTML(g.name)}</h3><div class="space-x-2"><button onclick="addNewAccessoryToGroupPrompt(${i})" class="text-[11px] bg-slate-200 hover:bg-slate-300 text-slate-700 px-3 py-1.5 rounded font-bold transition shadow-sm">+ Aksesuar</button><button onclick="deleteProductGroup(${i})" class="text-red-600 text-[11px] bg-red-50 hover:bg-red-100 border border-red-200 px-3 py-1.5 rounded font-bold transition shadow-sm">Grubu Sil</button></div></div><div class="overflow-x-auto rounded border border-slate-200"><table class="w-full text-left text-xs"><thead class="bg-white font-extrabold text-slate-500 text-[10px] uppercase tracking-wider border-b"><tr><th class="p-2.5">Malzeme Adı</th><th class="p-2.5 w-32">Birim</th><th class="p-2.5 text-right w-36">Maliyet (₺)</th><th class="p-2.5 text-center w-12">Sil</th></tr></thead><tbody class="divide-y divide-slate-100 bg-slate-50/50">${g.accessories.map((a,ai) => `<tr><td class="p-2.5 font-bold text-slate-800">${escapeHTML(a.name)}</td><td class="p-2.5 text-slate-600 font-medium">${escapeHTML(a.unit)}</td><td class="p-2.5 text-right"><input type="number" step="0.1" value="${a.cost}" onchange="updateGroupAccessoryCost(${i},${ai},this.value)" class="w-20 border border-slate-300 rounded text-right px-2 py-1 font-bold text-petrol-700 focus:ring-1 focus:ring-petrol-500 outline-none"></td><td class="p-2.5 text-center"><button onclick="deleteGroupAccessory(${i},${ai})" class="text-red-500 hover:bg-red-100 p-1.5 rounded transition"><i class="fa-solid fa-xmark"></i></button></td></tr>`).join('')}</tbody></table></div></div>`).join('');
         }
 
-        async function addNewProductGroupPrompt() { 
-            let n = prompt("Grup Adı:"); 
-            if(n) { 
-                if(!appData.settings.productGroups) appData.settings.productGroups = []; 
-                appData.settings.productGroups.push({ id:"pg-" + Date.now(), name:escapeHTML(n), accessories:[] }); 
-                await saveLocalData(); 
-            } 
-        }
-
-        async function deleteProductGroup(i) { 
-            if(confirm("Ürün Grubu tamamen silinecek?")) { 
-                appData.settings.productGroups.splice(i,1); 
-                await saveLocalData(); 
-            } 
-        }
-
-        async function addNewAccessoryToGroupPrompt(i) { 
-            let n = prompt("Malzeme Adı:"); 
-            if(!n) return; 
-            let u = prompt("Birim:", "Adet") || "Adet"; 
-            let c = parseFloat(prompt("Maliyet:", "10")) || 0; 
-            appData.settings.productGroups[i].accessories.push({ id:"acc-" + Date.now(), name:escapeHTML(n), unit:escapeHTML(u), cost:c }); 
-            await saveLocalData(); 
-        }
-
-        async function updateGroupAccessoryCost(g, a, v) { 
-            appData.settings.productGroups[g].accessories[a].cost = parseFloat(v) || 0; 
-            await saveLocalData(); 
-        }
-
-        async function deleteGroupAccessory(g, a) { 
-            appData.settings.productGroups[g].accessories.splice(a, 1); 
-            await saveLocalData(); 
-            renderProductRecipes(); 
-        }
+        async function addNewProductGroupPrompt() { let n = prompt("Grup Adı:"); if(n) { if(!appData.settings.productGroups) appData.settings.productGroups = []; appData.settings.productGroups.push({ id:"pg-" + Date.now(), name:escapeHTML(n), accessories:[] }); await saveLocalData(); } }
+        async function deleteProductGroup(i) { if(confirm("Ürün Grubu tamamen silinecek?")) { appData.settings.productGroups.splice(i,1); await saveLocalData(); } }
+        async function addNewAccessoryToGroupPrompt(i) { let n = prompt("Malzeme Adı:"); if(!n) return; let u = prompt("Birim:", "Adet") || "Adet"; let c = parseFloat(prompt("Maliyet:", "10")) || 0; appData.settings.productGroups[i].accessories.push({ id:"acc-" + Date.now(), name:escapeHTML(n), unit:escapeHTML(u), cost:c }); await saveLocalData(); }
+        async function updateGroupAccessoryCost(g, a, v) { appData.settings.productGroups[g].accessories[a].cost = parseFloat(v) || 0; await saveLocalData(); }
+        async function deleteGroupAccessory(g, a) { appData.settings.productGroups[g].accessories.splice(a, 1); await saveLocalData(); renderProductRecipes(); }
 
         // --- EXPORT & YAZDIRMA (PRINT) ---
         async function saveSettings() {
             if (!appData.settings) appData.settings = JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
-            appData.settings.montajPrice = parseFloat(document.getElementById('settingMontajPrice').value) || 0; 
-            appData.settings.perakendePrice = parseFloat(document.getElementById('settingPerakendePrice').value) || 0; 
-            appData.settings.kdvRate = parseFloat(document.getElementById('settingKdvRate').value) || 0; 
-            appData.settings.minM2 = parseFloat(document.getElementById('settingMinM2').value) || 0;
-            await saveLocalData(); 
-            alert("Parametreler başarıyla kaydedildi!");
+            appData.settings.montajPrice = parseFloat(document.getElementById('settingMontajPrice').value) || 0; appData.settings.perakendePrice = parseFloat(document.getElementById('settingPerakendePrice').value) || 0; appData.settings.kdvRate = parseFloat(document.getElementById('settingKdvRate').value) || 0; appData.settings.minM2 = parseFloat(document.getElementById('settingMinM2').value) || 0;
+            await saveLocalData(); alert("Parametreler başarıyla kaydedildi!");
         }
 
         function saveWhatsAppTemplates() {
             if(!appData.whatsappTemplates) appData.whatsappTemplates = {};
-            appData.whatsappTemplates.alinan = document.getElementById('wa_msg_alinan').value;
-            appData.whatsappTemplates.uretim = document.getElementById('wa_msg_uretim').value;
-            appData.whatsappTemplates.montaj = document.getElementById('wa_msg_montaj').value;
-            appData.whatsappTemplates.bitti = document.getElementById('wa_msg_bitti').value;
-            saveLocalData();
-            alert("WhatsApp iletişim şablonları kaydedildi.");
+            appData.whatsappTemplates.alinan = document.getElementById('wa_msg_alinan').value; appData.whatsappTemplates.uretim = document.getElementById('wa_msg_uretim').value; appData.whatsappTemplates.montaj = document.getElementById('wa_msg_montaj').value; appData.whatsappTemplates.bitti = document.getElementById('wa_msg_bitti').value; saveLocalData(); alert("WhatsApp iletişim şablonları kaydedildi.");
         }
 
         function exportFullBackup() { let a=document.createElement('a'); a.href="data:text/json;charset=utf-8,"+encodeURIComponent(JSON.stringify(appData)); a.download=`FixHouse_TamYedek_${new Date().toISOString().slice(0,10)}.json`; a.click(); }
@@ -2462,85 +1497,24 @@
         function exportArchiveExcel() { if(!appData.archive?.length) return; let rows=[]; appData.archive.forEach(o=>o.items.forEach(i=>rows.push({"Sipariş ID":o.id, "Tarih":o.date, "Müşteri":o.customerName, "Telefon":o.customerPhone, "Tipi":i.mType==='ic'?'İç':'Dış', "Ürün":i.pType, "Renk":i.color, "EN":i.en, "BOY":i.boy, "M2":i.m2, "Tutar":o.totalAmount, "Durum":o.status}))); let ws=XLSX.utils.json_to_sheet(rows); let wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,"Arsiv"); XLSX.writeFile(wb, `FixHouseERP_${Date.now()}.xlsx`); }
 
         function printDirectA4(type, data=null) {
-            let o=data||getOrderData(); 
-            document.getElementById('printContainerZebra').innerHTML=''; 
-            document.getElementById('printContainerMakbuz').innerHTML='';
-            document.getElementById('printContainerA4').innerHTML=`
-                <div class="a4-print-container">
-                    <div class="print-header" style="display:flex; justify-content:space-between; align-items:center;">
-                        <div><h1 style="font-size:14pt; font-weight:bold; margin:0; text-transform:uppercase;">FİX HOUSE - SİPARİŞ FORMU</h1><p style="font-size:9pt; margin:2px 0;">Sipariş Kodu: <b>${o.id}</b> | Kayıt Tarihi: <b>${o.date}</b></p></div>
-                        <div style="text-align:right;"><h2 style="font-size:11pt; font-weight:bold; margin:0;">${escapeHTML(o.customerName)}</h2><p style="font-size:9pt; margin:0;">${escapeHTML(o.customerPhone)}</p><p style="font-size:8.5pt; margin:0;">${escapeHTML(o.customerAddress)||''}</p></div>
-                    </div>
-                    <table class="print-table">
-                        <thead><tr><th>#</th><th>Adet</th><th>Tipi</th><th>Ürün</th><th>Renk</th><th>Özellik & Ekstra</th><th>EN</th><th>BOY</th><th>Not / Mahal</th><th>TAÇ</th><th>DİKME</th><th>KANAT</th><th>TÜL</th><th>İP</th></tr></thead>
-                        <tbody>${o.items?.map(i=>`<tr><td>${i.seq}</td><td><b>${i.qty||1}</b></td><td>${i.mType==='ic'?'İç':'Dış'}</td><td>${i.pType.toUpperCase()}</td><td>${i.color}</td><td style="font-size:7pt;">${i.dir||''} ${i.menteseliTip||''} ${i.tulType||''} ${i.caseType||''} ${i.customAccessories?.length>0?'[+Aks]':''}</td><td><b>${i.en}</b></td><td><b>${i.boy}</b></td><td style="font-size:7.5pt;">${escapeHTML(i.note)||'-'}</td><td><b>${i.tac}</b></td><td><b>${i.dikme}</b></td><td><b>${i.kanat}</b></td><td><b>${i.tul}</b></td><td><b>${i.ip}</b></td></tr>`).join('')}</tbody>
-                    </table>
-                    <div style="font-size:9pt; margin-top:10px; display:flex; justify-content:space-between; border-top:1px solid #000; padding-top:5px;"><span>Sipariş Hacmi: <b>${o.items.length} Kalem</b> Ürün</span><span>Teslim Eden / Atölye: ....................</span><span>Müşteri İmza: ....................</span></div>
-                </div>`;
-            window.print();
+            let o=data||getOrderData(); document.getElementById('printContainerZebra').innerHTML=''; document.getElementById('printContainerMakbuz').innerHTML='';
+            document.getElementById('printContainerA4').innerHTML=`<div class="a4-print-container"><div class="print-header" style="display:flex; justify-content:space-between; align-items:center;"><div><h1 style="font-size:14pt; font-weight:bold; margin:0; text-transform:uppercase;">FİX HOUSE - SİPARİŞ FORMU</h1><p style="font-size:9pt; margin:2px 0;">Sipariş Kodu: <b>${o.id}</b> | Kayıt Tarihi: <b>${o.date}</b></p></div><div style="text-align:right;"><h2 style="font-size:11pt; font-weight:bold; margin:0;">${escapeHTML(o.customerName)}</h2><p style="font-size:9pt; margin:0;">${escapeHTML(o.customerPhone)}</p><p style="font-size:8.5pt; margin:0;">${escapeHTML(o.customerAddress)||''}</p></div></div><table class="print-table"><thead><tr><th>#</th><th>Adet</th><th>Tipi</th><th>Ürün</th><th>Renk</th><th>Özellik & Ekstra</th><th>EN</th><th>BOY</th><th>Not / Mahal</th><th>TAÇ</th><th>DİKME</th><th>KANAT</th><th>TÜL</th><th>İP</th></tr></thead><tbody>${o.items?.map(i=>`<tr><td>${i.seq}</td><td><b>${i.qty||1}</b></td><td>${i.mType==='ic'?'İç':'Dış'}</td><td>${i.pType.toUpperCase()}</td><td>${i.color}</td><td style="font-size:7pt;">${i.dir||''} ${i.menteseliTip||''} ${i.tulType||''} ${i.caseType||''} ${i.customAccessories?.length>0?'[+Aks]':''}</td><td><b>${i.en}</b></td><td><b>${i.boy}</b></td><td style="font-size:7.5pt;">${escapeHTML(i.note)||'-'}</td><td><b>${i.tac}</b></td><td><b>${i.dikme}</b></td><td><b>${i.kanat}</b></td><td><b>${i.tul}</b></td><td><b>${i.ip}</b></td></tr>`).join('')}</tbody></table><div style="font-size:9pt; margin-top:10px; display:flex; justify-content:space-between; border-top:1px solid #000; padding-top:5px;"><span>Sipariş Hacmi: <b>${o.items.length} Kalem</b> Ürün</span><span>Teslim Eden / Atölye: ....................</span><span>Müşteri İmza: ....................</span></div></div>`; window.print();
         }
 
         function printZebraLabels(type, data=null) {
-            let o=data||getOrderData(); 
-            document.getElementById('printContainerA4').innerHTML=''; 
-            document.getElementById('printContainerMakbuz').innerHTML='';
-            let html=''; 
-            o.items?.forEach(i=>{ 
-                let q=i.qty||1; 
-                for(let n=1; n<=q; n++) html+=`<div class="zebra-label"><div style="border-bottom:2px solid #000; padding-bottom:3px;"><div style="font-size:14pt; font-weight:bold; text-transform:uppercase;">${escapeHTML(o.customerName)}</div><div style="font-size:11pt; font-weight:bold; margin-top:1px;">Tel: ${escapeHTML(o.customerPhone)}</div></div><div style="text-align:center; margin:auto 0;"><div style="font-size:9pt; font-weight:bold; margin-bottom:2px;">${i.pType.toUpperCase()} (${i.color}) - #${i.seq} [Adet ${n}/${q}] ${i.note?'<br>['+escapeHTML(i.note)+']':''}</div><div style="font-size:22pt; font-weight:900; border:2px solid #000; padding:3px 0; display:block; margin-top:4px;">EN: ${i.en} | BOY: ${i.boy}</div></div></div>`; 
-            });
-            document.getElementById('printContainerZebra').innerHTML=html; 
-            window.print();
+            let o=data||getOrderData(); document.getElementById('printContainerA4').innerHTML=''; document.getElementById('printContainerMakbuz').innerHTML=''; let html=''; 
+            o.items?.forEach(i=>{ let q=i.qty||1; for(let n=1; n<=q; n++) html+=`<div class="zebra-label"><div style="border-bottom:2px solid #000; padding-bottom:3px;"><div style="font-size:14pt; font-weight:bold; text-transform:uppercase;">${escapeHTML(o.customerName)}</div><div style="font-size:11pt; font-weight:bold; margin-top:1px;">Tel: ${escapeHTML(o.customerPhone)}</div></div><div style="text-align:center; margin:auto 0;"><div style="font-size:9pt; font-weight:bold; margin-bottom:2px;">${i.pType.toUpperCase()} (${i.color}) - #${i.seq} [Adet ${n}/${q}] ${i.note?'<br>['+escapeHTML(i.note)+']':''}</div><div style="font-size:22pt; font-weight:900; border:2px solid #000; padding:3px 0; display:block; margin-top:4px;">EN: ${i.en} | BOY: ${i.boy}</div></div></div>`; });
+            document.getElementById('printContainerZebra').innerHTML=html; window.print();
         }
 
         function printSingleReceipt(c, amt, paymentMethod) {
-            const { balance } = getCustomerTotals(c);
-            document.getElementById('printContainerA4').innerHTML = '';
-            document.getElementById('printContainerZebra').innerHTML = '';
-            document.getElementById('printContainerMakbuz').innerHTML = `
-                <div class="makbuz-print-container">
-                    <div style="display:flex; justify-content:space-between; border-bottom:2px solid #000; padding-bottom:5px; margin-bottom:10px;">
-                        <div><h2 style="font-size:16pt; font-weight:bold; margin:0;">FİX HOUSE SİSTEMLERİ</h2><p style="font-size:9pt; margin:0;">Resmi Tahsilat Makbuzu</p></div>
-                        <div style="text-align:right;"><h2 style="color:#0f766e; font-size:14pt; margin:0;">TAHSİLAT MAKBUZU</h2><p style="font-size:9.5pt; margin:0;">Tarih: <b>${new Date().toLocaleDateString('tr-TR')}</b></p></div>
-                    </div>
-                    <div style="display:flex; gap:10px; font-size:9.5pt;">
-                        <div style="width:60%; border:1px solid #000; padding:8px;">
-                            <b>Sayın / Müşteri:</b> ${escapeHTML(c.name)}<br>
-                            <b>Telefon:</b> ${escapeHTML(c.phone1)}<br>
-                            <b>Adres:</b> ${escapeHTML(c.address || c.city || '-')}<br><br>
-                            <span style="font-size:8.5pt; color:#475569;">Cari hesabınıza mahsuben tahsil edilmiştir.</span>
-                        </div>
-                        <div style="width:40%; border:1px solid #000; padding:8px; background:#f8fafc;">
-                            <b>Ödeme Yöntemi:</b> ${paymentMethod}<br><br>
-                            <b>Tahsil Edilen:</b> <span style="font-size:13pt; font-weight:900; color:#047857;">${amt.toFixed(2)} ₺</span><br>
-                            <b>Kalan Bakiye:</b> <span style="font-weight:bold; color:#b91c1c;">${balance.toFixed(2)} ₺</span>
-                        </div>
-                    </div>
-                    <div style="display:flex; justify-content:space-between; font-size:9pt; margin-top:35px;"><div>Tahsil Eden: ....................</div><div>Teslim Eden (Müşteri): ....................</div></div>
-                </div>`;
-            window.print();
+            const { balance } = getCustomerTotals(c); document.getElementById('printContainerA4').innerHTML = ''; document.getElementById('printContainerZebra').innerHTML = '';
+            document.getElementById('printContainerMakbuz').innerHTML = `<div class="makbuz-print-container"><div style="display:flex; justify-content:space-between; border-bottom:2px solid #000; padding-bottom:5px; margin-bottom:10px;"><div><h2 style="font-size:16pt; font-weight:bold; margin:0;">FİX HOUSE SİSTEMLERİ</h2><p style="font-size:9pt; margin:0;">Resmi Tahsilat Makbuzu</p></div><div style="text-align:right;"><h2 style="color:#0f766e; font-size:14pt; margin:0;">TAHSİLAT MAKBUZU</h2><p style="font-size:9.5pt; margin:0;">Tarih: <b>${new Date().toLocaleDateString('tr-TR')}</b></p></div></div><div style="display:flex; gap:10px; font-size:9.5pt;"><div style="width:60%; border:1px solid #000; padding:8px;"><b>Sayın / Müşteri:</b> ${escapeHTML(c.name)}<br><b>Telefon:</b> ${escapeHTML(c.phone1)}<br><b>Adres:</b> ${escapeHTML(c.address || c.city || '-')}<br><br><span style="font-size:8.5pt; color:#475569;">Cari hesabınıza mahsuben tahsil edilmiştir.</span></div><div style="width:40%; border:1px solid #000; padding:8px; background:#f8fafc;"><b>Ödeme Yöntemi:</b> ${paymentMethod}<br><br><b>Tahsil Edilen:</b> <span style="font-size:13pt; font-weight:900; color:#047857;">${amt.toFixed(2)} ₺</span><br><b>Kalan Bakiye:</b> <span style="font-weight:bold; color:#b91c1c;">${balance.toFixed(2)} ₺</span></div></div><div style="display:flex; justify-content:space-between; font-size:9pt; margin-top:35px;"><div>Tahsil Eden: ....................</div><div>Teslim Eden (Müşteri): ....................</div></div></div>`; window.print();
         }
 
-        window.onafterprint = () => {
-            const pA4 = document.getElementById('printContainerA4');
-            const pZb = document.getElementById('printContainerZebra');
-            const pMk = document.getElementById('printContainerMakbuz');
-            if (pA4) pA4.innerHTML = '';
-            if (pZb) pZb.innerHTML = '';
-            if (pMk) pMk.innerHTML = '';
-        };
+        window.onafterprint = () => { const pA4 = document.getElementById('printContainerA4'); const pZb = document.getElementById('printContainerZebra'); const pMk = document.getElementById('printContainerMakbuz'); if (pA4) pA4.innerHTML = ''; if (pZb) pZb.innerHTML = ''; if (pMk) pMk.innerHTML = ''; };
 
-        async function masterReset() {
-            if (confirm("DİKKAT! Tüm siparişler, cariler ve ayarlar tamamen silinecektir. Emin misiniz?")) {
-                const confirmName = prompt("Onaylamak için büyük harflerle SIFIRLA yazın:");
-                if (confirmName === "SIFIRLA") {
-                    localStorage.removeItem(STORAGE_KEY);
-                    localStorage.removeItem(AUTO_BACKUP_KEY);
-                    localStorage.removeItem(PIN_STORAGE_KEY);
-                    location.reload();
-                }
-            }
-        }
+        async function masterReset() { if (confirm("DİKKAT! Tüm siparişler, cariler ve ayarlar tamamen silinecektir. Emin misiniz?")) { const confirmName = prompt("Onaylamak için büyük harflerle SIFIRLA yazın:"); if (confirmName === "SIFIRLA") { localStorage.removeItem(STORAGE_KEY); localStorage.removeItem(AUTO_BACKUP_KEY); localStorage.removeItem(PIN_STORAGE_KEY); location.reload(); } } }
     </script>
 </body>
 </html>
