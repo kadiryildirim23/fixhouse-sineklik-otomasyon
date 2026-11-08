@@ -78,7 +78,22 @@
         <button onclick="dismissErrorBanner()" class="bg-red-800 hover:bg-red-900 text-white px-2 py-0.5 rounded text-[10px]">Kapat</button>
     </div>
 
-    <div id="appContainer" class="flex-grow flex flex-col md:flex-row w-full h-screen overflow-hidden bg-slate-50">
+    <!-- GÜVENLİK KALKANI -->
+    <div id="loginGate" class="fixed inset-0 bg-petrol-950 z-[9999] flex flex-col items-center justify-center">
+        <div class="bg-white p-8 rounded-2xl shadow-2xl text-center max-w-sm w-full mx-4">
+            <div class="bg-petrol-100 text-petrol-700 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fa-solid fa-lock text-3xl"></i>
+            </div>
+            <h2 class="text-xl font-black text-petrol-950 mb-2">Fix House ERP</h2>
+            <p class="text-sm text-slate-500 mb-6">Sisteme erişmek için PIN kodunu giriniz.</p>
+            <input type="password" id="pinInput" class="w-full text-center tracking-widest text-2xl font-black px-4 py-3 border-2 border-slate-200 rounded-xl focus:border-petrol-500 outline-none mb-4" placeholder="••••••">
+            <button onclick="checkPin()" class="w-full bg-petrol-800 hover:bg-petrol-900 text-white font-bold py-3 rounded-xl transition shadow-lg">Sistemi Aç</button>
+            <p id="pinError" class="text-red-500 text-xs font-bold mt-3 hidden">Hatalı PIN kodu!</p>
+        </div>
+    </div>
+
+    <!-- ANA UYGULAMA (Başlangıçta Gizli) -->
+    <div id="appContainer" style="display: none;" class="flex-grow flex-col md:flex-row w-full h-screen overflow-hidden bg-slate-50">
 
         <!-- SIDEBAR -->
         <aside class="hidden md:flex md:w-64 bg-petrol-950 text-white flex-col shadow-2xl z-30 flex-shrink-0">
@@ -481,7 +496,7 @@
     </div>
 
     <!-- MOBİL SABİT ALT GEZİNME ÇUBUĞU (Yatay Kaydırılabilir) -->
-    <nav class="mobile-bottom-nav md:hidden no-print">
+    <nav id="mobileNavContainer" class="mobile-bottom-nav md:hidden no-print" style="display: none;">
         <button onclick="switchTab('order')" id="mob-tab-order" class="mobile-nav-btn active"><i class="fa-solid fa-pen-ruler"></i><span>Ölçü</span></button>
         <button onclick="switchTab('cart')" id="mob-tab-cart" class="mobile-nav-btn relative"><i class="fa-solid fa-cart-flatbed"></i><span>Sepet</span><span id="mobCartBadge" class="hidden absolute top-0.5 right-0 bg-emerald-500 text-white text-[9px] px-1.5 rounded-full font-black">0</span></button>
         <button onclick="switchTab('archive')" id="mob-tab-archive" class="mobile-nav-btn"><i class="fa-solid fa-box-archive"></i><span>Arşiv</span></button>
@@ -594,11 +609,20 @@
 
     <!-- JAVASCRIPT ÇALIŞMA MOTORU -->
     <script>
+        // --- 1. GÜVENLİK VE YARDIMCI FONKSİYONLAR ---
         window.addEventListener('error', function (event) { console.error('Kritik Global Hata:', event.error || event.message); showErrorBanner('Sistem hatası: ' + (event.message || 'Bilinmeyen arayüz hatası.')); });
         window.addEventListener('unhandledrejection', function (event) { console.error('Asenkron Hata:', event.reason); showErrorBanner('İşlem hatası: ' + (event.reason ? event.reason.message || event.reason : 'Asenkron işlem başarısız.')); });
+        
         function showErrorBanner(msg) { const b = document.getElementById('globalErrorBanner'), m = document.getElementById('globalErrorMessage'); if (b && m) { m.textContent = msg; b.classList.remove('hidden'); } }
         function dismissErrorBanner() { const b = document.getElementById('globalErrorBanner'); if (b) b.classList.add('hidden'); }
-        function escapeHTML(str) { if (typeof str !== 'string') return ''; return str.replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m])); }
+        
+        // XSS Koruması (Sıkılaştırılmış)
+        function escapeHTML(str) {
+            if (typeof str !== 'string') return '';
+            return str.replace(/[&<>"'`=\/]/g, function(s) {
+                return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;', '/': '&#x2F;', '`': '&#x60;', '=': '&#x3D;' }[s];
+            });
+        }
         function roundMoney(value) { const num = parseFloat(value); if (isNaN(num)) return 0; return Math.round((num + Number.EPSILON) * 100) / 100; }
         function parseTurkishDate(dateStr) {
             if (!dateStr) return null;
@@ -606,6 +630,11 @@
             else if (dateStr.includes('-')) { const parts = dateStr.split('-'); if (parts.length === 3) return new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2])); }
             const d = new Date(dateStr); return isNaN(d.getTime()) ? null : d;
         }
+
+        // --- 2. AYARLAR, DEFAULTS & GOOGLE SHEETS KONFİGÜRASYONU ---
+        // DİKKAT: Buraya kendi Apps Script (Web App) URL'nizi yapıştırın!
+        const GOOGLE_SHEETS_URL = "https://script.google.com/macros/s/BURAYA_KENDI_URLNIZI_YAPISTIRIN/exec";
+        let lastCloudDataString = "";
 
         const STORAGE_KEY = "fix_house_erp_master_storage";
         const SCHEMA_VERSION = 20;
@@ -638,6 +667,28 @@
             customers: []
         };
 
+        // --- 3. ŞİFRE / GÜVENLİK KALKANI ---
+        function checkPin() {
+            const pin = document.getElementById('pinInput').value;
+            const sysPin = appSettings?.appPin || "232323"; 
+            if (pin === sysPin) {
+                document.getElementById('loginGate').style.display = 'none';
+                document.getElementById('appContainer').style.display = 'flex';
+                document.getElementById('mobileNavContainer').style.display = 'flex';
+                sessionStorage.setItem('isUnlocked', 'true');
+            } else {
+                const err = document.getElementById('pinError');
+                err.classList.remove('hidden');
+                setTimeout(() => err.classList.add('hidden'), 2000);
+            }
+        }
+        if (sessionStorage.getItem('isUnlocked') === 'true') {
+            document.getElementById('loginGate').style.display = 'none';
+            document.getElementById('appContainer').style.display = 'flex';
+            document.getElementById('mobileNavContainer').style.display = 'flex';
+        }
+
+        // --- 4. BULUT SENKRONİZASYONU VE STORAGE MANAGER ---
         const StorageManager = {
             selfHealStorage() {
                 try {
@@ -647,15 +698,39 @@
                     if (backups.length > MAX_BACKUPS) { backups = backups.slice(0, MAX_BACKUPS); localStorage.setItem(AUTO_BACKUP_KEY, JSON.stringify(backups)); }
                 } catch(e) {}
             },
-            load() {
+            
+            async loadFromCloud(callback) {
                 this.selfHealStorage();
+                showErrorBanner("Veriler Google buluttan yükleniyor...");
                 try {
-                    let parsed = null; const raw = localStorage.getItem(STORAGE_KEY);
-                    if (raw) { try { parsed = JSON.parse(raw); } catch(e){} }
-                    if (!parsed) return JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
-                    return this.migrateAndHeal(parsed);
-                } catch(e) { return JSON.parse(JSON.stringify(DEFAULT_SETTINGS)); }
+                    const response = await fetch(GOOGLE_SHEETS_URL);
+                    const dataText = await response.text(); 
+                    dismissErrorBanner();
+                    
+                    if (dataText === "{}" || dataText.trim() === "") {
+                        appSettings = JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
+                    } else {
+                        lastCloudDataString = dataText;
+                        appSettings = this.migrateAndHeal(JSON.parse(dataText));
+                    }
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(appSettings));
+                    if(callback) callback();
+                    
+                } catch(e) {
+                    console.error("Bulut bağlantı hatası:", e);
+                    showErrorBanner("İnternet bağlantısı koptu! Çevrimdışı (Yerel) moda geçildi.");
+                    
+                    const raw = localStorage.getItem(STORAGE_KEY);
+                    if (raw) { appSettings = this.migrateAndHeal(JSON.parse(raw)); } 
+                    else { appSettings = JSON.parse(JSON.stringify(DEFAULT_SETTINGS)); }
+                    if(callback) callback();
+                }
             },
+            
+            load() {
+                return JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
+            },
+            
             migrateAndHeal(data) {
                 const m = JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
                 m.montajPrice = (data.montajPrice !== undefined && !isNaN(parseFloat(data.montajPrice))) ? parseFloat(data.montajPrice) : m.montajPrice; 
@@ -674,19 +749,93 @@
                 if (Array.isArray(data.expenses)) m.expenses = data.expenses;
                 if (Array.isArray(data.customers)) m.customers = data.customers.map(c => ({ ...c, category: c.category || 'standard' }));
                 
+                m.lastUpdated = data.lastUpdated || 0;
                 m.schemaVersion = SCHEMA_VERSION;
-                this.save(m); return m;
+                return m;
             },
-            save(data) {
+            
+            async save(data) {
+                try { createAutoBackup(data); localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch(e) {}
+                
+                const payloadWrapper = {
+                    baseTimestamp: data.lastUpdated || 0,
+                    payload: data
+                };
+                
                 try {
-                    createAutoBackup(data); localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); return true;
-                } catch (e) {
-                    if (e.name === 'QuotaExceededError' || e.code === 22) { localStorage.removeItem(AUTO_BACKUP_KEY); try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); return true; } catch(retryErr) { return false; } }
-                    return false;
+                    const response = await fetch(GOOGLE_SHEETS_URL, {
+                        method: 'POST',
+                        body: JSON.stringify(payloadWrapper),
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+                    });
+                    const result = await response.json();
+                    
+                    if (result.status === "conflict") {
+                        console.warn("Zaman damgası çakışması! Veriler birleştiriliyor...");
+                        showErrorBanner("Başka bir cihaz işlem yaptı. Veriler birleştirilip tekrar kaydediliyor...");
+                        appSettings = this.smartMerge(result.serverData, data);
+                        await this.save(appSettings);
+                        
+                        applySettingsToUI(); renderCartUI(); renderArchiveUI(); renderLedgerUI(); renderExpensesUI();
+                        dismissErrorBanner();
+                    } 
+                    else if (result.status === "success") {
+                        appSettings.lastUpdated = result.newTimestamp;
+                        lastCloudDataString = JSON.stringify(appSettings);
+                        localStorage.setItem(STORAGE_KEY, JSON.stringify(appSettings));
+                    }
+                } catch(err) {
+                    console.error("Buluta gönderim hatası:", err);
                 }
+                return true;
+            },
+
+            smartMerge(serverData, localData) {
+                let merged = JSON.parse(JSON.stringify(serverData)); 
+                const mergeArrays = (key) => {
+                    if (!localData[key]) return;
+                    if (!merged[key]) merged[key] = [];
+                    localData[key].forEach(localItem => {
+                        const idx = merged[key].findIndex(serverItem => serverItem.id === localItem.id);
+                        if (idx > -1) { merged[key][idx] = localItem; } 
+                        else { merged[key].unshift(localItem); }
+                    });
+                };
+                mergeArrays('cart'); mergeArrays('orderArchive'); mergeArrays('customers'); mergeArrays('expenses');
+                merged.montajPrice = localData.montajPrice; merged.perakendePrice = localData.perakendePrice; merged.kdvRate = localData.kdvRate; merged.cutDeductions = localData.cutDeductions;
+                return merged;
             }
         };
 
+        // --- ARKA PLAN (POLLING) ZAMANLAYICI ---
+        function initBackgroundSync() {
+            setInterval(async () => {
+                try {
+                    const response = await fetch(GOOGLE_SHEETS_URL);
+                    const dataText = await response.text();
+                    
+                    if (dataText === "{}" || dataText === lastCloudDataString) { return; }
+                    
+                    lastCloudDataString = dataText;
+                    const parsedData = JSON.parse(dataText);
+                    appSettings = StorageManager.migrateAndHeal(parsedData);
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(appSettings));
+                    
+                    renderCartUI(); renderArchiveUI(); renderLedgerUI(); renderExpensesUI(); calculateMaterialConsumption();
+                    showSilentSyncNotification();
+                } catch (err) { console.warn("Arka plan senkronizasyonu yapılamadı:", err); }
+            }, 30000); 
+        }
+
+        function showSilentSyncNotification() {
+            const banner = document.createElement('div');
+            banner.className = "fixed bottom-[80px] md:bottom-5 right-5 bg-petrol-800 text-white text-[11px] font-bold px-4 py-2.5 rounded-lg shadow-xl z-[9999] transition-opacity duration-500 flex items-center gap-2 border border-petrol-700";
+            banner.innerHTML = `<i class="fa-solid fa-rotate text-emerald-400 animate-spin"></i> Buluttan yeni veriler alındı`;
+            document.body.appendChild(banner);
+            setTimeout(() => { banner.style.opacity = '0'; setTimeout(() => banner.remove(), 500); }, 3500);
+        }
+
+        // --- 5. İLK YÜKLEME (DOM) ---
         let appSettings = StorageManager.load();
         let currentRowId = 0;
         let isProcessing = false;
@@ -698,6 +847,26 @@
         let formDraftTimer = null;
         let rowCalcTimers = {};
 
+        window.addEventListener('DOMContentLoaded', () => {
+            updateClock(); setInterval(updateClock, 1000); 
+            
+            StorageManager.loadFromCloud(() => {
+                restoreFormDraft(); 
+                applySettingsToUI(); 
+                renderWhatsAppTemplatesUI(); 
+                renderProductRecipes(); 
+                renderCartUI(); 
+                renderArchiveUI(); 
+                renderLedgerUI(); 
+                calculateMaterialConsumption(); 
+                renderExpensesUI(); 
+                setupCustomerAutocomplete();
+                
+                initBackgroundSync();
+            });
+        });
+
+        // --- 6. İŞ SÜREÇLERİ FONKSİYONLARI ---
         function debouncedSaveFormDraft() { clearTimeout(formDraftTimer); formDraftTimer = setTimeout(() => { saveFormDraft(); }, 400); }
         function debouncedCalculateRow(rowId) { if (rowCalcTimers[rowId]) clearTimeout(rowCalcTimers[rowId]); rowCalcTimers[rowId] = setTimeout(() => { calculateRow(rowId); saveFormDraft(); }, 300); }
         function debouncedCalculateGrandTotal() { clearTimeout(formDraftTimer); formDraftTimer = setTimeout(() => { calculateAllRows(); saveFormDraft(); }, 300); }
@@ -732,64 +901,33 @@
             return { tac, dikme, kanat, tul, ip, m2, price };
         }
 
-        window.addEventListener('DOMContentLoaded', () => {
-            updateClock(); setInterval(updateClock, 1000); restoreFormDraft(); applySettingsToUI(); renderWhatsAppTemplatesUI(); renderProductRecipes(); renderCartUI(); renderArchiveUI(); renderLedgerUI(); calculateMaterialConsumption(); renderExpensesUI(); setupCustomerAutocomplete();
-        });
-
-        document.body.addEventListener('focusin', (e) => {
-            if (e.target.tagName === 'INPUT' && (e.target.type === 'number' || e.target.type === 'tel' || e.target.type === 'text')) { setTimeout(() => { e.target.select(); }, 10); }
-        });
-        document.body.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' && e.target.tagName === 'INPUT') {
-                e.preventDefault(); const focusable = Array.from(document.querySelectorAll('input:not([disabled]):not([type="hidden"]), select:not([disabled])'));
-                const index = focusable.indexOf(e.target);
-                if (index > -1 && index + 1 < focusable.length) { focusable[index + 1].focus(); } else { e.target.blur(); }
-            }
-        });
+        document.body.addEventListener('focusin', (e) => { if (e.target.tagName === 'INPUT' && (e.target.type === 'number' || e.target.type === 'tel' || e.target.type === 'text')) { setTimeout(() => { e.target.select(); }, 10); } });
+        document.body.addEventListener('keydown', (e) => { if (e.key === 'Enter' && e.target.tagName === 'INPUT') { e.preventDefault(); const focusable = Array.from(document.querySelectorAll('input:not([disabled]):not([type="hidden"]), select:not([disabled])')); const index = focusable.indexOf(e.target); if (index > -1 && index + 1 < focusable.length) { focusable[index + 1].focus(); } else { e.target.blur(); } } });
 
         function setupCustomerAutocomplete() {
             const nameInput = document.getElementById('custName'), phoneInput = document.getElementById('custPhone');
             if (!nameInput || !phoneInput) return;
             const suggestionBox = document.createElement('div'); suggestionBox.id = 'customerSuggestions'; suggestionBox.className = 'absolute z-50 w-full bg-white border border-slate-200 shadow-xl rounded-lg max-h-48 overflow-y-auto hidden mt-1 left-0';
             nameInput.parentElement.style.position = 'relative'; phoneInput.parentElement.style.position = 'relative';
-
-            function filterCustomers(query) {
-                if (!query || query.length < 2) return []; const q = query.toLowerCase();
-                return (appSettings.customers || []).filter(c => c.name.toLowerCase().includes(q) || (c.phone && c.phone.includes(q))).slice(0, 6);
-            }
+            function filterCustomers(query) { if (!query || query.length < 2) return []; const q = query.toLowerCase(); return (appSettings.customers || []).filter(c => c.name.toLowerCase().includes(q) || (c.phone && c.phone.includes(q))).slice(0, 6); }
             function renderSuggestions(matches, targetInput) {
                 if (matches.length === 0) { suggestionBox.classList.add('hidden'); return; }
-                suggestionBox.innerHTML = matches.map(c => `
-                    <div class="p-3 border-b border-slate-100 hover:bg-petrol-50 cursor-pointer transition flex flex-col" onclick="applySelectedCustomer('${c.id}')">
-                        <span class="font-black text-petrol-900 text-xs flex items-center gap-1.5"><i class="fa-solid fa-user text-petrol-500"></i> ${escapeHTML(c.name)}</span>
-                        <span class="text-[10px] text-slate-500 font-bold mt-0.5">${escapeHTML(c.phone || '-')} • ${escapeHTML(c.address || 'Adres Yok')}</span>
-                    </div>`).join('');
+                suggestionBox.innerHTML = matches.map(c => `<div class="p-3 border-b border-slate-100 hover:bg-petrol-50 cursor-pointer transition flex flex-col" onclick="applySelectedCustomer('${c.id}')"><span class="font-black text-petrol-900 text-xs flex items-center gap-1.5"><i class="fa-solid fa-user text-petrol-500"></i> ${escapeHTML(c.name)}</span><span class="text-[10px] text-slate-500 font-bold mt-0.5">${escapeHTML(c.phone || '-')} • ${escapeHTML(c.address || 'Adres Yok')}</span></div>`).join('');
                 targetInput.parentElement.appendChild(suggestionBox); suggestionBox.classList.remove('hidden');
             }
-            nameInput.addEventListener('input', (e) => renderSuggestions(filterCustomers(e.target.value), nameInput));
-            phoneInput.addEventListener('input', (e) => renderSuggestions(filterCustomers(e.target.value), phoneInput));
+            nameInput.addEventListener('input', (e) => renderSuggestions(filterCustomers(e.target.value), nameInput)); phoneInput.addEventListener('input', (e) => renderSuggestions(filterCustomers(e.target.value), phoneInput));
             document.addEventListener('click', (e) => { if (e.target !== nameInput && e.target !== phoneInput && !suggestionBox.contains(e.target)) { suggestionBox.classList.add('hidden'); } });
         }
         window.applySelectedCustomer = function(custId) {
             const c = (appSettings.customers || []).find(x => x.id === custId);
-            if (c) {
-                document.getElementById('custName').value = c.name; document.getElementById('custPhone').value = c.phone || ''; document.getElementById('custAddress').value = c.address || '';
-                document.getElementById('customerSuggestions').classList.add('hidden'); debouncedSaveFormDraft();
-            }
+            if (c) { document.getElementById('custName').value = c.name; document.getElementById('custPhone').value = c.phone || ''; document.getElementById('custAddress').value = c.address || ''; document.getElementById('customerSuggestions').classList.add('hidden'); debouncedSaveFormDraft(); }
         };
 
         function saveFormDraft() {
-            const draftData = {
-                custName: document.getElementById('custName')?.value || '', custPhone: document.getElementById('custPhone')?.value || '', custAddress: document.getElementById('custAddress')?.value || '',
-                salesTariff: document.getElementById('salesTariff')?.value || '', extraLabor: document.getElementById('extraLabor')?.value || '0', kdvStatus: document.getElementById('kdvStatus')?.value || 'haric', rows: []
-            };
+            const draftData = { custName: document.getElementById('custName')?.value || '', custPhone: document.getElementById('custPhone')?.value || '', custAddress: document.getElementById('custAddress')?.value || '', salesTariff: document.getElementById('salesTariff')?.value || '', extraLabor: document.getElementById('extraLabor')?.value || '0', kdvStatus: document.getElementById('kdvStatus')?.value || 'haric', rows: [] };
             document.querySelectorAll('#measureRowsContainer > div').forEach(c => {
                 let accs = []; c.querySelectorAll('.custom-acc-item').forEach(it => { let s = it.querySelector('.acc-select'); if (s && s.value) accs.push({ accId: s.value, qty: parseInt(it.querySelector('.acc-qty').value) || 1 }); });
-                draftData.rows.push({
-                    qty: c.querySelector('.inp-qty')?.value || 1, pType: c.querySelector('.product-type')?.value || '', mType: c.querySelector('.measure-type')?.value || '', color: c.querySelector('.color-type')?.value || '',
-                    dir: c.querySelector('.opt-dir')?.value || '', menteseliTip: c.querySelector('.opt-menteseli-tip')?.value || '', tulType: c.querySelector('.opt-tul')?.value || '', caseType: c.querySelector('.opt-case')?.value || '', magnetType: c.querySelector('.opt-magnet')?.value || '',
-                    en: c.querySelector('.inp-en')?.value || '', boy: c.querySelector('.inp-boy')?.value || '', note: c.querySelector('.inp-note')?.value || '', customAccessories: accs
-                });
+                draftData.rows.push({ qty: c.querySelector('.inp-qty')?.value || 1, pType: c.querySelector('.product-type')?.value || '', mType: c.querySelector('.measure-type')?.value || '', color: c.querySelector('.color-type')?.value || '', dir: c.querySelector('.opt-dir')?.value || '', menteseliTip: c.querySelector('.opt-menteseli-tip')?.value || '', tulType: c.querySelector('.opt-tul')?.value || '', caseType: c.querySelector('.opt-case')?.value || '', magnetType: c.querySelector('.opt-magnet')?.value || '', en: c.querySelector('.inp-en')?.value || '', boy: c.querySelector('.inp-boy')?.value || '', note: c.querySelector('.inp-note')?.value || '', customAccessories: accs });
             });
             localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(draftData));
         }
@@ -797,8 +935,7 @@
         function restoreFormDraft() {
             try {
                 const raw = localStorage.getItem(DRAFT_STORAGE_KEY); if (!raw) { addMeasureRow(); return; } const draft = JSON.parse(raw);
-                document.getElementById('custName').value = draft.custName || ''; document.getElementById('custPhone').value = draft.custPhone || ''; document.getElementById('custAddress').value = draft.custAddress || '';
-                document.getElementById('salesTariff').value = draft.salesTariff || ''; document.getElementById('extraLabor').value = draft.extraLabor || '0'; document.getElementById('kdvStatus').value = draft.kdvStatus || 'haric';
+                document.getElementById('custName').value = draft.custName || ''; document.getElementById('custPhone').value = draft.custPhone || ''; document.getElementById('custAddress').value = draft.custAddress || ''; document.getElementById('salesTariff').value = draft.salesTariff || ''; document.getElementById('extraLabor').value = draft.extraLabor || '0'; document.getElementById('kdvStatus').value = draft.kdvStatus || 'haric';
                 document.getElementById('measureRowsContainer').innerHTML = ''; currentRowId = 0;
                 if (Array.isArray(draft.rows) && draft.rows.length > 0) { draft.rows.forEach(r => addMeasureRow(r)); } else { addMeasureRow(); } calculateAllRows();
             } catch(e) { addMeasureRow(); }
@@ -807,68 +944,31 @@
         function updateClock() { const now = new Date(); const clockEl = document.getElementById('clock'); if (clockEl) clockEl.innerText = `${now.toLocaleDateString('tr-TR')} | ${now.toLocaleTimeString('tr-TR')}`; }
         
         function switchTab(tabName) {
-            document.querySelectorAll('section[id^="sec-"]').forEach(sec => sec.classList.add('hidden'));
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            document.querySelectorAll('.mobile-nav-btn').forEach(btn => btn.classList.remove('active'));
-            
-            const targetSec = document.getElementById(`sec-${tabName}`);
-            const targetTab = document.getElementById(`tab-${tabName}`);
-            const targetMobTab = document.getElementById(`mob-tab-${tabName}`);
-            
-            if (targetSec) targetSec.classList.remove('hidden'); 
-            if (targetTab) targetTab.classList.add('active'); 
-            if (targetMobTab) targetMobTab.classList.add('active');
-            
-            const scrollArea = document.getElementById('mainScrollArea'); 
-            if (scrollArea) scrollArea.scrollTop = 0;
-            
-            if (tabName === 'settings') { applySettingsToUI(); renderWhatsAppTemplatesUI(); renderProductRecipes(); }
-            else if (tabName === 'consumption') calculateMaterialConsumption();
-            else if (tabName === 'cart') renderCartUI();
-            else if (tabName === 'archive') renderArchiveUI();
-            else if (tabName === 'ledger') renderLedgerUI();
-            else if (tabName === 'expenses') renderExpensesUI();
+            document.querySelectorAll('section[id^="sec-"]').forEach(sec => sec.classList.add('hidden')); document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active')); document.querySelectorAll('.mobile-nav-btn').forEach(btn => btn.classList.remove('active'));
+            const targetSec = document.getElementById(`sec-${tabName}`); const targetTab = document.getElementById(`tab-${tabName}`); const targetMobTab = document.getElementById(`mob-tab-${tabName}`);
+            if (targetSec) targetSec.classList.remove('hidden'); if (targetTab) targetTab.classList.add('active'); if (targetMobTab) targetMobTab.classList.add('active');
+            const scrollArea = document.getElementById('mainScrollArea'); if (scrollArea) scrollArea.scrollTop = 0;
+            if (tabName === 'settings') { applySettingsToUI(); renderWhatsAppTemplatesUI(); renderProductRecipes(); } else if (tabName === 'consumption') calculateMaterialConsumption(); else if (tabName === 'cart') renderCartUI(); else if (tabName === 'archive') renderArchiveUI(); else if (tabName === 'ledger') renderLedgerUI(); else if (tabName === 'expenses') renderExpensesUI();
         }
 
         function setQuickDimension(rowId, field, val) { const card = document.getElementById(`row-${rowId}`); if (!card) return; const input = card.querySelector(field === 'en' ? '.inp-en' : '.inp-boy'); if (!input || input.disabled) return; input.value = val; calculateRow(rowId); saveFormDraft(); }
-        function swapDimensions(rowId) {
-            const card = document.getElementById(`row-${rowId}`); if (!card) return;
-            const enInput = card.querySelector('.inp-en'), boyInput = card.querySelector('.inp-boy');
-            if (!enInput || !boyInput || enInput.disabled || boyInput.disabled) return;
-            const cEn = enInput.value, cBoy = boyInput.value; if (!cEn && !cBoy) return;
-            enInput.value = cBoy; boyInput.value = cEn; calculateRow(rowId); saveFormDraft();
-        }
+        function swapDimensions(rowId) { const card = document.getElementById(`row-${rowId}`); if (!card) return; const enInput = card.querySelector('.inp-en'), boyInput = card.querySelector('.inp-boy'); if (!enInput || !boyInput || enInput.disabled || boyInput.disabled) return; const cEn = enInput.value, cBoy = boyInput.value; if (!cEn && !cBoy) return; enInput.value = cBoy; boyInput.value = cEn; calculateRow(rowId); saveFormDraft(); }
         function copyFromPreviousRow(targetRowId) {
             const targetCard = document.getElementById(`row-${targetRowId}`); if (!targetCard) return;
             const prevCard = targetCard.previousElementSibling; if (!prevCard || !prevCard.id.startsWith('row-')) { alert("Kopyalanacak bir üst satır bulunamadı!"); return; }
             const pType = prevCard.querySelector('.product-type')?.value || ''; if (!pType) { alert("Üst satır yapılandırılmamış."); return; }
-            targetCard.querySelector('.inp-qty').value = prevCard.querySelector('.inp-qty')?.value || 1;
-            targetCard.querySelector('.product-type').value = pType; stepSelect(targetRowId, 1);
-            targetCard.querySelector('.measure-type').value = prevCard.querySelector('.measure-type')?.value || ''; stepSelect(targetRowId, 2);
-            targetCard.querySelector('.color-type').value = prevCard.querySelector('.color-type')?.value || ''; stepSelect(targetRowId, 3);
+            targetCard.querySelector('.inp-qty').value = prevCard.querySelector('.inp-qty')?.value || 1; targetCard.querySelector('.product-type').value = pType; stepSelect(targetRowId, 1); targetCard.querySelector('.measure-type').value = prevCard.querySelector('.measure-type')?.value || ''; stepSelect(targetRowId, 2); targetCard.querySelector('.color-type').value = prevCard.querySelector('.color-type')?.value || ''; stepSelect(targetRowId, 3);
             const dir = prevCard.querySelector('.opt-dir')?.value || '', menteseliTip = prevCard.querySelector('.opt-menteseli-tip')?.value || '', tulType = prevCard.querySelector('.opt-tul')?.value || '', caseType = prevCard.querySelector('.opt-case')?.value || '', magnetType = prevCard.querySelector('.opt-magnet')?.value || '';
-            if (dir && targetCard.querySelector('.opt-dir')) targetCard.querySelector('.opt-dir').value = dir;
-            if (menteseliTip && targetCard.querySelector('.opt-menteseli-tip')) targetCard.querySelector('.opt-menteseli-tip').value = menteseliTip;
-            if (tulType && targetCard.querySelector('.opt-tul')) targetCard.querySelector('.opt-tul').value = tulType;
-            if (caseType && targetCard.querySelector('.opt-case')) targetCard.querySelector('.opt-case').value = caseType;
-            if (magnetType && targetCard.querySelector('.opt-magnet')) targetCard.querySelector('.opt-magnet').value = magnetType;
-            targetCard.querySelector('.inp-en').value = prevCard.querySelector('.inp-en')?.value || '';
-            targetCard.querySelector('.inp-boy').value = prevCard.querySelector('.inp-boy')?.value || '';
-            targetCard.querySelector('.inp-note').value = prevCard.querySelector('.inp-note')?.value || '';
+            if (dir && targetCard.querySelector('.opt-dir')) targetCard.querySelector('.opt-dir').value = dir; if (menteseliTip && targetCard.querySelector('.opt-menteseli-tip')) targetCard.querySelector('.opt-menteseli-tip').value = menteseliTip; if (tulType && targetCard.querySelector('.opt-tul')) targetCard.querySelector('.opt-tul').value = tulType; if (caseType && targetCard.querySelector('.opt-case')) targetCard.querySelector('.opt-case').value = caseType; if (magnetType && targetCard.querySelector('.opt-magnet')) targetCard.querySelector('.opt-magnet').value = magnetType;
+            targetCard.querySelector('.inp-en').value = prevCard.querySelector('.inp-en')?.value || ''; targetCard.querySelector('.inp-boy').value = prevCard.querySelector('.inp-boy')?.value || ''; targetCard.querySelector('.inp-note').value = prevCard.querySelector('.inp-note')?.value || '';
             const targetAccContainer = document.getElementById(`rowAccessoriesContainer-${targetRowId}`);
-            if (targetAccContainer) {
-                targetAccContainer.innerHTML = '';
-                prevCard.querySelectorAll('.custom-acc-item').forEach(it => { const s = it.querySelector('.acc-select'), q = it.querySelector('.acc-qty'); if (s && s.value) addRowAccessory(targetRowId, s.value, parseInt(q.value) || 1); });
-            }
+            if (targetAccContainer) { targetAccContainer.innerHTML = ''; prevCard.querySelectorAll('.custom-acc-item').forEach(it => { const s = it.querySelector('.acc-select'), q = it.querySelector('.acc-qty'); if (s && s.value) addRowAccessory(targetRowId, s.value, parseInt(q.value) || 1); }); }
             calculateRow(targetRowId); saveFormDraft();
         }
 
         function addMeasureRow(initialData = null) {
             let inheritedData = null;
-            if (!initialData) {
-                const existingRows = document.querySelectorAll('#measureRowsContainer > div');
-                if (existingRows.length > 0) { const lastRow = existingRows[existingRows.length - 1]; inheritedData = { pType: lastRow.querySelector('.product-type')?.value || '', mType: lastRow.querySelector('.measure-type')?.value || '', color: lastRow.querySelector('.color-type')?.value || '' }; }
-            }
+            if (!initialData) { const existingRows = document.querySelectorAll('#measureRowsContainer > div'); if (existingRows.length > 0) { const lastRow = existingRows[existingRows.length - 1]; inheritedData = { pType: lastRow.querySelector('.product-type')?.value || '', mType: lastRow.querySelector('.measure-type')?.value || '', color: lastRow.querySelector('.color-type')?.value || '' }; } }
             currentRowId++; const div = document.createElement('div'); div.id = `row-${currentRowId}`; div.className = "bg-slate-50 border border-slate-200 rounded-xl p-3 md:p-5 shadow-sm relative transition-all";
             div.innerHTML = `
                 <div class="flex justify-between items-center border-b border-slate-200 pb-2.5 mb-3"><span class="font-extrabold text-sm md:text-base text-petrol-900 flex items-center gap-2"><i class="fa-solid fa-list-ol text-petrol-500"></i> Satır #<span class="row-seq">1</span></span><div class="flex items-center gap-2"><button type="button" onclick="copyFromPreviousRow(${currentRowId})" class="bg-slate-100 hover:bg-petrol-100 text-petrol-800 border border-slate-300 px-2.5 py-1.5 rounded-md text-xs font-bold transition flex items-center gap-1.5 shadow-sm"><i class="fa-solid fa-copy text-petrol-600"></i> <span class="hidden sm:inline">Üstten Kopyala</span></button><button type="button" onclick="removeRow(${currentRowId})" class="text-red-500 hover:bg-red-50 px-2.5 py-1.5 rounded-md text-xs font-bold transition flex items-center gap-1.5 border border-transparent"><i class="fa-solid fa-trash"></i> <span class="hidden sm:inline">Sil</span></button></div></div>
@@ -915,8 +1015,7 @@
         }
 
         function addRowAccessory(rowId, preAccId = '', preQty = 1) {
-            let opts = '<option value="">-- Aksesuar Seç --</option>';
-            appSettings.productGroups?.forEach(pg => pg.accessories.forEach(a => { opts += `<option value="${a.id}" data-cost="${a.cost}">${escapeHTML(pg.name)} > ${escapeHTML(a.name)} (${a.cost} ₺)</option>`; }));
+            let opts = '<option value="">-- Aksesuar Seç --</option>'; appSettings.productGroups?.forEach(pg => pg.accessories.forEach(a => { opts += `<option value="${a.id}" data-cost="${a.cost}">${escapeHTML(pg.name)} > ${escapeHTML(a.name)} (${a.cost} ₺)</option>`; }));
             const div = document.createElement('div'); div.className = "flex gap-2 custom-acc-item text-[12px] bg-white p-2 rounded-lg border border-slate-200 shadow-sm";
             div.innerHTML = `<select onchange="calculateRow(${rowId}); saveFormDraft();" class="acc-select w-full border border-slate-300 rounded px-2 py-1.5 bg-slate-50 font-bold outline-none">${opts}</select><input type="number" min="1" value="${preQty}" oninput="calculateRow(${rowId}); saveFormDraft();" class="acc-qty w-16 border border-slate-300 rounded text-center px-2 py-1.5 font-bold outline-none"><button type="button" onclick="this.parentElement.remove(); calculateRow(${rowId}); saveFormDraft();" class="text-red-500 px-2 py-1.5 rounded"><i class="fa-solid fa-xmark"></i></button>`;
             document.getElementById(`rowAccessoriesContainer-${rowId}`).appendChild(div); if (preAccId) div.querySelector('.acc-select').value = preAccId;
@@ -951,8 +1050,7 @@
         function calculateAllRows() { document.querySelectorAll('#measureRowsContainer > div').forEach(c => calculateRow(c.id.split('-')[1])); }
         function calculateGrandTotal() {
             if (!document.getElementById('salesTariff').value) { document.getElementById('grandTotalDisplay').innerText = "Tarife Seç"; document.getElementById('estimatedCostDisplay').innerText = "Maliyet: 0.00 ₺"; return; }
-            let t = 0, raw = 0;
-            document.querySelectorAll('#measureRowsContainer > div').forEach(c => { t += roundMoney(c.querySelector('.out-price').innerText); raw += roundMoney(c.querySelector('.out-m2').innerText) * 80; });
+            let t = 0, raw = 0; document.querySelectorAll('#measureRowsContainer > div').forEach(c => { t += roundMoney(c.querySelector('.out-price').innerText); raw += roundMoney(c.querySelector('.out-m2').innerText) * 80; });
             t += roundMoney(document.getElementById('extraLabor').value);
             if (document.getElementById('kdvStatus').value === 'dahil') { t = roundMoney(t * (1 + (appSettings.kdvRate / 100))); }
             document.getElementById('grandTotalDisplay').innerText = t.toFixed(2) + ' ₺'; document.getElementById('estimatedCostDisplay').innerText = `Maliyet: ${roundMoney(raw).toFixed(2)} ₺`;
@@ -974,7 +1072,7 @@
             clearFormDraft(); document.getElementById('custName').value = ''; document.getElementById('custPhone').value = ''; document.getElementById('custAddress').value = ''; document.getElementById('salesTariff').value = ''; document.getElementById('extraLabor').value = '0'; document.getElementById('kdvStatus').value = 'haric'; document.getElementById('measureRowsContainer').innerHTML = ''; currentRowId = 0; addMeasureRow(); calculateGrandTotal();
         }
 
-        // --- SEPET & TOPLU İŞLEMLER ---
+        // --- 7. SEPET & TOPLU İŞLEMLER ---
         function addOrderToCartAction() {
             if (isProcessing) return; const ord = getOrderData(); if (ord.items.length === 0) { alert("En az 1 ölçü satırı giriniz!"); return; }
             try { isProcessing = true; if (!appSettings.cart) appSettings.cart = []; appSettings.cart.unshift(ord); StorageManager.save(appSettings); clearFormDraft(); renderCartUI(); alert(`Sipariş #${ord.id} sepete eklendi!`); switchTab('cart'); } finally { isProcessing = false; }
@@ -990,9 +1088,7 @@
             if (!cnt) return; let cart = appSettings.cart || [];
             if (badge) badge.innerText = cart.length; if (mobBadge) { mobBadge.innerText = cart.length; if (cart.length > 0) mobBadge.classList.remove('hidden'); else mobBadge.classList.add('hidden'); }
             const startDateStr = document.getElementById('cartFilterStartDate')?.value, endDateStr = document.getElementById('cartFilterEndDate')?.value;
-            if (startDateStr || endDateStr) {
-                cart = cart.filter(o => { const oDate = parseTurkishDate(o.date); if (!oDate) return true; if (startDateStr && oDate < new Date(startDateStr)) return false; if (endDateStr) { const endD = new Date(endDateStr); endD.setHours(23, 59, 59, 999); if (oDate > endD) return false; } return true; });
-            }
+            if (startDateStr || endDateStr) { cart = cart.filter(o => { const oDate = parseTurkishDate(o.date); if (!oDate) return true; if (startDateStr && oDate < new Date(startDateStr)) return false; if (endDateStr) { const endD = new Date(endDateStr); endD.setHours(23, 59, 59, 999); if (oDate > endD) return false; } return true; }); }
             if (sumBadge) sumBadge.innerText = `${cart.length} Sipariş Bekliyor`;
             if (cart.length === 0) { cnt.innerHTML = '<div class="text-center py-10 text-slate-400 font-semibold">Sipariş bulunmuyor.</div>'; return; }
 
@@ -1041,6 +1137,7 @@
 
         function toggleAllCartItems(checked) { document.querySelectorAll('.cart-item-checkbox').forEach(cb => cb.checked = checked); }
         function getSelectedCartOrders() { const ids = Array.from(document.querySelectorAll('.cart-item-checkbox:checked')).map(cb => cb.value); return (appSettings.cart || []).filter(o => ids.includes(o.id)); }
+        
         function bulkAction(actionType) {
             const selectedOrders = getSelectedCartOrders(); if (selectedOrders.length === 0) return alert("Lütfen işlem yapmak için en az bir sipariş seçiniz!");
             if (actionType === 'delete') {
@@ -1057,6 +1154,7 @@
                 }
             }
         }
+        
         function updateCartOrderFieldById(orderId, field, val) { const num = parseFloat(val); if (isNaN(num) || num < 0) return; const ord = (appSettings.cart || []).find(o => o.id === orderId); if (ord) { ord[field] = num; StorageManager.save(appSettings); renderCartUI(); } }
         function updateCartItemDimensionById(orderId, itemIdx, field, val) {
             const num = parseFloat(val); if (isNaN(num) || num <= 0) return; const ord = (appSettings.cart || []).find(o => o.id === orderId); if (!ord || !ord.items[itemIdx]) return;
@@ -1065,10 +1163,10 @@
             if (it.pType === 'plise') {
                 const mul = ((!isDikey ? ((it.en * 2) + (it.boy * 3)) : ((it.en * 3) + (it.boy * 2))) / 100) * it.qty; const katSayisi = isDikey ? Math.floor((it.boy / 2.5) - 2) : Math.floor((it.en / 2.5) - 2);
                 if (it.mType === 'ic') { it.tac = (it.en + pCut.ic.tac).toFixed(1); it.dikme = (it.boy + pCut.ic.dikme).toFixed(1); it.kanat = isDikey ? (it.en - pCut.ic.kanat).toFixed(1) : (it.boy - pCut.ic.kanat).toFixed(1); it.tul = isDikey ? (it.en + pCut.ic.tul).toFixed(1) : (it.boy + pCut.ic.tul).toFixed(1); it.ip = `${(it.en + it.boy + 26).toFixed(0)}cm / ${katSayisi}k`; } 
-                else { it.tac = (it.en - pCut.dis.tac).toFixed(1); it.dikme = (it.boy - pCut.dis.dikme).toFixed(1); it.kanat = isDikey ? (it.en - pCut.dis.kanat).toFixed(1) : (boy - pCut.dis.kanat).toFixed(1); it.tul = isDikey ? (it.en - pCut.dis.tul).toFixed(1) : (boy - pCut.dis.tul).toFixed(1); it.ip = `${(it.en + it.boy + 10).toFixed(0)}cm / ${katSayisi}k`; }
+                else { it.tac = (it.en - pCut.dis.tac).toFixed(1); it.dikme = (it.boy - pCut.dis.dikme).toFixed(1); it.kanat = isDikey ? (it.en - pCut.dis.kanat).toFixed(1) : (it.boy - pCut.dis.kanat).toFixed(1); it.tul = isDikey ? (it.en - pCut.dis.tul).toFixed(1) : (it.boy - pCut.dis.tul).toFixed(1); it.ip = `${(it.en + it.boy + 10).toFixed(0)}cm / ${katSayisi}k`; }
                 it.m2 = mul.toFixed(2);
             } else {
-                let isKapi = it.menteseliTip.includes('kapi'); const mul = ((isKapi ? ((it.en * 4) + (boy * 2)) : ((it.en * 2) + (it.boy * 2))) / 100) * it.qty;
+                let isKapi = it.menteseliTip.includes('kapi'); const mul = ((isKapi ? ((it.en * 4) + (it.boy * 2)) : ((it.en * 2) + (it.boy * 2))) / 100) * it.qty;
                 if (it.mType === 'dis') { it.tac = (it.en - mCut.dis.tac).toFixed(1); it.dikme = (it.boy - mCut.dis.dikme).toFixed(1); it.kanat = (it.boy - mCut.dis.kanat).toFixed(1); it.tul = (it.boy - mCut.dis.tul).toFixed(1); } 
                 else { it.tac = (it.en + mCut.ic.tac).toFixed(1); it.dikme = (it.boy + mCut.ic.dikme).toFixed(1); it.kanat = (it.boy - mCut.ic.kanat).toFixed(1); it.tul = (it.boy + mCut.ic.tul).toFixed(1); }
                 it.m2 = mul.toFixed(2);
@@ -1083,7 +1181,7 @@
             document.getElementById('measureRowsContainer').innerHTML = ''; currentRowId = 0; if (o.items && o.items.length > 0) o.items.forEach(it => addMeasureRow(it)); else addMeasureRow(); calculateGrandTotal(); saveFormDraft(); switchTab('order');
         }
 
-        // --- ARŞİV (GEÇMİŞ) ---
+        // --- 8. ARŞİV ---
         function renderArchiveUI() {
             const cnt = document.getElementById('archiveListContainer'); if(!cnt) return;
             const q = (document.getElementById('archiveSearchInput').value || '').toLowerCase();
@@ -1093,8 +1191,7 @@
             if (list.length === 0) { cnt.innerHTML = `<div class="text-center py-10 text-slate-400 font-semibold">Arşivde aranan kritere uygun sipariş bulunmuyor.</div>`; return; }
 
             cnt.innerHTML = list.map(o => {
-                const itemRows = (o.items || []).map(it => `
-                    <tr class="border-b border-slate-100 hover:bg-slate-50 transition"><td class="p-2 text-center font-bold">${it.qty}</td><td class="p-2 font-bold">${it.pType.toUpperCase()} (${it.color})</td><td class="p-2 text-xs text-slate-500">${it.dir} ${it.tulType}</td><td class="p-2 text-center font-black">${it.en}</td><td class="p-2 text-center font-black">${it.boy}</td><td class="p-2 font-mono text-[10px] text-center">T:${it.tac} D:${it.dikme} K:${it.kanat}</td><td class="p-2 text-right font-bold text-emerald-600">${it.price}</td></tr>`).join('');
+                const itemRows = (o.items || []).map(it => `<tr class="border-b border-slate-100 hover:bg-slate-50 transition"><td class="p-2 text-center font-bold">${it.qty}</td><td class="p-2 font-bold">${it.pType.toUpperCase()} (${it.color})</td><td class="p-2 text-xs text-slate-500">${it.dir} ${it.tulType}</td><td class="p-2 text-center font-black">${it.en}</td><td class="p-2 text-center font-black">${it.boy}</td><td class="p-2 font-mono text-[10px] text-center">T:${it.tac} D:${it.dikme} K:${it.kanat}</td><td class="p-2 text-right font-bold text-emerald-600">${it.price}</td></tr>`).join('');
                 return `
                 <div class="border border-slate-200 rounded-xl overflow-hidden shadow-sm bg-white">
                     <div class="bg-slate-50 p-3 flex justify-between items-center cursor-pointer hover:bg-slate-100 transition" onclick="document.getElementById('archive-detail-${o.id}').classList.toggle('hidden')">
@@ -1126,7 +1223,7 @@
             }
         }
 
-        // --- CARİ / HESAP YÖNETİMİ ---
+        // --- 9. CARİ HESAPLAR ---
         function findOrCreateCustomer(name, phone, address = '', category = 'standard') {
             if (!appSettings.customers) appSettings.customers = []; const cleanPhone = (phone || '').replace(/\D/g, ''); const trimmedName = (name || '').trim().toLowerCase();
             let cust = appSettings.customers.find(c => { const cClean = (c.phone || '').replace(/\D/g, ''); return (cleanPhone && cClean && cleanPhone === cClean) || (c.name.trim().toLowerCase() === trimmedName); });
@@ -1285,7 +1382,7 @@
             if (!src || !tgt) return; if (confirm(`Hesaplar birleşecek?`)) { (src.transactions || []).forEach(t => { tgt.transactions.push({ ...t, desc: `[Devir: ${src.name}] ` + t.desc }); }); appSettings.customers = appSettings.customers.filter(c => c.id !== src.id); StorageManager.save(appSettings); closeMergeModal(); closeCustomerLedgerModal(); renderLedgerUI(); }
         }
 
-        // --- TÜKETİM ANALİZİ (ARŞİVDEN) ---
+        // --- 10. TÜKETİM VE GİDER (MASRAF) ---
         function calculateMaterialConsumption() {
             const tbody = document.getElementById('consumptionTableBody'); if (!tbody) return;
             let allItems = [];
@@ -1329,7 +1426,6 @@
             `;
         }
 
-        // --- GİDER, ÖDEME VE TELEFON HATIRLATICI MOTORU ---
         function renderExpensesUI() {
             const tbody = document.getElementById('expensesTableBody'); const catSelect = document.getElementById('newExpCategory'); if (!tbody || !catSelect) return;
             catSelect.innerHTML = (appSettings.expenseCategories || []).map(c => `<option value="${escapeHTML(c)}">${escapeHTML(c)}</option>`).join('');
@@ -1389,7 +1485,7 @@
             document.body.appendChild(link); link.click(); document.body.removeChild(link);
         }
 
-        // --- AYARLAR VE VERİ YÖNETİMİ ---
+        // --- 11. AYARLAR, JSON VE MASTER İŞLEMLER ---
         function applySettingsToUI() {
             document.getElementById('settingMontajPrice').value = appSettings.montajPrice; document.getElementById('settingPerakendePrice').value = appSettings.perakendePrice; document.getElementById('settingKdvRate').value = appSettings.kdvRate; document.getElementById('settingMinM2').value = appSettings.minM2;
             const c = appSettings.cutDeductions || DEFAULT_SETTINGS.cutDeductions;
@@ -1448,7 +1544,7 @@
         function importSettingsBackup(e) {
             const file = e.target.files[0]; if (!file) return; const r = new FileReader();
             r.onload = (ev) => {
-                try { const parsed = JSON.parse(ev.target.result); if (parsed) { appSettings = StorageManager.migrateAndHeal(parsed); applySettingsToUI(); renderWhatsAppTemplatesUI(); renderProductRecipes(); calculateAllRows(); renderCartUI(); renderLedgerUI(); calculateMaterialConsumption(); alert("Veriler yüklendi!"); } } catch (err) { alert("Hata: " + err.message); }
+                try { const parsed = JSON.parse(ev.target.result); if (parsed) { appSettings = StorageManager.migrateAndHeal(parsed); applySettingsToUI(); renderWhatsAppTemplatesUI(); renderProductRecipes(); calculateAllRows(); renderCartUI(); renderLedgerUI(); calculateMaterialConsumption(); alert("Veriler yüklendi!"); StorageManager.save(appSettings); } } catch (err) { alert("Hata: " + err.message); }
             }; r.readAsText(file);
         }
 
