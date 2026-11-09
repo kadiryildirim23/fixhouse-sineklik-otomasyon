@@ -4,8 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Fix House - İleri Ölçü, Tüketim Analizi, Finans & Cari Yönetim Sistemi</title>
-    
-    <!-- CDN ve Fallback Desteği -->
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         if (!window.tailwind) {
@@ -50,10 +49,12 @@
             body > *:not(.print-only) { display: none !important; }
             .print-only { display: block !important; position: absolute; left: 0; top: 0; width: 100%; margin: 0; padding: 0; }
             html, body { background: white !important; margin: 0 !important; padding: 0 !important; min-height: 0 !important; height: auto !important; overflow: visible !important; }
-            
+
             @page a4page { size: A4 portrait; margin: 6mm; }
             .a4-print-container { page: a4page; width: 100%; max-width: 210mm; box-sizing: border-box; font-family: Arial, sans-serif; color: #000; }
+
             .print-header { border-bottom: 2px solid #0f766e; padding-bottom: 8px; margin-bottom: 10px; }
+
             .print-table { width: 100% !important; border-collapse: collapse !important; font-size: 8pt !important; }
             .print-table th, .print-table td { border: 1px solid #334155 !important; padding: 3px 4px !important; text-align: center !important; line-height: 1.15 !important; vertical-align: middle !important; }
             .print-table th { background-color: #f1f5f9 !important; font-weight: bold !important; font-size: 8pt !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
@@ -63,25 +64,25 @@
             .a5-receipt-container { page: a5page; width: 100%; box-sizing: border-box; font-family: Arial, sans-serif; color: #000; padding: 6mm; }
 
             @page zebra { size: 100mm 50mm; margin: 0mm; }
-            .zebra-label { 
-                page: zebra; 
-                page-break-after: always; 
+            .zebra-label {
+                page: zebra;
+                page-break-after: always;
                 page-break-inside: avoid;
-                width: 98mm; 
-                height: 48mm; 
-                margin: 1mm auto; 
-                padding: 1.5mm 2.5mm; 
-                box-sizing: border-box; 
-                display: flex; 
-                flex-direction: column; 
-                justify-content: space-between; 
-                font-family: Arial, sans-serif; 
-                color: #000; 
+                width: 98mm;
+                height: 48mm;
+                margin: 1mm auto;
+                padding: 1.5mm 2.5mm;
+                box-sizing: border-box;
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+                font-family: Arial, sans-serif;
+                color: #000;
                 background: #fff;
                 overflow: hidden;
             }
         }
-        
+
         .print-only { display: none; }
         .tab-btn { border-bottom: 3px solid transparent; border-left: 0px solid transparent; }
         @media (min-width: 768px) { .tab-btn { border-bottom: 0px solid transparent; border-left: 4px solid transparent; } }
@@ -96,7 +97,6 @@
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-        /* MOBİL DOKUNMATİK VE DİKEY EKRAN OPTİMİZASYONLARI */
         @media (max-width: 768px) {
             input, select, textarea { font-size: 16px !important; min-height: 44px !important; border-radius: 8px !important; }
             button { min-height: 44px !important; touch-action: manipulation; user-select: none; -webkit-tap-highlight-color: transparent; }
@@ -107,9 +107,29 @@
             .mobile-nav-btn i { font-size: 18px; }
             #mainScrollArea { padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px)) !important; }
         }
+
+        #loginOverlay { position: fixed; inset: 0; z-index: 200; background: #042f2e; display: flex; align-items: center; justify-content: center; }
+        #loginOverlay.hidden { display: none !important; }
     </style>
 </head>
 <body class="min-h-screen flex flex-col text-slate-800 overflow-hidden">
+
+    <!-- GİRİŞ / PIN EKRANI -->
+    <div id="loginOverlay">
+        <form onsubmit="submitLogin(event)" class="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-xs mx-4 text-center space-y-4">
+            <div class="bg-petrol-800 text-white w-14 h-14 rounded-xl flex items-center justify-center mx-auto text-2xl shadow-inner"><i class="fa-solid fa-lock"></i></div>
+            <div>
+                <h2 class="font-black text-petrol-950 text-lg tracking-wide">FİX HOUSE</h2>
+                <p class="text-[11px] text-slate-500 font-bold">Devam etmek için PIN kodunu girin</p>
+            </div>
+            <input type="password" id="loginPinInput" inputmode="numeric" autocomplete="current-password" placeholder="••••••" class="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-center font-black tracking-[0.4em] text-petrol-900 outline-none focus:ring-1 focus:ring-petrol-500">
+            <p id="loginError" class="text-[11px] text-red-600 font-bold hidden">Hatalı PIN kodu.</p>
+            <button type="button" onclick="showPinHint()" class="w-full text-[10px] text-slate-400 hover:text-petrol-700 font-bold underline">PIN kodumu unuttum</button>
+            <div id="pinHintBox" class="hidden bg-amber-50 border border-amber-200 rounded-lg p-3 text-[11px] text-amber-900 font-bold text-left leading-relaxed"></div>
+            <button type="submit" class="w-full bg-petrol-800 hover:bg-petrol-900 text-white font-bold text-xs py-2.5 rounded-lg shadow transition">Giriş Yap</button>
+            <p class="text-[9px] text-slate-400">Destek: 0533 443 32 23</p>
+        </form>
+    </div>
 
     <div id="globalErrorBanner" class="hidden bg-red-600 text-white text-xs px-4 py-2 font-bold flex justify-between items-center z-[999] no-print">
         <div class="flex items-center gap-2">
@@ -118,7 +138,6 @@
         </div>
         <button onclick="dismissErrorBanner()" class="bg-red-800 hover:bg-red-900 text-white px-2 py-0.5 rounded text-[10px]">Kapat</button>
     </div>
-
     <div id="appContainer" class="flex-grow flex flex-col md:flex-row w-full h-screen overflow-hidden bg-slate-50">
 
         <!-- SIDEBAR -->
@@ -133,15 +152,15 @@
                     </div>
                 </div>
             </div>
-            
+
             <nav id="navTabsContainer" class="flex flex-col py-4 space-y-1 overflow-y-auto no-scrollbar w-full flex-shrink-0">
-                <button onclick="switchTab('order')" id="tab-order" class="tab-btn active px-4 py-3 text-sm font-semibold text-petrol-100 hover:bg-petrol-800/50 transition flex items-center gap-3 whitespace-nowrap"><i class="fa-solid fa-pen-ruler w-5 text-center text-petrol-300"></i> Sipariş & Ölçü</button>
+                <button onclick="switchTab('order')" id="tab-order" class="tab-btn active px-4 py-3 text-sm font-semibold text-petrol-100 hover:bg-petrol-800/50 transition flex items-center gap-3 whitespace-nowrap"><i class="fa-solid fa-pen-ruler w-5 text-center text-petrol-300"></i> Sipariş &amp; Ölçü</button>
                 <button onclick="switchTab('cart')" id="tab-cart" class="tab-btn px-4 py-3 text-sm font-semibold text-petrol-100 hover:bg-petrol-800/50 transition flex items-center gap-3 whitespace-nowrap"><i class="fa-solid fa-cart-flatbed w-5 text-center text-emerald-400"></i> Sepet / Onay <span id="cartCountBadge" class="bg-emerald-600 text-white text-[10px] px-1.5 py-0.5 rounded font-black shadow-inner ml-auto hidden md:inline-block">0</span></button>
-                <button onclick="switchTab('ledger')" id="tab-ledger" class="tab-btn px-4 py-3 text-sm font-semibold text-petrol-100 hover:bg-petrol-800/50 transition flex items-center gap-3 whitespace-nowrap"><i class="fa-solid fa-address-book w-5 text-center text-amber-400"></i> Cari & Kâr Paneli <span id="ledgerAlertBadge" class="bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded-full font-black shadow-inner ml-auto hidden md:inline-block">!</span></button>
+                <button onclick="switchTab('ledger')" id="tab-ledger" class="tab-btn px-4 py-3 text-sm font-semibold text-petrol-100 hover:bg-petrol-800/50 transition flex items-center gap-3 whitespace-nowrap"><i class="fa-solid fa-address-book w-5 text-center text-amber-400"></i> Cari &amp; Kâr Paneli <span id="ledgerAlertBadge" class="bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded-full font-black shadow-inner ml-auto hidden md:inline-block">!</span></button>
                 <button onclick="switchTab('consumption')" id="tab-consumption" class="tab-btn px-4 py-3 text-sm font-semibold text-petrol-100 hover:bg-petrol-800/50 transition flex items-center gap-3 whitespace-nowrap"><i class="fa-solid fa-chart-pie w-5 text-center text-teal-300"></i> Malzeme Tüketim Analizi</button>
-                <button onclick="switchTab('settings')" id="tab-settings" class="tab-btn px-4 py-3 text-sm font-semibold text-petrol-100 hover:bg-petrol-800/50 transition flex items-center gap-3 whitespace-nowrap"><i class="fa-solid fa-gears w-5 text-center text-petrol-300"></i> Parametreler & Paylar</button>
+                <button onclick="switchTab('settings')" id="tab-settings" class="tab-btn px-4 py-3 text-sm font-semibold text-petrol-100 hover:bg-petrol-800/50 transition flex items-center gap-3 whitespace-nowrap"><i class="fa-solid fa-gears w-5 text-center text-petrol-300"></i> Parametreler &amp; Paylar</button>
             </nav>
-            
+
             <div class="p-4 mt-auto border-t border-petrol-800 text-center">
                 <p class="text-[10px] text-petrol-400 font-medium">Fix House Destek</p>
                 <p class="text-[9px] text-petrol-300 mt-0.5">0533 443 32 23</p>
@@ -152,12 +171,13 @@
         <div class="flex-1 flex flex-col relative overflow-hidden w-full">
             <header class="bg-white shadow-sm border-b border-slate-200 px-4 md:px-6 py-3 flex justify-between items-center z-10 flex-shrink-0">
                 <div class="text-xs md:text-sm font-black text-petrol-900 flex items-center gap-2 uppercase tracking-wide">
-                    <i class="fa-solid fa-industry text-petrol-500"></i> Fix House İmalat & Finansal Konsol
+                    <i class="fa-solid fa-industry text-petrol-500"></i> Fix House İmalat &amp; Finansal Konsol
                 </div>
-                <div class="flex items-center space-x-3">
+                <div class="flex items-center space-x-2">
                     <span class="text-[11px] font-bold bg-slate-50 text-slate-600 px-3 py-1.5 rounded border border-slate-200 flex items-center gap-2">
                         <i class="fa-regular fa-clock text-petrol-500"></i> <span id="clock">--.--.---- --:--:--</span>
                     </span>
+                    <button onclick="lockApp()" title="Ekranı Kilitle" class="text-[11px] font-bold bg-slate-50 hover:bg-slate-100 text-slate-600 px-3 py-1.5 rounded border border-slate-200 flex items-center gap-1.5"><i class="fa-solid fa-lock text-petrol-500"></i> <span class="hidden sm:inline">Kilitle</span></button>
                 </div>
             </header>
 
@@ -170,7 +190,6 @@
                             <i class="fa-solid fa-user-tag text-petrol-500"></i> MÜŞTERİ BİLGİLERİ <span class="text-[10px] text-red-500 font-bold ml-auto bg-red-50 px-2 py-1 rounded">* Zorunlu Alanlar</span>
                         </h2>
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-3 relative">
-                            <!-- Otomatik Tamamlama için relative class eklendi, autocapitalize ve autocomplete güncellendi -->
                             <div><input type="text" id="custName" autocapitalize="words" autocomplete="name" oninput="debouncedSaveFormDraft()" class="w-full px-3 py-2 border border-slate-300 rounded bg-slate-50 focus:bg-white focus:border-petrol-500 focus:ring-1 focus:ring-petrol-500 font-semibold placeholder-slate-400 transition outline-none" placeholder="Müşteri Adı Soyadı *"></div>
                             <div><input type="tel" id="custPhone" autocomplete="tel" oninput="debouncedSaveFormDraft()" class="w-full px-3 py-2 border border-slate-300 rounded bg-slate-50 focus:bg-white focus:border-petrol-500 focus:ring-1 focus:ring-petrol-500 font-semibold placeholder-slate-400 transition outline-none" placeholder="Telefon Numarası *"></div>
                             <div><input type="text" id="custAddress" autocapitalize="sentences" oninput="debouncedSaveFormDraft()" class="w-full px-3 py-2 border border-slate-300 rounded bg-slate-50 focus:bg-white focus:border-petrol-500 focus:ring-1 focus:ring-petrol-500 font-semibold placeholder-slate-400 transition outline-none" placeholder="Teslimat / Montaj Adresi"></div>
@@ -179,7 +198,7 @@
 
                     <div class="bg-white rounded-xl p-4 md:p-5 shadow-sm border border-slate-200">
                         <div class="flex justify-between items-center mb-3 md:mb-4 border-b pb-2">
-                            <h2 class="text-sm md:text-base font-extrabold text-petrol-950 flex items-center gap-2"><i class="fa-solid fa-ruler-combined text-petrol-500"></i> ÖLÇÜ & ÜRÜN KONFİGÜRASYONU</h2>
+                            <h2 class="text-sm md:text-base font-extrabold text-petrol-950 flex items-center gap-2"><i class="fa-solid fa-ruler-combined text-petrol-500"></i> ÖLÇÜ &amp; ÜRÜN KONFİGÜRASYONU</h2>
                         </div>
                         <div id="measureRowsContainer" class="space-y-4"></div>
                         <div class="flex justify-end mt-4 pt-4 border-t border-slate-100">
@@ -188,7 +207,7 @@
                     </div>
 
                     <div class="bg-white rounded-xl p-4 md:p-5 shadow-sm border border-slate-200">
-                        <h2 class="text-sm md:text-base font-extrabold text-petrol-950 mb-4 flex items-center gap-2 border-b pb-2"><i class="fa-solid fa-calculator text-petrol-500"></i> SATIŞ FİNANSMAN & İŞLEMLER</h2>
+                        <h2 class="text-sm md:text-base font-extrabold text-petrol-950 mb-4 flex items-center gap-2 border-b pb-2"><i class="fa-solid fa-calculator text-petrol-500"></i> SATIŞ FİNANSMAN &amp; İŞLEMLER</h2>
                         <div class="grid grid-cols-1 md:grid-cols-4 gap-3 md:gap-4 mb-4 md:mb-5">
                             <div class="bg-slate-50 p-3 rounded border border-slate-200"><label class="block text-[11px] font-bold text-slate-500 mb-1.5 uppercase">Satış Tarifesi *</label><select id="salesTariff" onchange="debouncedCalculateGrandTotal()" class="w-full px-3 py-2 border border-slate-300 rounded bg-white font-bold text-petrol-900 shadow-sm focus:ring-1 focus:ring-petrol-500 outline-none"><option value="">-- Tarife Seçiniz --</option><option value="montajli">Montajlı Satış</option><option value="perakende">Perakende Satış</option></select></div>
                             <div class="bg-slate-50 p-3 rounded border border-slate-200"><label class="block text-[11px] font-bold text-slate-500 mb-1.5 uppercase">Ekstra İşçilik (₺)</label><input type="number" id="extraLabor" value="0" min="0" oninput="debouncedCalculateGrandTotal()" class="w-full px-3 py-2 border border-slate-300 rounded bg-white shadow-sm font-bold text-petrol-900 outline-none focus:ring-1 focus:ring-petrol-500"></div>
@@ -211,7 +230,7 @@
                         <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 border-b pb-3 mb-4">
                             <div>
                                 <h2 class="text-sm md:text-base font-extrabold text-petrol-950 flex items-center gap-2">
-                                    <i class="fa-solid fa-cart-flatbed text-emerald-500"></i> SEPET & TEKLİF YÖNETİMİ
+                                    <i class="fa-solid fa-cart-flatbed text-emerald-500"></i> SEPET &amp; TEKLİF YÖNETİMİ
                                 </h2>
                                 <p class="text-xs text-slate-500 mt-0.5">A4 ve etiket çıktısı alındığında sipariş <b>otomatik olarak sepetten silinir</b>, Cari Borç Defteri'nde saklanır.</p>
                             </div>
@@ -238,8 +257,8 @@
                             <div class="flex items-center gap-3">
                                 <div class="bg-emerald-500/20 text-emerald-400 p-2.5 rounded-xl border border-emerald-500/30 text-xl"><i class="fa-solid fa-chart-line"></i></div>
                                 <div>
-                                    <h3 class="font-black text-sm md:text-base tracking-wide text-petrol-50">FİNANSAL CİRO, MALİYET & NET KÂR ANALİZİ</h3>
-                                    <p class="text-[11px] text-petrol-300">Faturalanan sipariş cirosu, hammadde sarfiyatı ve kâr marjı.</p>
+                                    <h3 class="font-black text-sm md:text-base tracking-wide text-petrol-50">FİNANSAL CİRO, MALİYET &amp; NET KÂR ANALİZİ</h3>
+                                    <p class="text-[11px] text-petrol-300">Faturalanan sipariş cirosu, gerçek reçete hammadde sarfiyatı ve kâr marjı.</p>
                                 </div>
                             </div>
                             <div class="flex flex-wrap items-center gap-1.5 text-xs bg-petrol-900/80 p-1.5 rounded-xl border border-petrol-700">
@@ -316,7 +335,7 @@
                                     <tr>
                                         <th class="p-3 w-16">Kod</th>
                                         <th class="p-3">Müşteri / Cari</th>
-                                        <th class="p-3">Telefon & Konum</th>
+                                        <th class="p-3">Telefon &amp; Konum</th>
                                         <th class="p-3 text-center">Termin / Vade</th>
                                         <th class="p-3 text-right">Toplam Borç</th>
                                         <th class="p-3 text-right">Tahsilat</th>
@@ -336,7 +355,7 @@
                         <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 border-b pb-3 mb-4">
                             <div>
                                 <h2 class="text-sm md:text-base font-extrabold text-petrol-950 flex items-center gap-2">
-                                    <i class="fa-solid fa-chart-pie text-teal-600"></i> MALZEME TÜKETİM, REÇETE & GİDER ANALİZİ
+                                    <i class="fa-solid fa-chart-pie text-teal-600"></i> MALZEME TÜKETİM, REÇETE &amp; GİDER ANALİZİ
                                 </h2>
                                 <p class="text-xs text-slate-500 mt-0.5">Sadece <b>o an ekranda çalışılan (aktif) ölçü formuna</b> ait hammadde sarfiyatını hesaplar.</p>
                             </div>
@@ -388,20 +407,20 @@
                         <div class="flex items-center gap-3">
                             <div class="bg-petrol-700 p-2 rounded-lg text-amber-300 text-lg"><i class="fa-solid fa-floppy-disk"></i></div>
                             <div>
-                                <h3 class="font-bold text-sm">Parametre, Şablon & Reçete Yönetimi</h3>
+                                <h3 class="font-bold text-sm">Parametre, Şablon &amp; Reçete Yönetimi</h3>
                                 <p class="text-xs text-petrol-200">Güncellediğiniz tüm fiyat, reçete maliyeti, WhatsApp metinleri ve kesim paylarını kaydedin.</p>
                             </div>
                         </div>
                         <div class="flex flex-wrap gap-2 w-full md:w-auto">
                             <button onclick="emergencyRestoreSettings()" class="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-lg font-bold text-xs transition shadow flex items-center justify-center gap-1.5">
-                                <i class="fa-solid fa-screwdriver-wrench"></i> Reçete & Şablonları Doldur / Sıfırla
+                                <i class="fa-solid fa-screwdriver-wrench"></i> Reçete &amp; Şablonları Doldur / Sıfırla
                             </button>
                             <button onclick="saveAllSettingsMaster()" id="btnSaveAllTop" class="bg-emerald-500 hover:bg-emerald-600 text-petrol-950 px-5 py-2 rounded-lg font-black text-xs transition shadow flex items-center justify-center gap-1.5">
                                 <i class="fa-solid fa-check-double text-sm"></i> Tüm Değişiklikleri Kaydet
                             </button>
                         </div>
                     </div>
-                    
+
                     <div class="bg-white rounded-xl p-4 md:p-5 shadow-sm border border-slate-200 space-y-4">
                         <h2 class="text-sm font-extrabold text-petrol-950 border-b pb-3 flex items-center gap-2">
                             <i class="fa-solid fa-key text-amber-500"></i> SİSTEM GİRİŞ ŞİFRESİ YÖNETİMİ
@@ -441,7 +460,7 @@
 
                     <div class="bg-white rounded-xl p-4 md:p-5 shadow-sm border border-slate-200">
                         <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b pb-3 mb-4 gap-2">
-                            <h2 class="text-sm font-extrabold text-petrol-950 flex items-center gap-2"><i class="fa-solid fa-tags text-petrol-500"></i> FİYATLANDIRMA & KDV PARAMETRELERİ</h2>
+                            <h2 class="text-sm font-extrabold text-petrol-950 flex items-center gap-2"><i class="fa-solid fa-tags text-petrol-500"></i> FİYATLANDIRMA &amp; KDV PARAMETRELERİ</h2>
                             <button onclick="savePricingParamsOnly()" class="bg-petrol-800 hover:bg-petrol-900 text-white text-xs px-4 py-2 rounded-lg font-bold transition shadow flex items-center gap-1.5">
                                 <i class="fa-solid fa-floppy-disk text-amber-300"></i> Fiyatları Kaydet
                             </button>
@@ -457,7 +476,7 @@
                     <div class="bg-white rounded-xl p-4 md:p-5 shadow-sm border border-slate-200 space-y-4">
                         <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b pb-3 gap-2">
                             <h2 class="text-sm font-extrabold text-petrol-950 flex items-center gap-2">
-                                <i class="fa-solid fa-sliders text-petrol-600"></i> DİNAMİK PROFİL & TÜL KESİM PAYLARI (CM)
+                                <i class="fa-solid fa-sliders text-petrol-600"></i> DİNAMİK PROFİL &amp; TÜL KESİM PAYLARI (CM)
                             </h2>
                             <button onclick="saveCuttingParamsOnly()" class="bg-petrol-800 hover:bg-petrol-900 text-white text-xs px-4 py-2 rounded-lg font-bold transition shadow flex items-center gap-1.5">
                                 <i class="fa-solid fa-floppy-disk text-amber-300"></i> Kesim Paylarını Kaydet
@@ -507,7 +526,7 @@
                         <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b pb-3 gap-3">
                             <div>
                                 <h2 class="text-sm font-extrabold text-petrol-950 flex items-center gap-2">
-                                    <i class="fa-solid fa-boxes-packing text-petrol-500"></i> AKSESUAR & REÇETE BİRİM MALİYETLERİ
+                                    <i class="fa-solid fa-boxes-packing text-petrol-500"></i> AKSESUAR &amp; REÇETE BİRİM MALİYETLERİ
                                 </h2>
                                 <p class="text-xs text-slate-500 mt-0.5">Sistem imalatında harcanan hammadde ve aksesuarların birim maliyetleri.</p>
                             </div>
@@ -528,10 +547,9 @@
 
                     <div class="bg-petrol-950 rounded-xl p-4 md:p-5 shadow-lg border border-petrol-900 relative overflow-hidden">
                         <div class="absolute -right-10 -bottom-10 text-petrol-800 opacity-20"><i class="fa-solid fa-database text-9xl"></i></div>
-                        <h2 class="text-sm font-extrabold text-white border-b border-petrol-800 pb-3 mb-4 flex items-center gap-2 relative z-10"><i class="fa-solid fa-shield-halved text-petrol-400"></i> VERİ YÖNETİMİ & FELAKET KURTARMA</h2>
+                        <h2 class="text-sm font-extrabold text-white border-b border-petrol-800 pb-3 mb-4 flex items-center gap-2 relative z-10"><i class="fa-solid fa-shield-halved text-petrol-400"></i> VERİ YÖNETİMİ &amp; FELAKET KURTARMA</h2>
                         <div class="flex flex-wrap gap-2.5 relative z-10">
                             <button onclick="exportSettingsBackup()" class="bg-petrol-800 hover:bg-petrol-700 text-white border border-petrol-700 text-[11px] px-4 py-2.5 rounded-lg font-bold transition shadow flex items-center gap-1.5"><i class="fa-solid fa-download text-petrol-300"></i> İndir (JSON)</button>
-                            <!-- YENİ PAYLAŞ BUTONU -->
                             <button onclick="shareSettingsBackup()" class="bg-emerald-600 hover:bg-emerald-500 text-white border border-emerald-500 text-[11px] px-4 py-2.5 rounded-lg font-bold transition shadow flex items-center gap-1.5"><i class="fa-solid fa-share-nodes text-emerald-200"></i> Yedeği Paylaş / Gönder</button>
                             <label class="bg-petrol-800 hover:bg-petrol-700 text-white border border-petrol-700 text-[11px] px-4 py-2.5 rounded-lg font-bold transition shadow flex items-center gap-1.5 cursor-pointer"><i class="fa-solid fa-upload text-petrol-300"></i> İçe Aktar<input type="file" onchange="importSettingsBackup(event)" class="hidden" accept=".json"></label>
                             <button onclick="openAutoBackupModal()" class="bg-blue-600 hover:bg-blue-500 text-white text-[11px] px-4 py-2.5 rounded-lg font-bold transition shadow flex items-center gap-1.5 border border-blue-500"><i class="fa-solid fa-clock-rotate-left text-blue-200"></i> Zaman Makinesi</button>
@@ -539,6 +557,7 @@
                         </div>
                     </div>
                 </section>
+
             </main>
         </div>
     </div>
@@ -709,7 +728,7 @@
             <div class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-2 shadow-inner"><i class="fa-solid fa-print text-3xl"></i></div>
             <h3 class="font-black text-petrol-950 text-lg">A4 Çıktısı Gönderildi</h3>
             <p class="text-[11px] text-slate-500 font-medium">A4 yazdırma ekranını kapattıktan sonra sıradaki işlem için aşağıdaki seçeneklerden birini kullanın.</p>
-            
+
             <div class="flex flex-col gap-2 mt-5">
                 <button id="btnPostPrintZebra" class="bg-petrol-800 hover:bg-petrol-900 text-white text-[11px] px-4 py-3.5 rounded-xl font-bold shadow-md transition flex items-center justify-center gap-2">
                     <i class="fa-solid fa-barcode text-sm"></i> Sepetten Sil ve Etiket (Zebra) Bas
@@ -728,7 +747,6 @@
     <div id="printContainerA4" class="print-only"></div>
     <div id="printContainerZebra" class="print-only"></div>
     <div id="printContainerA5Receipt" class="print-only"></div>
-
     <!-- JAVASCRIPT ÇALIŞMA MOTORU -->
     <script>
         window.addEventListener('error', function (event) {
@@ -753,15 +771,32 @@
         }
 
         function escapeHTML(str) {
-            if (typeof str !== 'string') return '';
-            return str.replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m]));
+            if (str === null || str === undefined) return '';
+            return String(str).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m]));
+        }
+
+        // "2026-11-10" veya "10.11.2026" formatlarını Date'e çevirir (TANIMSIZ FONKSİYON HATASI DÜZELTİLDİ)
+        function parseTurkishDate(str) {
+            if (!str) return null;
+            const s = String(str).trim();
+            let m = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+            if (m) { const d = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3])); return isNaN(d.getTime()) ? null : d; }
+            m = s.match(/^(\d{1,2})[.\/](\d{1,2})[.\/](\d{4})/);
+            if (m) { const d = new Date(Number(m[3]), Number(m[2]) - 1, Number(m[1])); return isNaN(d.getTime()) ? null : d; }
+            const d = new Date(s);
+            return isNaN(d.getTime()) ? null : d;
+        }
+
+        function toInputDateStr(dateObj) {
+            const y = dateObj.getFullYear(), m = String(dateObj.getMonth() + 1).padStart(2, '0'), d = String(dateObj.getDate()).padStart(2, '0');
+            return `${y}-${m}-${d}`;
         }
 
         // ==========================================
         // SELF-HEALING STORAGE & KOTA KORUMA MOTORU
         // ==========================================
         const STORAGE_KEY = "fix_house_erp_master_storage";
-        const SCHEMA_VERSION = 15;
+        const SCHEMA_VERSION = 16;
         const PIN_STORAGE_KEY = "fix_house_erp_pin_code";
         const AUTO_BACKUP_KEY = "fix_house_23_auto_backups_erp_petrol";
         const DRAFT_STORAGE_KEY = "fix_house_active_form_draft";
@@ -847,7 +882,7 @@
                 if (data.minM2 !== undefined) m.minM2 = parseFloat(data.minM2) || 1.0;
                 if (data.cutDeductions) m.cutDeductions = data.cutDeductions;
                 if (Array.isArray(data.productGroups) && data.productGroups.length > 0) m.productGroups = data.productGroups;
-                
+
                 if (data.whatsappTemplates && !Array.isArray(data.whatsappTemplates)) {
                     m.whatsappTemplates = [
                         { id: 'wa-1', title: '📍 Sipariş Alındı', text: data.whatsappTemplates.alinan || '' },
@@ -861,8 +896,10 @@
 
                 if (Array.isArray(data.cart)) m.cart = data.cart;
                 if (Array.isArray(data.customers)) m.customers = data.customers.map(c => ({ ...c, category: c.category || 'standard' }));
+                if (data.appPin) m.appPin = String(data.appPin);
 
                 m.schemaVersion = SCHEMA_VERSION;
+
                 this.save(m);
                 return m;
             },
@@ -888,12 +925,18 @@
         let currentLedgerSubCat = 'standard';
         let editCustomerModeId = null;
         let activeWaOrderId = null;
+        let isUnlocked = false;
 
         // --- FİNANSAL YUVARLAMA (KURUŞ SEKMESİ ÖNLEYİCİ) ---
         function roundMoney(value) {
             const num = parseFloat(value);
             if (isNaN(num)) return 0;
             return Math.round((num + Number.EPSILON) * 100) / 100;
+        }
+
+        function moneyOf(str) {
+            const n = parseFloat(String(str).replace(/[^\d.,-]/g, '').replace(',', '.'));
+            return isNaN(n) ? 0 : n;
         }
 
         // --- DEBOUNCE (SIÇRAMA ÖNLEME) YÖNETİMİ ---
@@ -964,6 +1007,65 @@
             return { tac, dikme, kanat, tul, ip, m2, price };
         }
 
+        function getRecipeCost(gId, aId) {
+            const g = (appSettings.productGroups || []).find(x => x.id === gId);
+            const a = g ? (g.accessories || []).find(x => x.id === aId) : null;
+            return a ? (parseFloat(a.cost) || 0) : 0;
+        }
+
+        function findAccessoryById(accId) {
+            for (const g of (appSettings.productGroups || [])) {
+                const a = (g.accessories || []).find(x => x.id === accId);
+                if (a) return a;
+            }
+            return null;
+        }
+
+        // --- GERÇEK REÇETE MALİYETİ (sabit %35 tahmini yerine siparişin hammaddesi) ---
+        function computeOrderMaterialCost(ord) {
+            const cProf = getRecipeCost('pg-plise', 'acc-profil');
+            const cPMesh = getRecipeCost('pg-plise', 'acc-plise-tul');
+            const cSMesh = getRecipeCost('pg-plise', 'acc-polen-tul');
+            const cCord = getRecipeCost('pg-plise', 'acc-ip');
+            const cMag = getRecipeCost('pg-plise', 'acc-serit-miknatis');
+            const cW = getRecipeCost('pg-plise', 'acc-takoz');
+            const cH = getRecipeCost('pg-mentese', 'acc-mentese');
+            const cSL = getRecipeCost('pg-mentese', 'acc-citcit');
+            const cKedi = getRecipeCost('pg-mentese', 'acc-kedi-tul');
+            const cDuzTul = getRecipeCost('pg-mentese', 'acc-duz-tul');
+            const minM2 = parseFloat(appSettings.minM2) || 1;
+
+            let cost = 0;
+            ((ord && ord.items) || []).forEach(i => {
+                const q = i.qty || 1, en = parseFloat(i.en) || 0, boy = parseFloat(i.boy) || 0;
+                if (en <= 0 || boy <= 0) return;
+                const m2 = Math.max(((en * boy) / 10000) * q, minM2 * q);
+                const isDikey = (i.pType === 'plise' && i.dir === 'dikey');
+
+                if (i.pType === 'plise') {
+                    const pM = ((!isDikey ? ((en * 2) + (boy * 3)) : ((en * 3) + (boy * 2))) / 100) * q;
+                    cost += pM * cProf;
+                    cost += m2 * (i.tulType === 'polen' ? cSMesh : cPMesh);
+                    cost += ((en + boy + (i.mType === 'ic' ? 26 : 10)) * 4 / 100) * q * cCord;
+                    cost += 4 * q * cW;
+                    if (i.magnetType === 'var') cost += ((isDikey ? ((en * 3) + (boy * 2)) : ((en * 2) + (boy * 3))) / 100) * q * cMag;
+                } else {
+                    const isKapi = (i.menteseliTip || '').includes('kapi');
+                    const pM = ((isKapi ? ((en * 4) + (boy * 2)) : ((en * 2) + (boy * 2))) / 100) * q;
+                    cost += pM * cProf;
+                    cost += m2 * (i.tulType === 'kedi' ? cKedi : cDuzTul);
+                    cost += (isKapi ? 3 * q : 2 * q) * cH;
+                    cost += (isKapi ? 2 * q : 1 * q) * cSL;
+                }
+
+                (i.customAccessories || []).forEach(ca => {
+                    const acc = findAccessoryById(ca.accId);
+                    if (acc) cost += (parseFloat(acc.cost) || 0) * (ca.qty || 1) * q;
+                });
+            });
+            return roundMoney(cost);
+        }
+
         // --- BAŞLATMA ---
         window.addEventListener('DOMContentLoaded', () => {
             updateClock();
@@ -976,7 +1078,59 @@
             renderLedgerUI();
             calculateMaterialConsumption();
             setupCustomerAutocomplete();
+            initLogin();
         });
+
+        // --- GİRİŞ (PIN) KİLİDİ ---
+        function getStoredPin() {
+            const candidates = [
+                localStorage.getItem(PIN_STORAGE_KEY),
+                localStorage.getItem('fix_house_app_pin'),
+                localStorage.getItem('fixhouse_pin'),
+                appSettings.appPin,
+                DEFAULT_SETTINGS.appPin
+            ];
+            for (const c of candidates) {
+                if (c === null || c === undefined) continue;
+                const s = String(c).replace(/\D/g, '');
+                if (s) return s;
+            }
+            return DEFAULT_SETTINGS.appPin;
+        }
+        function initLogin() {
+            const input = document.getElementById('loginPinInput');
+            if (input) { input.value = ''; setTimeout(() => input.focus(), 50); }
+        }
+        function submitLogin(e) {
+            if (e) e.preventDefault();
+            const input = document.getElementById('loginPinInput');
+            const err = document.getElementById('loginError');
+            const hint = document.getElementById('pinHintBox');
+            const pin = (input && input.value ? input.value : '').replace(/\D/g, '');
+            if (pin && pin === getStoredPin()) {
+                isUnlocked = true;
+                document.getElementById('loginOverlay').classList.add('hidden');
+                if (err) err.classList.add('hidden');
+                if (hint) hint.classList.add('hidden');
+                if (input) input.value = '';
+                calculateAllRows();
+            } else {
+                if (err) err.classList.remove('hidden');
+                if (input) { input.value = ''; input.focus(); }
+            }
+        }
+        function showPinHint() {
+            const box = document.getElementById('pinHintBox');
+            if (!box) return;
+            box.innerHTML = `Bu cihazda kayıtlı giriş kodu: <span style="font-family:monospace; font-size:15px; letter-spacing:2px; color:#b45309;">${escapeHTML(getStoredPin())}</span><br><span style="font-weight:500; font-size:10px;">Kodu girdikten sonra Parametreler bölümünden değiştirebilirsiniz.</span>`;
+            box.classList.remove('hidden');
+        }
+        window.showPinHint = showPinHint;
+        function lockApp() {
+            isUnlocked = false;
+            document.getElementById('loginOverlay').classList.remove('hidden');
+            initLogin();
+        }
 
         // --- MOBİL UI/UX ve KLAVYE İYİLEŞTİRMELERİ ---
         document.body.addEventListener('focusin', (e) => {
@@ -985,8 +1139,8 @@
             }
         });
         document.body.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' && e.target.tagName === 'INPUT') {
-                e.preventDefault(); 
+            if (e.key === 'Enter' && e.target.tagName === 'INPUT' && !e.target.closest('#loginOverlay')) {
+                e.preventDefault();
                 const focusable = Array.from(document.querySelectorAll('input:not([disabled]):not([type="hidden"]), select:not([disabled])'));
                 const index = focusable.indexOf(e.target);
                 if (index > -1 && index + 1 < focusable.length) { focusable[index + 1].focus(); } else { e.target.blur(); }
@@ -998,18 +1152,18 @@
             const nameInput = document.getElementById('custName');
             const phoneInput = document.getElementById('custPhone');
             if (!nameInput || !phoneInput) return;
-            
+
             const suggestionBox = document.createElement('div');
             suggestionBox.id = 'customerSuggestions';
             suggestionBox.className = 'absolute z-50 w-full bg-white border border-slate-200 shadow-xl rounded-lg max-h-48 overflow-y-auto hidden mt-1 left-0';
-            
+
             nameInput.parentElement.style.position = 'relative';
             phoneInput.parentElement.style.position = 'relative';
 
             function filterCustomers(query) {
                 if (!query || query.length < 2) return [];
                 const q = query.toLowerCase();
-                return (appSettings.customers || []).filter(c => 
+                return (appSettings.customers || []).filter(c =>
                     c.name.toLowerCase().includes(q) || (c.phone && c.phone.includes(q))
                 ).slice(0, 6);
             }
@@ -1060,7 +1214,7 @@
                     en: c.querySelector('.inp-en')?.value || '', boy: c.querySelector('.inp-boy')?.value || '', note: c.querySelector('.inp-note')?.value || '', customAccessories: accs
                 });
             });
-            localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(draftData));
+            try { localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(draftData)); } catch(e) {}
         }
 
         function restoreFormDraft() {
@@ -1077,8 +1231,12 @@
         }
         function clearFormDraft() { localStorage.removeItem(DRAFT_STORAGE_KEY); }
 
-        function updateClock() { const now = new Date(); const clockEl = document.getElementById('clock'); if (clockEl) clockEl.innerText = `${now.toLocaleDateString('tr-TR')} | ${now.toLocaleTimeString('tr-TR')}`; }
-        
+        function updateClock() {
+            const now = new Date();
+            const clockEl = document.getElementById('clock');
+            if (clockEl) clockEl.innerText = `${now.toLocaleDateString('tr-TR')} | ${now.toLocaleTimeString('tr-TR')}`;
+        }
+
         function switchTab(tabName) {
             document.querySelectorAll('section[id^="sec-"]').forEach(sec => sec.classList.add('hidden'));
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
@@ -1105,6 +1263,7 @@
             const enInput = card.querySelector('.inp-en'), boyInput = card.querySelector('.inp-boy');
             if (!enInput || !boyInput || enInput.disabled || boyInput.disabled) return;
             const cEn = enInput.value, cBoy = boyInput.value;
+
             if (!cEn && !cBoy) return;
             enInput.value = cBoy; boyInput.value = cEn; calculateRow(rowId); saveFormDraft();
         }
@@ -1140,7 +1299,8 @@
             calculateRow(targetRowId); saveFormDraft();
         }
 
-        function addMeasureRow(initialData = null) {
+        function addMeasureRow(initialData) {
+            initialData = initialData || null;
             let inheritedData = null;
             if (!initialData) {
                 const existingRows = document.querySelectorAll('#measureRowsContainer > div');
@@ -1150,43 +1310,44 @@
                 }
             }
             currentRowId++;
+            const rid = currentRowId;
             const div = document.createElement('div');
-            div.id = `row-${currentRowId}`;
+            div.id = `row-${rid}`;
             div.className = "bg-slate-50 border border-slate-200 rounded-xl p-3 md:p-5 shadow-sm relative transition-all";
             div.innerHTML = `
                 <div class="flex justify-between items-center border-b border-slate-200 pb-2.5 mb-3">
                     <span class="font-extrabold text-sm md:text-base text-petrol-900 flex items-center gap-2"><i class="fa-solid fa-list-ol text-petrol-500"></i> Satır #<span class="row-seq">1</span></span>
                     <div class="flex items-center gap-2">
-                        <button type="button" onclick="copyFromPreviousRow(${currentRowId})" class="bg-slate-100 hover:bg-petrol-100 text-petrol-800 border border-slate-300 px-2.5 py-1.5 rounded-md text-xs font-bold transition flex items-center gap-1.5 shadow-sm"><i class="fa-solid fa-copy text-petrol-600"></i> <span class="hidden sm:inline">Üstten Kopyala</span></button>
-                        <button type="button" onclick="removeRow(${currentRowId})" class="text-red-500 hover:bg-red-50 px-2.5 py-1.5 rounded-md text-xs font-bold transition flex items-center gap-1.5 border border-transparent"><i class="fa-solid fa-trash"></i> <span class="hidden sm:inline">Sil</span></button>
+                        <button type="button" onclick="copyFromPreviousRow(${rid})" class="bg-slate-100 hover:bg-petrol-100 text-petrol-800 border border-slate-300 px-2.5 py-1.5 rounded-md text-xs font-bold transition flex items-center gap-1.5 shadow-sm"><i class="fa-solid fa-copy text-petrol-600"></i> <span class="hidden sm:inline">Üstten Kopyala</span></button>
+                        <button type="button" onclick="removeRow(${rid})" class="text-red-500 hover:bg-red-50 px-2.5 py-1.5 rounded-md text-xs font-bold transition flex items-center gap-1.5 border border-transparent"><i class="fa-solid fa-trash"></i> <span class="hidden sm:inline">Sil</span></button>
                     </div>
                 </div>
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-3 text-sm">
-                    <div><label class="block font-bold text-slate-500 mb-1.5 text-[11px] uppercase tracking-wide">Adet</label><input type="number" min="1" value="1" inputmode="numeric" pattern="[0-9]*" oninput="debouncedCalculateRow(${currentRowId})" class="inp-qty w-full border border-slate-300 rounded-lg px-3 py-2 font-black text-center text-petrol-700 focus:ring-1 focus:ring-petrol-500 outline-none"></div>
-                    <div><label class="block font-bold text-slate-500 mb-1.5 text-[11px] uppercase tracking-wide">Ürün Tipi</label><select onchange="stepSelect(${currentRowId}, 1); debouncedSaveFormDraft();" class="product-type w-full border border-slate-300 rounded-lg px-3 py-2 font-bold outline-none"><option value="">-- Seçiniz --</option><option value="plise">Plise Sineklik</option><option value="menteseli">Menteşeli</option></select></div>
-                    <div><label class="block font-bold text-slate-500 mb-1.5 text-[11px] uppercase tracking-wide">Ölçü Tipi</label><select disabled onchange="stepSelect(${currentRowId}, 2); debouncedSaveFormDraft();" class="measure-type w-full border border-slate-300 rounded-lg px-3 py-2 font-bold outline-none"><option value="">-</option><option value="ic">İç Ölçü</option><option value="dis">Dış Ölçü</option></select></div>
-                    <div><label class="block font-bold text-slate-500 mb-1.5 text-[11px] uppercase tracking-wide">Profil Renk</label><select disabled onchange="stepSelect(${currentRowId}, 3); debouncedSaveFormDraft();" class="color-type w-full border border-slate-300 rounded-lg px-3 py-2 font-bold outline-none"><option value="">-</option><option value="Beyaz">Beyaz</option><option value="Kahverengi">Kahverengi</option><option value="Antrasit">Antrasit</option></select></div>
+                    <div><label class="block font-bold text-slate-500 mb-1.5 text-[11px] uppercase tracking-wide">Adet</label><input type="number" min="1" value="1" inputmode="numeric" pattern="[0-9]*" oninput="debouncedCalculateRow(${rid})" class="inp-qty w-full border border-slate-300 rounded-lg px-3 py-2 font-black text-center text-petrol-700 focus:ring-1 focus:ring-petrol-500 outline-none"></div>
+                    <div><label class="block font-bold text-slate-500 mb-1.5 text-[11px] uppercase tracking-wide">Ürün Tipi</label><select onchange="stepSelect(${rid}, 1); debouncedSaveFormDraft();" class="product-type w-full border border-slate-300 rounded-lg px-3 py-2 font-bold outline-none"><option value="">-- Seçiniz --</option><option value="plise">Plise Sineklik</option><option value="menteseli">Menteşeli</option></select></div>
+                    <div><label class="block font-bold text-slate-500 mb-1.5 text-[11px] uppercase tracking-wide">Ölçü Tipi</label><select disabled onchange="stepSelect(${rid}, 2); debouncedSaveFormDraft();" class="measure-type w-full border border-slate-300 rounded-lg px-3 py-2 font-bold outline-none"><option value="">-</option><option value="ic">İç Ölçü</option><option value="dis">Dış Ölçü</option></select></div>
+                    <div><label class="block font-bold text-slate-500 mb-1.5 text-[11px] uppercase tracking-wide">Profil Renk</label><select disabled onchange="stepSelect(${rid}, 3); debouncedSaveFormDraft();" class="color-type w-full border border-slate-300 rounded-lg px-3 py-2 font-bold outline-none"><option value="">-</option><option value="Beyaz">Beyaz</option><option value="Kahverengi">Kahverengi</option><option value="Antrasit">Antrasit</option></select></div>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-3 text-sm items-start">
-                    <div id="dynamicOpts-${currentRowId}"><label class="block font-bold text-slate-500 mb-1.5 text-[11px] uppercase tracking-wide">Opsiyonlar</label><select disabled class="w-full border border-slate-300 rounded-lg px-3 py-2 bg-slate-100 font-bold"><option>-</option></select></div>
+                    <div id="dynamicOpts-${rid}"><label class="block font-bold text-slate-500 mb-1.5 text-[11px] uppercase tracking-wide">Opsiyonlar</label><select disabled class="w-full border border-slate-300 rounded-lg px-3 py-2 bg-slate-100 font-bold"><option>-</option></select></div>
                     <div class="md:col-span-2 grid grid-cols-[1fr_auto_1fr] gap-1.5 items-start">
                         <div>
                             <label class="block font-bold text-slate-500 mb-1 text-[11px] uppercase tracking-wide text-petrol-700">EN (cm)</label>
-                            <input type="number" step="0.1" inputmode="decimal" disabled oninput="debouncedCalculateRow(${currentRowId})" class="inp-en w-full border border-petrol-300 rounded-lg px-2.5 py-2 font-black text-center outline-none text-base" placeholder="0.0">
-                            <div class="flex flex-wrap gap-1 mt-1.5">${[50, 60, 70, 80, 90].map(val => `<button type="button" onclick="setQuickDimension(${currentRowId}, 'en', ${val})" class="flex-1 py-1 px-0.5 bg-slate-100 hover:bg-petrol-100 border border-slate-200 text-petrol-900 rounded text-[11px] font-black min-h-[28px]">${val}</button>`).join('')}</div>
+                            <input type="number" step="0.1" inputmode="decimal" disabled oninput="debouncedCalculateRow(${rid})" class="inp-en w-full border border-petrol-300 rounded-lg px-2.5 py-2 font-black text-center outline-none text-base" placeholder="0.0">
+                            <div class="flex flex-wrap gap-1 mt-1.5">${[50, 60, 70, 80, 90].map(val => `<button type="button" onclick="setQuickDimension(${rid}, 'en', ${val})" class="flex-1 py-1 px-0.5 bg-slate-100 hover:bg-petrol-100 border border-slate-200 text-petrol-900 rounded text-[11px] font-black min-h-[28px]">${val}</button>`).join('')}</div>
                         </div>
-                        <div class="pt-6 flex flex-col items-center justify-center"><button type="button" onclick="swapDimensions(${currentRowId})" class="w-8 h-10 bg-slate-100 hover:bg-petrol-600 hover:text-white text-petrol-800 border border-slate-300 rounded-lg shadow-sm"><i class="fa-solid fa-right-left text-xs"></i></button></div>
+                        <div class="pt-6 flex flex-col items-center justify-center"><button type="button" onclick="swapDimensions(${rid})" class="w-8 h-10 bg-slate-100 hover:bg-petrol-600 hover:text-white text-petrol-800 border border-slate-300 rounded-lg shadow-sm"><i class="fa-solid fa-right-left text-xs"></i></button></div>
                         <div>
                             <label class="block font-bold text-slate-500 mb-1 text-[11px] uppercase tracking-wide text-petrol-700">BOY (cm)</label>
-                            <input type="number" step="0.1" inputmode="decimal" disabled oninput="debouncedCalculateRow(${currentRowId})" class="inp-boy w-full border border-petrol-300 rounded-lg px-2.5 py-2 font-black text-center outline-none text-base" placeholder="0.0">
-                            <div class="flex flex-wrap gap-1 mt-1.5">${[120, 130, 140, 150, 200, 210].map(val => `<button type="button" onclick="setQuickDimension(${currentRowId}, 'boy', ${val})" class="flex-1 py-1 px-0.5 bg-slate-100 hover:bg-petrol-100 border border-slate-200 text-petrol-900 rounded text-[11px] font-black min-h-[28px]">${val}</button>`).join('')}</div>
+                            <input type="number" step="0.1" inputmode="decimal" disabled oninput="debouncedCalculateRow(${rid})" class="inp-boy w-full border border-petrol-300 rounded-lg px-2.5 py-2 font-black text-center outline-none text-base" placeholder="0.0">
+                            <div class="flex flex-wrap gap-1 mt-1.5">${[120, 130, 140, 150, 200, 210].map(val => `<button type="button" onclick="setQuickDimension(${rid}, 'boy', ${val})" class="flex-1 py-1 px-0.5 bg-slate-100 hover:bg-petrol-100 border border-slate-200 text-petrol-900 rounded text-[11px] font-black min-h-[28px]">${val}</button>`).join('')}</div>
                         </div>
                     </div>
                     <div><label class="block font-bold text-slate-500 mb-1.5 text-[11px] uppercase tracking-wide">Özel Not</label><input type="text" disabled oninput="debouncedSaveFormDraft()" class="inp-note w-full border border-slate-300 rounded-lg px-3 py-2 outline-none font-medium text-sm" placeholder="Örn: Mutfak"></div>
                 </div>
                 <div class="border-t border-slate-200 mt-4 pt-3">
-                    <div class="flex justify-between items-center mb-2"><span class="text-[11px] font-extrabold text-slate-500 uppercase tracking-wide"><i class="fa-solid fa-puzzle-piece text-petrol-400 mr-1"></i> EKSTRA AKSESUAR</span><button type="button" onclick="addRowAccessory(${currentRowId})" class="bg-petrol-100 text-petrol-800 text-[11px] px-3 py-1.5 rounded font-bold">+ Aksesuar Ekle</button></div>
-                    <div id="rowAccessoriesContainer-${currentRowId}" class="space-y-1.5"></div>
+                    <div class="flex justify-between items-center mb-2"><span class="text-[11px] font-extrabold text-slate-500 uppercase tracking-wide"><i class="fa-solid fa-puzzle-piece text-petrol-400 mr-1"></i> EKSTRA AKSESUAR</span><button type="button" onclick="addRowAccessory(${rid})" class="bg-petrol-100 text-petrol-800 text-[11px] px-3 py-1.5 rounded font-bold">+ Aksesuar Ekle</button></div>
+                    <div id="rowAccessoriesContainer-${rid}" class="space-y-1.5"></div>
                 </div>
                 <div class="bg-white p-3 rounded-lg border border-slate-200 text-[11px] grid grid-cols-3 md:grid-cols-7 gap-2 text-center mt-3 shadow-sm">
                     <div class="bg-slate-50 p-1.5 rounded"><span class="block text-slate-400 font-bold text-[9px] uppercase mb-0.5">TAÇ</span><b class="out-tac text-slate-800">-</b></div>
@@ -1198,46 +1359,56 @@
                     <div class="bg-emerald-50 p-1.5 rounded border border-emerald-200 col-span-3 md:col-span-1 flex flex-col justify-center"><span class="block text-emerald-600 font-bold text-[9px] uppercase mb-0.5">SATIR TUTARI</span><b class="out-price text-emerald-700 font-black text-sm">0.00 ₺</b></div>
                 </div>
             `;
+
             document.getElementById('measureRowsContainer').appendChild(div);
             resequenceRows();
 
             if (initialData) {
                 div.querySelector('.inp-qty').value = initialData.qty || 1;
-                div.querySelector('.product-type').value = initialData.pType; stepSelect(currentRowId, 1);
-                div.querySelector('.measure-type').value = initialData.mType; stepSelect(currentRowId, 2);
-                div.querySelector('.color-type').value = initialData.color; stepSelect(currentRowId, 3);
+                div.querySelector('.product-type').value = initialData.pType || ''; stepSelect(rid, 1);
+                div.querySelector('.measure-type').value = initialData.mType || ''; stepSelect(rid, 2);
+                div.querySelector('.color-type').value = initialData.color || ''; stepSelect(rid, 3);
                 if (initialData.dir && div.querySelector('.opt-dir')) div.querySelector('.opt-dir').value = initialData.dir;
                 if (initialData.menteseliTip && div.querySelector('.opt-menteseli-tip')) div.querySelector('.opt-menteseli-tip').value = initialData.menteseliTip;
                 if (initialData.tulType && div.querySelector('.opt-tul')) div.querySelector('.opt-tul').value = initialData.tulType;
                 if (initialData.caseType && div.querySelector('.opt-case')) div.querySelector('.opt-case').value = initialData.caseType;
                 if (initialData.magnetType && div.querySelector('.opt-magnet')) div.querySelector('.opt-magnet').value = initialData.magnetType;
-                div.querySelector('.inp-en').value = initialData.en;
-                div.querySelector('.inp-boy').value = initialData.boy;
-                if (initialData.note) div.querySelector('.inp-note').value = escapeHTML(initialData.note);
-                if (initialData.customAccessories) initialData.customAccessories.forEach(ca => addRowAccessory(currentRowId, ca.accId, ca.qty));
-                calculateRow(currentRowId);
+
+                div.querySelector('.inp-en').value = initialData.en || '';
+                div.querySelector('.inp-boy').value = initialData.boy || '';
+                if (initialData.note) div.querySelector('.inp-note').value = initialData.note;
+                if (initialData.customAccessories) initialData.customAccessories.forEach(ca => addRowAccessory(rid, ca.accId, ca.qty));
+                calculateRow(rid);
+
             } else if (inheritedData && inheritedData.pType) {
-                div.querySelector('.product-type').value = inheritedData.pType; stepSelect(currentRowId, 1);
-                if (inheritedData.mType) { div.querySelector('.measure-type').value = inheritedData.mType; stepSelect(currentRowId, 2); }
-                if (inheritedData.color) { div.querySelector('.color-type').value = inheritedData.color; stepSelect(currentRowId, 3); }
+                div.querySelector('.product-type').value = inheritedData.pType; stepSelect(rid, 1);
+                if (inheritedData.mType) { div.querySelector('.measure-type').value = inheritedData.mType; stepSelect(rid, 2); }
+                if (inheritedData.color) { div.querySelector('.color-type').value = inheritedData.color; stepSelect(rid, 3); }
             }
         }
 
-        function addRowAccessory(rowId, preAccId = '', preQty = 1) {
+        function addRowAccessory(rowId, preAccId, preQty) {
+            preAccId = preAccId || ''; preQty = preQty || 1;
             let opts = '<option value="">-- Aksesuar Seç --</option>';
-            appSettings.productGroups?.forEach(pg => pg.accessories.forEach(a => { opts += `<option value="${a.id}" data-cost="${a.cost}">${escapeHTML(pg.name)} > ${escapeHTML(a.name)} (${a.cost} ₺)</option>`; }));
+            (appSettings.productGroups || []).forEach(pg => (pg.accessories || []).forEach(a => { opts += `<option value="${a.id}" data-cost="${a.cost}">${escapeHTML(pg.name)} > ${escapeHTML(a.name)} (${a.cost} ₺)</option>`; }));
             const div = document.createElement('div');
             div.className = "flex gap-2 custom-acc-item text-[12px] bg-white p-2 rounded-lg border border-slate-200 shadow-sm";
             div.innerHTML = `<select onchange="calculateRow(${rowId}); saveFormDraft();" class="acc-select w-full border border-slate-300 rounded px-2 py-1.5 bg-slate-50 font-bold outline-none">${opts}</select><input type="number" min="1" value="${preQty}" oninput="calculateRow(${rowId}); saveFormDraft();" class="acc-qty w-16 border border-slate-300 rounded text-center px-2 py-1.5 font-bold outline-none"><button type="button" onclick="this.parentElement.remove(); calculateRow(${rowId}); saveFormDraft();" class="text-red-500 px-2 py-1.5 rounded"><i class="fa-solid fa-xmark"></i></button>`;
-            document.getElementById(`rowAccessoriesContainer-${rowId}`).appendChild(div);
+
+            const cnt = document.getElementById(`rowAccessoriesContainer-${rowId}`);
+            if (!cnt) return;
+            cnt.appendChild(div);
             if (preAccId) div.querySelector('.acc-select').value = preAccId;
         }
 
         function stepSelect(id, step) {
             const card = document.getElementById(`row-${id}`); if (!card) return;
             const pType = card.querySelector('.product-type'), mType = card.querySelector('.measure-type'), cType = card.querySelector('.color-type'), opts = document.getElementById(`dynamicOpts-${id}`), en = card.querySelector('.inp-en'), boy = card.querySelector('.inp-boy'), note = card.querySelector('.inp-note');
+
             if (step === 1) { mType.value = ""; mType.disabled = !pType.value; cType.value = ""; cType.disabled = true; opts.innerHTML = `<label class="block font-bold text-slate-500 mb-1.5 text-[11px] uppercase tracking-wide">Opsiyonlar</label><select disabled class="w-full border border-slate-300 rounded-lg px-3 py-2 bg-slate-100 font-bold"><option>-</option></select>`; en.disabled = boy.disabled = note.disabled = true; }
+
             if (step === 2) { cType.value = ""; cType.disabled = !mType.value; opts.innerHTML = `<label class="block font-bold text-slate-500 mb-1.5 text-[11px] uppercase tracking-wide">Opsiyonlar</label><select disabled class="w-full border border-slate-300 rounded-lg px-3 py-2 bg-slate-100 font-bold"><option>-</option></select>`; en.disabled = boy.disabled = note.disabled = true; }
+
             if (step === 3 && cType.value) {
                 if (pType.value === 'plise') {
                     opts.innerHTML = `<label class="block font-bold text-slate-500 mb-1.5 text-[11px] uppercase tracking-wide">Opsiyonlar</label><div class="grid grid-cols-4 gap-1"><select onchange="calculateRow(${id}); saveFormDraft();" class="opt-dir border border-slate-300 rounded px-1 py-2 bg-white text-[11px] font-bold"><option value="yatay">Yatay (Tek)</option><option value="dikey">Dikey</option><option value="duble">Duble (Çift)</option></select><select onchange="calculateRow(${id}); saveFormDraft();" class="opt-tul border border-slate-300 rounded px-1 py-2 bg-white text-[11px] font-bold"><option value="plise">P.Tül</option><option value="polen">Polen</option></select><select onchange="calculateRow(${id}); saveFormDraft();" class="opt-case border border-slate-300 rounded px-1 py-2 bg-white text-[11px] font-bold"><option value="kasasiz">K.Yok</option><option value="kasali">Kasalı</option></select><select onchange="calculateRow(${id}); saveFormDraft();" class="opt-magnet border border-slate-300 rounded px-1 py-2 bg-white text-[11px] font-bold"><option value="yok">M.Yok</option><option value="var">Mıknatıs</option></select></div>`;
@@ -1246,12 +1417,18 @@
                 }
                 en.disabled = boy.disabled = note.disabled = false;
             } else if (step === 3) { en.disabled = boy.disabled = note.disabled = true; }
+
             calculateRow(id);
         }
 
-        function removeRow(id) { const el = document.getElementById(`row-${id}`); if (el) el.remove(); resequenceRows(); calculateAllRows(); saveFormDraft(); }
+        function removeRow(id) {
+            const el = document.getElementById(`row-${id}`);
+            if (el) el.remove();
+            resequenceRows();
+            calculateAllRows();
+            saveFormDraft();
+        }
         function resequenceRows() { document.querySelectorAll('#measureRowsContainer > div').forEach((c, i) => { const sq = c.querySelector('.row-seq'); if (sq) sq.innerText = i + 1; }); }
-        function getRecipeCost(gId, aId) { const g = appSettings.productGroups?.find(x => x.id === gId); const a = g?.accessories.find(x => x.id === aId); return a ? a.cost : 0; }
 
         function calculateRow(id) {
             const c = document.getElementById(`row-${id}`);
@@ -1273,20 +1450,28 @@
 
             const result = computeRowFinancials(rowState, appSettings);
 
-            c.querySelector('.out-tac').innerText = result.tac; c.querySelector('.out-dikme').innerText = result.dikme; c.querySelector('.out-kanat').innerText = result.kanat; 
+            c.querySelector('.out-tac').innerText = result.tac; c.querySelector('.out-dikme').innerText = result.dikme; c.querySelector('.out-kanat').innerText = result.kanat;
             c.querySelector('.out-tul').innerText = result.tul; c.querySelector('.out-ip').innerText = result.ip; c.querySelector('.out-m2').innerText = result.m2.toFixed(2);
             if (!rowState.tariff) { c.querySelector('.out-price').innerText = "Tarife Seç!"; } else { c.querySelector('.out-price').innerText = result.price.toFixed(2) + ' ₺'; }
             calculateGrandTotal();
         }
 
         function calculateAllRows() { document.querySelectorAll('#measureRowsContainer > div').forEach(c => calculateRow(c.id.split('-')[1])); }
+
         function calculateGrandTotal() {
-            if (!document.getElementById('salesTariff').value) { document.getElementById('grandTotalDisplay').innerText = "Tarife Seç"; document.getElementById('estimatedCostDisplay').innerText = "Maliyet: 0.00 ₺"; return; }
-            let t = 0, raw = 0;
-            document.querySelectorAll('#measureRowsContainer > div').forEach(c => { t += roundMoney(c.querySelector('.out-price').innerText); raw += roundMoney(c.querySelector('.out-m2').innerText) * 80; });
+            const totalEl = document.getElementById('grandTotalDisplay');
+            const costEl = document.getElementById('estimatedCostDisplay');
+            if (!document.getElementById('salesTariff').value) { totalEl.innerText = "Tarife Seç"; costEl.innerText = "Maliyet: 0.00 ₺"; return; }
+
+            const items = getOrderData().items;
+            let t = 0;
+            items.forEach(it => { t += moneyOf(it.price); });
             t += roundMoney(document.getElementById('extraLabor').value);
-            if (document.getElementById('kdvStatus').value === 'dahil') { t = roundMoney(t * (1 + (appSettings.kdvRate / 100))); }
-            document.getElementById('grandTotalDisplay').innerText = t.toFixed(2) + ' ₺'; document.getElementById('estimatedCostDisplay').innerText = `Maliyet: ${roundMoney(raw).toFixed(2)} ₺`;
+            if (document.getElementById('kdvStatus').value === 'dahil') { t = roundMoney(t * (1 + ((parseFloat(appSettings.kdvRate) || 0) / 100))); }
+
+            const cost = computeOrderMaterialCost({ items: items });
+            totalEl.innerText = t.toFixed(2) + ' ₺';
+            costEl.innerText = `Maliyet: ${cost.toFixed(2)} ₺`;
         }
 
         function getOrderData() {
@@ -1294,48 +1479,111 @@
             document.querySelectorAll('#measureRowsContainer > div').forEach((c, i) => {
                 let en = parseFloat(c.querySelector('.inp-en').value);
                 if (en > 0) {
-                    let accs = []; c.querySelectorAll('.custom-acc-item').forEach(it => { let s = it.querySelector('.acc-select'); if (s.value) accs.push({ accId: s.value, qty: parseInt(it.querySelector('.acc-qty').value) || 1 }); });
+                    let accs = []; c.querySelectorAll('.custom-acc-item').forEach(it => { let s = it.querySelector('.acc-select'); if (s && s.value) accs.push({ accId: s.value, qty: parseInt(it.querySelector('.acc-qty').value) || 1 }); });
                     items.push({
-                        seq: i + 1, qty: parseInt(c.querySelector('.inp-qty').value) || 1, pType: c.querySelector('.product-type').value, mType: c.querySelector('.measure-type').value, color: c.querySelector('.color-type').value, dir: c.querySelector('.opt-dir')?.value || '', menteseliTip: c.querySelector('.opt-menteseli-tip')?.value || '', tulType: c.querySelector('.opt-tul')?.value || '', caseType: c.querySelector('.opt-case')?.value || '', magnetType: c.querySelector('.opt-magnet')?.value || '',
-                        en: en, boy: parseFloat(c.querySelector('.inp-boy').value), note: escapeHTML(c.querySelector('.inp-note').value || ''), tac: c.querySelector('.out-tac').innerText, dikme: c.querySelector('.out-dikme').innerText, kanat: c.querySelector('.out-kanat').innerText, tul: c.querySelector('.out-tul').innerText, ip: c.querySelector('.out-ip').innerText, m2: c.querySelector('.out-m2').innerText, price: c.querySelector('.out-price').innerText, customAccessories: accs
+                        seq: i + 1,
+                        qty: parseInt(c.querySelector('.inp-qty').value) || 1,
+                        pType: c.querySelector('.product-type').value,
+                        mType: c.querySelector('.measure-type').value,
+                        color: c.querySelector('.color-type').value,
+                        dir: c.querySelector('.opt-dir')?.value || '',
+                        menteseliTip: c.querySelector('.opt-menteseli-tip')?.value || '',
+                        tulType: c.querySelector('.opt-tul')?.value || '',
+                        caseType: c.querySelector('.opt-case')?.value || '',
+                        magnetType: c.querySelector('.opt-magnet')?.value || '',
+                        en: en,
+                        boy: parseFloat(c.querySelector('.inp-boy').value) || 0,
+                        note: c.querySelector('.inp-note').value || '',
+                        tac: c.querySelector('.out-tac').innerText,
+                        dikme: c.querySelector('.out-dikme').innerText,
+                        kanat: c.querySelector('.out-kanat').innerText,
+                        tul: c.querySelector('.out-tul').innerText,
+                        ip: c.querySelector('.out-ip').innerText,
+                        m2: c.querySelector('.out-m2').innerText,
+                        price: c.querySelector('.out-price').innerText,
+                        customAccessories: accs
                     });
                 }
             });
+
+            const total = moneyOf(document.getElementById('grandTotalDisplay').innerText);
+
             return {
-                id: 'ORD-' + Date.now().toString().slice(-6), date: new Date().toLocaleDateString('tr-TR'),
-                customerName: escapeHTML(document.getElementById('custName').value.trim() || 'İsimsiz Müşteri'), customerPhone: escapeHTML(document.getElementById('custPhone').value.trim() || ''), customerAddress: escapeHTML(document.getElementById('custAddress').value.trim() || 'Elazığ Atölye Teslim'),
-                tariff: document.getElementById('salesTariff').value, extraLabor: parseFloat(document.getElementById('extraLabor').value) || 0, kdvStatus: document.getElementById('kdvStatus').value, totalAmount: parseFloat(document.getElementById('grandTotalDisplay').innerText) || 0, discountRate: 0, deposit: 0, items: items
+                id: 'ORD-' + Date.now().toString().slice(-6),
+                date: new Date().toLocaleDateString('tr-TR'),
+                customerName: document.getElementById('custName').value.trim() || 'İsimsiz Müşteri',
+                customerPhone: document.getElementById('custPhone').value.trim() || '',
+                customerAddress: document.getElementById('custAddress').value.trim() || 'Elazığ Atölye Teslim',
+                tariff: document.getElementById('salesTariff').value,
+                extraLabor: parseFloat(document.getElementById('extraLabor').value) || 0,
+                kdvStatus: document.getElementById('kdvStatus').value,
+                totalAmount: total,
+                discountRate: 0, deposit: 0,
+                items: items
             };
         }
+
         function resetMeasureForm() {
             if (!confirm("Temizlenecek. Onaylıyor musunuz?")) return;
-            clearFormDraft(); document.getElementById('custName').value = ''; document.getElementById('custPhone').value = ''; document.getElementById('custAddress').value = ''; document.getElementById('salesTariff').value = ''; document.getElementById('extraLabor').value = '0'; document.getElementById('kdvStatus').value = 'haric'; document.getElementById('measureRowsContainer').innerHTML = ''; currentRowId = 0; addMeasureRow(); calculateGrandTotal();
+            clearFormDraft();
+            document.getElementById('custName').value = ''; document.getElementById('custPhone').value = ''; document.getElementById('custAddress').value = '';
+            document.getElementById('salesTariff').value = ''; document.getElementById('extraLabor').value = '0'; document.getElementById('kdvStatus').value = 'haric';
+            document.getElementById('measureRowsContainer').innerHTML = ''; currentRowId = 0;
+            addMeasureRow(); calculateGrandTotal();
         }
 
         // --- SEPET & TOPLU İŞLEMLER ---
         function addOrderToCartAction() {
-            if (isProcessing) return; const ord = getOrderData(); if (ord.items.length === 0) { alert("En az 1 ölçü satırı giriniz!"); return; }
-            try { isProcessing = true; if (!appSettings.cart) appSettings.cart = []; appSettings.cart.unshift(ord); StorageManager.save(appSettings); clearFormDraft(); renderCartUI(); alert(`Sipariş #${ord.id} sepete eklendi!`); switchTab('cart'); } finally { isProcessing = false; }
+            if (isProcessing) return;
+            const ord = getOrderData();
+            if (ord.items.length === 0) { alert("En az 1 ölçü satırı giriniz!"); return; }
+            try {
+                isProcessing = true;
+                if (!appSettings.cart) appSettings.cart = [];
+                appSettings.cart.unshift(ord);
+                StorageManager.save(appSettings);
+                clearFormDraft();
+                renderCartUI();
+                alert(`Sipariş #${ord.id} sepete eklendi!`);
+                switchTab('cart');
+            } finally { isProcessing = false; }
         }
-        function computeOrderFinancials(o) { 
-            const listPrice = roundMoney(o.totalAmount); const discRate = parseFloat(o.discountRate) || 0; const discountAmt = roundMoney((listPrice * discRate) / 100); 
-            const netPayable = Math.max(0, roundMoney(listPrice - discountAmt)); const depositAmt = roundMoney(o.deposit); const balanceDue = Math.max(0, roundMoney(netPayable - depositAmt)); 
-            return { listPrice, discRate, discountAmt, netPayable, depositAmt, balanceDue }; 
+
+        function computeOrderFinancials(o) {
+            const listPrice = roundMoney(o.totalAmount);
+            const discRate = parseFloat(o.discountRate) || 0;
+            const discountAmt = roundMoney((listPrice * discRate) / 100);
+            const netPayable = Math.max(0, roundMoney(listPrice - discountAmt));
+            const depositAmt = roundMoney(o.deposit);
+            const balanceDue = Math.max(0, roundMoney(netPayable - depositAmt));
+            return { listPrice, discRate, discountAmt, netPayable, depositAmt, balanceDue };
+        }
+
+        function clearCartDateFilter() {
+            document.getElementById('cartFilterStartDate').value = '';
+            document.getElementById('cartFilterEndDate').value = '';
+            renderCartUI();
         }
 
         function renderCartUI() {
             const cnt = document.getElementById('cartItemsContainer'), badge = document.getElementById('cartCountBadge'), mobBadge = document.getElementById('mobCartBadge'), sumBadge = document.getElementById('cartSummaryBadge');
-            if (!cnt) return; let cart = appSettings.cart || [];
-            if (badge) badge.innerText = cart.length; if (mobBadge) { mobBadge.innerText = cart.length; if (cart.length > 0) mobBadge.classList.remove('hidden'); else mobBadge.classList.add('hidden'); }
+            if (!cnt) return;
+            let cart = appSettings.cart || [];
+
+            if (badge) badge.innerText = cart.length;
+            if (mobBadge) { mobBadge.innerText = cart.length; if (cart.length > 0) mobBadge.classList.remove('hidden'); else mobBadge.classList.add('hidden'); }
+
             const startDateStr = document.getElementById('cartFilterStartDate')?.value, endDateStr = document.getElementById('cartFilterEndDate')?.value;
             if (startDateStr || endDateStr) {
                 cart = cart.filter(o => {
-                    const oDate = parseTurkishDate(o.date); if (!oDate) return true;
-                    if (startDateStr && oDate < new Date(startDateStr)) return false;
-                    if (endDateStr) { const endD = new Date(endDateStr); endD.setHours(23, 59, 59, 999); if (oDate > endD) return false; }
+                    const oDate = parseTurkishDate(o.date);
+                    if (!oDate) return true;
+                    if (startDateStr) { const sD = parseTurkishDate(startDateStr); if (sD && oDate < sD) return false; }
+                    if (endDateStr) { const eD = parseTurkishDate(endDateStr); if (eD) { eD.setHours(23, 59, 59, 999); if (oDate > eD) return false; } }
                     return true;
                 });
             }
+
             if (sumBadge) sumBadge.innerText = `${cart.length} Sipariş Bekliyor`;
             if (cart.length === 0) { cnt.innerHTML = '<div class="text-center py-10 text-slate-400 font-semibold">Sipariş bulunmuyor.</div>'; return; }
 
@@ -1359,8 +1607,8 @@
                             <div class="flex items-start gap-3">
                                 <input type="checkbox" class="cart-item-checkbox w-5 h-5 accent-petrol-600 rounded mt-0.5 cursor-pointer" value="${o.id}">
                                 <div>
-                                    <span class="font-black text-petrol-900 text-base"><i class="fa-solid fa-file-invoice text-petrol-600"></i> ${escapeHTML(o.customerName)} <span class="text-xs bg-petrol-100 px-2 py-0.5 rounded border">#${o.id}</span></span>
-                                    <p class="text-xs text-slate-500 mt-0.5">${escapeHTML(o.customerPhone)} • ${o.date} • ${escapeHTML(o.customerAddress)}</p>
+                                    <span class="font-black text-petrol-900 text-base"><i class="fa-solid fa-file-invoice text-petrol-600"></i> ${escapeHTML(o.customerName)} <span class="text-xs bg-petrol-100 px-2 py-0.5 rounded border">#${escapeHTML(o.id)}</span></span>
+                                    <p class="text-xs text-slate-500 mt-0.5">${escapeHTML(o.customerPhone)} • ${escapeHTML(o.date)} • ${escapeHTML(o.customerAddress)}</p>
                                 </div>
                             </div>
                         </div>
@@ -1372,22 +1620,24 @@
                         </div>
                         <div class="overflow-x-auto border rounded-lg bg-white">
                             <table class="w-full text-left text-xs"><thead class="bg-slate-100 font-extrabold text-slate-600 text-[10px] border-b"><tr><th class="p-2 text-center">Adet</th><th class="p-2">Ürün</th><th class="p-2 text-center">EN</th><th class="p-2 text-center">BOY</th><th class="p-2 text-center">Kesim</th><th class="p-2 text-right">Tutar</th></tr></thead>
-                            <tbody>${o.items.map((it, idx) => `<tr class="hover:bg-slate-50"><td class="p-2 text-center"><input type="number" min="1" value="${it.qty}" onchange="updateCartItemDimensionById('${o.id}', ${idx}, 'qty', this.value)" class="w-14 text-center font-black border rounded"></td><td class="p-2 font-bold">${it.pType.toUpperCase()}</td><td class="p-2 text-center"><input type="number" step="0.1" value="${it.en}" onchange="updateCartItemDimensionById('${o.id}', ${idx}, 'en', this.value)" class="w-16 text-center font-bold border rounded"></td><td class="p-2 text-center"><input type="number" step="0.1" value="${it.boy}" onchange="updateCartItemDimensionById('${o.id}', ${idx}, 'boy', this.value)" class="w-16 text-center font-bold border rounded"></td><td class="p-2 text-center font-mono text-[10px]">T:${it.tac} D:${it.dikme} K:${it.kanat}</td><td class="p-2 text-right font-black text-emerald-600">${it.price}</td></tr>`).join('')}</tbody></table>
+                            <tbody>${(o.items || []).map((it, idx) => `<tr class="hover:bg-slate-50"><td class="p-2 text-center"><input type="number" min="1" value="${it.qty}" onchange="updateCartItemDimensionById('${o.id}', ${idx}, 'qty', this.value)" class="w-14 text-center font-black border rounded"></td><td class="p-2 font-bold">${escapeHTML(String(it.pType).toUpperCase())}</td><td class="p-2 text-center"><input type="number" step="0.1" value="${it.en}" onchange="updateCartItemDimensionById('${o.id}', ${idx}, 'en', this.value)" class="w-16 text-center font-bold border rounded"></td><td class="p-2 text-center"><input type="number" step="0.1" value="${it.boy}" onchange="updateCartItemDimensionById('${o.id}', ${idx}, 'boy', this.value)" class="w-16 text-center font-bold border rounded"></td><td class="p-2 text-center font-mono text-[10px]">T:${escapeHTML(it.tac)} D:${escapeHTML(it.dikme)} K:${escapeHTML(it.kanat)}</td><td class="p-2 text-right font-black text-emerald-600">${escapeHTML(it.price)}</td></tr>`).join('')}</tbody></table>
                         </div>
                         <div class="flex flex-wrap justify-end gap-2 pt-2">
                             <button onclick="openWaSendModal('${o.id}')" class="bg-emerald-600 text-white text-xs px-3 py-1.5 rounded-lg font-bold shadow-sm">WhatsApp</button>
-                            <button onclick="printCartOrderA4ThenZebraById('${o.id}')" class="bg-petrol-800 text-white text-xs px-3 py-1.5 rounded-lg font-bold shadow-sm">A4 & Etiket Bas</button>
+                            <button onclick="printCartOrderA4ThenZebraById('${o.id}')" class="bg-petrol-800 text-white text-xs px-3 py-1.5 rounded-lg font-bold shadow-sm">A4 &amp; Etiket Bas</button>
                             <button onclick="printCartOrderZebraDirectById('${o.id}')" class="bg-slate-200 text-slate-800 text-xs px-3 py-1.5 rounded-lg font-bold">Sadece Etiket</button>
                             <button onclick="loadCartOrderToMeasureById('${o.id}')" class="bg-amber-100 text-amber-800 text-xs px-3 py-1.5 rounded-lg font-bold">Ölçüye Al</button>
                             <button onclick="deleteCartOrderById('${o.id}')" class="text-red-500 text-xs px-2 py-1.5 rounded-lg"><i class="fa-solid fa-trash"></i></button>
                         </div>
                     </div>`;
             }).join('');
+
             cnt.innerHTML = bulkToolbar + itemsHTML;
         }
 
         function toggleAllCartItems(checked) { document.querySelectorAll('.cart-item-checkbox').forEach(cb => cb.checked = checked); }
         function getSelectedCartOrders() { const ids = Array.from(document.querySelectorAll('.cart-item-checkbox:checked')).map(cb => cb.value); return (appSettings.cart || []).filter(o => ids.includes(o.id)); }
+
         function bulkAction(actionType) {
             const selectedOrders = getSelectedCartOrders();
             if (selectedOrders.length === 0) return alert("Lütfen işlem yapmak için en az bir sipariş seçiniz!");
@@ -1398,10 +1648,10 @@
                     appSettings.cart = (appSettings.cart || []).filter(o => !idsToDelete.includes(o.id));
                     StorageManager.save(appSettings); renderCartUI(); calculateMaterialConsumption();
                 }
-            } else if (actionType === 'a4') { printBulkA4(selectedOrders); } 
-            else if (actionType === 'zebra') { printBulkZebra(selectedOrders); } 
+            } else if (actionType === 'a4') { printBulkA4(selectedOrders); }
+            else if (actionType === 'zebra') { printBulkZebra(selectedOrders); }
             else if (actionType === 'whatsapp') {
-                if(confirm(`Seçilen ${selectedOrders.length} sipariş için sırayla WhatsApp sekmeleri açılacak.\nNot: Tarayıcınızın 'Pop-up Engelleyici'si açıksa sekmeler engellenebilir.`)) {
+                if (confirm(`Seçilen ${selectedOrders.length} sipariş için sırayla WhatsApp sekmeleri açılacak.\nNot: Tarayıcınızın 'Pop-up Engelleyici'si açıksa sekmeler engellenebilir.`)) {
                     activeWaOrderId = "BULK_" + selectedOrders.map(o => o.id).join(',');
                     document.getElementById('waSendButtonsContainer').innerHTML = (appSettings.whatsappTemplates || []).map(tpl => `
                         <button onclick="executeBulkWaSend('${tpl.id}')" class="w-full text-left bg-slate-50 hover:bg-emerald-50 border border-slate-200 hover:border-emerald-300 p-3 rounded-lg transition">
@@ -1412,106 +1662,249 @@
             }
         }
 
-        function updateCartOrderFieldById(orderId, field, val) { const num = parseFloat(val); if (isNaN(num) || num < 0) return; const ord = (appSettings.cart || []).find(o => o.id === orderId); if (ord) { ord[field] = num; StorageManager.save(appSettings); renderCartUI(); } }
+        function updateCartOrderFieldById(orderId, field, val) {
+            const num = parseFloat(val);
+            if (isNaN(num) || num < 0) return;
+            const ord = (appSettings.cart || []).find(o => o.id === orderId);
+            if (ord) { ord[field] = num; StorageManager.save(appSettings); renderCartUI(); }
+        }
+
+        // SEPETTE ÖLÇÜ DÜZENLEME — tanımsız 'boy' değişkeni hatası düzeltildi
         function updateCartItemDimensionById(orderId, itemIdx, field, val) {
-            const num = parseFloat(val); if (isNaN(num) || num <= 0) return; const ord = (appSettings.cart || []).find(o => o.id === orderId); if (!ord || !ord.items[itemIdx]) return;
-            ord.items[itemIdx][field] = num; const it = ord.items[itemIdx]; const pCut = appSettings.cutDeductions?.plise || DEFAULT_SETTINGS.cutDeductions.plise; const mCut = appSettings.cutDeductions?.mentese || DEFAULT_SETTINGS.cutDeductions.mentese;
+            const num = parseFloat(val);
+            if (isNaN(num) || num <= 0) return;
+            const ord = (appSettings.cart || []).find(o => o.id === orderId);
+            if (!ord || !ord.items || !ord.items[itemIdx]) return;
+
+            const it = ord.items[itemIdx];
+            it[field] = num;
+
+            const pCut = appSettings.cutDeductions?.plise || DEFAULT_SETTINGS.cutDeductions.plise;
+            const mCut = appSettings.cutDeductions?.mentese || DEFAULT_SETTINGS.cutDeductions.mentese;
+            const en = parseFloat(it.en) || 0, boy = parseFloat(it.boy) || 0, q = it.qty || 1;
             const isDikey = (it.pType === 'plise' && it.dir === 'dikey');
+
             if (it.pType === 'plise') {
-                const mul = ((!isDikey ? ((it.en * 2) + (it.boy * 3)) : ((it.en * 3) + (it.boy * 2))) / 100) * it.qty; const katSayisi = isDikey ? Math.floor((it.boy / 2.5) - 2) : Math.floor((it.en / 2.5) - 2);
-                if (it.mType === 'ic') { it.tac = (it.en + pCut.ic.tac).toFixed(1); it.dikme = (it.boy + pCut.ic.dikme).toFixed(1); it.kanat = isDikey ? (it.en - pCut.ic.kanat).toFixed(1) : (it.boy - pCut.ic.kanat).toFixed(1); it.tul = isDikey ? (it.en + pCut.ic.tul).toFixed(1) : (it.boy + pCut.ic.tul).toFixed(1); it.ip = `${(it.en + it.boy + 26).toFixed(0)}cm / ${katSayisi}k`; } 
-                else { it.tac = (it.en - pCut.dis.tac).toFixed(1); it.dikme = (it.boy - pCut.dis.dikme).toFixed(1); it.kanat = isDikey ? (it.en - pCut.dis.kanat).toFixed(1) : (it.boy - pCut.dis.kanat).toFixed(1); it.tul = isDikey ? (it.en - pCut.dis.tul).toFixed(1) : (it.boy - pCut.dis.tul).toFixed(1); it.ip = `${(it.en + it.boy + 10).toFixed(0)}cm / ${katSayisi}k`; }
+                const mul = ((!isDikey ? ((en * 2) + (boy * 3)) : ((en * 3) + (boy * 2))) / 100) * q;
+                const katSayisi = isDikey ? Math.floor((boy / 2.5) - 2) : Math.floor((en / 2.5) - 2);
+                if (it.mType === 'ic') {
+                    it.tac = (en + pCut.ic.tac).toFixed(1); it.dikme = (boy + pCut.ic.dikme).toFixed(1);
+                    it.kanat = isDikey ? (en - pCut.ic.kanat).toFixed(1) : (boy - pCut.ic.kanat).toFixed(1);
+                    it.tul = isDikey ? (en + pCut.ic.tul).toFixed(1) : (boy + pCut.ic.tul).toFixed(1);
+                    it.ip = `${(en + boy + 26).toFixed(0)}cm / ${katSayisi}k`;
+                } else {
+                    it.tac = (en - pCut.dis.tac).toFixed(1); it.dikme = (boy - pCut.dis.dikme).toFixed(1);
+                    it.kanat = isDikey ? (en - pCut.dis.kanat).toFixed(1) : (boy - pCut.dis.kanat).toFixed(1);
+                    it.tul = isDikey ? (en - pCut.dis.tul).toFixed(1) : (boy - pCut.dis.tul).toFixed(1);
+                    it.ip = `${(en + boy + 10).toFixed(0)}cm / ${katSayisi}k`;
+                }
                 it.m2 = mul.toFixed(2);
             } else {
-                let isKapi = it.menteseliTip.includes('kapi'); const mul = ((isKapi ? ((it.en * 4) + (boy * 2)) : ((it.en * 2) + (it.boy * 2))) / 100) * it.qty;
-                if (it.mType === 'dis') { it.tac = (it.en - mCut.dis.tac).toFixed(1); it.dikme = (it.boy - mCut.dis.dikme).toFixed(1); it.kanat = (it.boy - mCut.dis.kanat).toFixed(1); it.tul = (it.boy - mCut.dis.tul).toFixed(1); } 
-                else { it.tac = (it.en + mCut.ic.tac).toFixed(1); it.dikme = (it.boy + mCut.ic.dikme).toFixed(1); it.kanat = (it.boy - mCut.ic.kanat).toFixed(1); it.tul = (it.boy + mCut.ic.tul).toFixed(1); }
+                const isKapi = (it.menteseliTip || '').includes('kapi');
+                const mul = ((isKapi ? ((en * 4) + (boy * 2)) : ((en * 2) + (boy * 2))) / 100) * q;
+                if (it.mType === 'dis') {
+                    it.tac = (en - mCut.dis.tac).toFixed(1); it.dikme = (boy - mCut.dis.dikme).toFixed(1);
+                    it.kanat = (boy - mCut.dis.kanat).toFixed(1); it.tul = (boy - mCut.dis.tul).toFixed(1);
+                } else {
+                    it.tac = (en + mCut.ic.tac).toFixed(1); it.dikme = (boy + mCut.ic.dikme).toFixed(1);
+                    it.kanat = (boy - mCut.ic.kanat).toFixed(1); it.tul = (boy + mCut.ic.tul).toFixed(1);
+                }
                 it.m2 = mul.toFixed(2);
             }
-            StorageManager.save(appSettings); renderCartUI();
+
+            // Satır fiyatını ve sipariş toplamını yeniden hesapla
+            const accs = (it.customAccessories || []).map(ca => { const a = findAccessoryById(ca.accId); return { cost: a ? parseFloat(a.cost) || 0 : 0, qty: ca.qty || 1 }; });
+            const recalc = computeRowFinancials({
+                pT: it.pType, mT: it.mType, en: en, boy: boy, qty: q, dir: it.dir, menteseliTip: it.menteseliTip,
+                tulType: it.tulType, magnetType: it.magnetType, caseType: it.caseType, tariff: ord.tariff || 'montajli', customAccessories: accs
+            }, appSettings);
+            it.price = recalc.price.toFixed(2) + ' ₺';
+            it.m2 = recalc.m2.toFixed(2);
+
+            let total = 0;
+            (ord.items || []).forEach(x => { total += moneyOf(x.price); });
+            total = roundMoney(total + (parseFloat(ord.extraLabor) || 0));
+            if (ord.kdvStatus === 'dahil') total = roundMoney(total * (1 + ((parseFloat(appSettings.kdvRate) || 0) / 100)));
+            ord.totalAmount = total;
+
+            StorageManager.save(appSettings);
+            renderCartUI();
         }
-        function deleteCartOrderById(orderId) { if (confirm("Sepetten silinsin mi?")) { appSettings.cart = (appSettings.cart || []).filter(o => o.id !== orderId); StorageManager.save(appSettings); renderCartUI(); calculateMaterialConsumption(); } }
-        function clearAllCart() { if (confirm("Tüm siparişler silinsin mi?")) { appSettings.cart = []; StorageManager.save(appSettings); renderCartUI(); calculateMaterialConsumption(); } }
+
+        function deleteCartOrderById(orderId) {
+            if (confirm("Sepetten silinsin mi?")) {
+                appSettings.cart = (appSettings.cart || []).filter(o => o.id !== orderId);
+                StorageManager.save(appSettings); renderCartUI(); calculateMaterialConsumption();
+            }
+        }
+        function clearAllCart() {
+            if (confirm("Tüm siparişler silinsin mi?")) {
+                appSettings.cart = []; StorageManager.save(appSettings); renderCartUI(); calculateMaterialConsumption();
+            }
+        }
         function loadCartOrderToMeasureById(orderId) {
-            const o = (appSettings.cart || []).find(x => x.id === orderId); if (!o) return; if (!confirm(`Ölçü formuna aktarılacak?`)) return;
-            document.getElementById('custName').value = o.customerName; document.getElementById('custPhone').value = o.customerPhone; document.getElementById('custAddress').value = o.customerAddress; document.getElementById('salesTariff').value = o.tariff || 'montajli'; document.getElementById('extraLabor').value = o.extraLabor || 0; document.getElementById('kdvStatus').value = o.kdvStatus || 'haric';
+            const o = (appSettings.cart || []).find(x => x.id === orderId); if (!o) return;
+            if (!confirm(`Ölçü formuna aktarılacak?`)) return;
+
+            document.getElementById('custName').value = o.customerName; document.getElementById('custPhone').value = o.customerPhone; document.getElementById('custAddress').value = o.customerAddress;
+            document.getElementById('salesTariff').value = o.tariff || 'montajli'; document.getElementById('extraLabor').value = o.extraLabor || 0; document.getElementById('kdvStatus').value = o.kdvStatus || 'haric';
+
             document.getElementById('measureRowsContainer').innerHTML = ''; currentRowId = 0;
             if (o.items && o.items.length > 0) o.items.forEach(it => addMeasureRow(it)); else addMeasureRow();
             calculateGrandTotal(); saveFormDraft(); switchTab('order');
         }
 
         // --- CARİ / HESAP YÖNETİMİ ---
-        function findOrCreateCustomer(name, phone, address = '', category = 'standard') {
-            if (!appSettings.customers) appSettings.customers = []; const cleanPhone = (phone || '').replace(/\D/g, ''); const trimmedName = (name || '').trim().toLowerCase();
-            let cust = appSettings.customers.find(c => { const cClean = (c.phone || '').replace(/\D/g, ''); return (cleanPhone && cClean && cleanPhone === cClean) || (c.name.trim().toLowerCase() === trimmedName); });
-            if (!cust) { cust = { id: 'CUST-' + Date.now().toString(36), code: (category === 'bulk' ? 'ŞNT-' : 'CR-') + (appSettings.customers.length + 1).toString().padStart(4, '0'), name: (name || 'İsimsiz').trim(), phone: phone || '', address: address || '', category: category, dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10), transactions: [] }; appSettings.customers.push(cust); }
+        function findOrCreateCustomer(name, phone, address, category) {
+            address = address || ''; category = category || 'standard';
+            if (!appSettings.customers) appSettings.customers = [];
+            const cleanPhone = (phone || '').replace(/\D/g, '');
+            const trimmedName = (name || '').trim().toLowerCase();
+
+            let cust = appSettings.customers.find(c => {
+                const cClean = (c.phone || '').replace(/\D/g, '');
+                return (cleanPhone && cClean && cleanPhone === cClean) || (c.name.trim().toLowerCase() === trimmedName);
+            });
+
+            if (!cust) {
+                cust = {
+                    id: 'CUST-' + Date.now().toString(36),
+                    code: (category === 'bulk' ? 'ŞNT-' : 'CR-') + (appSettings.customers.length + 1).toString().padStart(4, '0'),
+                    name: (name || 'İsimsiz').trim(),
+                    phone: phone || '',
+                    address: address || '',
+                    category: category,
+                    dueDate: toInputDateStr(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)),
+                    transactions: []
+                };
+                appSettings.customers.push(cust);
+            }
             return cust;
         }
-        function getCustomerLedgerTotals(c, startDate = null, endDate = null) {
+
+        function getCustomerLedgerTotals(c, startDate, endDate) {
+            startDate = startDate || null; endDate = endDate || null;
             let debit = 0, credit = 0;
-            (c.transactions || []).forEach(t => {
-                if (startDate || endDate) { const tDate = parseTurkishDate(t.date); if (tDate) { if (startDate && tDate < new Date(startDate)) return; if (endDate) { const endD = new Date(endDate); endD.setHours(23, 59, 59, 999); if (tDate > endD) return; } } }
+            const sD = startDate ? parseTurkishDate(startDate) : null;
+            let eD = endDate ? parseTurkishDate(endDate) : null;
+            if (eD) eD.setHours(23, 59, 59, 999);
+
+            ((c && c.transactions) || []).forEach(t => {
+                if (sD || eD) {
+                    const tDate = parseTurkishDate(t.date);
+                    if (tDate) { if (sD && tDate < sD) return; if (eD && tDate > eD) return; }
+                }
                 debit += roundMoney(t.debit); credit += roundMoney(t.credit);
-            }); 
+            });
             debit = roundMoney(debit); credit = roundMoney(credit);
             return { debit, credit, balance: roundMoney(debit - credit) };
         }
+
         function registerOrderToCustomerLedger(ord) {
-            const fin = computeOrderFinancials(ord); const cust = findOrCreateCustomer(ord.customerName, ord.customerPhone, ord.customerAddress);
+            const fin = computeOrderFinancials(ord);
+            const cust = findOrCreateCustomer(ord.customerName, ord.customerPhone, ord.customerAddress);
+
             const txIdx = cust.transactions.findIndex(t => t.refOrder === ord.id && t.type === 'Sipariş Faturası');
-            if (txIdx > -1) { cust.transactions[txIdx].debit = fin.netPayable; cust.transactions[txIdx].desc = `Sipariş #${ord.id} (${ord.items.length} Kalem)` + (fin.discRate > 0 ? ` [%${fin.discRate} İskonto]` : ''); } 
-            else { cust.transactions.push({ id: 'TX-ORD-' + ord.id, refOrder: ord.id, date: ord.date || new Date().toLocaleDateString('tr-TR'), type: 'Sipariş Faturası', desc: `Sipariş #${ord.id} (${ord.items.length} Kalem)` + (fin.discRate > 0 ? ` [%${fin.discRate} İskonto]` : ''), debit: fin.netPayable, credit: 0 }); }
+            if (txIdx > -1) {
+                cust.transactions[txIdx].debit = fin.netPayable;
+                cust.transactions[txIdx].desc = `Sipariş #${ord.id} (${(ord.items || []).length} Kalem)` + (fin.discRate > 0 ? ` [%${fin.discRate} İskonto]` : '');
+            } else {
+                cust.transactions.push({ id: 'TX-ORD-' + ord.id, refOrder: ord.id, date: ord.date || new Date().toLocaleDateString('tr-TR'), type: 'Sipariş Faturası', desc: `Sipariş #${ord.id} (${(ord.items || []).length} Kalem)` + (fin.discRate > 0 ? ` [%${fin.discRate} İskonto]` : ''), debit: fin.netPayable, credit: 0 });
+            }
+
             if (fin.depositAmt > 0) {
                 const depIdx = cust.transactions.findIndex(t => t.refOrder === ord.id && t.type === 'Tahsilat (Kapora)');
-                if (depIdx > -1) { cust.transactions[depIdx].credit = fin.depositAmt; } 
+                if (depIdx > -1) { cust.transactions[depIdx].credit = fin.depositAmt; }
                 else { cust.transactions.push({ id: 'TX-DEP-' + ord.id, refOrder: ord.id, date: ord.date || new Date().toLocaleDateString('tr-TR'), type: 'Tahsilat (Kapora)', desc: `Sipariş #${ord.id} Kaporası`, debit: 0, credit: fin.depositAmt }); }
             }
-            StorageManager.save(appSettings); renderLedgerUI();
-        }
-        function switchLedgerSubCategory(subCat) {
-            currentLedgerSubCat = subCat; const btnStd = document.getElementById('subtab-ledger-standard'), btnBulk = document.getElementById('subtab-ledger-bulk'), titleEl = document.getElementById('ledgerCategoryHeaderTitle');
-            if (subCat === 'standard') { btnStd.className = "py-2.5 px-5 font-black text-xs border-b-2 border-petrol-700 text-petrol-950 bg-white rounded-t-lg shadow-sm flex items-center gap-2"; btnBulk.className = "py-2.5 px-5 font-bold text-xs border-b-2 border-transparent text-slate-500 hover:text-slate-800 hover:bg-slate-50 rounded-t-lg transition flex items-center gap-2"; titleEl.innerHTML = `<i class="fa-solid fa-address-book text-amber-500"></i> STANDART MÜŞTERİ CARİ HESAP DEFTERİ`; } 
-            else { btnBulk.className = "py-2.5 px-5 font-black text-xs border-b-2 border-petrol-700 text-petrol-950 bg-white rounded-t-lg shadow-sm flex items-center gap-2"; btnStd.className = "py-2.5 px-5 font-bold text-xs border-b-2 border-transparent text-slate-500 hover:text-slate-800 hover:bg-slate-50 rounded-t-lg transition flex items-center gap-2"; titleEl.innerHTML = `<i class="fa-solid fa-truck-ramp-box text-amber-500"></i> ŞANTİYE DEFTERİ`; }
+
+            StorageManager.save(appSettings);
             renderLedgerUI();
         }
-        function transferCustomerToBulk(custId) { const cust = (appSettings.customers || []).find(c => c.id === custId); if (!cust) return; if (confirm(`Şantiyeye aktarılsın mı?`)) { cust.category = 'bulk'; if (!cust.code.startsWith('ŞNT-')) cust.code = cust.code.replace('CR-', 'ŞNT-'); StorageManager.save(appSettings); renderLedgerUI(); } }
-        
+
+        function switchLedgerSubCategory(subCat) {
+            currentLedgerSubCat = subCat;
+            const btnStd = document.getElementById('subtab-ledger-standard'), btnBulk = document.getElementById('subtab-ledger-bulk'), titleEl = document.getElementById('ledgerCategoryHeaderTitle');
+            const activeCls = "py-2.5 px-5 font-black text-xs border-b-2 border-petrol-700 text-petrol-950 bg-white rounded-t-lg shadow-sm flex items-center gap-2";
+            const passiveCls = "py-2.5 px-5 font-bold text-xs border-b-2 border-transparent text-slate-500 hover:text-slate-800 hover:bg-slate-50 rounded-t-lg transition flex items-center gap-2";
+
+            if (subCat === 'standard') {
+                btnStd.className = activeCls; btnBulk.className = passiveCls;
+                titleEl.innerHTML = `<i class="fa-solid fa-address-book text-amber-500"></i> STANDART MÜŞTERİ CARİ HESAP DEFTERİ`;
+            } else {
+                btnBulk.className = activeCls; btnStd.className = passiveCls;
+                titleEl.innerHTML = `<i class="fa-solid fa-truck-ramp-box text-amber-500"></i> ŞANTİYE DEFTERİ`;
+            }
+            renderLedgerUI();
+        }
+
+        function transferCustomerToBulk(custId) {
+            const cust = (appSettings.customers || []).find(c => c.id === custId);
+            if (!cust) return;
+            if (confirm(`Şantiyeye aktarılsın mı?`)) {
+                cust.category = 'bulk';
+                if (!cust.code.startsWith('ŞNT-')) cust.code = cust.code.replace('CR-', 'ŞNT-');
+                StorageManager.save(appSettings); renderLedgerUI();
+            }
+        }
+
+        function normalizePhoneForWa(phone) {
+            let p = (phone || '').replace(/\D/g, '');
+            if (p.startsWith('0')) p = '9' + p;
+            if (p.length === 10) p = '90' + p;
+            return p;
+        }
+
         function sendCustomerLedgerWhatsApp(custId) {
             const c = (appSettings.customers || []).find(x => x.id === custId);
             if (!c) return;
             const { debit, credit, balance } = getCustomerLedgerTotals(c);
-            let phone = (c.phone || '').replace(/\D/g, '');
-            if (phone.startsWith('0')) phone = '9' + phone;
-            if (phone.length === 10) phone = '90' + phone;
-
+            const phone = normalizePhoneForWa(c.phone);
             if (phone.length < 10) { alert("Müşteriye ait geçerli bir telefon numarası bulunamadı."); return; }
 
             let msg = `Sayın ${c.name},\nFix House cari hesabınıza ait güncel özet aşağıdadır:\n\n`;
             msg += `*Toplam Borç:* ${debit.toFixed(2)} ₺\n`;
             msg += `*Yapılan Ödemeler:* ${credit.toFixed(2)} ₺\n`;
             msg += `*Kalan Bakiye:* *${balance.toFixed(2)} ₺*\n\n`;
-            
-            if (balance > 0) { msg += `Ödemelerinizi vaktinde yapmanızı rica eder, iyi çalışmalar dileriz.`; } 
+
+            if (balance > 0) { msg += `Ödemelerinizi vaktinde yapmanızı rica eder, iyi çalışmalar dileriz.`; }
             else if (balance === 0 && debit > 0) { msg += `Bizi tercih ettiğiniz için teşekkür ederiz. Borcunuz bulunmamaktadır.`; }
 
             window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank');
         }
 
+        function setLedgerQuickDate(mode) {
+            const s = document.getElementById('ledgerFilterStartDate'), e = document.getElementById('ledgerFilterEndDate');
+            const now = new Date();
+            if (mode === 'today') { s.value = toInputDateStr(now); e.value = toInputDateStr(now); }
+            else if (mode === 'month') { s.value = toInputDateStr(new Date(now.getFullYear(), now.getMonth(), 1)); e.value = toInputDateStr(now); }
+            else { s.value = ''; e.value = ''; }
+            renderLedgerUI();
+        }
+        function clearLedgerDateFilter() {
+            document.getElementById('ledgerFilterStartDate').value = '';
+            document.getElementById('ledgerFilterEndDate').value = '';
+            renderLedgerUI();
+        }
+
         function renderLedgerUI() {
             const tbody = document.getElementById('ledgerTableBody'); if (!tbody) return;
-            const q = (document.getElementById('ledgerSearchInput')?.value || '').toLowerCase(), startDateStr = document.getElementById('ledgerFilterStartDate')?.value, endDateStr = document.getElementById('ledgerFilterEndDate')?.value;
-            let totalDebit = 0, totalCredit = 0, totalBalance = 0, overdueCount = 0; const todayStr = new Date().toISOString().slice(0, 10);
+            const q = (document.getElementById('ledgerSearchInput')?.value || '').toLowerCase();
+            const startDateStr = document.getElementById('ledgerFilterStartDate')?.value, endDateStr = document.getElementById('ledgerFilterEndDate')?.value;
+            let overdueCount = 0;
+            const todayStr = toInputDateStr(new Date());
+
             const filtered = (appSettings.customers || []).filter(c => (c.category || 'standard') === currentLedgerSubCat && (c.name.toLowerCase().includes(q) || (c.phone || '').includes(q)));
             document.getElementById('bulkBadgeCount').innerText = (appSettings.customers || []).filter(c => c.category === 'bulk').length;
             filtered.sort((a, b) => a.name.localeCompare(b.name, 'tr', { sensitivity: 'base' }));
 
             tbody.innerHTML = filtered.map(c => {
-                const { debit, credit, balance } = getCustomerLedgerTotals(c, startDateStr, endDateStr); totalDebit += debit; totalCredit += credit; totalBalance += balance;
+                const { debit, credit, balance } = getCustomerLedgerTotals(c, startDateStr, endDateStr);
                 const isOverdue = balance > 0 && c.dueDate && c.dueDate < todayStr; if (isOverdue) overdueCount++;
                 return `
                     <tr class="hover:bg-slate-50 transition border-b border-slate-100">
-                        <td class="p-3 font-mono font-bold text-slate-500">${c.code}</td>
-                        <td class="p-3"><div class="font-extrabold text-petrol-950 text-sm">${escapeHTML(c.name)} ${isOverdue ? '<i class="fa-solid fa-triangle-exclamation text-red-500 text-xs"></i>' : ''}</div><div class="text-[10px] text-slate-400">${c.transactions ? c.transactions.length : 0} Kayıt</div></td>
+                        <td class="p-3 font-mono font-bold text-slate-500">${escapeHTML(c.code)}</td>
+                        <td class="p-3"><div class="font-extrabold text-petrol-950 text-sm">${escapeHTML(c.name)} ${isOverdue ? '<i class="fa-solid fa-triangle-exclamation text-red-500 text-xs"></i>' : ''}</div><div class="text-[10px] text-slate-400">${(c.transactions || []).length} Kayıt</div></td>
                         <td class="p-3"><div class="font-bold text-slate-700">${escapeHTML(c.phone || '-')}</div><div class="text-[10px] text-slate-400">${escapeHTML(c.address || 'Elazığ')}</div></td>
                         <td class="p-3 text-center"><input type="date" value="${c.dueDate || ''}" onchange="updateCustomerDueDate('${c.id}', this.value)" class="text-xs font-bold border rounded px-1.5 py-1 ${isOverdue ? 'bg-red-50 text-red-700' : 'bg-slate-50'}"></td>
                         <td class="p-3 text-right font-bold text-slate-800">${debit.toFixed(2)} ₺</td><td class="p-3 text-right font-black text-emerald-600">${credit.toFixed(2)} ₺</td><td class="p-3 text-right font-black ${balance > 0 ? 'text-red-600' : 'text-slate-700'}">${balance.toFixed(2)} ₺</td>
@@ -1526,76 +1919,197 @@
                     </tr>`;
             }).join('');
 
-            let gRev = 0, gCol = 0; (appSettings.customers || []).forEach(c => { const { debit, credit } = getCustomerLedgerTotals(c, startDateStr, endDateStr); gRev += debit; gCol += credit; });
-            const estCost = gRev * 0.35, netP = Math.max(0, gRev - estCost), pMargin = gRev > 0 ? ((netP / gRev) * 100).toFixed(1) : 0;
-            document.getElementById('repTotalSalesRevenue').innerText = `${gRev.toFixed(2)} ₺`; document.getElementById('repTotalCollected').innerText = `${gCol.toFixed(2)} ₺`; document.getElementById('repTotalMaterialCost').innerText = `${estCost.toFixed(2)} ₺`; document.getElementById('repNetProfit').innerText = `${netP.toFixed(2)} ₺`; document.getElementById('repProfitMarginBadge').innerText = `(Kâr: %${pMargin})`;
-            const banner = document.getElementById('ledgerOverdueBanner'); if (overdueCount > 0) { banner.classList.remove('hidden'); document.getElementById('ledgerOverdueText').innerText = `${overdueCount} müşterinin vadesi gecikti!`; } else { banner.classList.add('hidden'); }
+            // FİNANS PANELİ — ciro, gerçek reçete maliyeti ve net kâr
+            let gRev = 0, gCol = 0, gCost = 0;
+            (appSettings.customers || []).forEach(c => {
+                const { debit, credit } = getCustomerLedgerTotals(c, startDateStr, endDateStr);
+                gRev += debit; gCol += credit;
+
+                (c.transactions || []).forEach(t => {
+                    if (t.type !== 'Sipariş Faturası' || !t.refOrder) return;
+                    if (startDateStr || endDateStr) {
+                        const tDate = parseTurkishDate(t.date);
+                        const sD = startDateStr ? parseTurkishDate(startDateStr) : null;
+                        let eD = endDateStr ? parseTurkishDate(endDateStr) : null;
+                        if (eD) eD.setHours(23, 59, 59, 999);
+                        if (tDate) { if (sD && tDate < sD) return; if (eD && tDate > eD) return; }
+                    }
+                    const ord = (appSettings.cart || []).find(o => o.id === t.refOrder);
+                    if (ord) gCost += computeOrderMaterialCost(ord);
+                });
+            });
+            gRev = roundMoney(gRev); gCol = roundMoney(gCol); gCost = roundMoney(gCost);
+
+            const netP = roundMoney(gRev - gCost), pMargin = gRev > 0 ? ((netP / gRev) * 100).toFixed(1) : '0.0';
+            document.getElementById('repTotalSalesRevenue').innerText = `${gRev.toFixed(2)} ₺`;
+            document.getElementById('repTotalCollected').innerText = `${gCol.toFixed(2)} ₺`;
+            document.getElementById('repTotalMaterialCost').innerText = `${gCost.toFixed(2)} ₺`;
+            document.getElementById('repNetProfit').innerText = `${netP.toFixed(2)} ₺`;
+            document.getElementById('repProfitMarginBadge').innerText = `(Kâr: %${pMargin})`;
+
+            const banner = document.getElementById('ledgerOverdueBanner');
+            if (overdueCount > 0) { banner.classList.remove('hidden'); document.getElementById('ledgerOverdueText').innerText = `${overdueCount} müşterinin vadesi gecikti!`; }
+            else { banner.classList.add('hidden'); }
         }
-        function updateCustomerDueDate(custId, val) { const cust = (appSettings.customers || []).find(c => c.id === custId); if (cust) { cust.dueDate = val; StorageManager.save(appSettings); renderLedgerUI(); } }
-        
+
+        function updateCustomerDueDate(custId, val) {
+            const cust = (appSettings.customers || []).find(c => c.id === custId);
+            if (cust) { cust.dueDate = val; StorageManager.save(appSettings); renderLedgerUI(); }
+        }
+
         function openCustomerLedgerModal(custId) {
-            activeCustomerStatementId = custId; const c = (appSettings.customers || []).find(x => x.id === custId); if (!c) return;
-            document.getElementById('custModalCode').innerText = c.code; document.getElementById('custModalName').innerText = c.name; document.getElementById('custModalContact').innerText = `${c.phone} • ${c.address || 'Elazığ'}`; document.getElementById('txCustomerId').value = c.id;
-            renderCustomerModalTransactions(c); document.getElementById('customerLedgerModal').classList.remove('hidden');
+            activeCustomerStatementId = custId;
+            const c = (appSettings.customers || []).find(x => x.id === custId); if (!c) return;
+            document.getElementById('custModalCode').innerText = c.code;
+            document.getElementById('custModalName').innerText = c.name;
+            document.getElementById('custModalContact').innerText = `${c.phone || '-'} • ${c.address || 'Elazığ'}`;
+            document.getElementById('txCustomerId').value = c.id;
+            renderCustomerModalTransactions(c);
+            document.getElementById('customerLedgerModal').classList.remove('hidden');
         }
         function closeCustomerLedgerModal() { document.getElementById('customerLedgerModal').classList.add('hidden'); }
+
         function renderCustomerModalTransactions(c) {
             const { debit, credit, balance } = getCustomerLedgerTotals(c);
-            document.getElementById('custModalTotalDebit').innerText = `${debit.toFixed(2)} ₺`; document.getElementById('custModalTotalCredit').innerText = `${credit.toFixed(2)} ₺`; document.getElementById('custModalBalance').innerText = `${balance.toFixed(2)} ₺`;
+            document.getElementById('custModalTotalDebit').innerText = `${debit.toFixed(2)} ₺`;
+            document.getElementById('custModalTotalCredit').innerText = `${credit.toFixed(2)} ₺`;
+            document.getElementById('custModalBalance').innerText = `${balance.toFixed(2)} ₺`;
+
             document.getElementById('custModalTableBody').innerHTML = (c.transactions || []).map((t, idx) => `
                 <tr class="hover:bg-slate-50 border-b">
-                    <td class="p-3 text-slate-500">${t.date}</td><td class="p-3 font-bold">${t.type}</td><td class="p-3">${escapeHTML(t.desc)}</td>
+                    <td class="p-3 text-slate-500">${escapeHTML(t.date)}</td><td class="p-3 font-bold">${escapeHTML(t.type)}</td><td class="p-3">${escapeHTML(t.desc)}</td>
                     <td class="p-3 text-right font-bold">${t.debit > 0 ? t.debit.toFixed(2) + ' ₺' : '-'}</td><td class="p-3 text-right font-black text-emerald-600">${t.credit > 0 ? t.credit.toFixed(2) + ' ₺' : '-'}</td>
                     <td class="p-3 text-center space-x-1 whitespace-nowrap">
                         <button onclick="editCustomerTransaction('${c.id}', ${idx})" class="text-blue-500 hover:bg-blue-50 p-1.5 rounded"><i class="fa-solid fa-pen"></i></button>
-                        ${t.credit > 0 ? `<button onclick="printReceiptDirect('${c.id}', ${t.credit}, '${escapeHTML(t.type)}', '${escapeHTML(t.desc)}')" class="text-emerald-600 hover:bg-emerald-50 p-1.5 rounded"><i class="fa-solid fa-receipt"></i></button>` : ''}
+                        ${t.credit > 0 ? `<button onclick="printReceiptFromTx('${c.id}', ${idx})" class="text-emerald-600 hover:bg-emerald-50 p-1.5 rounded"><i class="fa-solid fa-receipt"></i></button>` : ''}
                         <button onclick="deleteCustomerTransaction('${c.id}', ${idx})" class="text-red-500 hover:bg-red-50 p-1.5 rounded"><i class="fa-solid fa-trash"></i></button>
                     </td>
                 </tr>`).join('');
         }
 
         function editCustomerTransaction(custId, txIdx) {
-            const c = appSettings.customers.find(x => x.id === custId); if(!c) return;
-            const t = c.transactions[txIdx]; if(t.type === 'Sipariş Faturası') { alert("Sipariş faturası sepetten düzenlenmelidir."); return; }
+            const c = appSettings.customers.find(x => x.id === custId); if (!c) return;
+            const t = c.transactions[txIdx]; if (!t) return;
+            if (t.type === 'Sipariş Faturası') { alert("Sipariş faturası sepetten düzenlenmelidir."); return; }
+
             const newDesc = prompt("Yeni Açıklamayı Girin:", t.desc); if (newDesc === null) return;
             const isCredit = t.credit > 0; const currentAmt = isCredit ? t.credit : t.debit;
             const newAmtStr = prompt("Yeni Tutarı (₺) Girin:", currentAmt); if (newAmtStr === null) return;
             const newAmt = parseFloat(newAmtStr); if (isNaN(newAmt) || newAmt < 0) return alert("Geçersiz tutar!");
-            t.desc = newDesc.trim(); if(isCredit) { t.credit = newAmt; t.debit = 0; } else { t.debit = newAmt; t.credit = 0; }
-            StorageManager.save(appSettings); renderCustomerModalTransactions(c); renderLedgerUI();
+
+            t.desc = newDesc.trim();
+            if (isCredit) { t.credit = newAmt; t.debit = 0; } else { t.debit = newAmt; t.credit = 0; }
+
+            StorageManager.save(appSettings);
+            renderCustomerModalTransactions(c);
+            renderLedgerUI();
         }
+
         function addCustomerTransaction(e) {
-            e.preventDefault(); const id = document.getElementById('txCustomerId').value, c = (appSettings.customers || []).find(x => x.id === id); if (!c) return;
-            const type = document.getElementById('txTypeSelect').value, desc = document.getElementById('txDescInput').value.trim(), amount = parseFloat(document.getElementById('txAmountInput').value) || 0, isCredit = type.startsWith('Tahsilat') || type === 'İskonto';
+            e.preventDefault();
+            const id = document.getElementById('txCustomerId').value;
+            const c = (appSettings.customers || []).find(x => x.id === id); if (!c) return;
+
+            const type = document.getElementById('txTypeSelect').value;
+            const desc = document.getElementById('txDescInput').value.trim();
+            const amount = parseFloat(document.getElementById('txAmountInput').value) || 0;
+            if (amount <= 0) return alert("Geçerli bir tutar giriniz.");
+            const isCredit = type.startsWith('Tahsilat') || type === 'İskonto';
+
             c.transactions.push({ id: 'TX-' + Date.now(), date: new Date().toLocaleDateString('tr-TR'), type: type, desc: desc, debit: isCredit ? 0 : amount, credit: isCredit ? amount : 0 });
-            document.getElementById('txDescInput').value = ''; document.getElementById('txAmountInput').value = ''; StorageManager.save(appSettings); renderCustomerModalTransactions(c); renderLedgerUI();
-            if (isCredit && amount > 0) { setTimeout(() => { if (confirm(`${amount.toFixed(2)} ₺ tahsilat işlendi. Makbuz yazdırılsın mı?`)) printReceiptDirect(c.id, amount, type, desc); }, 200); }
+
+            document.getElementById('txDescInput').value = '';
+            document.getElementById('txAmountInput').value = '';
+            StorageManager.save(appSettings);
+            renderCustomerModalTransactions(c);
+            renderLedgerUI();
+
+            if (isCredit && amount > 0) {
+                setTimeout(() => { if (confirm(`${amount.toFixed(2)} ₺ tahsilat işlendi. Makbuz yazdırılsın mı?`)) printReceiptDirect(c.id, amount, type, desc); }, 200);
+            }
         }
-        function deleteCustomerTransaction(custId, idx) { const c = (appSettings.customers || []).find(x => x.id === custId); if (!c) return; if (confirm("Silinsin mi?")) { c.transactions.splice(idx, 1); StorageManager.save(appSettings); renderCustomerModalTransactions(c); renderLedgerUI(); } }
+
+        function printReceiptFromTx(custId, txIdx) {
+            const c = (appSettings.customers || []).find(x => x.id === custId); if (!c) return;
+            const t = c.transactions[txIdx]; if (!t) return;
+            printReceiptDirect(c.id, t.credit, t.type, t.desc);
+        }
+
+        function deleteCustomerTransaction(custId, idx) {
+            const c = (appSettings.customers || []).find(x => x.id === custId); if (!c) return;
+            if (confirm("Silinsin mi?")) {
+                c.transactions.splice(idx, 1);
+                StorageManager.save(appSettings);
+                renderCustomerModalTransactions(c);
+                renderLedgerUI();
+            }
+        }
+
         function quickCollectCustomerPrompt(custId) {
-            const c = (appSettings.customers || []).find(x => x.id === custId); if (!c) return; const { balance } = getCustomerLedgerTotals(c);
-            const amtStr = prompt(`Tahsilat tutarı (Bakiye: ${balance.toFixed(2)} ₺):`, balance > 0 ? balance : 0); if (!amtStr) return; const amt = parseFloat(amtStr); if (isNaN(amt) || amt <= 0) return alert("Hatalı tutar.");
+            const c = (appSettings.customers || []).find(x => x.id === custId); if (!c) return;
+            const { balance } = getCustomerLedgerTotals(c);
+            const amtStr = prompt(`Tahsilat tutarı (Bakiye: ${balance.toFixed(2)} ₺):`, balance > 0 ? balance : 0);
+            if (!amtStr) return;
+            const amt = parseFloat(amtStr); if (isNaN(amt) || amt <= 0) return alert("Hatalı tutar.");
+
             c.transactions.push({ id: 'TX-PAY-' + Date.now(), date: new Date().toLocaleDateString('tr-TR'), type: 'Tahsilat (Nakit)', desc: 'Hızlı Kasa Tahsilatı', debit: 0, credit: amt });
-            StorageManager.save(appSettings); renderLedgerUI(); if (confirm(`${amt.toFixed(2)} ₺ işlendi. Makbuz basılsın mı?`)) printReceiptDirect(c.id, amt, 'Tahsilat (Nakit)', 'Hızlı Kasa Tahsilatı');
+            StorageManager.save(appSettings);
+            renderLedgerUI();
+            if (confirm(`${amt.toFixed(2)} ₺ işlendi. Makbuz basılsın mı?`)) printReceiptDirect(c.id, amt, 'Tahsilat (Nakit)', 'Hızlı Kasa Tahsilatı');
         }
-        function deleteCustomerRecord(custId) { const idx = (appSettings.customers || []).findIndex(x => x.id === custId); if (idx > -1) { if (confirm(`Müşteri tamamen silinecek?`)) { appSettings.customers.splice(idx, 1); StorageManager.save(appSettings); renderLedgerUI(); } } }
+
+        function deleteCustomerRecord(custId) {
+            const idx = (appSettings.customers || []).findIndex(x => x.id === custId);
+            if (idx > -1) {
+                if (confirm(`Müşteri tamamen silinecek?`)) {
+                    appSettings.customers.splice(idx, 1);
+                    StorageManager.save(appSettings); renderLedgerUI();
+                }
+            }
+        }
 
         function openNewCustomerModal() {
-            editCustomerModeId = null; document.getElementById('newCustomerModalTitle').innerHTML = '<i class="fa-solid fa-user-plus text-petrol-600"></i> Yeni Müşteri Aç'; document.getElementById('newCustomerModalBtn').innerText = 'Defteri Başlat'; document.getElementById('initialDebtWrapper').classList.remove('hidden');
-            document.getElementById('newCustName').value = ''; document.getElementById('newCustPhone').value = ''; document.getElementById('newCustAddress').value = ''; document.getElementById('newCustCategory').value = currentLedgerSubCat; document.getElementById('newCustInitialDebt').value = '0'; document.getElementById('newCustomerModal').classList.remove('hidden');
+            editCustomerModeId = null;
+            document.getElementById('newCustomerModalTitle').innerHTML = '<i class="fa-solid fa-user-plus text-petrol-600"></i> Yeni Müşteri Aç';
+            document.getElementById('newCustomerModalBtn').innerText = 'Defteri Başlat';
+            document.getElementById('initialDebtWrapper').classList.remove('hidden');
+            document.getElementById('newCustName').value = ''; document.getElementById('newCustPhone').value = ''; document.getElementById('newCustAddress').value = '';
+            document.getElementById('newCustCategory').value = currentLedgerSubCat; document.getElementById('newCustInitialDebt').value = '0';
+            document.getElementById('newCustomerModal').classList.remove('hidden');
         }
+
         function editCustomer(id) {
-            const c = appSettings.customers.find(x => x.id === id); if(!c) return;
-            editCustomerModeId = c.id; document.getElementById('newCustomerModalTitle').innerHTML = '<i class="fa-solid fa-user-pen text-petrol-600"></i> Cari Düzenle'; document.getElementById('newCustomerModalBtn').innerText = 'Güncelle'; document.getElementById('initialDebtWrapper').classList.add('hidden');
-            document.getElementById('newCustName').value = c.name; document.getElementById('newCustPhone').value = c.phone || ''; document.getElementById('newCustAddress').value = c.address || ''; document.getElementById('newCustCategory').value = c.category || 'standard'; document.getElementById('newCustomerModal').classList.remove('hidden');
+            const c = appSettings.customers.find(x => x.id === id); if (!c) return;
+            editCustomerModeId = c.id;
+            document.getElementById('newCustomerModalTitle').innerHTML = '<i class="fa-solid fa-user-pen text-petrol-600"></i> Cari Düzenle';
+            document.getElementById('newCustomerModalBtn').innerText = 'Güncelle';
+            document.getElementById('initialDebtWrapper').classList.add('hidden');
+            document.getElementById('newCustName').value = c.name; document.getElementById('newCustPhone').value = c.phone || ''; document.getElementById('newCustAddress').value = c.address || '';
+            document.getElementById('newCustCategory').value = c.category || 'standard';
+            document.getElementById('newCustomerModal').classList.remove('hidden');
         }
+
         function closeNewCustomerModal() { document.getElementById('newCustomerModal').classList.add('hidden'); editCustomerModeId = null; }
+
         function saveCustomerAction(e) {
-            e.preventDefault(); const name = document.getElementById('newCustName').value.trim(), phone = document.getElementById('newCustPhone').value.trim(), address = document.getElementById('newCustAddress').value.trim(), category = document.getElementById('newCustCategory').value, initDebt = parseFloat(document.getElementById('newCustInitialDebt').value) || 0;
-            if (editCustomerModeId) { const c = appSettings.customers.find(x => x.id === editCustomerModeId); if (c) { c.name = name; c.phone = phone; c.address = address; c.category = category; StorageManager.save(appSettings); } } 
-            else { const cust = findOrCreateCustomer(name, phone, address, category); if (initDebt > 0) { cust.transactions.push({ id: 'TX-INIT-' + Date.now(), date: new Date().toLocaleDateString('tr-TR'), type: 'Açılış Bakiyesi', desc: 'Devreden Borç', debit: initDebt, credit: 0 }); } StorageManager.save(appSettings); }
+            e.preventDefault();
+            const name = document.getElementById('newCustName').value.trim(), phone = document.getElementById('newCustPhone').value.trim();
+            const address = document.getElementById('newCustAddress').value.trim(), category = document.getElementById('newCustCategory').value;
+            const initDebt = parseFloat(document.getElementById('newCustInitialDebt').value) || 0;
+
+            if (editCustomerModeId) {
+                const c = appSettings.customers.find(x => x.id === editCustomerModeId);
+                if (c) { c.name = name; c.phone = phone; c.address = address; c.category = category; StorageManager.save(appSettings); }
+            } else {
+                const cust = findOrCreateCustomer(name, phone, address, category);
+                if (initDebt > 0) {
+                    cust.transactions.push({ id: 'TX-INIT-' + Date.now(), date: new Date().toLocaleDateString('tr-TR'), type: 'Açılış Bakiyesi', desc: 'Devreden Borç', debit: initDebt, credit: 0 });
+                }
+                StorageManager.save(appSettings);
+            }
             closeNewCustomerModal(); renderLedgerUI();
         }
+
         function openMergeModalCurrent() {
             const src = (appSettings.customers || []).find(x => x.id === activeCustomerStatementId); if (!src) return;
             document.getElementById('mergeSourceCustomerName').innerText = `${src.name} (${src.code})`;
@@ -1603,9 +2117,19 @@
             document.getElementById('mergeAccountModal').classList.remove('hidden');
         }
         function closeMergeModal() { document.getElementById('mergeAccountModal').classList.add('hidden'); }
+
         function executeAccountMerge() {
-            const targetId = document.getElementById('mergeTargetCustomerSelect').value, src = (appSettings.customers || []).find(x => x.id === activeCustomerStatementId), tgt = (appSettings.customers || []).find(x => x.id === targetId);
-            if (!src || !tgt) return; if (confirm(`Hesaplar birleşecek?`)) { (src.transactions || []).forEach(t => { tgt.transactions.push({ ...t, desc: `[Devir: ${src.name}] ` + t.desc }); }); appSettings.customers = appSettings.customers.filter(c => c.id !== src.id); StorageManager.save(appSettings); closeMergeModal(); closeCustomerLedgerModal(); renderLedgerUI(); }
+            const targetId = document.getElementById('mergeTargetCustomerSelect').value;
+            const src = (appSettings.customers || []).find(x => x.id === activeCustomerStatementId);
+            const tgt = (appSettings.customers || []).find(x => x.id === targetId);
+            if (!src || !tgt) return alert("Kaynak ve hedef müşteri seçilmelidir.");
+
+            if (confirm(`Hesaplar birleşecek?`)) {
+                (src.transactions || []).forEach(t => { tgt.transactions.push({ ...t, desc: `[Devir: ${src.name}] ` + t.desc }); });
+                appSettings.customers = appSettings.customers.filter(c => c.id !== src.id);
+                StorageManager.save(appSettings);
+                closeMergeModal(); closeCustomerLedgerModal(); renderLedgerUI();
+            }
         }
 
         // --- TÜKETİM ANALİZİ ---
@@ -1613,57 +2137,98 @@
             const tbody = document.getElementById('consumptionTableBody'); if (!tbody) return;
             let allItems = [...(getOrderData().items || [])];
 
-            if (allItems.length === 0) { 
-                tbody.innerHTML = `<tr><td colspan="5" class="text-center py-8 text-slate-400">Hesaplanacak ürün bulunmuyor. Lütfen ölçü formuna ürün giriniz veya sepetteki siparişi 'Ölçüye Al' butonuyla forma taşıyınız.</td></tr>`; 
-                document.getElementById('conTotalProfileMeters').innerText = "0.00 m"; document.getElementById('conTotalProfileBars').innerText = "(0 Boy 6m)"; document.getElementById('conTotalMeshM2').innerText = "0.00 m²"; document.getElementById('conTotalCostEstimate').innerText = "0.00 ₺";
-                return; 
+            if (allItems.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="text-center py-8 text-slate-400">Hesaplanacak ürün bulunmuyor. Lütfen ölçü formuna ürün giriniz veya sepetteki siparişi 'Ölçüye Al' butonuyla forma taşıyınız.</td></tr>`;
+                document.getElementById('conTotalProfileMeters').innerText = "0.00 m";
+                document.getElementById('conTotalProfileBars').innerText = "(0 Boy 6m)";
+                document.getElementById('conTotalMeshM2').innerText = "0.00 m²";
+                document.getElementById('conTotalCordMeters').innerText = "0.00 m";
+                document.getElementById('conTotalCostEstimate').innerText = "0.00 ₺";
+                return;
             }
 
             let pMeters = 0, pMesh = 0, sMesh = 0, cMeters = 0, tPleat = 0, mMeters = 0, cWedge = 0, hSet = 0, sLock = 0;
-            const cProf = getRecipeCost('pg-plise', 'acc-profil') || 45, cPMesh = getRecipeCost('pg-plise', 'acc-plise-tul') || 35, cSMesh = getRecipeCost('pg-plise', 'acc-polen-tul') || 400, cCord = getRecipeCost('pg-plise', 'acc-ip') || 2, cMag = getRecipeCost('pg-plise', 'acc-serit-miknatis') || 60, cW = getRecipeCost('pg-plise', 'acc-takoz') || 5, cH = getRecipeCost('pg-mentese', 'acc-mentese') || 15, cSL = getRecipeCost('pg-mentese', 'acc-citcit') || 8;
+            const cProf = getRecipeCost('pg-plise', 'acc-profil') || 45;
+            const cPMesh = getRecipeCost('pg-plise', 'acc-plise-tul') || 35;
+            const cSMesh = getRecipeCost('pg-plise', 'acc-polen-tul') || 400;
+            const cCord = getRecipeCost('pg-plise', 'acc-ip') || 2;
+            const cMag = getRecipeCost('pg-plise', 'acc-serit-miknatis') || 60;
+            const cW = getRecipeCost('pg-plise', 'acc-takoz') || 5;
+            const cH = getRecipeCost('pg-mentese', 'acc-mentese') || 15;
+            const cSL = getRecipeCost('pg-mentese', 'acc-citcit') || 8;
+            const minM2 = parseFloat(appSettings.minM2) || 1;
 
             allItems.forEach(i => {
                 const q = i.qty || 1, en = parseFloat(i.en) || 0, boy = parseFloat(i.boy) || 0;
-                const m2 = Math.max(((en * boy) / 10000) * q, appSettings.minM2 * q);
+                const m2 = Math.max(((en * boy) / 10000) * q, minM2 * q);
                 const isDikey = (i.pType === 'plise' && i.dir === 'dikey');
-                
+
                 if (i.pType === 'plise') {
-                    pMeters += ((!isDikey ? ((en * 2) + (boy * 3)) : ((en * 3) + (boy * 2))) / 100) * q; cWedge += (4 * q);
+                    pMeters += ((!isDikey ? ((en * 2) + (boy * 3)) : ((en * 3) + (boy * 2))) / 100) * q;
+                    cWedge += (4 * q);
                     if (i.magnetType === 'var') mMeters += (((isDikey ? ((en * 3) + (boy * 2)) : ((en * 2) + (boy * 3))) / 100)) * q;
                     if (i.tulType === 'polen') sMesh += m2; else pMesh += m2;
-                    const kS = isDikey ? Math.max(1, Math.floor((boy / 2.5) - 2)) : Math.max(1, Math.floor((en / 2.5) - 2)); 
-                    tPleat += (kS * q); cMeters += (((en + boy + 26) * 4 / 100) * q);
+                    const kS = isDikey ? Math.max(1, Math.floor((boy / 2.5) - 2)) : Math.max(1, Math.floor((en / 2.5) - 2));
+                    tPleat += (kS * q);
+                    cMeters += (((en + boy + 26) * 4 / 100) * q);
                 } else {
-                    let isKapi = (i.menteseliTip || '').includes('kapi'); pMeters += ((isKapi ? ((en * 4) + (boy * 2)) : ((en * 2) + (boy * 2))) / 100) * q;
-                    hSet += (isKapi ? 3 * q : 2 * q); sLock += (isKapi ? 2 * q : 1 * q); if (i.tulType === 'kedi') sMesh += m2; else pMesh += m2;
+                    let isKapi = (i.menteseliTip || '').includes('kapi');
+                    pMeters += ((isKapi ? ((en * 4) + (boy * 2)) : ((en * 2) + (boy * 2))) / 100) * q;
+                    hSet += (isKapi ? 3 * q : 2 * q);
+                    sLock += (isKapi ? 2 * q : 1 * q);
+                    if (i.tulType === 'kedi') sMesh += m2; else pMesh += m2;
                 }
             });
 
             const totCost = (pMeters * cProf) + (pMesh * cPMesh) + (sMesh * cSMesh) + (cMeters * cCord) + (mMeters * cMag) + (cWedge * cW) + (hSet * cH) + (sLock * cSL);
-            document.getElementById('conTotalProfileMeters').innerText = `${pMeters.toFixed(2)} m`; document.getElementById('conTotalProfileBars').innerText = `(${Math.ceil(pMeters / 6.0)} Boy 6m)`; document.getElementById('conTotalMeshM2').innerText = `${(pMesh + sMesh).toFixed(2)} m²`; document.getElementById('conTotalCostEstimate').innerText = `${totCost.toFixed(2)} ₺`;
+            document.getElementById('conTotalProfileMeters').innerText = `${pMeters.toFixed(2)} m`;
+            document.getElementById('conTotalProfileBars').innerText = `(${Math.ceil(pMeters / 6.0)} Boy 6m)`;
+            document.getElementById('conTotalMeshM2').innerText = `${(pMesh + sMesh).toFixed(2)} m²`;
+            document.getElementById('conTotalCordMeters').innerText = `${cMeters.toFixed(1)} m`;
+            document.getElementById('conTotalCostEstimate').innerText = `${totCost.toFixed(2)} ₺`;
 
             tbody.innerHTML = `
                 <tr class="hover:bg-slate-50"><td class="p-3 font-bold">Kasa Profili</td><td class="p-3 text-center">m</td><td class="p-3 text-center">${pMeters.toFixed(2)}</td><td class="p-3 text-right">${cProf.toFixed(2)}</td><td class="p-3 text-right">${(pMeters * cProf).toFixed(2)} ₺</td></tr>
                 <tr class="hover:bg-slate-50"><td class="p-3 font-bold">Tül</td><td class="p-3 text-center">m²</td><td class="p-3 text-center">${pMesh.toFixed(2)}</td><td class="p-3 text-right">${cPMesh.toFixed(2)}</td><td class="p-3 text-right">${(pMesh * cPMesh).toFixed(2)} ₺</td></tr>
                 ${sMesh > 0 ? `<tr class="hover:bg-slate-50"><td class="p-3 font-bold">Özel Tül</td><td class="p-3 text-center">m²</td><td class="p-3 text-center">${sMesh.toFixed(2)}</td><td class="p-3 text-right">${cSMesh.toFixed(2)}</td><td class="p-3 text-right">${(sMesh * cSMesh).toFixed(2)} ₺</td></tr>` : ''}
                 <tr class="hover:bg-slate-50"><td class="p-3 font-bold">İp</td><td class="p-3 text-center">m</td><td class="p-3 text-center">${cMeters.toFixed(1)}</td><td class="p-3 text-right">${cCord.toFixed(2)}</td><td class="p-3 text-right">${(cMeters * cCord).toFixed(2)} ₺</td></tr>
+                ${mMeters > 0 ? `<tr class="hover:bg-slate-50"><td class="p-3 font-bold">Şerit Mıknatıs</td><td class="p-3 text-center">m</td><td class="p-3 text-center">${mMeters.toFixed(2)}</td><td class="p-3 text-right">${cMag.toFixed(2)}</td><td class="p-3 text-right">${(mMeters * cMag).toFixed(2)} ₺</td></tr>` : ''}
                 ${cWedge > 0 ? `<tr class="hover:bg-slate-50"><td class="p-3 font-bold">Takoz</td><td class="p-3 text-center">Adet</td><td class="p-3 text-center">${cWedge}</td><td class="p-3 text-right">${cW.toFixed(2)}</td><td class="p-3 text-right">${(cWedge * cW).toFixed(2)} ₺</td></tr>` : ''}
+                ${hSet > 0 ? `<tr class="hover:bg-slate-50"><td class="p-3 font-bold">Menteşe Seti</td><td class="p-3 text-center">Set</td><td class="p-3 text-center">${hSet}</td><td class="p-3 text-right">${cH.toFixed(2)}</td><td class="p-3 text-right">${(hSet * cH).toFixed(2)} ₺</td></tr>` : ''}
+                ${sLock > 0 ? `<tr class="hover:bg-slate-50"><td class="p-3 font-bold">Çıt Çıt Kilit</td><td class="p-3 text-center">Adet</td><td class="p-3 text-center">${sLock}</td><td class="p-3 text-right">${cSL.toFixed(2)}</td><td class="p-3 text-right">${(sLock * cSL).toFixed(2)} ₺</td></tr>` : ''}
             `;
         }
 
         // --- AYARLAR VE VERİ YÖNETİMİ ---
         function applySettingsToUI() {
-            document.getElementById('settingMontajPrice').value = appSettings.montajPrice; document.getElementById('settingPerakendePrice').value = appSettings.perakendePrice; document.getElementById('settingKdvRate').value = appSettings.kdvRate; document.getElementById('settingMinM2').value = appSettings.minM2;
+            document.getElementById('settingMontajPrice').value = appSettings.montajPrice;
+            document.getElementById('settingPerakendePrice').value = appSettings.perakendePrice;
+            document.getElementById('settingKdvRate').value = appSettings.kdvRate;
+            document.getElementById('settingMinM2').value = appSettings.minM2;
+
             const c = appSettings.cutDeductions || DEFAULT_SETTINGS.cutDeductions;
-            document.getElementById('cut_plise_dis_tac').value = c.plise?.dis?.tac ?? 8.0; document.getElementById('cut_plise_dis_dikme').value = c.plise?.dis?.dikme ?? 4.0; document.getElementById('cut_plise_dis_kanat').value = c.plise?.dis?.kanat ?? 8.5; document.getElementById('cut_plise_dis_tul').value = c.plise?.dis?.tul ?? 4.5;
-            document.getElementById('cut_plise_ic_tac').value = c.plise?.ic?.tac ?? 0.0; document.getElementById('cut_plise_ic_dikme').value = c.plise?.ic?.dikme ?? 4.0; document.getElementById('cut_plise_ic_kanat').value = c.plise?.ic?.kanat ?? 0.5; document.getElementById('cut_plise_ic_tul').value = c.plise?.ic?.tul ?? 3.5;
-            document.getElementById('cut_mentese_dis_tac').value = c.mentese?.dis?.tac ?? 5.0; document.getElementById('cut_mentese_dis_dikme').value = c.mentese?.dis?.dikme ?? 5.0; document.getElementById('cut_mentese_dis_kanat').value = c.mentese?.dis?.kanat ?? 9.0; document.getElementById('cut_mentese_dis_tul').value = c.mentese?.dis?.tul ?? 5.0;
-            document.getElementById('cut_mentese_ic_tac').value = c.mentese?.ic?.tac ?? 0.0; document.getElementById('cut_mentese_ic_dikme').value = c.mentese?.ic?.dikme ?? 0.0; document.getElementById('cut_mentese_ic_kanat').value = c.mentese?.ic?.kanat ?? 4.0; document.getElementById('cut_mentese_ic_tul').value = c.mentese?.ic?.tul ?? 0.0;
+            document.getElementById('cut_plise_dis_tac').value = c.plise?.dis?.tac ?? 8.0;
+            document.getElementById('cut_plise_dis_dikme').value = c.plise?.dis?.dikme ?? 4.0;
+            document.getElementById('cut_plise_dis_kanat').value = c.plise?.dis?.kanat ?? 8.5;
+            document.getElementById('cut_plise_dis_tul').value = c.plise?.dis?.tul ?? 4.5;
+            document.getElementById('cut_plise_ic_tac').value = c.plise?.ic?.tac ?? 0.0;
+            document.getElementById('cut_plise_ic_dikme').value = c.plise?.ic?.dikme ?? 4.0;
+            document.getElementById('cut_plise_ic_kanat').value = c.plise?.ic?.kanat ?? 0.5;
+            document.getElementById('cut_plise_ic_tul').value = c.plise?.ic?.tul ?? 3.5;
+            document.getElementById('cut_mentese_dis_tac').value = c.mentese?.dis?.tac ?? 5.0;
+            document.getElementById('cut_mentese_dis_dikme').value = c.mentese?.dis?.dikme ?? 5.0;
+            document.getElementById('cut_mentese_dis_kanat').value = c.mentese?.dis?.kanat ?? 9.0;
+            document.getElementById('cut_mentese_dis_tul').value = c.mentese?.dis?.tul ?? 5.0;
+            document.getElementById('cut_mentese_ic_tac').value = c.mentese?.ic?.tac ?? 0.0;
+            document.getElementById('cut_mentese_ic_dikme').value = c.mentese?.ic?.dikme ?? 0.0;
+            document.getElementById('cut_mentese_ic_kanat').value = c.mentese?.ic?.kanat ?? 4.0;
+            document.getElementById('cut_mentese_ic_tul').value = c.mentese?.ic?.tul ?? 0.0;
         }
 
         function renderProductRecipes() {
             const cnt = document.getElementById('productRecipesContainer'); if (!cnt) return;
             if (!appSettings.productGroups || appSettings.productGroups.length === 0) appSettings.productGroups = JSON.parse(JSON.stringify(DEFAULT_SETTINGS.productGroups));
+
             cnt.innerHTML = appSettings.productGroups.map((g, i) => `
                 <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 shadow-sm">
                     <div class="flex justify-between items-center border-b border-slate-300 pb-3 mb-3">
@@ -1686,39 +2251,109 @@
                 </div>`).join('');
         }
 
-        function addNewProductGroupPrompt() { let n = prompt("Yeni Grup Adı:"); if (n && n.trim()) { appSettings.productGroups.push({ id: "pg-" + Date.now(), name: escapeHTML(n.trim()), accessories: [] }); StorageManager.save(appSettings); renderProductRecipes(); } }
-        function deleteProductGroup(i) { if (confirm("Grup silinecek?")) { appSettings.productGroups.splice(i, 1); StorageManager.save(appSettings); renderProductRecipes(); } }
-        function addNewAccessoryToGroupPrompt(i) { let n = prompt("Malzeme Adı:"); if (!n) return; let u = prompt("Birim:") || "Adet"; let c = parseFloat(prompt("Maliyet (₺):")) || 0; appSettings.productGroups[i].accessories.push({ id: "acc-" + Date.now(), name: escapeHTML(n.trim()), unit: escapeHTML(u.trim()), cost: c }); StorageManager.save(appSettings); renderProductRecipes(); }
-        function deleteGroupAccessory(g, a) { appSettings.productGroups[g].accessories.splice(a, 1); StorageManager.save(appSettings); renderProductRecipes(); calculateAllRows(); calculateMaterialConsumption(); }
-        function saveProductRecipesManual() { document.querySelectorAll('.recipe-cost-input').forEach(inp => { const gIdx = parseInt(inp.getAttribute('data-gidx')), aIdx = parseInt(inp.getAttribute('data-aidx')); if (appSettings.productGroups[gIdx] && appSettings.productGroups[gIdx].accessories[aIdx]) appSettings.productGroups[gIdx].accessories[aIdx].cost = parseFloat(inp.value) || 0; }); StorageManager.save(appSettings); calculateAllRows(); calculateMaterialConsumption(); alert("Reçeteler kaydedildi!"); }
-        function resetRecipesToDefaultPrompt() { if (confirm("Reçeteler sıfırlansın mı?")) { appSettings.productGroups = JSON.parse(JSON.stringify(DEFAULT_SETTINGS.productGroups)); StorageManager.save(appSettings); renderProductRecipes(); calculateAllRows(); } }
-        function savePricingParamsOnly() { appSettings.montajPrice = parseFloat(document.getElementById('settingMontajPrice').value) || 0; appSettings.perakendePrice = parseFloat(document.getElementById('settingPerakendePrice').value) || 0; appSettings.kdvRate = parseFloat(document.getElementById('settingKdvRate').value) || 0; appSettings.minM2 = parseFloat(document.getElementById('settingMinM2').value) || 0; StorageManager.save(appSettings); calculateAllRows(); calculateMaterialConsumption(); alert("Fiyatlar kaydedildi!"); }
+        function addNewProductGroupPrompt() {
+            let n = prompt("Yeni Grup Adı:");
+            if (n && n.trim()) {
+                appSettings.productGroups.push({ id: "pg-" + Date.now(), name: n.trim(), accessories: [] });
+                StorageManager.save(appSettings); renderProductRecipes();
+            }
+        }
+        function deleteProductGroup(i) {
+            if (confirm("Grup silinecek?")) { appSettings.productGroups.splice(i, 1); StorageManager.save(appSettings); renderProductRecipes(); }
+        }
+        function addNewAccessoryToGroupPrompt(i) {
+            let n = prompt("Malzeme Adı:"); if (!n) return;
+            let u = prompt("Birim:") || "Adet";
+            let c = parseFloat(prompt("Maliyet (₺):")) || 0;
+            appSettings.productGroups[i].accessories.push({ id: "acc-" + Date.now(), name: n.trim(), unit: u.trim(), cost: c });
+            StorageManager.save(appSettings); renderProductRecipes();
+        }
+        function deleteGroupAccessory(g, a) {
+            appSettings.productGroups[g].accessories.splice(a, 1);
+            StorageManager.save(appSettings); renderProductRecipes(); calculateAllRows(); calculateMaterialConsumption();
+        }
+        function saveProductRecipesManual() {
+            document.querySelectorAll('.recipe-cost-input').forEach(inp => {
+                const gIdx = parseInt(inp.getAttribute('data-gidx')), aIdx = parseInt(inp.getAttribute('data-aidx'));
+                if (appSettings.productGroups[gIdx] && appSettings.productGroups[gIdx].accessories[aIdx]) {
+                    appSettings.productGroups[gIdx].accessories[aIdx].cost = parseFloat(inp.value) || 0;
+                }
+            });
+            StorageManager.save(appSettings);
+            calculateAllRows(); calculateMaterialConsumption();
+            alert("Reçeteler kaydedildi!");
+        }
+        function resetRecipesToDefaultPrompt() {
+            if (confirm("Reçeteler sıfırlansın mı?")) {
+                appSettings.productGroups = JSON.parse(JSON.stringify(DEFAULT_SETTINGS.productGroups));
+                StorageManager.save(appSettings); renderProductRecipes(); calculateAllRows();
+            }
+        }
+        function savePricingParamsOnly() {
+            appSettings.montajPrice = parseFloat(document.getElementById('settingMontajPrice').value) || 0;
+            appSettings.perakendePrice = parseFloat(document.getElementById('settingPerakendePrice').value) || 0;
+            appSettings.kdvRate = parseFloat(document.getElementById('settingKdvRate').value) || 0;
+            appSettings.minM2 = parseFloat(document.getElementById('settingMinM2').value) || 0;
+            StorageManager.save(appSettings);
+            calculateAllRows(); calculateMaterialConsumption();
+            alert("Fiyatlar kaydedildi!");
+        }
         function saveCuttingParamsOnly() {
+            const v = id => parseFloat(document.getElementById(id).value) || 0;
             appSettings.cutDeductions = {
-                plise: { dis: { tac: parseFloat(document.getElementById('cut_plise_dis_tac').value)||0, dikme: parseFloat(document.getElementById('cut_plise_dis_dikme').value)||0, kanat: parseFloat(document.getElementById('cut_plise_dis_kanat').value)||0, tul: parseFloat(document.getElementById('cut_plise_dis_tul').value)||0 }, ic: { tac: parseFloat(document.getElementById('cut_plise_ic_tac').value)||0, dikme: parseFloat(document.getElementById('cut_plise_ic_dikme').value)||0, kanat: parseFloat(document.getElementById('cut_plise_ic_kanat').value)||0, tul: parseFloat(document.getElementById('cut_plise_ic_tul').value)||0 } },
-                mentese: { dis: { tac: parseFloat(document.getElementById('cut_mentese_dis_tac').value)||0, dikme: parseFloat(document.getElementById('cut_mentese_dis_dikme').value)||0, kanat: parseFloat(document.getElementById('cut_mentese_dis_kanat').value)||0, tul: parseFloat(document.getElementById('cut_mentese_dis_tul').value)||0 }, ic: { tac: parseFloat(document.getElementById('cut_mentese_ic_tac').value)||0, dikme: parseFloat(document.getElementById('cut_mentese_ic_dikme').value)||0, kanat: parseFloat(document.getElementById('cut_mentese_ic_kanat').value)||0, tul: parseFloat(document.getElementById('cut_mentese_ic_tul').value)||0 } }
+                plise: {
+                    dis: { tac: v('cut_plise_dis_tac'), dikme: v('cut_plise_dis_dikme'), kanat: v('cut_plise_dis_kanat'), tul: v('cut_plise_dis_tul') },
+                    ic: { tac: v('cut_plise_ic_tac'), dikme: v('cut_plise_ic_dikme'), kanat: v('cut_plise_ic_kanat'), tul: v('cut_plise_ic_tul') }
+                },
+                mentese: {
+                    dis: { tac: v('cut_mentese_dis_tac'), dikme: v('cut_mentese_dis_dikme'), kanat: v('cut_mentese_dis_kanat'), tul: v('cut_mentese_dis_tul') },
+                    ic: { tac: v('cut_mentese_ic_tac'), dikme: v('cut_mentese_ic_dikme'), kanat: v('cut_mentese_ic_kanat'), tul: v('cut_mentese_ic_tul') }
+                }
             };
-            StorageManager.save(appSettings); calculateAllRows(); calculateMaterialConsumption(); alert("Kesim payları kaydedildi!");
+            StorageManager.save(appSettings);
+            calculateAllRows(); calculateMaterialConsumption();
+            alert("Kesim payları kaydedildi!");
         }
-        async function saveAllSettingsMaster() { savePricingParamsOnly(); saveCuttingParamsOnly(); saveWhatsAppTemplates(); saveProductRecipesManual(); }
+        function saveAllSettingsMaster() {
+            savePricingParamsOnly(); saveCuttingParamsOnly(); saveWhatsAppTemplates(); saveProductRecipesManual();
+        }
         function emergencyRestoreSettings() {
-            appSettings.productGroups = JSON.parse(JSON.stringify(DEFAULT_SETTINGS.productGroups)); appSettings.whatsappTemplates = JSON.parse(JSON.stringify(DEFAULT_WHATSAPP_TEMPLATES)); appSettings.cutDeductions = JSON.parse(JSON.stringify(DEFAULT_SETTINGS.cutDeductions));
-            StorageManager.save(appSettings); applySettingsToUI(); renderWhatsAppTemplatesUI(); renderProductRecipes(); calculateAllRows(); calculateMaterialConsumption(); alert("Ayarlar onarıldı!");
+            appSettings.productGroups = JSON.parse(JSON.stringify(DEFAULT_SETTINGS.productGroups));
+            appSettings.whatsappTemplates = JSON.parse(JSON.stringify(DEFAULT_WHATSAPP_TEMPLATES));
+            appSettings.cutDeductions = JSON.parse(JSON.stringify(DEFAULT_SETTINGS.cutDeductions));
+            StorageManager.save(appSettings);
+            applySettingsToUI(); renderWhatsAppTemplatesUI(); renderProductRecipes(); calculateAllRows(); calculateMaterialConsumption();
+            alert("Ayarlar onarıldı!");
         }
-        
-        function exportSettingsBackup() { const blob = new Blob([JSON.stringify(appSettings, null, 2)], { type: "application/json;charset=utf-8" }); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `FixHouse_Yedek_${new Date().toISOString().slice(0, 10)}.json`; a.click(); }
+
+        function exportSettingsBackup() {
+            const blob = new Blob([JSON.stringify(appSettings, null, 2)], { type: "application/json;charset=utf-8" });
+            const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+            a.download = `FixHouse_Yedek_${new Date().toISOString().slice(0, 10)}.json`; a.click();
+        }
         async function shareSettingsBackup() {
-            const dataStr = JSON.stringify(appSettings, null, 2); const fileName = `FixHouse_ERP_Yedek_${new Date().toISOString().slice(0, 10)}.json`;
+            const dataStr = JSON.stringify(appSettings, null, 2);
+            const fileName = `FixHouse_ERP_Yedek_${new Date().toISOString().slice(0, 10)}.json`;
             const file = new File([dataStr], fileName, { type: 'application/json' });
+
             if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
                 try { await navigator.share({ files: [file], title: 'Fix House Sistem Yedeği', text: 'Fix House ERP güncel veri yedeği dosyasıdır. (Yeni bir cihazda "İçe Aktar" butonu ile yükleyebilirsiniz.)' }); } catch (err) {}
             } else { alert("Cihazınız doğrudan dosya paylaşımını desteklemiyor. İndirip kendinize gönderebilirsiniz."); }
         }
         function importSettingsBackup(e) {
-            const file = e.target.files[0]; if (!file) return; const r = new FileReader();
+            const file = e.target.files[0]; if (!file) return;
+            const r = new FileReader();
             r.onload = (ev) => {
-                try { const parsed = JSON.parse(ev.target.result); if (parsed) { appSettings = StorageManager.migrateAndHeal(parsed); applySettingsToUI(); renderWhatsAppTemplatesUI(); renderProductRecipes(); calculateAllRows(); renderCartUI(); renderLedgerUI(); calculateMaterialConsumption(); alert("Veriler yüklendi!"); } } catch (err) { alert("Hata: " + err.message); }
-            }; r.readAsText(file);
+                try {
+                    const parsed = JSON.parse(ev.target.result);
+                    if (parsed) {
+                        appSettings = StorageManager.migrateAndHeal(parsed);
+                        applySettingsToUI(); renderWhatsAppTemplatesUI(); renderProductRecipes(); calculateAllRows(); renderCartUI(); renderLedgerUI(); calculateMaterialConsumption();
+                        alert("Veriler yüklendi!");
+                    }
+                } catch (err) { alert("Hata: " + err.message); }
+            };
+            r.readAsText(file);
         }
 
         // --- ZAMAN MAKİNESİ (YEDEK) ---
@@ -1733,40 +2368,51 @@
             } catch(e) {}
         }
         function openAutoBackupModal() {
-            const tbody = document.getElementById('autoBackupTableBody'); if(!tbody) return;
-            tbody.innerHTML = ''; const backups = JSON.parse(localStorage.getItem(AUTO_BACKUP_KEY)) || [];
-            if (backups.length === 0) { tbody.innerHTML = `<tr><td colspan="3" class="text-center py-6 text-slate-400">Yedek bulunmuyor.</td></tr>`; } 
+            const tbody = document.getElementById('autoBackupTableBody'); if (!tbody) return;
+            tbody.innerHTML = '';
+            const backups = JSON.parse(localStorage.getItem(AUTO_BACKUP_KEY)) || [];
+
+            if (backups.length === 0) { tbody.innerHTML = `<tr><td colspan="3" class="text-center py-6 text-slate-400">Yedek bulunmuyor.</td></tr>`; }
             else {
-                backups.forEach((b, idx) => {
-                    tbody.innerHTML += `
-                        <tr class="border-b hover:bg-slate-50 transition">
-                            <td class="p-3 font-bold text-slate-700">${b.timestamp} ${idx === 0 ? '<span class="ml-1 text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded font-black">En Güncel</span>' : ''}</td>
-                            <td class="p-3 text-center text-slate-500 font-medium">${b.summary}</td>
-                            <td class="p-3 text-right"><button onclick="restoreAutoBackup(${idx})" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded text-[11px] font-bold shadow transition">Geri Dön</button></td>
-                        </tr>
-                    `;
-                });
+                tbody.innerHTML = backups.map((b, idx) => `
+                    <tr class="border-b hover:bg-slate-50 transition">
+                        <td class="p-3 font-bold text-slate-700">${escapeHTML(b.timestamp)} ${idx === 0 ? '<span class="ml-1 text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded font-black">En Güncel</span>' : ''}</td>
+                        <td class="p-3 text-center text-slate-500 font-medium">${escapeHTML(b.summary)}</td>
+                        <td class="p-3 text-right"><button onclick="restoreAutoBackup(${idx})" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded text-[11px] font-bold shadow transition">Geri Dön</button></td>
+                    </tr>`).join('');
             }
             document.getElementById('autoBackupModal').classList.remove('hidden');
         }
         function closeAutoBackupModal() { document.getElementById('autoBackupModal').classList.add('hidden'); }
+
         async function restoreAutoBackup(index) {
-            const backups = JSON.parse(localStorage.getItem(AUTO_BACKUP_KEY)) || []; if (!backups[index]) return;
+            const backups = JSON.parse(localStorage.getItem(AUTO_BACKUP_KEY)) || [];
+            if (!backups[index]) return;
             if (confirm(`Sistemi ${backups[index].timestamp} yedeğine döndürmek istiyor musunuz?`)) {
-                appSettings = JSON.parse(backups[index].dataStr); StorageManager.save(appSettings); closeAutoBackupModal();
-                applySettingsToUI(); renderWhatsAppTemplatesUI(); renderProductRecipes(); renderCartUI(); renderLedgerUI(); calculateMaterialConsumption(); alert(`Sistem başarıyla kurtarıldı!`);
+                appSettings = JSON.parse(backups[index].dataStr);
+                StorageManager.save(appSettings);
+                closeAutoBackupModal();
+                applySettingsToUI(); renderWhatsAppTemplatesUI(); renderProductRecipes(); renderCartUI(); renderLedgerUI(); calculateMaterialConsumption();
+                alert(`Sistem başarıyla kurtarıldı!`);
             }
         }
+
         function masterReset() {
             if (confirm("DİKKAT! Tüm ayarlar, sepet ve cari hesaplar tamamen sıfırlanacaktır. Emin misiniz?")) {
                 const check = prompt("Onaylamak için büyük harflerle SIFIRLA yazınız:");
                 if (check === "SIFIRLA") { localStorage.clear(); location.reload(); }
             }
         }
+
         function changeAppPassword() {
-            const input = document.getElementById('settingNewPin'); if (!input) return; const newPin = input.value.trim();
+            const input = document.getElementById('settingNewPin'); if (!input) return;
+            const newPin = input.value.trim();
             if (newPin.length < 4) return alert("Şifre en az 4 karakterden oluşmalıdır!");
-            localStorage.setItem(PIN_STORAGE_KEY, newPin); appSettings.appPin = newPin; StorageManager.save(appSettings); input.value = ''; alert(`Sistem şifresi "${newPin}" olarak güncellendi!`);
+            localStorage.setItem(PIN_STORAGE_KEY, newPin);
+            appSettings.appPin = newPin;
+            StorageManager.save(appSettings);
+            input.value = '';
+            alert(`Sistem şifresi "${newPin}" olarak güncellendi!`);
         }
 
         // --- WHATSAPP ŞABLONLARI ---
@@ -1794,53 +2440,66 @@
             document.getElementById('waSendModal').classList.remove('hidden');
         }
         function closeWaSendModal() { document.getElementById('waSendModal').classList.add('hidden'); activeWaOrderId = null; }
-        function executeWaSend(templateId) {
-            const o = (appSettings.cart || []).find(x => x.id === activeWaOrderId); const tpl = (appSettings.whatsappTemplates || []).find(x => x.id === templateId);
-            if (!o || !tpl) return; const fin = computeOrderFinancials(o);
-            let phone = (o.customerPhone || '').replace(/\D/g, '');
-            if (phone.startsWith('0')) phone = '9' + phone; if (phone.length === 10) phone = '90' + phone;
-            let pLines = o.items.map(i => `• ${i.seq}) ${i.pType.toUpperCase()} (${i.color}) - ${i.en}x${i.boy} cm [${i.qty} Adet]`).join('\n');
+
+        function buildWaMessage(o, tpl) {
+            const fin = computeOrderFinancials(o);
+            let pLines = (o.items || []).map(i => `• ${i.seq}) ${String(i.pType).toUpperCase()} (${i.color}) - ${i.en}x${i.boy} cm [${i.qty} Adet]`).join('\n');
             let msg = tpl.text.replace(/{MUSTERI}/g, o.customerName || 'Müşterimiz');
             msg += `\n\n*Sipariş No:* #${o.id}\n*Tarih:* ${o.date}\n\n*Ürün Detayları:*\n${pLines}\n------------------------------\n*Liste Tutarı:* ${fin.listPrice.toFixed(2)} TL`;
             if (fin.discRate > 0) msg += `\n*İskonto:* %${fin.discRate} (-${fin.discountAmt.toFixed(2)} TL)`;
             if (fin.depositAmt > 0) msg += `\n*Alınan Kapora:* ${fin.depositAmt.toFixed(2)} TL`;
             msg += `\n*Kalan Bakiye:* *${fin.balanceDue.toFixed(2)} TL*\n------------------------------\nİletişim: 0533 443 32 23`;
-            window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank'); closeWaSendModal();
+            return msg;
         }
+
+        function executeWaSend(templateId) {
+            const o = (appSettings.cart || []).find(x => x.id === activeWaOrderId);
+            const tpl = (appSettings.whatsappTemplates || []).find(x => x.id === templateId);
+            if (!o || !tpl) return;
+            const phone = normalizePhoneForWa(o.customerPhone);
+            if (phone.length < 10) { alert("Geçerli telefon numarası bulunamadı."); return; }
+            window.open(`https://wa.me/${phone}?text=${encodeURIComponent(buildWaMessage(o, tpl))}`, '_blank');
+            closeWaSendModal();
+        }
+
         function executeBulkWaSend(templateId) {
-            const ids = activeWaOrderId.replace("BULK_", "").split(','); const tpl = (appSettings.whatsappTemplates || []).find(x => x.id === templateId); if (!tpl) return;
+            const ids = activeWaOrderId.replace("BULK_", "").split(',');
+            const tpl = (appSettings.whatsappTemplates || []).find(x => x.id === templateId);
+            if (!tpl) return;
+
             ids.forEach((id, index) => {
-                const o = (appSettings.cart || []).find(x => x.id === id); if(!o) return;
-                const fin = computeOrderFinancials(o);
-                let phone = (o.customerPhone || '').replace(/\D/g, ''); if (phone.startsWith('0')) phone = '9' + phone; if (phone.length === 10) phone = '90' + phone;
-                let pLines = o.items.map(i => `• ${i.seq}) ${i.pType.toUpperCase()} (${i.color}) - ${i.en}x${i.boy} cm [${i.qty} Adet]`).join('\n');
-                let msg = tpl.text.replace(/{MUSTERI}/g, o.customerName || 'Müşterimiz');
-                msg += `\n\n*Sipariş No:* #${o.id}\n*Tarih:* ${o.date}\n\n*Ürün Detayları:*\n${pLines}\n------------------------------\n*Liste Tutarı:* ${fin.listPrice.toFixed(2)} TL`;
-                if (fin.discRate > 0) msg += `\n*İskonto:* %${fin.discRate} (-${fin.discountAmt.toFixed(2)} TL)`;
-                if (fin.depositAmt > 0) msg += `\n*Alınan Kapora:* ${fin.depositAmt.toFixed(2)} TL`;
-                msg += `\n*Kalan Bakiye:* *${fin.balanceDue.toFixed(2)} TL*\n------------------------------\nİletişim: 0533 443 32 23`;
-                setTimeout(() => { window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank'); }, index * 800);
+                const o = (appSettings.cart || []).find(x => x.id === id); if (!o) return;
+                const phone = normalizePhoneForWa(o.customerPhone);
+                if (phone.length < 10) return;
+                setTimeout(() => { window.open(`https://wa.me/${phone}?text=${encodeURIComponent(buildWaMessage(o, tpl))}`, '_blank'); }, index * 800);
             });
+
             closeWaSendModal(); toggleAllCartItems(false);
         }
 
-        // --- YAZDIRMA (GÜVENLİ ONAY MODALI İLE) ---
-        function generateCode128SVG(text, height = 28) {
+        // --- YAZDIRMA ---
+        function generateCode128SVG(text, height) {
+            height = height || 28;
             const p = ["212222","222122","222221","121223","121322","131222","122213","122312","132212","221213","221312","231212","112232","122132","122231","113222","123122","123221","223211","221132","221231","213212","223112","312131","311222","321122","321221","312212","322112","322211","212123","212321","232121","111323","131123","131321","112313","132113","132311","211313","231113","231311","112133","112331","132131","113123","113321","133121","313121","211331","231131","213113","213311","213131","311123","311321","331121","312113","312311","332111","314111","221411","431111","111224","111422","121124","121421","141122","141221","112214","112412","122114","122411","142112","142211","241211","221114","413111","241112","134111","111242","121142","121241","114212","124112","124211","411212","421112","421211","212141","214121","412121","111143","111341","131141","114113","114311","411113","411311","113141","114131","311141","411131","211412","211214","211232","2331112"];
+
             let c = [104], chk = 104;
             for (let i = 0; i < text.length; i++) { let cd = text.charCodeAt(i) - 32; if (cd < 0 || cd > 95) cd = 0; c.push(cd); chk += cd * (i + 1); }
             c.push(chk % 103); c.push(106);
+
             let b = ""; c.forEach(x => { if (p[x]) { for (let j = 0; j < p[x].length; j++) b += (j % 2 === 0 ? "1" : "0").repeat(parseInt(p[x][j])); } });
+
             let r = "", cX = 0; const uW = 1.35;
             for (let i = 0; i < b.length; i++) { if (b[i] === "1") r += `<rect x="${(cX * uW).toFixed(1)}" y="0" width="${uW.toFixed(1)}" height="${height}" fill="#000"/>`; cX++; }
+
             return `<svg viewBox="0 0 ${(cX * uW).toFixed(1)} ${height}" style="width:100%; height:${height}px; display:block;">${r}</svg>`;
         }
+
         function getColorBadgeSVG(cN) {
             const c = (cN || '').trim().toLowerCase();
             if (c.includes('beyaz')) return `<span style="border:1px solid #000; padding:1px 3px; font-weight:900; font-size:7pt;">BEYAZ</span>`;
             if (c.includes('antrasit')) return `<span style="background:#000; color:#fff; border:1px solid #000; padding:1px 3px; font-weight:900; font-size:7pt; -webkit-print-color-adjust:exact;">ANTRASİT</span>`;
             if (c.includes('ahşap')) return `<span style="border:1px dashed #000; padding:1px 3px; font-weight:900; font-size:7pt;">AHŞAP</span>`;
-            return `<span style="border:1px solid #000; padding:1px 3px; font-weight:900; font-size:7pt;">${escapeHTML(cN.toUpperCase())}</span>`;
+            return `<span style="border:1px solid #000; padding:1px 3px; font-weight:900; font-size:7pt;">${escapeHTML((cN || '').toUpperCase())}</span>`;
         }
         function getSpecialMeshBadge(t) {
             const c = (t || '').trim().toLowerCase();
@@ -1857,45 +2516,54 @@
         let activePostPrintOrder = null;
 
         function safePrintAction(type) {
-            if (isProcessing) return; const ord = getOrderData(); if (ord.items.length === 0) { alert("Satır giriniz!"); return; }
-            try { isProcessing = true; if (type === 'a4') printDirectA4(ord); else if (type === 'zebra') printZebraLabels(ord); } finally { setTimeout(() => { isProcessing = false; }, 800); }
+            if (isProcessing) return;
+            const ord = getOrderData();
+            if (ord.items.length === 0) { alert("Satır giriniz!"); return; }
+            try {
+                isProcessing = true;
+                if (type === 'a4') printDirectA4(ord); else if (type === 'zebra') printZebraLabels(ord);
+            } finally { setTimeout(() => { isProcessing = false; }, 800); }
         }
-        
-        function printCartOrderA4ThenZebraById(id) { 
-            const o = (appSettings.cart || []).find(x => x.id === id); if (!o) return; 
-            registerOrderToCustomerLedger(o); 
+
+        function printCartOrderA4ThenZebraById(id) {
+            const o = (appSettings.cart || []).find(x => x.id === id); if (!o) return;
+            registerOrderToCustomerLedger(o);
             activePostPrintOrder = o;
-            printDirectA4(o); 
+            printDirectA4(o);
             setTimeout(() => { document.getElementById('postPrintModal').classList.remove('hidden'); }, 1200);
-            
+
             document.getElementById('btnPostPrintZebra').onclick = () => {
-                removeOrderFromCartSafely(); document.getElementById('postPrintModal').classList.add('hidden');
+                removeOrderFromCartSafely();
+                document.getElementById('postPrintModal').classList.add('hidden');
                 setTimeout(() => { printZebraLabels(activePostPrintOrder); }, 300);
             };
             document.getElementById('btnPostPrintDeleteOnly').onclick = () => {
-                removeOrderFromCartSafely(); document.getElementById('postPrintModal').classList.add('hidden');
+                removeOrderFromCartSafely();
+                document.getElementById('postPrintModal').classList.add('hidden');
             };
         }
+
         function removeOrderFromCartSafely() {
             if (!activePostPrintOrder) return;
             appSettings.cart = (appSettings.cart || []).filter(o => o.id !== activePostPrintOrder.id);
-            StorageManager.save(appSettings); renderCartUI(); calculateMaterialConsumption();
+            StorageManager.save(appSettings);
+            renderCartUI(); calculateMaterialConsumption();
         }
-        
-        function printDirectA4(o) {
-            const fin = computeOrderFinancials(o); document.getElementById('printContainerZebra').innerHTML = ''; document.getElementById('printContainerA5Receipt').innerHTML = '';
-            document.getElementById('printContainerA4').innerHTML = `
-                <div class="a4-print-container" style="padding: 4mm;">
+
+        function orderA4Html(o) {
+            const fin = computeOrderFinancials(o);
+            return `
+                <div class="a4-print-container" style="padding: 4mm; page-break-after: always; position:relative;">
                     <div class="print-header" style="display:flex; justify-content:space-between; align-items:flex-end;">
                         <div>
                             <div style="font-size:15pt; font-weight:900; color:#0f766e;">FIX HOUSE SİSTEMLERİ</div>
-                            <p style="font-size:8.5pt; margin:4px 0 0 0;">Kodu: <b>#${o.id}</b> | Tarih: <b>${o.date}</b></p>
+                            <p style="font-size:8.5pt; margin:4px 0 0 0;">Kodu: <b>#${escapeHTML(o.id)}</b> | Tarih: <b>${escapeHTML(o.date)}</b></p>
                         </div>
-                        <div style="text-align:right;"><h2 style="font-size:12pt; font-weight:bold; margin:0;">${o.customerName}</h2><p style="font-size:9pt; margin:1px 0;">Tel: <b>${o.customerPhone}</b></p></div>
+                        <div style="text-align:right;"><h2 style="font-size:12pt; font-weight:bold; margin:0;">${escapeHTML(o.customerName)}</h2><p style="font-size:9pt; margin:1px 0;">Tel: <b>${escapeHTML(o.customerPhone)}</b></p></div>
                     </div>
                     <table class="print-table" style="margin-top:6px;">
                         <thead><tr><th>#</th><th>Adet</th><th>Ürün</th><th>Renk</th><th>Özellikler</th><th>EN</th><th>BOY</th><th>TAÇ</th><th>DİKME</th><th>KANAT</th><th>TÜL</th></tr></thead>
-                        <tbody>${o.items.map(i => `<tr><td>${i.seq}</td><td><b>${i.qty}</b></td><td>${i.pType.toUpperCase()}</td><td>${i.color}</td><td style="font-size:7pt;">${i.dir} ${i.tulType}</td><td style="font-weight:900;">${i.en}</td><td style="font-weight:900;">${i.boy}</td><td style="background:#f8fafc;">${i.tac}</td><td style="background:#f8fafc;">${i.dikme}</td><td style="background:#f8fafc;">${i.kanat}</td><td>${i.tul}</td></tr>`).join('')}</tbody>
+                        <tbody>${(o.items || []).map(i => `<tr><td>${i.seq}</td><td><b>${i.qty}</b></td><td>${escapeHTML(String(i.pType).toUpperCase())}</td><td>${escapeHTML(i.color)}</td><td style="font-size:7pt;">${escapeHTML(i.dir)} ${escapeHTML(i.tulType)}</td><td style="font-weight:900;">${i.en}</td><td style="font-weight:900;">${i.boy}</td><td style="background:#f8fafc;">${escapeHTML(i.tac)}</td><td style="background:#f8fafc;">${escapeHTML(i.dikme)}</td><td style="background:#f8fafc;">${escapeHTML(i.kanat)}</td><td>${escapeHTML(i.tul)}</td></tr>`).join('')}</tbody>
                     </table>
                     <div style="display:flex; justify-content:flex-end; margin-top:10px;">
                         <table style="width:280px; font-size:8.5pt; border-collapse:collapse; text-align:right;">
@@ -1903,13 +2571,23 @@
                             <tr style="background:#f1f5f9;"><td style="padding:5px; border:1px solid #334155; font-weight:900;">Kalan Bakiye:</td><td style="padding:5px; border:1px solid #334155; font-weight:900; color:#b91c1c;">${fin.balanceDue.toFixed(2)} ₺</td></tr>
                         </table>
                     </div>
-                </div>`; 
+                </div>`;
+        }
+
+        function printDirectA4(o) {
+            document.getElementById('printContainerZebra').innerHTML = '';
+            document.getElementById('printContainerA5Receipt').innerHTML = '';
+            document.getElementById('printContainerA4').innerHTML = orderA4Html(o);
             window.print();
         }
 
         function printZebraLabels(o) {
-            document.getElementById('printContainerA4').innerHTML = ''; document.getElementById('printContainerA5Receipt').innerHTML = ''; let html = ''; const safeCode = o.id.replace(/[^A-Za-z0-9_-]/g, '');
-            o.items.forEach(i => {
+            document.getElementById('printContainerA4').innerHTML = '';
+            document.getElementById('printContainerA5Receipt').innerHTML = '';
+            let html = '';
+            const safeCode = String(o.id).replace(/[^A-Za-z0-9_-]/g, '');
+
+            (o.items || []).forEach(i => {
                 let q = i.qty || 1;
                 for (let n = 1; n <= q; n++) {
                     const bVal = `${safeCode}-${i.seq}-${n}`;
@@ -1921,19 +2599,19 @@
                             </div>
                             <div style="display:flex; justify-content:space-between; margin:1.5px 0;">
                                 <div style="font-size:9.5pt; font-weight:900; text-transform:uppercase; max-width:44mm; overflow:hidden;">${escapeHTML(o.customerName)}</div>
-                                <div style="display:flex; gap:3px;">${getDoubleWingBadge(i)} <span style="font-size:8pt; font-weight:900;">${i.pType.toUpperCase()}</span> ${getColorBadgeSVG(i.color)}</div>
+                                <div style="display:flex; gap:3px;">${getDoubleWingBadge(i)} <span style="font-size:8pt; font-weight:900;">${escapeHTML(String(i.pType).toUpperCase())}</span> ${getColorBadgeSVG(i.color)}</div>
                             </div>
                             <div style="display:grid; grid-template-columns:36mm 1fr; gap:2mm; border:1.5px solid #000; padding:1.5px; background:#fafafa; -webkit-print-color-adjust:exact;">
                                 <div style="text-align:center; border-right:1px solid #000;"><div style="font-size:5.5pt; font-weight:900;">KASA ÖLÇÜSÜ</div><div style="font-size:12pt; font-weight:900;">${i.en} × ${i.boy}</div></div>
                                 <div style="display:grid; grid-template-columns:repeat(4, 1fr); text-align:center;">
-                                    <div><span style="font-size:5.5pt; font-weight:bold;">TAÇ</span><b style="font-size:9.5pt; font-weight:900; display:block;">${i.tac}</b></div>
-                                    <div><span style="font-size:5.5pt; font-weight:bold;">DİKME</span><b style="font-size:9.5pt; font-weight:900; display:block;">${i.dikme}</b></div>
-                                    <div><span style="font-size:5.5pt; font-weight:bold;">KANAT</span><b style="font-size:9.5pt; font-weight:900; display:block;">${i.kanat}</b></div>
-                                    <div><span style="font-size:5.5pt; font-weight:bold;">TÜL</span><b style="font-size:9.5pt; font-weight:900; display:block;">${i.tul}</b></div>
+                                    <div><span style="font-size:5.5pt; font-weight:bold;">TAÇ</span><b style="font-size:9.5pt; font-weight:900; display:block;">${escapeHTML(i.tac)}</b></div>
+                                    <div><span style="font-size:5.5pt; font-weight:bold;">DİKME</span><b style="font-size:9.5pt; font-weight:900; display:block;">${escapeHTML(i.dikme)}</b></div>
+                                    <div><span style="font-size:5.5pt; font-weight:bold;">KANAT</span><b style="font-size:9.5pt; font-weight:900; display:block;">${escapeHTML(i.kanat)}</b></div>
+                                    <div><span style="font-size:5.5pt; font-weight:bold;">TÜL</span><b style="font-size:9.5pt; font-weight:900; display:block;">${escapeHTML(i.tul)}</b></div>
                                 </div>
                             </div>
                             <div style="display:flex; justify-content:space-between; min-height:15px; margin:1px 0;">
-                                <div>${getSpecialMeshBadge(i.tulType) || `<span style="font-size:7pt; font-weight:bold;">İP: <b>${i.ip}</b></span>`}</div>
+                                <div>${getSpecialMeshBadge(i.tulType) || `<span style="font-size:7pt; font-weight:bold;">İP: <b>${escapeHTML(i.ip)}</b></span>`}</div>
                                 <div style="font-size:7pt; font-weight:bold;">${i.note ? '[' + escapeHTML(i.note) + ']' : ''}</div>
                             </div>
                             <div style="text-align:center; display:flex; flex-direction:column; align-items:center;">
@@ -1943,72 +2621,88 @@
                         </div>`;
                 }
             });
-            document.getElementById('printContainerZebra').innerHTML = html; window.print();
+
+            document.getElementById('printContainerZebra').innerHTML = html;
+            window.print();
         }
 
-        function printCartOrderZebraDirectById(id) { const o = (appSettings.cart || []).find(x => x.id === id); if (o) printZebraLabels(o); }
-        
+        function printCartOrderZebraDirectById(id) {
+            const o = (appSettings.cart || []).find(x => x.id === id);
+            if (o) printZebraLabels(o);
+        }
+
         function printBulkA4(orders) {
-            document.getElementById('printContainerZebra').innerHTML = ''; document.getElementById('printContainerA5Receipt').innerHTML = '';
-            let combinedHTML = orders.map(o => {
-                const fin = computeOrderFinancials(o);
-                return `
-                    <div class="a4-print-container" style="padding: 4mm; page-break-after: always; position:relative;">
-                        <div class="print-header" style="display:flex; justify-content:space-between; align-items:flex-end;">
-                            <div>
-                                <div style="font-size:15pt; font-weight:900; color:#0f766e;">FIX HOUSE SİSTEMLERİ</div>
-                                <p style="font-size:8.5pt; margin:4px 0 0 0;">Kodu: <b>#${o.id}</b> | Tarih: <b>${o.date}</b></p>
-                            </div>
-                            <div style="text-align:right;"><h2 style="font-size:12pt; font-weight:bold; margin:0;">${o.customerName}</h2><p style="font-size:9pt; margin:1px 0;">Tel: <b>${o.customerPhone}</b></p></div>
-                        </div>
-                        <table class="print-table" style="margin-top:6px;">
-                            <thead><tr><th>#</th><th>Adet</th><th>Ürün</th><th>Renk</th><th>Özellikler</th><th>EN</th><th>BOY</th><th>TAÇ</th><th>DİKME</th><th>KANAT</th><th>TÜL</th></tr></thead>
-                            <tbody>${o.items.map(i => `<tr><td>${i.seq}</td><td><b>${i.qty}</b></td><td>${i.pType.toUpperCase()}</td><td>${i.color}</td><td style="font-size:7pt;">${i.dir} ${i.tulType}</td><td style="font-weight:900;">${i.en}</td><td style="font-weight:900;">${i.boy}</td><td style="background:#f8fafc;">${i.tac}</td><td style="background:#f8fafc;">${i.dikme}</td><td style="background:#f8fafc;">${i.kanat}</td><td>${i.tul}</td></tr>`).join('')}</tbody>
-                        </table>
-                        <div style="display:flex; justify-content:flex-end; margin-top:10px;">
-                            <table style="width:280px; font-size:8.5pt; border-collapse:collapse; text-align:right;">
-                                <tr><td style="padding:3px; border:1px solid #cbd5e1;">Toplam Tutarı:</td><td style="padding:3px; border:1px solid #cbd5e1; font-weight:bold;">${fin.listPrice.toFixed(2)} ₺</td></tr>
-                                <tr style="background:#f1f5f9;"><td style="padding:5px; border:1px solid #334155; font-weight:900;">Kalan Bakiye:</td><td style="padding:5px; border:1px solid #334155; font-weight:900; color:#b91c1c;">${fin.balanceDue.toFixed(2)} ₺</td></tr>
-                            </table>
-                        </div>
-                    </div>`;
-            }).join('');
-            document.getElementById('printContainerA4').innerHTML = combinedHTML; orders.forEach(o => registerOrderToCustomerLedger(o)); window.print();
+            document.getElementById('printContainerZebra').innerHTML = '';
+            document.getElementById('printContainerA5Receipt').innerHTML = '';
+            document.getElementById('printContainerA4').innerHTML = orders.map(o => orderA4Html(o)).join('');
+            orders.forEach(o => registerOrderToCustomerLedger(o));
+            window.print();
         }
 
+        // Toplu etiket: her etiket kendi sipariş barkodunu korur
         function printBulkZebra(orders) {
-            let mockOrder = { id: "TOPLU", customerName: "TOPLU YAZDIRMA", items: [] };
+            let html = '';
             orders.forEach(o => {
-                o.items.forEach(it => {
-                    let modifiedItem = JSON.parse(JSON.stringify(it));
-                    modifiedItem.note = `${o.customerName.substring(0,8)} - ${modifiedItem.note || ''}`;
-                    mockOrder.items.push(modifiedItem);
+                const safeCode = String(o.id).replace(/[^A-Za-z0-9_-]/g, '');
+                (o.items || []).forEach(i => {
+                    let q = i.qty || 1;
+                    for (let n = 1; n <= q; n++) {
+                        const bVal = `${safeCode}-${i.seq}-${n}`;
+                        html += `
+                        <div class="zebra-label">
+                            <div style="display:flex; justify-content:space-between; border-bottom:1.5px solid #000; padding-bottom:1px; line-height:1;">
+                                <div><span style="font-size:10pt; font-weight:900;">FİX HOUSE</span></div>
+                                <span style="font-size:8pt; font-weight:900; background:#000; color:#fff; padding:1px 4px; -webkit-print-color-adjust:exact;">#${escapeHTML(o.id)}</span>
+                            </div>
+                            <div style="display:flex; justify-content:space-between; margin:1.5px 0;">
+                                <div style="font-size:9.5pt; font-weight:900; text-transform:uppercase; max-width:44mm; overflow:hidden;">${escapeHTML(o.customerName)}</div>
+                                <div style="display:flex; gap:3px;"><span style="font-size:8pt; font-weight:900;">${escapeHTML(String(i.pType).toUpperCase())}</span> ${getColorBadgeSVG(i.color)}</div>
+                            </div>
+                            <div style="display:grid; grid-template-columns:36mm 1fr; gap:2mm; border:1.5px solid #000; padding:1.5px;">
+                                <div style="text-align:center; border-right:1px solid #000;"><div style="font-size:5.5pt; font-weight:900;">KASA ÖLÇÜSÜ</div><div style="font-size:12pt; font-weight:900;">${i.en} × ${i.boy}</div></div>
+                                <div style="display:grid; grid-template-columns:repeat(4, 1fr); text-align:center;">
+                                    <div><span style="font-size:5.5pt; font-weight:bold;">TAÇ</span><b style="font-size:9.5pt; font-weight:900; display:block;">${escapeHTML(i.tac)}</b></div>
+                                    <div><span style="font-size:5.5pt; font-weight:bold;">DİKME</span><b style="font-size:9.5pt; font-weight:900; display:block;">${escapeHTML(i.dikme)}</b></div>
+                                    <div><span style="font-size:5.5pt; font-weight:bold;">KANAT</span><b style="font-size:9.5pt; font-weight:900; display:block;">${escapeHTML(i.kanat)}</b></div>
+                                    <div><span style="font-size:5.5pt; font-weight:bold;">TÜL</span><b style="font-size:9.5pt; font-weight:900; display:block;">${escapeHTML(i.tul)}</b></div>
+                                </div>
+                            </div>
+                            <div style="text-align:center; display:flex; flex-direction:column; align-items:center;">
+                                ${generateCode128SVG(bVal, 26)}
+                                <div style="font-family:monospace; font-size:6.5pt; font-weight:bold;">*${bVal}*</div>
+                            </div>
+                        </div>`;
+                    }
                 });
             });
-            printZebraLabels(mockOrder);
+            document.getElementById('printContainerA4').innerHTML = '';
+            document.getElementById('printContainerA5Receipt').innerHTML = '';
+            document.getElementById('printContainerZebra').innerHTML = html;
+            window.print();
         }
 
         function printCustomerStatementA4() {
             const c = (appSettings.customers || []).find(x => x.id === activeCustomerStatementId); if (!c) return;
-            const { debit, credit, balance } = getCustomerLedgerTotals(c);
+            const { balance } = getCustomerLedgerTotals(c);
             document.getElementById('printContainerA4').innerHTML = `
                 <div class="a4-print-container" style="padding:10mm;">
                     <div class="print-header" style="display:flex; justify-content:space-between; align-items:flex-end;">
-                        <div><div style="font-size:14pt; font-weight:900; color:#0f766e;">FIX HOUSE - CARİ EKSTRE</div><p style="font-size:8.5pt; margin:4px 0 0 0;">Cari Kod: <b>${c.code}</b></p></div>
-                        <div style="text-align:right;"><h2 style="font-size:11pt; font-weight:bold; margin:0;">${escapeHTML(c.name)}</h2><p style="font-size:8pt; margin:0; font-weight:bold; color:#b91c1c;">Vade: ${c.dueDate || '-'}</p></div>
+                        <div><div style="font-size:14pt; font-weight:900; color:#0f766e;">FIX HOUSE - CARİ EKSTRE</div><p style="font-size:8.5pt; margin:4px 0 0 0;">Cari Kod: <b>${escapeHTML(c.code)}</b></p></div>
+                        <div style="text-align:right;"><h2 style="font-size:11pt; font-weight:bold; margin:0;">${escapeHTML(c.name)}</h2><p style="font-size:8pt; margin:0; font-weight:bold; color:#b91c1c;">Vade: ${escapeHTML(c.dueDate || '-')}</p></div>
                     </div>
                     <table class="print-table" style="margin-top:15px;"><thead><tr><th>Tarih</th><th>İşlem Türü</th><th>Açıklama</th><th style="text-align:right;">Borç</th><th style="text-align:right;">Tahsilat</th></tr></thead>
-                    <tbody>${(c.transactions || []).map(t => `<tr><td>${t.date}</td><td style="font-weight:bold;">${escapeHTML(t.type)}</td><td style="text-align:left;">${escapeHTML(t.desc)}</td><td style="text-align:right; font-weight:bold;">${t.debit > 0 ? t.debit.toFixed(2) + ' ₺' : '-'}</td><td style="text-align:right; font-weight:bold; color:#047857;">${t.credit > 0 ? t.credit.toFixed(2) + ' ₺' : '-'}</td></tr>`).join('')}</tbody></table>
+                    <tbody>${(c.transactions || []).map(t => `<tr><td>${escapeHTML(t.date)}</td><td style="font-weight:bold;">${escapeHTML(t.type)}</td><td style="text-align:left;">${escapeHTML(t.desc)}</td><td style="text-align:right; font-weight:bold;">${t.debit > 0 ? t.debit.toFixed(2) + ' ₺' : '-'}</td><td style="text-align:right; font-weight:bold; color:#047857;">${t.credit > 0 ? t.credit.toFixed(2) + ' ₺' : '-'}</td></tr>`).join('')}</tbody></table>
                     <div style="display:flex; justify-content:flex-end; margin-top:15px;">
                         <table style="width:260px; font-size:8.5pt; border-collapse:collapse; text-align:right;">
                             <tr style="background:#f1f5f9;"><td style="padding:5px; border:1px solid #334155; font-weight:900;">Kalan Borç:</td><td style="padding:5px; border:1px solid #334155; font-weight:900; color:#b91c1c; font-size:10pt;">${balance.toFixed(2)} ₺</td></tr>
                         </table>
                     </div>
-                </div>`; window.print();
+                </div>`;
+            window.print();
         }
-        
+
         function printReceiptDirect(custId, amt, pType, desc) {
-            const c = (appSettings.customers || []).find(x => x.id === custId); if (!c) return; const { balance } = getCustomerLedgerTotals(c);
+            const c = (appSettings.customers || []).find(x => x.id === custId); if (!c) return;
             document.getElementById('printContainerA5Receipt').innerHTML = `
                 <div class="a5-receipt-container">
                     <div style="border-bottom:2px solid #0f766e; padding-bottom:8px; margin-bottom:12px; display:flex; justify-content:space-between;">
@@ -2017,27 +2711,38 @@
                     </div>
                     <div style="display:flex; gap:12px; font-size:9pt;">
                         <div style="width:60%; border:1px solid #cbd5e1; border-radius:6px; padding:10px; background:#f8fafc;"><div><b>Sayın:</b> ${escapeHTML(c.name)}</div><div style="margin-top:6px; font-size:8pt; color:#64748b;">Açıklama: ${escapeHTML(desc)}</div></div>
-                        <div style="width:40%; border:1px solid #cbd5e1; border-radius:6px; padding:10px; background:#f0fdfa;"><div style="font-size:8pt; color:#0f766e; font-weight:bold;">${escapeHTML(pType)}</div><div style="font-size:16pt; font-weight:900; color:#047857;">${parseFloat(amt).toFixed(2)} ₺</div></div>
+                        <div style="width:40%; border:1px solid #cbd5e1; border-radius:6px; padding:10px; background:#f0fdfa;"><div style="font-size:8pt; color:#0f766e; font-weight:bold;">${escapeHTML(pType)}</div><div style="font-size:16pt; font-weight:900; color:#047857;">${(parseFloat(amt) || 0).toFixed(2)} ₺</div></div>
                     </div>
-                </div>`; window.print();
+                </div>`;
+            window.print();
         }
-        
+
         function exportLedgerExcel() {
-            const cL = appSettings.customers || []; if (cL.length === 0) return;
+            const cL = appSettings.customers || []; if (cL.length === 0) return alert("Dışa aktarılacak cari bulunmuyor.");
             const rows = cL.map(c => { const { debit, credit, balance } = getCustomerLedgerTotals(c); return { "Kod": c.code, "Müşteri": c.name, "Telefon": c.phone, "Borç": debit, "Tahsilat": credit, "Bakiye": balance }; });
-            if (window.XLSX) { const ws = XLSX.utils.json_to_sheet(rows); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Cari"); XLSX.writeFile(wb, `FixHouse_Cari_${new Date().toISOString().slice(0, 10)}.xlsx`); }
+            if (window.XLSX) {
+                const ws = XLSX.utils.json_to_sheet(rows); const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, "Cari");
+                XLSX.writeFile(wb, `FixHouse_Cari_${new Date().toISOString().slice(0, 10)}.xlsx`);
+            } else { showErrorBanner("Excel kütüphanesi yüklenemedi (çevrimdışı olabilirsiniz)."); }
         }
+
         function exportCustomerStatementExcel() {
             if (!activeCustomerStatementId) return;
             const c = (appSettings.customers || []).find(x => x.id === activeCustomerStatementId); if (!c) return;
             const txs = c.transactions || []; if (txs.length === 0) return alert("Dışa aktarılacak hareket bulunmuyor.");
+
             try {
                 const rows = txs.map(t => ({ "Tarih": t.date, "İşlem Türü": t.type, "Açıklama": t.desc, "Borç (TL)": t.debit || 0, "Tahsilat (TL)": t.credit || 0 }));
                 const { debit, credit, balance } = getCustomerLedgerTotals(c);
                 rows.push({ "Tarih": "GENEL TOPLAM", "İşlem Türü": "-", "Açıklama": "-", "Borç (TL)": debit, "Tahsilat (TL)": credit });
                 rows.push({ "Tarih": "KALAN BAKİYE", "İşlem Türü": "-", "Açıklama": "-", "Borç (TL)": balance, "Tahsilat (TL)": "" });
-                if (window.XLSX) { const ws = XLSX.utils.json_to_sheet(rows); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Müşteri Ekstresi"); XLSX.writeFile(wb, `FixHouse_Ekstre_${c.name.replace(/\s+/g, '_')}_${new Date().toISOString().slice(0, 10)}.xlsx`); } 
-                else {
+
+                if (window.XLSX) {
+                    const ws = XLSX.utils.json_to_sheet(rows); const wb = XLSX.utils.book_new();
+                    XLSX.utils.book_append_sheet(wb, ws, "Müşteri Ekstresi");
+                    XLSX.writeFile(wb, `FixHouse_Ekstre_${c.name.replace(/\s+/g, '_')}_${new Date().toISOString().slice(0, 10)}.xlsx`);
+                } else {
                     let csv = "\uFEFFTarih;Islem Turu;Aciklama;Borc;Tahsilat\n";
                     rows.forEach(r => { csv += `${r["Tarih"]};${r["İşlem Türü"]};${r["Açıklama"]};${r["Borç (TL)"]};${r["Tahsilat (TL)"]}\n`; });
                     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" }); const url = URL.createObjectURL(blob);
