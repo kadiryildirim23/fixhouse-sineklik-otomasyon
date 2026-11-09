@@ -85,7 +85,7 @@
                 <i class="fa-solid fa-lock text-3xl"></i>
             </div>
             <h2 class="text-xl font-black text-petrol-950 mb-2">Fix House ERP</h2>
-            <p class="text-sm text-slate-500 mb-6">Sisteme erişmek için PIN kodunu giriniz.</p>
+            <p class="text-sm text-slate-500 mb-6">Sisteme erişmek için PIN kodunu giriniz. (Varsayılan: 232323)</p>
             <input type="password" id="pinInput" class="w-full text-center tracking-widest text-2xl font-black px-4 py-3 border-2 border-slate-200 rounded-xl focus:border-petrol-500 outline-none mb-4" placeholder="••••••">
             <button onclick="checkPin()" class="w-full bg-petrol-800 hover:bg-petrol-900 text-white font-bold py-3 rounded-xl transition shadow-lg">Sistemi Aç</button>
             <p id="pinError" class="text-red-500 text-xs font-bold mt-3 hidden">Hatalı PIN kodu!</p>
@@ -117,11 +117,6 @@
                 <button onclick="switchTab('expenses')" id="tab-expenses" class="tab-btn px-4 py-3 text-sm font-semibold text-petrol-100 hover:bg-petrol-800/50 transition flex items-center gap-3 whitespace-nowrap"><i class="fa-solid fa-file-invoice-dollar w-5 text-center text-rose-400"></i> Gider & Ödemeler</button>
                 <button onclick="switchTab('settings')" id="tab-settings" class="tab-btn px-4 py-3 text-sm font-semibold text-petrol-100 hover:bg-petrol-800/50 transition flex items-center gap-3 whitespace-nowrap"><i class="fa-solid fa-gears w-5 text-center text-petrol-300"></i> Parametreler & Paylar</button>
             </nav>
-            
-            <div class="p-4 mt-auto border-t border-petrol-800 text-center">
-                <p class="text-[10px] text-petrol-400 font-medium">Fix House Destek</p>
-                <p class="text-[9px] text-petrol-300 mt-0.5">0533 443 32 23</p>
-            </div>
         </aside>
 
         <!-- SAĞ İÇERİK ALANI -->
@@ -495,7 +490,7 @@
         </div>
     </div>
 
-    <!-- MOBİL SABİT ALT GEZİNME ÇUBUĞU (Yatay Kaydırılabilir) -->
+    <!-- MOBİL SABİT ALT GEZİNME ÇUBUĞU -->
     <nav id="mobileNavContainer" class="mobile-bottom-nav md:hidden no-print" style="display: none;">
         <button onclick="switchTab('order')" id="mob-tab-order" class="mobile-nav-btn active"><i class="fa-solid fa-pen-ruler"></i><span>Ölçü</span></button>
         <button onclick="switchTab('cart')" id="mob-tab-cart" class="mobile-nav-btn relative"><i class="fa-solid fa-cart-flatbed"></i><span>Sepet</span><span id="mobCartBadge" class="hidden absolute top-0.5 right-0 bg-emerald-500 text-white text-[9px] px-1.5 rounded-full font-black">0</span></button>
@@ -589,6 +584,7 @@
         </div>
     </div>
 
+    <!-- YAZDIRMA SONRASI AKIŞ MODALI -->
     <div id="postPrintModal" class="fixed inset-0 bg-petrol-950/90 backdrop-blur-sm z-[120] flex items-center justify-center hidden px-3 no-print">
         <div class="bg-white rounded-2xl w-full max-w-sm shadow-2xl p-6 text-center space-y-4">
             <div class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-2 shadow-inner"><i class="fa-solid fa-print text-3xl"></i></div>
@@ -609,14 +605,33 @@
 
     <!-- JAVASCRIPT ÇALIŞMA MOTORU -->
     <script>
-        // --- 1. GÜVENLİK VE YARDIMCI FONKSİYONLAR ---
-        window.addEventListener('error', function (event) { console.error('Kritik Global Hata:', event.error || event.message); showErrorBanner('Sistem hatası: ' + (event.message || 'Bilinmeyen arayüz hatası.')); });
-        window.addEventListener('unhandledrejection', function (event) { console.error('Asenkron Hata:', event.reason); showErrorBanner('İşlem hatası: ' + (event.reason ? event.reason.message || event.reason : 'Asenkron işlem başarısız.')); });
+        // --- 1. GÜVENLİK, LOGLAMA VE YARDIMCI FONKSİYONLAR ---
+        const GOOGLE_SHEETS_URL = "https://script.google.com/macros/s/AKfycbxZ_zzN17KIMvsCJt1Et1uP4n35rUw-uHasDunrJ-ZpqKdaotcpJCAPDpt6napl_nNfSw/exec";
+        
+        function logErrorToCloud(errorType, message) {
+            if (typeof GOOGLE_SHEETS_URL === 'undefined' || GOOGLE_SHEETS_URL.includes("BURAYA_KENDI_URLNIZI")) return;
+            const errorPayload = { type: "error_log", errorType: errorType, message: String(message), timestamp: new Date().toLocaleString('tr-TR'), userAgent: navigator.userAgent };
+            fetch(GOOGLE_SHEETS_URL, { method: 'POST', body: JSON.stringify(errorPayload), headers: { 'Content-Type': 'text/plain;charset=utf-8' } }).catch(e => console.warn("Log gönderilemedi:", e));
+        }
+
+        window.addEventListener('error', function (event) { 
+            const msg = event.error && event.error.stack ? event.error.stack : (event.message || 'Bilinmeyen Hata');
+            console.error('Kritik Global Hata:', msg); 
+            showErrorBanner('Sistem hatası: Bir işlem başarısız oldu.'); 
+            logErrorToCloud("Frontend Syntax/Runtime Error", msg);
+        });
+
+        window.addEventListener('unhandledrejection', function (event) { 
+            const msg = event.reason ? (event.reason.stack || event.reason.message || String(event.reason)) : 'Asenkron işlem başarısız.';
+            console.error('Asenkron Hata:', msg); 
+            showErrorBanner('Bağlantı veya işlem hatası.'); 
+            logErrorToCloud("Promise Rejection / Fetch Error", msg);
+        });
         
         function showErrorBanner(msg) { const b = document.getElementById('globalErrorBanner'), m = document.getElementById('globalErrorMessage'); if (b && m) { m.textContent = msg; b.classList.remove('hidden'); } }
         function dismissErrorBanner() { const b = document.getElementById('globalErrorBanner'); if (b) b.classList.add('hidden'); }
         
-        // XSS Koruması (Sıkılaştırılmış)
+        // XSS Koruması
         function escapeHTML(str) {
             if (typeof str !== 'string') return '';
             return str.replace(/[&<>"'`=\/]/g, function(s) {
@@ -631,11 +646,8 @@
             const d = new Date(dateStr); return isNaN(d.getTime()) ? null : d;
         }
 
-        // --- 2. AYARLAR, DEFAULTS & GOOGLE SHEETS KONFİGÜRASYONU ---
-        // DİKKAT: Buraya kendi Apps Script (Web App) URL'nizi yapıştırın!
-        const GOOGLE_SHEETS_URL = "https://script.google.com/macros/s/BURAYA_KENDI_URLNIZI_YAPISTIRIN/exec";
+        // --- 2. AYARLAR & KONFİGÜRASYON ---
         let lastCloudDataString = "";
-
         const STORAGE_KEY = "fix_house_erp_master_storage";
         const SCHEMA_VERSION = 20;
         const PIN_STORAGE_KEY = "fix_house_erp_pin_code";
@@ -660,11 +672,7 @@
                 { id: "pg-plise", name: "Plise Sineklik Sistemi", accessories: [ { id: "acc-profil", name: "Alüminyum Profil", unit: "Metre (m)", cost: 45 }, { id: "acc-plise-tul", name: "Plise Tül", unit: "m²", cost: 35 }, { id: "acc-polen-tul", name: "Polen Tülü (Fark)", unit: "m²", cost: 400 }, { id: "acc-serit-miknatis", name: "Şerit Mıknatıs", unit: "Metre (m)", cost: 60 }, { id: "acc-takoz", name: "Köşe Takozu", unit: "Adet", cost: 5 }, { id: "acc-ip", name: "Plise İp", unit: "Metre (m)", cost: 2 } ] },
                 { id: "pg-mentese", name: "Menteşeli Sineklik Sistemi", accessories: [ { id: "acc-mentese-prof", name: "Menteşeli Profil", unit: "Metre (m)", cost: 35 }, { id: "acc-duz-tul", name: "Düz Tül", unit: "m²", cost: 25 }, { id: "acc-kedi-tul", name: "Kedi Tülü (Fark)", unit: "m²", cost: 260 }, { id: "acc-mentese", name: "Menteşe Seti", unit: "Set", cost: 15 }, { id: "acc-citcit", name: "Çıt Çıt Kilit", unit: "Adet", cost: 8 } ] }
             ],
-            cart: [],
-            orderArchive: [],
-            expenseCategories: ['Elektrik', 'Su', 'İnternet/Telefon', 'Kira', 'Personel', 'Vergi/Muhasebe', 'Araç/Yakıt', 'Atölye Malzeme', 'Diğer'],
-            expenses: [],
-            customers: []
+            cart: [], orderArchive: [], expenseCategories: ['Elektrik', 'Su', 'İnternet/Telefon', 'Kira', 'Personel', 'Vergi/Muhasebe', 'Araç/Yakıt', 'Atölye Malzeme', 'Diğer'], expenses: [], customers: []
         };
 
         // --- 3. ŞİFRE / GÜVENLİK KALKANI ---
@@ -677,9 +685,7 @@
                 document.getElementById('mobileNavContainer').style.display = 'flex';
                 sessionStorage.setItem('isUnlocked', 'true');
             } else {
-                const err = document.getElementById('pinError');
-                err.classList.remove('hidden');
-                setTimeout(() => err.classList.add('hidden'), 2000);
+                const err = document.getElementById('pinError'); err.classList.remove('hidden'); setTimeout(() => err.classList.add('hidden'), 2000);
             }
         }
         if (sessionStorage.getItem('isUnlocked') === 'true') {
@@ -692,7 +698,7 @@
         const StorageManager = {
             selfHealStorage() {
                 try {
-                    const legacyKeys = ["fix_house_measure_settings_v12_profit_reports", "fix_house_measure_settings_v11_restored_full", "fix_house_measure_settings_v10_restored_params", "fix_house_measure_settings_v9_consumption_bulk", "fix_house_measure_settings_v8_receipt_excel", "fix_house_23_erp_v1_petrol"];
+                    const legacyKeys = ["fix_house_measure_settings_v12_profit_reports", "fix_house_measure_settings_v11_restored_full", "fix_house_23_erp_v1_petrol"];
                     legacyKeys.forEach(k => localStorage.removeItem(k));
                     let backups = JSON.parse(localStorage.getItem(AUTO_BACKUP_KEY)) || [];
                     if (backups.length > MAX_BACKUPS) { backups = backups.slice(0, MAX_BACKUPS); localStorage.setItem(AUTO_BACKUP_KEY, JSON.stringify(backups)); }
@@ -701,6 +707,16 @@
             
             async loadFromCloud(callback) {
                 this.selfHealStorage();
+                
+                if (GOOGLE_SHEETS_URL.includes("BURAYA_KENDI_URLNIZI")) {
+                    showErrorBanner("Uyarı: Google Sheets bağlantısı kurulmadı. Sistem yerel (çevrimdışı) modda çalışıyor.");
+                    document.getElementById('globalErrorBanner').classList.replace('bg-red-600', 'bg-amber-500');
+                    const raw = localStorage.getItem(STORAGE_KEY);
+                    if (raw) { appSettings = this.migrateAndHeal(JSON.parse(raw)); } else { appSettings = JSON.parse(JSON.stringify(DEFAULT_SETTINGS)); }
+                    if(callback) callback();
+                    return;
+                }
+
                 showErrorBanner("Veriler Google buluttan yükleniyor...");
                 try {
                     const response = await fetch(GOOGLE_SHEETS_URL);
@@ -719,17 +735,14 @@
                 } catch(e) {
                     console.error("Bulut bağlantı hatası:", e);
                     showErrorBanner("İnternet bağlantısı koptu! Çevrimdışı (Yerel) moda geçildi.");
-                    
+                    logErrorToCloud("Sync Load Error", e.message || String(e));
                     const raw = localStorage.getItem(STORAGE_KEY);
-                    if (raw) { appSettings = this.migrateAndHeal(JSON.parse(raw)); } 
-                    else { appSettings = JSON.parse(JSON.stringify(DEFAULT_SETTINGS)); }
+                    if (raw) { appSettings = this.migrateAndHeal(JSON.parse(raw)); } else { appSettings = JSON.parse(JSON.stringify(DEFAULT_SETTINGS)); }
                     if(callback) callback();
                 }
             },
             
-            load() {
-                return JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
-            },
+            load() { return JSON.parse(JSON.stringify(DEFAULT_SETTINGS)); },
             
             migrateAndHeal(data) {
                 const m = JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
@@ -749,43 +762,36 @@
                 if (Array.isArray(data.expenses)) m.expenses = data.expenses;
                 if (Array.isArray(data.customers)) m.customers = data.customers.map(c => ({ ...c, category: c.category || 'standard' }));
                 
-                m.lastUpdated = data.lastUpdated || 0;
-                m.schemaVersion = SCHEMA_VERSION;
+                m.lastUpdated = data.lastUpdated || 0; m.schemaVersion = SCHEMA_VERSION;
                 return m;
             },
             
             async save(data) {
                 try { createAutoBackup(data); localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch(e) {}
-                
-                const payloadWrapper = {
-                    baseTimestamp: data.lastUpdated || 0,
-                    payload: data
-                };
-                
+                if (GOOGLE_SHEETS_URL.includes("BURAYA_KENDI_URLNIZI")) return true; 
+
+                const payloadWrapper = { baseTimestamp: data.lastUpdated || 0, payload: data };
                 try {
                     const response = await fetch(GOOGLE_SHEETS_URL, {
-                        method: 'POST',
-                        body: JSON.stringify(payloadWrapper),
-                        headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+                        method: 'POST', body: JSON.stringify(payloadWrapper), headers: { 'Content-Type': 'text/plain;charset=utf-8' }
                     });
                     const result = await response.json();
                     
                     if (result.status === "conflict") {
-                        console.warn("Zaman damgası çakışması! Veriler birleştiriliyor...");
+                        console.warn("Zaman damgası çakışması! Birleştiriliyor...");
                         showErrorBanner("Başka bir cihaz işlem yaptı. Veriler birleştirilip tekrar kaydediliyor...");
+                        document.getElementById('globalErrorBanner').classList.replace('bg-amber-500', 'bg-red-600');
                         appSettings = this.smartMerge(result.serverData, data);
                         await this.save(appSettings);
                         
-                        applySettingsToUI(); renderCartUI(); renderArchiveUI(); renderLedgerUI(); renderExpensesUI();
-                        dismissErrorBanner();
-                    } 
-                    else if (result.status === "success") {
-                        appSettings.lastUpdated = result.newTimestamp;
-                        lastCloudDataString = JSON.stringify(appSettings);
+                        applySettingsToUI(); renderCartUI(); renderArchiveUI(); renderLedgerUI(); renderExpensesUI(); dismissErrorBanner();
+                    } else if (result.status === "success") {
+                        appSettings.lastUpdated = result.newTimestamp; lastCloudDataString = JSON.stringify(appSettings);
                         localStorage.setItem(STORAGE_KEY, JSON.stringify(appSettings));
                     }
-                } catch(err) {
-                    console.error("Buluta gönderim hatası:", err);
+                } catch(err) { 
+                    console.error("Buluta gönderim hatası:", err); 
+                    logErrorToCloud("Sync Save Error", err.message || String(err));
                 }
                 return true;
             },
@@ -797,8 +803,7 @@
                     if (!merged[key]) merged[key] = [];
                     localData[key].forEach(localItem => {
                         const idx = merged[key].findIndex(serverItem => serverItem.id === localItem.id);
-                        if (idx > -1) { merged[key][idx] = localItem; } 
-                        else { merged[key].unshift(localItem); }
+                        if (idx > -1) { merged[key][idx] = localItem; } else { merged[key].unshift(localItem); }
                     });
                 };
                 mergeArrays('cart'); mergeArrays('orderArchive'); mergeArrays('customers'); mergeArrays('expenses');
@@ -809,12 +814,12 @@
 
         // --- ARKA PLAN (POLLING) ZAMANLAYICI ---
         function initBackgroundSync() {
+            if (GOOGLE_SHEETS_URL.includes("BURAYA_KENDI_URLNIZI")) return; 
             setInterval(async () => {
                 try {
                     const response = await fetch(GOOGLE_SHEETS_URL);
                     const dataText = await response.text();
-                    
-                    if (dataText === "{}" || dataText === lastCloudDataString) { return; }
+                    if (dataText === "{}" || dataText === lastCloudDataString) return; 
                     
                     lastCloudDataString = dataText;
                     const parsedData = JSON.parse(dataText);
@@ -837,32 +842,26 @@
 
         // --- 5. İLK YÜKLEME (DOM) ---
         let appSettings = StorageManager.load();
-        let currentRowId = 0;
-        let isProcessing = false;
-        let activeCustomerStatementId = null;
-        let currentLedgerSubCat = 'standard';
-        let editCustomerModeId = null;
-        let activeWaOrderId = null;
-        let activePostPrintOrder = null;
-        let formDraftTimer = null;
-        let rowCalcTimers = {};
+        let currentRowId = 0; let isProcessing = false; let activeCustomerStatementId = null; let currentLedgerSubCat = 'standard'; let editCustomerModeId = null; let activeWaOrderId = null; let activePostPrintOrder = null; let formDraftTimer = null; let rowCalcTimers = {};
 
         window.addEventListener('DOMContentLoaded', () => {
             updateClock(); setInterval(updateClock, 1000); 
             
             StorageManager.loadFromCloud(() => {
-                restoreFormDraft(); 
-                applySettingsToUI(); 
-                renderWhatsAppTemplatesUI(); 
-                renderProductRecipes(); 
-                renderCartUI(); 
-                renderArchiveUI(); 
-                renderLedgerUI(); 
-                calculateMaterialConsumption(); 
-                renderExpensesUI(); 
-                setupCustomerAutocomplete();
-                
+                restoreFormDraft(); applySettingsToUI(); renderWhatsAppTemplatesUI(); renderProductRecipes(); renderCartUI(); renderArchiveUI(); renderLedgerUI(); calculateMaterialConsumption(); renderExpensesUI(); setupCustomerAutocomplete();
                 initBackgroundSync();
+            });
+            
+            document.getElementById('btnPostPrintZebra').addEventListener('click', function() {
+                if(activePostPrintOrder) {
+                    printCartOrderZebraDirectById(activePostPrintOrder);
+                    registerAndRemoveFromCart(activePostPrintOrder);
+                }
+                document.getElementById('postPrintModal').classList.add('hidden');
+            });
+            document.getElementById('btnPostPrintDeleteOnly').addEventListener('click', function() {
+                if(activePostPrintOrder) { registerAndRemoveFromCart(activePostPrintOrder); }
+                document.getElementById('postPrintModal').classList.add('hidden');
             });
         });
 
@@ -1072,7 +1071,148 @@
             clearFormDraft(); document.getElementById('custName').value = ''; document.getElementById('custPhone').value = ''; document.getElementById('custAddress').value = ''; document.getElementById('salesTariff').value = ''; document.getElementById('extraLabor').value = '0'; document.getElementById('kdvStatus').value = 'haric'; document.getElementById('measureRowsContainer').innerHTML = ''; currentRowId = 0; addMeasureRow(); calculateGrandTotal();
         }
 
-        // --- 7. SEPET & TOPLU İŞLEMLER ---
+        // --- 7. YAZDIRMA (PRINT) MOTORLARI ---
+        function resetPrintContainers() {
+            document.getElementById('printContainerA4').innerHTML = '';
+            document.getElementById('printContainerZebra').innerHTML = '';
+            document.getElementById('printContainerA5Receipt').innerHTML = '';
+        }
+        function safePrintAction(type) {
+            const ord = getOrderData(); if (ord.items.length === 0) return alert("En az 1 ölçü satırı giriniz!");
+            resetPrintContainers();
+            if(type === 'a4') { renderA4Print([ord]); } else { renderZebraPrint([ord]); }
+            window.print();
+        }
+        function printCartOrderA4ThenZebraById(id) {
+            const o = (appSettings.cart || []).find(x => x.id === id); if(!o) return;
+            resetPrintContainers(); renderA4Print([o]); window.print();
+            activePostPrintOrder = id; document.getElementById('postPrintModal').classList.remove('hidden');
+        }
+        function printCartOrderZebraDirectById(id) {
+            const o = (appSettings.cart || []).find(x => x.id === id); if(!o) return;
+            resetPrintContainers(); renderZebraPrint([o]); window.print();
+        }
+        function printBulkA4(orders) { resetPrintContainers(); renderA4Print(orders); window.print(); }
+        function printBulkZebra(orders) { resetPrintContainers(); renderZebraPrint(orders); window.print(); }
+        function printCustomerStatementA4() {
+            const src = (appSettings.customers || []).find(x => x.id === activeCustomerStatementId); if (!src) return;
+            resetPrintContainers();
+            const { debit, credit, balance } = getCustomerLedgerTotals(src);
+            let html = `
+                <div class="a4-print-container">
+                    <div class="print-header text-center"><h2>Fix House Cari Hesap Ekstresi</h2><p>${src.name} - ${src.phone}</p><p>Yazdırma Tarihi: ${new Date().toLocaleDateString('tr-TR')}</p></div>
+                    <div style="display:flex; justify-content:space-between; margin-bottom:15px; font-weight:bold;"><span>Toplam Borç: ${debit.toFixed(2)} ₺</span><span>Toplam Tahsilat: ${credit.toFixed(2)} ₺</span><span>Kalan Bakiye: ${balance.toFixed(2)} ₺</span></div>
+                    <table class="print-table w-full">
+                        <thead><tr><th>Tarih</th><th>İşlem Türü</th><th>Açıklama</th><th>Borç (₺)</th><th>Tahsilat (₺)</th></tr></thead>
+                        <tbody>
+                            ${src.transactions.map(t => `<tr><td>${t.date}</td><td>${t.type}</td><td>${t.desc}</td><td>${t.debit > 0 ? t.debit.toFixed(2) : '-'}</td><td>${t.credit > 0 ? t.credit.toFixed(2) : '-'}</td></tr>`).join('')}
+                        </tbody>
+                    </table>
+                </div>`;
+            document.getElementById('printContainerA4').innerHTML = html; window.print();
+        }
+        function printReceiptDirect(custId, amount, type, desc) {
+            const c = (appSettings.customers || []).find(x => x.id === custId); if (!c) return;
+            resetPrintContainers();
+            let html = `
+                <div class="a5-receipt-container" style="border: 2px solid #ccc; padding: 20px; text-align: center;">
+                    <h2 style="margin: 0 0 10px 0; border-bottom: 2px solid #000; padding-bottom: 10px;">TAHSİLAT MAKBUZU</h2>
+                    <p style="text-align: left; margin-bottom: 5px;"><b>Tarih:</b> ${new Date().toLocaleDateString('tr-TR')}</p>
+                    <p style="text-align: left; margin-bottom: 5px;"><b>Müşteri:</b> ${c.name} (${c.phone})</p>
+                    <p style="text-align: left; margin-bottom: 5px;"><b>Tutar:</b> <span style="font-size: 1.2em; font-weight: bold;">${amount.toFixed(2)} ₺</span></p>
+                    <p style="text-align: left; margin-bottom: 5px;"><b>İşlem Türü:</b> ${type}</p>
+                    <p style="text-align: left; margin-bottom: 20px;"><b>Açıklama:</b> ${desc}</p>
+                    <div style="display:flex; justify-content:space-between; margin-top:40px;">
+                        <div style="text-align:center;"><b>Teslim Eden</b><br>Müşteri İmza</div>
+                        <div style="text-align:center;"><b>Teslim Alan</b><br>Fix House (Kadir Yıldırım)</div>
+                    </div>
+                </div>`;
+            document.getElementById('printContainerA5Receipt').innerHTML = html; window.print();
+        }
+        function renderA4Print(orders) {
+            let html = '';
+            orders.forEach(o => {
+                const fin = computeOrderFinancials(o);
+                html += `
+                <div class="a4-print-container" style="page-break-after: always; padding: 10px;">
+                    <div class="print-header" style="display: flex; justify-content: space-between; border-bottom: 2px solid #000; margin-bottom: 15px; padding-bottom: 5px;">
+                        <div><h2 style="margin:0; font-size: 18pt;">FİX HOUSE İMALAT</h2><p style="margin:2px 0; font-size:10pt;">Plise Perde & Sineklik Sistemleri</p></div>
+                        <div style="text-align: right;"><b style="font-size:12pt;">SİPARİŞ FORMU</b><p style="margin:2px 0;">No: ${o.id} | Tarih: ${o.date}</p></div>
+                    </div>
+                    <div style="margin-bottom: 15px; font-size:10pt;">
+                        <b>Müşteri:</b> ${o.customerName} &nbsp;|&nbsp; <b>Tel:</b> ${o.customerPhone}<br>
+                        <b>Adres:</b> ${o.customerAddress}
+                    </div>
+                    <table class="print-table w-full" style="width: 100%; border-collapse: collapse; font-size: 9pt;">
+                        <thead>
+                            <tr style="background:#eee;"><th>Sıra</th><th>Ürün (Renk)</th><th>En x Boy</th><th>Kesim Detayları (Taç / Dikme / Kanat / Tül)</th><th>Adet</th></tr>
+                        </thead>
+                        <tbody>
+                            ${o.items.map(it => `
+                            <tr>
+                                <td>${it.seq}</td><td>${it.pType} (${it.color})<br><small>${it.dir} ${it.tulType}</small></td>
+                                <td><b>${it.en} x ${it.boy}</b></td>
+                                <td>T:${it.tac} | D:${it.dikme} | K:${it.kanat} | Tül:${it.tul}</td>
+                                <td><b>${it.qty}</b></td>
+                            </tr>`).join('')}
+                        </tbody>
+                    </table>
+                    <div style="margin-top: 15px; border: 1px solid #ccc; padding: 10px; font-size: 10pt; text-align:right;">
+                        <p style="margin:2px;"><b>Liste Fiyatı:</b> ${fin.listPrice.toFixed(2)} ₺</p>
+                        ${fin.discRate > 0 ? `<p style="margin:2px;"><b>İskonto (%${fin.discRate}):</b> -${fin.discountAmt.toFixed(2)} ₺</p>` : ''}
+                        <p style="margin:2px;"><b>Net Tutar:</b> ${fin.netPayable.toFixed(2)} ₺</p>
+                        ${fin.depositAmt > 0 ? `<p style="margin:2px;"><b>Alınan Kapora:</b> -${fin.depositAmt.toFixed(2)} ₺</p>` : ''}
+                        <h3 style="margin:5px 0 0 0;">KALAN BAKİYE: ${fin.balanceDue.toFixed(2)} ₺</h3>
+                    </div>
+                </div>`;
+            });
+            document.getElementById('printContainerA4').innerHTML = html;
+        }
+        function renderZebraPrint(orders) {
+            let html = '';
+            orders.forEach(o => {
+                o.items.forEach(it => {
+                    for(let i=0; i<it.qty; i++) {
+                        html += `
+                        <div class="zebra-label">
+                            <div style="font-size: 10pt; font-weight:bold; border-bottom: 1px solid #000; padding-bottom: 2px; margin-bottom:3px; white-space:nowrap; overflow:hidden;">${o.customerName}</div>
+                            <div style="font-size: 14pt; font-weight:900; text-align:center; margin: 3px 0;">${it.en} x ${it.boy}</div>
+                            <div style="font-size: 9pt; display:flex; justify-content:space-between;"><span>${it.color}</span><span>${it.pType}</span></div>
+                            <div style="font-size: 7pt; text-align:center; margin-top:2px;">${o.id} - ${it.dir} ${it.tulType}</div>
+                        </div>`;
+                    }
+                });
+            });
+            document.getElementById('printContainerZebra').innerHTML = html;
+        }
+        function registerAndRemoveFromCart(orderId) {
+            const ord = (appSettings.cart || []).find(o => o.id === orderId); if(!ord) return;
+            registerOrderToCustomerLedger(ord);
+            appSettings.cart = (appSettings.cart || []).filter(o => o.id !== orderId);
+            StorageManager.save(appSettings); renderCartUI(); calculateMaterialConsumption();
+        }
+
+        // --- 8. EXCEL DIŞA AKTARMA (SHEETJS) ---
+        function exportLedgerExcel() {
+            if (typeof XLSX === 'undefined') return alert("Excel kütüphanesi yüklenemedi. Lütfen internet bağlantınızı kontrol edin.");
+            let dataArr = [["Kod", "Müşteri/Firma", "Telefon", "Adres", "Kategori", "Toplam Borç (₺)", "Toplam Tahsilat (₺)", "Kalan Bakiye (₺)", "Vade/Termin"]];
+            const q = (document.getElementById('ledgerSearchInput')?.value || '').toLowerCase();
+            const filtered = (appSettings.customers || []).filter(c => (c.category || 'standard') === currentLedgerSubCat && (c.name.toLowerCase().includes(q) || (c.phone || '').includes(q)));
+            filtered.forEach(c => {
+                const { debit, credit, balance } = getCustomerLedgerTotals(c);
+                dataArr.push([c.code, c.name, c.phone, c.address, c.category, debit, credit, balance, c.dueDate]);
+            });
+            let ws = XLSX.utils.aoa_to_sheet(dataArr); let wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Cari_Liste"); XLSX.writeFile(wb, "Cari_Hesaplar.xlsx");
+        }
+        function exportCustomerStatementExcel() {
+            if (typeof XLSX === 'undefined') return alert("Excel kütüphanesi yüklenemedi.");
+            const c = (appSettings.customers || []).find(x => x.id === activeCustomerStatementId); if (!c) return;
+            let dataArr = [["Tarih", "İşlem Türü", "Açıklama", "Borç (₺)", "Tahsilat (₺)"]];
+            (c.transactions || []).forEach(t => dataArr.push([t.date, t.type, t.desc, t.debit, t.credit]));
+            let ws = XLSX.utils.aoa_to_sheet(dataArr); let wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Musteri_Ekstresi"); XLSX.writeFile(wb, `${c.name.replace(/\s+/g, '_')}_Ekstre.xlsx`);
+        }
+
+        // --- 9. SEPET & TOPLU İŞLEMLER ---
         function addOrderToCartAction() {
             if (isProcessing) return; const ord = getOrderData(); if (ord.items.length === 0) { alert("En az 1 ölçü satırı giriniz!"); return; }
             try { isProcessing = true; if (!appSettings.cart) appSettings.cart = []; appSettings.cart.unshift(ord); StorageManager.save(appSettings); clearFormDraft(); renderCartUI(); alert(`Sipariş #${ord.id} sepete eklendi!`); switchTab('cart'); } finally { isProcessing = false; }
@@ -1181,7 +1321,7 @@
             document.getElementById('measureRowsContainer').innerHTML = ''; currentRowId = 0; if (o.items && o.items.length > 0) o.items.forEach(it => addMeasureRow(it)); else addMeasureRow(); calculateGrandTotal(); saveFormDraft(); switchTab('order');
         }
 
-        // --- 8. ARŞİV ---
+        // --- 10. ARŞİV (GEÇMİŞ) ---
         function renderArchiveUI() {
             const cnt = document.getElementById('archiveListContainer'); if(!cnt) return;
             const q = (document.getElementById('archiveSearchInput').value || '').toLowerCase();
@@ -1223,7 +1363,7 @@
             }
         }
 
-        // --- 9. CARİ HESAPLAR ---
+        // --- 11. CARİ HESAPLAR VE FİNANS ---
         function findOrCreateCustomer(name, phone, address = '', category = 'standard') {
             if (!appSettings.customers) appSettings.customers = []; const cleanPhone = (phone || '').replace(/\D/g, ''); const trimmedName = (name || '').trim().toLowerCase();
             let cust = appSettings.customers.find(c => { const cClean = (c.phone || '').replace(/\D/g, ''); return (cleanPhone && cClean && cleanPhone === cClean) || (c.name.trim().toLowerCase() === trimmedName); });
@@ -1382,7 +1522,7 @@
             if (!src || !tgt) return; if (confirm(`Hesaplar birleşecek?`)) { (src.transactions || []).forEach(t => { tgt.transactions.push({ ...t, desc: `[Devir: ${src.name}] ` + t.desc }); }); appSettings.customers = appSettings.customers.filter(c => c.id !== src.id); StorageManager.save(appSettings); closeMergeModal(); closeCustomerLedgerModal(); renderLedgerUI(); }
         }
 
-        // --- 10. TÜKETİM VE GİDER (MASRAF) ---
+        // --- 12. TÜKETİM VE GİDER TAKİBİ ---
         function calculateMaterialConsumption() {
             const tbody = document.getElementById('consumptionTableBody'); if (!tbody) return;
             let allItems = [];
@@ -1485,9 +1625,12 @@
             document.body.appendChild(link); link.click(); document.body.removeChild(link);
         }
 
-        // --- 11. AYARLAR, JSON VE MASTER İŞLEMLER ---
+        // --- 13. AYARLAR, PARAMETRELER VE WHATSAPP ŞABLONLARI ---
         function applySettingsToUI() {
-            document.getElementById('settingMontajPrice').value = appSettings.montajPrice; document.getElementById('settingPerakendePrice').value = appSettings.perakendePrice; document.getElementById('settingKdvRate').value = appSettings.kdvRate; document.getElementById('settingMinM2').value = appSettings.minM2;
+            document.getElementById('settingMontajPrice').value = appSettings.montajPrice; 
+            document.getElementById('settingPerakendePrice').value = appSettings.perakendePrice; 
+            document.getElementById('settingKdvRate').value = appSettings.kdvRate; 
+            document.getElementById('settingMinM2').value = appSettings.minM2;
             const c = appSettings.cutDeductions || DEFAULT_SETTINGS.cutDeductions;
             document.getElementById('cut_plise_dis_tac').value = c.plise?.dis?.tac ?? 8.0; document.getElementById('cut_plise_dis_dikme').value = c.plise?.dis?.dikme ?? 4.0; document.getElementById('cut_plise_dis_kanat').value = c.plise?.dis?.kanat ?? 8.5; document.getElementById('cut_plise_dis_tul').value = c.plise?.dis?.tul ?? 4.5;
             document.getElementById('cut_plise_ic_tac').value = c.plise?.ic?.tac ?? 0.0; document.getElementById('cut_plise_ic_dikme').value = c.plise?.ic?.dikme ?? 4.0; document.getElementById('cut_plise_ic_kanat').value = c.plise?.ic?.kanat ?? 0.5; document.getElementById('cut_plise_ic_tul').value = c.plise?.ic?.tul ?? 3.5;
@@ -1519,6 +1662,7 @@
         function deleteGroupAccessory(g, a) { appSettings.productGroups[g].accessories.splice(a, 1); StorageManager.save(appSettings); renderProductRecipes(); calculateAllRows(); calculateMaterialConsumption(); }
         function saveProductRecipesManual() { document.querySelectorAll('.recipe-cost-input').forEach(inp => { const gIdx = parseInt(inp.getAttribute('data-gidx')), aIdx = parseInt(inp.getAttribute('data-aidx')); if (appSettings.productGroups[gIdx] && appSettings.productGroups[gIdx].accessories[aIdx]) appSettings.productGroups[gIdx].accessories[aIdx].cost = parseFloat(inp.value) || 0; }); StorageManager.save(appSettings); calculateAllRows(); calculateMaterialConsumption(); alert("Reçeteler kaydedildi!"); }
         function resetRecipesToDefaultPrompt() { if (confirm("Reçeteler sıfırlansın mı?")) { appSettings.productGroups = JSON.parse(JSON.stringify(DEFAULT_SETTINGS.productGroups)); StorageManager.save(appSettings); renderProductRecipes(); calculateAllRows(); } }
+        
         function savePricingParamsOnly() { appSettings.montajPrice = parseFloat(document.getElementById('settingMontajPrice').value) || 0; appSettings.perakendePrice = parseFloat(document.getElementById('settingPerakendePrice').value) || 0; appSettings.kdvRate = parseFloat(document.getElementById('settingKdvRate').value) || 0; appSettings.minM2 = parseFloat(document.getElementById('settingMinM2').value) || 0; StorageManager.save(appSettings); calculateAllRows(); calculateMaterialConsumption(); alert("Fiyatlar kaydedildi!"); }
         function saveCuttingParamsOnly() {
             appSettings.cutDeductions = {
@@ -1527,76 +1671,18 @@
             };
             StorageManager.save(appSettings); calculateAllRows(); calculateMaterialConsumption(); alert("Kesim payları kaydedildi!");
         }
-        async function saveAllSettingsMaster() { savePricingParamsOnly(); saveCuttingParamsOnly(); saveWhatsAppTemplates(); saveProductRecipesManual(); }
+        async function saveAllSettingsMaster() { savePricingParamsOnly(); saveCuttingParamsOnly(); saveWhatsAppTemplates(); saveProductRecipesManual(); alert("Tüm ayarlar kaydedildi."); }
         function emergencyRestoreSettings() {
             appSettings.productGroups = JSON.parse(JSON.stringify(DEFAULT_SETTINGS.productGroups)); appSettings.whatsappTemplates = JSON.parse(JSON.stringify(DEFAULT_WHATSAPP_TEMPLATES)); appSettings.cutDeductions = JSON.parse(JSON.stringify(DEFAULT_SETTINGS.cutDeductions));
             StorageManager.save(appSettings); applySettingsToUI(); renderWhatsAppTemplatesUI(); renderProductRecipes(); calculateAllRows(); calculateMaterialConsumption(); alert("Ayarlar onarıldı!");
         }
         
-        function exportSettingsBackup() { const blob = new Blob([JSON.stringify(appSettings, null, 2)], { type: "application/json;charset=utf-8" }); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `FixHouse_Yedek_${new Date().toISOString().slice(0, 10)}.json`; a.click(); }
-        async function shareSettingsBackup() {
-            const dataStr = JSON.stringify(appSettings, null, 2); const fileName = `FixHouse_ERP_Yedek_${new Date().toISOString().slice(0, 10)}.json`;
-            const file = new File([dataStr], fileName, { type: 'application/json' });
-            if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-                try { await navigator.share({ files: [file], title: 'Fix House Sistem Yedeği', text: 'Fix House ERP güncel veri yedeği dosyasıdır. (Yeni bir cihazda "İçe Aktar" butonu ile yükleyebilirsiniz.)' }); } catch (err) {}
-            } else { alert("Cihazınız doğrudan dosya paylaşımını desteklemiyor. İndirip kendinize gönderebilirsiniz."); }
-        }
-        function importSettingsBackup(e) {
-            const file = e.target.files[0]; if (!file) return; const r = new FileReader();
-            r.onload = (ev) => {
-                try { const parsed = JSON.parse(ev.target.result); if (parsed) { appSettings = StorageManager.migrateAndHeal(parsed); applySettingsToUI(); renderWhatsAppTemplatesUI(); renderProductRecipes(); calculateAllRows(); renderCartUI(); renderLedgerUI(); calculateMaterialConsumption(); alert("Veriler yüklendi!"); StorageManager.save(appSettings); } } catch (err) { alert("Hata: " + err.message); }
-            }; r.readAsText(file);
-        }
-
-        // --- ZAMAN MAKİNESİ (YEDEK) ---
-        function createAutoBackup(currentData) {
-            try {
-                let backups = JSON.parse(localStorage.getItem(AUTO_BACKUP_KEY)) || [];
-                const dataStr = JSON.stringify(currentData);
-                if (backups.length > 0 && backups[0].dataStr === dataStr) return;
-                backups.unshift({ timestamp: new Date().toLocaleString('tr-TR'), dataStr: dataStr, summary: `Yedekleme Noktası` });
-                if (backups.length > MAX_BACKUPS) backups = backups.slice(0, MAX_BACKUPS);
-                localStorage.setItem(AUTO_BACKUP_KEY, JSON.stringify(backups));
-            } catch(e) {}
-        }
-        function openAutoBackupModal() {
-            const tbody = document.getElementById('autoBackupTableBody'); if(!tbody) return;
-            tbody.innerHTML = ''; const backups = JSON.parse(localStorage.getItem(AUTO_BACKUP_KEY)) || [];
-            if (backups.length === 0) { tbody.innerHTML = `<tr><td colspan="3" class="text-center py-6 text-slate-400">Yedek bulunmuyor.</td></tr>`; } 
-            else {
-                backups.forEach((b, idx) => {
-                    tbody.innerHTML += `
-                        <tr class="border-b hover:bg-slate-50 transition">
-                            <td class="p-3 font-bold text-slate-700">${b.timestamp} ${idx === 0 ? '<span class="ml-1 text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded font-black">En Güncel</span>' : ''}</td>
-                            <td class="p-3 text-center text-slate-500 font-medium">${b.summary}</td>
-                            <td class="p-3 text-right"><button onclick="restoreAutoBackup(${idx})" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded text-[11px] font-bold shadow transition">Geri Dön</button></td>
-                        </tr>
-                    `;
-                });
-            }
-            document.getElementById('autoBackupModal').classList.remove('hidden');
-        }
-        function closeAutoBackupModal() { document.getElementById('autoBackupModal').classList.add('hidden'); }
-        async function restoreAutoBackup(index) {
-            const backups = JSON.parse(localStorage.getItem(AUTO_BACKUP_KEY)) || []; if (!backups[index]) return;
-            if (confirm(`Sistemi ${backups[index].timestamp} yedeğine döndürmek istiyor musunuz?`)) {
-                appSettings = JSON.parse(backups[index].dataStr); StorageManager.save(appSettings); closeAutoBackupModal();
-                applySettingsToUI(); renderWhatsAppTemplatesUI(); renderProductRecipes(); renderCartUI(); renderLedgerUI(); calculateMaterialConsumption(); alert(`Sistem başarıyla kurtarıldı!`);
-            }
-        }
-        function masterReset() {
-            if (confirm("DİKKAT! Tüm ayarlar, sepet ve cari hesaplar tamamen sıfırlanacaktır. Emin misiniz?")) {
-                const check = prompt("Onaylamak için büyük harflerle SIFIRLA yazınız:");
-                if (check === "SIFIRLA") { localStorage.clear(); location.reload(); }
-            }
-        }
         function changeAppPassword() {
             const input = document.getElementById('settingNewPin'); if (!input) return; const newPin = input.value.trim();
             if (newPin.length < 4) return alert("Şifre en az 4 karakterden oluşmalıdır!");
             localStorage.setItem(PIN_STORAGE_KEY, newPin); appSettings.appPin = newPin; StorageManager.save(appSettings); input.value = ''; alert(`Sistem şifresi "${newPin}" olarak güncellendi!`);
         }
 
-        // --- WHATSAPP ŞABLONLARI ---
         function renderWhatsAppTemplatesUI() {
             const cnt = document.getElementById('waTemplatesContainer'); if (!cnt) return;
             cnt.innerHTML = (appSettings.whatsappTemplates || []).map((tpl, i) => `
@@ -1612,43 +1698,40 @@
         function deleteWhatsAppTemplate(idx) { if (confirm("Silinsin mi?")) { appSettings.whatsappTemplates.splice(idx, 1); renderWhatsAppTemplatesUI(); } }
         function saveWhatsAppTemplates() { StorageManager.save(appSettings); alert("WhatsApp şablonları kaydedildi."); }
 
-        function openWaSendModal(orderId) {
-            activeWaOrderId = orderId;
-            document.getElementById('waSendButtonsContainer').innerHTML = (appSettings.whatsappTemplates || []).map(tpl => `
-                <button onclick="executeWaSend('${tpl.id}')" class="w-full text-left bg-slate-50 hover:bg-emerald-50 border border-slate-200 hover:border-emerald-300 p-3 rounded-lg transition">
-                    <div class="font-bold text-slate-800">${escapeHTML(tpl.title)}</div><div class="text-[10px] text-slate-500 truncate mt-1">${escapeHTML(tpl.text)}</div>
-                </button>`).join('');
-            document.getElementById('waSendModal').classList.remove('hidden');
+        // --- 14. JSON İÇE AKTARMA VE ZAMAN MAKİNESİ ---
+        function importSettingsBackup(e) {
+            const file = e.target.files[0]; 
+            if (!file) return; 
+            const r = new FileReader();
+            
+            r.onload = async (ev) => {
+                try { 
+                    const parsed = JSON.parse(ev.target.result); 
+                    if (parsed) { 
+                        appSettings = StorageManager.migrateAndHeal(parsed); 
+                        applySettingsToUI(); renderWhatsAppTemplatesUI(); renderProductRecipes(); calculateAllRows(); renderCartUI(); renderArchiveUI(); renderLedgerUI(); renderExpensesUI(); calculateMaterialConsumption(); 
+                        alert("Veriler başarıyla yüklendi!"); 
+                        await StorageManager.save(appSettings); 
+                    } 
+                } catch (err) { 
+                    alert("Yükleme Hatası: Geçersiz veya bozuk JSON dosyası. Detay: " + err.message); 
+                }
+                e.target.value = ''; 
+            }; 
+            r.readAsText(file);
         }
-        function closeWaSendModal() { document.getElementById('waSendModal').classList.add('hidden'); activeWaOrderId = null; }
-        function executeWaSend(templateId) {
-            const o = (appSettings.cart || []).find(x => x.id === activeWaOrderId); const tpl = (appSettings.whatsappTemplates || []).find(x => x.id === templateId);
-            if (!o || !tpl) return; const fin = computeOrderFinancials(o);
-            let phone = (o.customerPhone || '').replace(/\D/g, '');
-            if (phone.startsWith('0')) phone = '9' + phone; if (phone.length === 10) phone = '90' + phone;
-            let pLines = o.items.map(i => `• ${i.seq}) ${i.pType.toUpperCase()} (${i.color}) - ${i.en}x${i.boy} cm [${i.qty} Adet]`).join('\n');
-            let msg = tpl.text.replace(/{MUSTERI}/g, o.customerName || 'Müşterimiz');
-            msg += `\n\n*Sipariş No:* #${o.id}\n*Tarih:* ${o.date}\n\n*Ürün Detayları:*\n${pLines}\n------------------------------\n*Liste Tutarı:* ${fin.listPrice.toFixed(2)} TL`;
-            if (fin.discRate > 0) msg += `\n*İskonto:* %${fin.discRate} (-${fin.discountAmt.toFixed(2)} TL)`;
-            if (fin.depositAmt > 0) msg += `\n*Alınan Kapora:* ${fin.depositAmt.toFixed(2)} TL`;
-            msg += `\n*Kalan Bakiye:* *${fin.balanceDue.toFixed(2)} TL*\n------------------------------\nİletişim: 0533 443 32 23`;
-            window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank'); closeWaSendModal();
-        }
-        function executeBulkWaSend(templateId) {
-            const ids = activeWaOrderId.replace("BULK_", "").split(','); const tpl = (appSettings.whatsappTemplates || []).find(x => x.id === templateId); if (!tpl) return;
-            ids.forEach((id, index) => {
-                const o = (appSettings.cart || []).find(x => x.id === id); if(!o) return;
-                const fin = computeOrderFinancials(o);
-                let phone = (o.customerPhone || '').replace(/\D/g, ''); if (phone.startsWith('0')) phone = '9' + phone; if (phone.length === 10) phone = '90' + phone;
-                let pLines = o.items.map(i => `• ${i.seq}) ${i.pType.toUpperCase()} (${i.color}) - ${i.en}x${i.boy} cm [${i.qty} Adet]`).join('\n');
-                let msg = tpl.text.replace(/{MUSTERI}/g, o.customerName || 'Müşterimiz');
-                msg += `\n\n*Sipariş No:* #${o.id}\n*Tarih:* ${o.date}\n\n*Ürün Detayları:*\n${pLines}\n------------------------------\n*Liste Tutarı:* ${fin.listPrice.toFixed(2)} TL`;
-                if (fin.discRate > 0) msg += `\n*İskonto:* %${fin.discRate} (-${fin.discountAmt.toFixed(2)} TL)`;
-                if (fin.depositAmt > 0) msg += `\n*Alınan Kapora:* ${fin.depositAmt.toFixed(2)} TL`;
-                msg += `\n*Kalan Bakiye:* *${fin.balanceDue.toFixed(2)} TL*\n------------------------------\nİletişim: 0533 443 32 23`;
-                setTimeout(() => { window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank'); }, index * 800);
-            });
-            closeWaSendModal(); toggleAllCartItems(false);
+
+        async function restoreAutoBackup(index) {
+            const backups = JSON.parse(localStorage.getItem(AUTO_BACKUP_KEY)) || []; 
+            if (!backups[index]) return;
+            
+            if (confirm(`Sistemi ${backups[index].timestamp} yedeğine döndürmek istiyor musunuz?`)) {
+                appSettings = StorageManager.migrateAndHeal(JSON.parse(backups[index].dataStr)); 
+                closeAutoBackupModal();
+                applySettingsToUI(); renderWhatsAppTemplatesUI(); renderProductRecipes(); calculateAllRows(); renderCartUI(); renderArchiveUI(); renderLedgerUI(); renderExpensesUI(); calculateMaterialConsumption(); 
+                alert(`Sistem başarıyla kurtarıldı!`);
+                await StorageManager.save(appSettings); 
+            }
         }
     </script>
 </body>
