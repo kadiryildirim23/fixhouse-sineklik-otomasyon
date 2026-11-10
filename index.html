@@ -23,6 +23,10 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
+    <!-- FIREBASE SDK (Uyumluluk Sürümü - CDN) -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
     <script>
         if (window.tailwind) {
             tailwind.config = {
@@ -154,8 +158,13 @@
                 <div class="text-xs md:text-sm font-black text-petrol-900 flex items-center gap-2 uppercase tracking-wide">
                     <i class="fa-solid fa-industry text-petrol-500"></i> Fix House İmalat & Finansal Konsol
                 </div>
-                <div class="flex items-center space-x-3">
-                    <span class="text-[11px] font-bold bg-slate-50 text-slate-600 px-3 py-1.5 rounded border border-slate-200 flex items-center gap-2">
+                <div class="flex items-center space-x-2 md:space-x-3">
+                    <!-- BULUT BAĞLANTI DURUM GÖSTERGESİ -->
+                    <span id="cloudStatusBadge" class="text-[11px] font-bold bg-slate-50 text-slate-600 px-3 py-1.5 rounded border border-slate-200 flex items-center gap-1.5 cursor-pointer hover:bg-slate-100 transition" onclick="switchTab('settings'); setTimeout(openCloudConfigModal, 300);" title="Firebase Bulut Bağlantısı">
+                        <span id="syncDot" class="w-2 h-2 rounded-full bg-slate-400 inline-block"></span>
+                        <span id="syncText" class="hidden md:inline">Yerel Mod</span>
+                    </span>
+                    <span class="text-[11px] font-bold bg-slate-50 text-slate-600 px-3 py-1.5 rounded border border-slate-200 flex items-center gap-2 hidden md:flex">
                         <i class="fa-regular fa-clock text-petrol-500"></i> <span id="clock">--.--.---- --:--:--</span>
                     </span>
                 </div>
@@ -170,7 +179,6 @@
                             <i class="fa-solid fa-user-tag text-petrol-500"></i> MÜŞTERİ BİLGİLERİ <span class="text-[10px] text-red-500 font-bold ml-auto bg-red-50 px-2 py-1 rounded">* Zorunlu Alanlar</span>
                         </h2>
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-3 relative">
-                            <!-- Otomatik Tamamlama için relative class eklendi, autocapitalize ve autocomplete güncellendi -->
                             <div><input type="text" id="custName" autocapitalize="words" autocomplete="name" oninput="debouncedSaveFormDraft()" class="w-full px-3 py-2 border border-slate-300 rounded bg-slate-50 focus:bg-white focus:border-petrol-500 focus:ring-1 focus:ring-petrol-500 font-semibold placeholder-slate-400 transition outline-none" placeholder="Müşteri Adı Soyadı *"></div>
                             <div><input type="tel" id="custPhone" autocomplete="tel" oninput="debouncedSaveFormDraft()" class="w-full px-3 py-2 border border-slate-300 rounded bg-slate-50 focus:bg-white focus:border-petrol-500 focus:ring-1 focus:ring-petrol-500 font-semibold placeholder-slate-400 transition outline-none" placeholder="Telefon Numarası *"></div>
                             <div><input type="text" id="custAddress" autocapitalize="sentences" oninput="debouncedSaveFormDraft()" class="w-full px-3 py-2 border border-slate-300 rounded bg-slate-50 focus:bg-white focus:border-petrol-500 focus:ring-1 focus:ring-petrol-500 font-semibold placeholder-slate-400 transition outline-none" placeholder="Teslimat / Montaj Adresi"></div>
@@ -530,8 +538,12 @@
                         <div class="absolute -right-10 -bottom-10 text-petrol-800 opacity-20"><i class="fa-solid fa-database text-9xl"></i></div>
                         <h2 class="text-sm font-extrabold text-white border-b border-petrol-800 pb-3 mb-4 flex items-center gap-2 relative z-10"><i class="fa-solid fa-shield-halved text-petrol-400"></i> VERİ YÖNETİMİ & FELAKET KURTARMA</h2>
                         <div class="flex flex-wrap gap-2.5 relative z-10">
+                            <!-- YENİ EKLENEN BULUT BAĞLANTISI (FIREBASE) BUTONU -->
+                            <button onclick="openCloudConfigModal()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-[11px] px-4 py-2.5 rounded-lg font-bold transition shadow flex items-center gap-1.5 border border-indigo-500">
+                                <i class="fa-solid fa-cloud"></i> Bulut Bağlantısı (Firebase)
+                            </button>
+                            
                             <button onclick="exportSettingsBackup()" class="bg-petrol-800 hover:bg-petrol-700 text-white border border-petrol-700 text-[11px] px-4 py-2.5 rounded-lg font-bold transition shadow flex items-center gap-1.5"><i class="fa-solid fa-download text-petrol-300"></i> İndir (JSON)</button>
-                            <!-- YENİ PAYLAŞ BUTONU -->
                             <button onclick="shareSettingsBackup()" class="bg-emerald-600 hover:bg-emerald-500 text-white border border-emerald-500 text-[11px] px-4 py-2.5 rounded-lg font-bold transition shadow flex items-center gap-1.5"><i class="fa-solid fa-share-nodes text-emerald-200"></i> Yedeği Paylaş / Gönder</button>
                             <label class="bg-petrol-800 hover:bg-petrol-700 text-white border border-petrol-700 text-[11px] px-4 py-2.5 rounded-lg font-bold transition shadow flex items-center gap-1.5 cursor-pointer"><i class="fa-solid fa-upload text-petrol-300"></i> İçe Aktar<input type="file" onchange="importSettingsBackup(event)" class="hidden" accept=".json"></label>
                             <button onclick="openAutoBackupModal()" class="bg-blue-600 hover:bg-blue-500 text-white text-[11px] px-4 py-2.5 rounded-lg font-bold transition shadow flex items-center gap-1.5 border border-blue-500"><i class="fa-solid fa-clock-rotate-left text-blue-200"></i> Zaman Makinesi</button>
@@ -562,6 +574,28 @@
             <i class="fa-solid fa-gears"></i><span>Ayar</span>
         </button>
     </nav>
+
+    <!-- BULUT BAĞLANTI AYARLARI MODALI -->
+    <div id="cloudConfigModal" class="fixed inset-0 bg-petrol-950/80 backdrop-blur-sm z-[150] flex items-center justify-center hidden px-3 no-print">
+        <div class="bg-white rounded-2xl w-full max-w-md shadow-2xl p-6 space-y-4">
+            <div class="flex justify-between items-center border-b pb-3">
+                <h3 class="font-black text-petrol-950 text-base flex items-center gap-2"><i class="fa-solid fa-cloud text-petrol-600"></i> Firebase Bulut Bağlantısı</h3>
+                <button onclick="closeCloudConfigModal()" class="text-slate-400 hover:text-slate-800"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <div class="text-xs text-slate-600 bg-petrol-50 p-3 rounded-xl border border-petrol-100">
+                Tüm cihazlarınızın (telefon, tablet, PC) eşzamanlı çalışması için Firebase Realtime Database bilgilerinizi girin.
+            </div>
+            <div class="space-y-3">
+                <div><label class="block text-[11px] font-bold text-slate-500 mb-1">Database URL *</label><input type="text" id="firebaseDbUrlInput" placeholder="https://proje-adi-default-rtdb.firebaseio.com" class="w-full border rounded-lg px-3 py-2 text-xs font-mono"></div>
+                <div><label class="block text-[11px] font-bold text-slate-500 mb-1">API Key</label><input type="text" id="firebaseApiKeyInput" placeholder="AIzaSy..." class="w-full border rounded-lg px-3 py-2 text-xs font-mono"></div>
+                <div><label class="block text-[11px] font-bold text-slate-500 mb-1">Project ID</label><input type="text" id="firebaseProjectIdInput" placeholder="proje-adi" class="w-full border rounded-lg px-3 py-2 text-xs font-mono"></div>
+            </div>
+            <div class="flex justify-end gap-2 pt-3 border-t">
+                <button onclick="closeCloudConfigModal()" class="px-4 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-700">İptal</button>
+                <button onclick="saveAndConnectCloud()" class="px-5 py-2 rounded-xl text-xs font-bold bg-petrol-800 hover:bg-petrol-900 text-white shadow">Bağlan & Eşitle</button>
+            </div>
+        </div>
+    </div>
 
     <!-- WHATSAPP GÖNDERİM MODALI -->
     <div id="waSendModal" class="fixed inset-0 bg-petrol-950/80 backdrop-blur-sm z-[90] flex items-center justify-center hidden px-3 no-print">
@@ -703,7 +737,7 @@
         </div>
     </div>
 
-    <!-- YAZDIRMA SONRASI ONAY MODALI (A4 -> ZEBRA GEÇİŞİ İÇİN) -->
+    <!-- YAZDIRMA SONRASI ONAY MODALI -->
     <div id="postPrintModal" class="fixed inset-0 bg-petrol-950/90 backdrop-blur-sm z-[120] flex items-center justify-center hidden px-3 no-print">
         <div class="bg-white rounded-2xl w-full max-w-sm shadow-2xl p-6 text-center space-y-4">
             <div class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-2 shadow-inner"><i class="fa-solid fa-print text-3xl"></i></div>
@@ -757,14 +791,25 @@
             return str.replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m]));
         }
 
+        function parseTurkishDate(dateStr) {
+            if (!dateStr) return null;
+            if (dateStr.includes('.')) {
+                const parts = dateStr.split('.');
+                if (parts.length === 3) return new Date(`${parts[2]}-${parts[1]}-${parts[0]}`);
+            }
+            const d = new Date(dateStr);
+            return isNaN(d.getTime()) ? null : d;
+        }
+
         // ==========================================
-        // SELF-HEALING STORAGE & KOTA KORUMA MOTORU
+        // STORAGE & FIREBASE BULUT EŞİTLEME MOTORU
         // ==========================================
         const STORAGE_KEY = "fix_house_erp_master_storage";
-        const SCHEMA_VERSION = 15;
+        const SCHEMA_VERSION = 16;
         const PIN_STORAGE_KEY = "fix_house_erp_pin_code";
         const AUTO_BACKUP_KEY = "fix_house_23_auto_backups_erp_petrol";
         const DRAFT_STORAGE_KEY = "fix_house_active_form_draft";
+        const CLOUD_CONFIG_KEY = "fix_house_firebase_cloud_config";
         const MAX_BACKUPS = 3;
 
         const DEFAULT_WHATSAPP_TEMPLATES = [
@@ -815,20 +860,79 @@
             customers: []
         };
 
-        const StorageManager = {
-            selfHealStorage() {
-                try {
-                    const legacyKeys = ["fix_house_measure_settings_v12_profit_reports", "fix_house_measure_settings_v11_restored_full", "fix_house_measure_settings_v10_restored_params", "fix_house_measure_settings_v9_consumption_bulk", "fix_house_measure_settings_v8_receipt_excel", "fix_house_23_erp_v1_petrol"];
-                    legacyKeys.forEach(k => localStorage.removeItem(k));
-                    let backups = JSON.parse(localStorage.getItem(AUTO_BACKUP_KEY)) || [];
-                    if (backups.length > MAX_BACKUPS) {
-                        backups = backups.slice(0, MAX_BACKUPS);
-                        localStorage.setItem(AUTO_BACKUP_KEY, JSON.stringify(backups));
+        let dbRef = null;
+        let isCloudSynced = false;
+        let isSavingToCloud = false;
+
+        function initCloudSync() {
+            const configRaw = localStorage.getItem(CLOUD_CONFIG_KEY);
+            const dot = document.getElementById('syncDot');
+            const txt = document.getElementById('syncText');
+            if (!configRaw) {
+                if(dot) { dot.className = "w-2 h-2 rounded-full bg-slate-400 inline-block"; }
+                if(txt) { txt.innerText = "Yerel Mod"; }
+                return;
+            }
+            try {
+                const cfg = JSON.parse(configRaw);
+                if (!firebase.apps.length) {
+                    firebase.initializeApp(cfg);
+                }
+                dbRef = firebase.database().ref('fixhouse_erp_data');
+                
+                if(dot) dot.className = "w-2 h-2 rounded-full bg-amber-400 inline-block animate-pulse";
+                if(txt) txt.innerText = "Bağlanıyor...";
+
+                dbRef.on('value', (snapshot) => {
+                    // Kullanıcı o an kayıt yapıyorsa, Firebase'den gelen aynı verinin ekranı sıfırlamasını (sonsuz döngüyü) engelle
+                    if (isSavingToCloud) return; 
+                    
+                    const cloudData = snapshot.val();
+                    if (cloudData) {
+                        isCloudSynced = true;
+                        appSettings = StorageManager.migrateAndHeal(cloudData);
+                        localStorage.setItem(STORAGE_KEY, JSON.stringify(appSettings));
+                        refreshAllUI();
+                        if(dot) dot.className = "w-2 h-2 rounded-full bg-emerald-500 inline-block";
+                        if(txt) txt.innerText = "Bulut Aktif";
+                    } else {
+                        // Eğer bulut veritabanı tamamen boşsa, yerel veriyi buluta gönder.
+                        isSavingToCloud = true;
+                        dbRef.set(appSettings).then(() => { isSavingToCloud = false; }).catch(() => { isSavingToCloud = false; });
                     }
-                } catch(e) {}
-            },
+                }, (error) => {
+                    if(dot) dot.className = "w-2 h-2 rounded-full bg-red-500 inline-block";
+                    if(txt) txt.innerText = "Bağlantı Hatası";
+                });
+            } catch(e) {
+                console.error("Cloud init error:", e);
+                if(dot) dot.className = "w-2 h-2 rounded-full bg-red-500 inline-block";
+                if(txt) txt.innerText = "Ayar Hatası";
+            }
+        }
+
+        function openCloudConfigModal() {
+            const cfg = JSON.parse(localStorage.getItem(CLOUD_CONFIG_KEY) || '{}');
+            document.getElementById('firebaseDbUrlInput').value = cfg.databaseURL || '';
+            document.getElementById('firebaseApiKeyInput').value = cfg.apiKey || '';
+            document.getElementById('firebaseProjectIdInput').value = cfg.projectId || '';
+            document.getElementById('cloudConfigModal').classList.remove('hidden');
+        }
+        function closeCloudConfigModal() { document.getElementById('cloudConfigModal').classList.add('hidden'); }
+        function saveAndConnectCloud() {
+            const cfg = {
+                databaseURL: document.getElementById('firebaseDbUrlInput').value.trim(),
+                apiKey: document.getElementById('firebaseApiKeyInput').value.trim(),
+                projectId: document.getElementById('firebaseProjectIdInput').value.trim()
+            };
+            if(!cfg.databaseURL) { alert("Lütfen Database URL giriniz."); return; }
+            localStorage.setItem(CLOUD_CONFIG_KEY, JSON.stringify(cfg));
+            closeCloudConfigModal();
+            location.reload();
+        }
+
+        const StorageManager = {
             load() {
-                this.selfHealStorage();
                 try {
                     let parsed = null;
                     const raw = localStorage.getItem(STORAGE_KEY);
@@ -863,19 +967,24 @@
                 if (Array.isArray(data.customers)) m.customers = data.customers.map(c => ({ ...c, category: c.category || 'standard' }));
 
                 m.schemaVersion = SCHEMA_VERSION;
-                this.save(m);
                 return m;
             },
             save(data) {
                 try {
                     createAutoBackup(data);
                     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+                    
+                    if (dbRef) {
+                        isSavingToCloud = true;
+                        dbRef.set(data).then(() => {
+                            isSavingToCloud = false;
+                        }).catch(err => {
+                            console.error("Cloud push error:", err);
+                            isSavingToCloud = false;
+                        });
+                    }
                     return true;
                 } catch (e) {
-                    if (e.name === 'QuotaExceededError' || e.code === 22) {
-                        localStorage.removeItem(AUTO_BACKUP_KEY);
-                        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); return true; } catch(retryErr) { return false; }
-                    }
                     return false;
                 }
             }
@@ -889,14 +998,12 @@
         let editCustomerModeId = null;
         let activeWaOrderId = null;
 
-        // --- FİNANSAL YUVARLAMA (KURUŞ SEKMESİ ÖNLEYİCİ) ---
         function roundMoney(value) {
             const num = parseFloat(value);
             if (isNaN(num)) return 0;
             return Math.round((num + Number.EPSILON) * 100) / 100;
         }
 
-        // --- DEBOUNCE (SIÇRAMA ÖNLEME) YÖNETİMİ ---
         let formDraftTimer = null;
         let rowCalcTimers = {};
 
@@ -913,7 +1020,6 @@
             formDraftTimer = setTimeout(() => { calculateAllRows(); saveFormDraft(); }, 300);
         }
 
-        // --- PURE HESAPLAMA MOTORU (DOM BAĞIMSIZ) ---
         function computeRowFinancials(data, settings) {
             let tac = "-", dikme = "-", kanat = "-", tul = "-", ip = "-", m2 = 0, price = 0;
             const { pT, mT, en, boy, qty, dir, menteseliTip, tulType, magnetType, caseType, customAccessories, tariff } = data;
@@ -964,10 +1070,10 @@
             return { tac, dikme, kanat, tul, ip, m2, price };
         }
 
-        // --- BAŞLATMA ---
         window.addEventListener('DOMContentLoaded', () => {
             updateClock();
             setInterval(updateClock, 1000);
+            initCloudSync();
             restoreFormDraft();
             applySettingsToUI();
             renderWhatsAppTemplatesUI();
@@ -978,7 +1084,15 @@
             setupCustomerAutocomplete();
         });
 
-        // --- MOBİL UI/UX ve KLAVYE İYİLEŞTİRMELERİ ---
+        function refreshAllUI() {
+            applySettingsToUI();
+            renderWhatsAppTemplatesUI();
+            renderProductRecipes();
+            renderCartUI();
+            renderLedgerUI();
+            calculateMaterialConsumption();
+        }
+
         document.body.addEventListener('focusin', (e) => {
             if (e.target.tagName === 'INPUT' && (e.target.type === 'number' || e.target.type === 'tel' || e.target.type === 'text')) {
                 setTimeout(() => { e.target.select(); }, 10);
@@ -993,7 +1107,6 @@
             }
         });
 
-        // --- MÜŞTERİ OTOMATİK TAMAMLAMA (AUTOCOMPLETE) MOTORU ---
         function setupCustomerAutocomplete() {
             const nameInput = document.getElementById('custName');
             const phoneInput = document.getElementById('custPhone');
@@ -1045,7 +1158,6 @@
             }
         };
 
-        // --- TASLAK & HESAP YÖNETİMİ ---
         function saveFormDraft() {
             const draftData = {
                 custName: document.getElementById('custName')?.value || '', custPhone: document.getElementById('custPhone')?.value || '', custAddress: document.getElementById('custAddress')?.value || '',
@@ -1094,7 +1206,6 @@
             else if (tabName === 'ledger') renderLedgerUI();
         }
 
-        // --- SATIR VE HIZLI GİRİŞ ---
         function setQuickDimension(rowId, field, val) {
             const card = document.getElementById(`row-${rowId}`); if (!card) return;
             const input = card.querySelector(field === 'en' ? '.inp-en' : '.inp-boy'); if (!input || input.disabled) return;
@@ -1312,7 +1423,6 @@
             clearFormDraft(); document.getElementById('custName').value = ''; document.getElementById('custPhone').value = ''; document.getElementById('custAddress').value = ''; document.getElementById('salesTariff').value = ''; document.getElementById('extraLabor').value = '0'; document.getElementById('kdvStatus').value = 'haric'; document.getElementById('measureRowsContainer').innerHTML = ''; currentRowId = 0; addMeasureRow(); calculateGrandTotal();
         }
 
-        // --- SEPET & TOPLU İŞLEMLER ---
         function addOrderToCartAction() {
             if (isProcessing) return; const ord = getOrderData(); if (ord.items.length === 0) { alert("En az 1 ölçü satırı giriniz!"); return; }
             try { isProcessing = true; if (!appSettings.cart) appSettings.cart = []; appSettings.cart.unshift(ord); StorageManager.save(appSettings); clearFormDraft(); renderCartUI(); alert(`Sipariş #${ord.id} sepete eklendi!`); switchTab('cart'); } finally { isProcessing = false; }
@@ -1440,7 +1550,6 @@
             calculateGrandTotal(); saveFormDraft(); switchTab('order');
         }
 
-        // --- CARİ / HESAP YÖNETİMİ ---
         function findOrCreateCustomer(name, phone, address = '', category = 'standard') {
             if (!appSettings.customers) appSettings.customers = []; const cleanPhone = (phone || '').replace(/\D/g, ''); const trimmedName = (name || '').trim().toLowerCase();
             let cust = appSettings.customers.find(c => { const cClean = (c.phone || '').replace(/\D/g, ''); return (cleanPhone && cClean && cleanPhone === cClean) || (c.name.trim().toLowerCase() === trimmedName); });
@@ -1529,7 +1638,6 @@
             let gRev = 0, gCol = 0; (appSettings.customers || []).forEach(c => { const { debit, credit } = getCustomerLedgerTotals(c, startDateStr, endDateStr); gRev += debit; gCol += credit; });
             const estCost = gRev * 0.35, netP = Math.max(0, gRev - estCost), pMargin = gRev > 0 ? ((netP / gRev) * 100).toFixed(1) : 0;
             document.getElementById('repTotalSalesRevenue').innerText = `${gRev.toFixed(2)} ₺`; document.getElementById('repTotalCollected').innerText = `${gCol.toFixed(2)} ₺`; document.getElementById('repTotalMaterialCost').innerText = `${estCost.toFixed(2)} ₺`; document.getElementById('repNetProfit').innerText = `${netP.toFixed(2)} ₺`; document.getElementById('repProfitMarginBadge').innerText = `(Kâr: %${pMargin})`;
-            const banner = document.getElementById('ledgerOverdueBanner'); if (overdueCount > 0) { banner.classList.remove('hidden'); document.getElementById('ledgerOverdueText').innerText = `${overdueCount} müşterinin vadesi gecikti!`; } else { banner.classList.add('hidden'); }
         }
         function updateCustomerDueDate(custId, val) { const cust = (appSettings.customers || []).find(c => c.id === custId); if (cust) { cust.dueDate = val; StorageManager.save(appSettings); renderLedgerUI(); } }
         
@@ -1608,7 +1716,6 @@
             if (!src || !tgt) return; if (confirm(`Hesaplar birleşecek?`)) { (src.transactions || []).forEach(t => { tgt.transactions.push({ ...t, desc: `[Devir: ${src.name}] ` + t.desc }); }); appSettings.customers = appSettings.customers.filter(c => c.id !== src.id); StorageManager.save(appSettings); closeMergeModal(); closeCustomerLedgerModal(); renderLedgerUI(); }
         }
 
-        // --- TÜKETİM ANALİZİ ---
         function calculateMaterialConsumption() {
             const tbody = document.getElementById('consumptionTableBody'); if (!tbody) return;
             let allItems = [...(getOrderData().items || [])];
@@ -1651,7 +1758,6 @@
             `;
         }
 
-        // --- AYARLAR VE VERİ YÖNETİMİ ---
         function applySettingsToUI() {
             document.getElementById('settingMontajPrice').value = appSettings.montajPrice; document.getElementById('settingPerakendePrice').value = appSettings.perakendePrice; document.getElementById('settingKdvRate').value = appSettings.kdvRate; document.getElementById('settingMinM2').value = appSettings.minM2;
             const c = appSettings.cutDeductions || DEFAULT_SETTINGS.cutDeductions;
@@ -1717,11 +1823,10 @@
         function importSettingsBackup(e) {
             const file = e.target.files[0]; if (!file) return; const r = new FileReader();
             r.onload = (ev) => {
-                try { const parsed = JSON.parse(ev.target.result); if (parsed) { appSettings = StorageManager.migrateAndHeal(parsed); applySettingsToUI(); renderWhatsAppTemplatesUI(); renderProductRecipes(); calculateAllRows(); renderCartUI(); renderLedgerUI(); calculateMaterialConsumption(); alert("Veriler yüklendi!"); } } catch (err) { alert("Hata: " + err.message); }
+                try { const parsed = JSON.parse(ev.target.result); if (parsed) { appSettings = StorageManager.migrateAndHeal(parsed); StorageManager.save(appSettings); refreshAllUI(); alert("Veriler yüklendi!"); } } catch (err) { alert("Hata: " + err.message); }
             }; r.readAsText(file);
         }
 
-        // --- ZAMAN MAKİNESİ (YEDEK) ---
         function createAutoBackup(currentData) {
             try {
                 let backups = JSON.parse(localStorage.getItem(AUTO_BACKUP_KEY)) || [];
@@ -1754,7 +1859,7 @@
             const backups = JSON.parse(localStorage.getItem(AUTO_BACKUP_KEY)) || []; if (!backups[index]) return;
             if (confirm(`Sistemi ${backups[index].timestamp} yedeğine döndürmek istiyor musunuz?`)) {
                 appSettings = JSON.parse(backups[index].dataStr); StorageManager.save(appSettings); closeAutoBackupModal();
-                applySettingsToUI(); renderWhatsAppTemplatesUI(); renderProductRecipes(); renderCartUI(); renderLedgerUI(); calculateMaterialConsumption(); alert(`Sistem başarıyla kurtarıldı!`);
+                refreshAllUI(); alert(`Sistem başarıyla kurtarıldı!`);
             }
         }
         function masterReset() {
@@ -1769,7 +1874,6 @@
             localStorage.setItem(PIN_STORAGE_KEY, newPin); appSettings.appPin = newPin; StorageManager.save(appSettings); input.value = ''; alert(`Sistem şifresi "${newPin}" olarak güncellendi!`);
         }
 
-        // --- WHATSAPP ŞABLONLARI ---
         function renderWhatsAppTemplatesUI() {
             const cnt = document.getElementById('waTemplatesContainer'); if (!cnt) return;
             cnt.innerHTML = (appSettings.whatsappTemplates || []).map((tpl, i) => `
@@ -1824,7 +1928,6 @@
             closeWaSendModal(); toggleAllCartItems(false);
         }
 
-        // --- YAZDIRMA (GÜVENLİ ONAY MODALI İLE) ---
         function generateCode128SVG(text, height = 28) {
             const p = ["212222","222122","222221","121223","121322","131222","122213","122312","132212","221213","221312","231212","112232","122132","122231","113222","123122","123221","223211","221132","221231","213212","223112","312131","311222","321122","321221","312212","322112","322211","212123","212321","232121","111323","131123","131321","112313","132113","132311","211313","231113","231311","112133","112331","132131","113123","113321","133121","313121","211331","231131","213113","213311","213131","311123","311321","331121","312113","312311","332111","314111","221411","431111","111224","111422","121124","121421","141122","141221","112214","112412","122114","122411","142112","142211","241211","221114","413111","241112","134111","111242","121142","121241","114212","124112","124211","411212","421112","421211","212141","214121","412121","111143","111341","131141","114113","114311","411113","411311","113141","114131","311141","411131","211412","211214","211232","2331112"];
             let c = [104], chk = 104;
@@ -2011,7 +2114,7 @@
             const c = (appSettings.customers || []).find(x => x.id === custId); if (!c) return; const { balance } = getCustomerLedgerTotals(c);
             document.getElementById('printContainerA5Receipt').innerHTML = `
                 <div class="a5-receipt-container">
-                    <div style="border-bottom:2px solid #0f766e; padding-bottom:8px; margin-bottom:12px; display:flex; justify-content:space-between;">
+                    <div style="border-bottom:2px solid #0f766e; padding-bottom:8mm; margin-bottom:12mm; display:flex; justify-content:space-between;">
                         <div><div style="font-size:15pt; font-weight:900; color:#0f766e;">FİX HOUSE</div></div>
                         <div style="text-align:right;"><h2 style="font-size:13pt; font-weight:bold; margin:0; color:#0f766e;">TAHSİLAT MAKBUZU</h2></div>
                     </div>
