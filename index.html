@@ -544,6 +544,7 @@
                             <button onclick="shareSettingsBackup()" class="bg-emerald-600 hover:bg-emerald-500 text-white border border-emerald-500 text-[11px] px-4 py-2.5 rounded-lg font-bold transition shadow flex items-center gap-1.5"><i class="fa-solid fa-share-nodes text-emerald-200"></i> Yedeği Paylaş / Gönder</button>
                             <label class="bg-petrol-800 hover:bg-petrol-700 text-white border border-petrol-700 text-[11px] px-4 py-2.5 rounded-lg font-bold transition shadow flex items-center gap-1.5 cursor-pointer"><i class="fa-solid fa-upload text-petrol-300"></i> İçe Aktar<input type="file" onchange="importSettingsBackup(event)" class="hidden" accept=".json"></label>
                             <button onclick="openAutoBackupModal()" class="bg-blue-600 hover:bg-blue-500 text-white text-[11px] px-4 py-2.5 rounded-lg font-bold transition shadow flex items-center gap-1.5 border border-blue-500"><i class="fa-solid fa-clock-rotate-left text-blue-200"></i> Zaman Makinesi</button>
+                            <button onclick="clearCloudConfig()" class="bg-amber-600 hover:bg-amber-500 text-white text-[11px] px-4 py-2.5 rounded-lg font-bold transition shadow flex items-center gap-1.5 border border-amber-500"><i class="fa-solid fa-cloud-arrow-down"></i> Bağlantıyı Kes</button>
                             <button onclick="masterReset()" class="bg-red-600 hover:bg-red-500 text-white text-[11px] px-4 py-2.5 rounded-lg font-bold transition shadow flex items-center gap-1.5 border border-red-500 md:ml-auto"><i class="fa-solid fa-triangle-exclamation text-red-200"></i> Sistemi Sıfırla</button>
                         </div>
                     </div>
@@ -897,6 +898,13 @@
                 console.error("Cloud init error:", e);
                 if(dot) dot.className = "w-2.5 h-2.5 rounded-full bg-red-500 inline-block";
                 if(txt) txt.innerText = "Ayar Hatası";
+            }
+        }
+
+        function clearCloudConfig() {
+            if(confirm("Firebase bulut bağlantısını kesmek ve ayarları silmek istediğinize emin misiniz? (Mevcut verileriniz silinmez, sadece eşitleme durur)")) {
+                localStorage.removeItem(CLOUD_CONFIG_KEY);
+                location.reload();
             }
         }
 
