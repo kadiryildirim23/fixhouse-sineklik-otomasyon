@@ -401,7 +401,7 @@
                         </div>
                         <div class="flex flex-wrap gap-2 w-full md:w-auto">
                             <button onclick="openCloudConfigModal()" class="bg-blue-600 hover:bg-blue-500 text-white text-[11px] px-4 py-2.5 rounded-lg font-bold transition shadow flex items-center justify-center gap-1.5 border border-blue-500">
-                                <i class="fa-solid fa-cloud"></i> Bulut Bağlantısı
+                                <i class="fa-solid fa-cloud"></i> Bulut & Google E-Tablo
                             </button>
                             <button onclick="emergencyRestoreSettings()" class="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-lg font-bold text-xs transition shadow flex items-center justify-center gap-1.5">
                                 <i class="fa-solid fa-screwdriver-wrench"></i> Reçete & Şablonları Doldur / Sıfırla
@@ -577,20 +577,29 @@
     <div id="cloudConfigModal" class="fixed inset-0 bg-petrol-950/80 backdrop-blur-sm z-[150] flex items-center justify-center hidden px-3 no-print">
         <div class="bg-white rounded-2xl w-full max-w-md shadow-2xl p-6 space-y-4">
             <div class="flex justify-between items-center border-b pb-3">
-                <h3 class="font-black text-petrol-950 text-base flex items-center gap-2"><i class="fa-solid fa-cloud text-petrol-600"></i> Firebase Bulut Bağlantısı</h3>
+                <h3 class="font-black text-petrol-950 text-base flex items-center gap-2"><i class="fa-solid fa-cloud text-petrol-600"></i> Bulut & Veritabanı</h3>
                 <button onclick="closeCloudConfigModal()" class="text-slate-400 hover:text-slate-800"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
-            <div class="text-xs text-slate-600 bg-petrol-50 p-3 rounded-xl border border-petrol-100">
-                Tüm cihazlarınızın (telefon, tablet, PC) eşzamanlı çalışması için Firebase Realtime Database bilgilerinizi girin.
+            
+            <div class="space-y-4">
+                <div class="bg-petrol-50 p-3 rounded-xl border border-petrol-100">
+                    <p class="text-xs text-slate-700 mb-2"><b>1. Cihazlar Arası Eşitleme (Firebase)</b></p>
+                    <div class="space-y-2">
+                        <div><label class="block text-[11px] font-bold text-slate-500 mb-1">Database URL</label><input type="text" id="firebaseDbUrlInput" placeholder="https://proje-adi.firebaseio.com" class="w-full border rounded-lg px-3 py-2 text-xs font-mono"></div>
+                        <div><label class="block text-[11px] font-bold text-slate-500 mb-1">API Key</label><input type="text" id="firebaseApiKeyInput" placeholder="AIzaSy..." class="w-full border rounded-lg px-3 py-2 text-xs font-mono"></div>
+                        <div><label class="block text-[11px] font-bold text-slate-500 mb-1">Project ID</label><input type="text" id="firebaseProjectIdInput" placeholder="proje-adi" class="w-full border rounded-lg px-3 py-2 text-xs font-mono"></div>
+                    </div>
+                </div>
+
+                <div class="bg-emerald-50 p-3 rounded-xl border border-emerald-100">
+                    <p class="text-xs text-slate-700 mb-2"><b>2. E-Tablo Raporlama (Google Sheets)</b></p>
+                    <div><label class="block text-[11px] font-bold text-slate-500 mb-1">Web App URL</label><input type="text" id="googleSheetsUrlInput" placeholder="https://script.google.com/macros/s/.../exec" class="w-full border rounded-lg px-3 py-2 text-xs font-mono"></div>
+                </div>
             </div>
-            <div class="space-y-3">
-                <div><label class="block text-[11px] font-bold text-slate-500 mb-1">Database URL *</label><input type="text" id="firebaseDbUrlInput" placeholder="https://proje-adi-default-rtdb.firebaseio.com" class="w-full border rounded-lg px-3 py-2 text-xs font-mono"></div>
-                <div><label class="block text-[11px] font-bold text-slate-500 mb-1">API Key</label><input type="text" id="firebaseApiKeyInput" placeholder="AIzaSy..." class="w-full border rounded-lg px-3 py-2 text-xs font-mono"></div>
-                <div><label class="block text-[11px] font-bold text-slate-500 mb-1">Project ID</label><input type="text" id="firebaseProjectIdInput" placeholder="proje-adi" class="w-full border rounded-lg px-3 py-2 text-xs font-mono"></div>
-            </div>
+
             <div class="flex justify-end gap-2 pt-3 border-t">
                 <button onclick="closeCloudConfigModal()" class="px-4 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-700">İptal</button>
-                <button onclick="saveAndConnectCloud()" class="px-5 py-2 rounded-xl text-xs font-bold bg-petrol-800 hover:bg-petrol-900 text-white shadow">Bağlan & Eşitle</button>
+                <button onclick="saveAndConnectCloud()" class="px-5 py-2 rounded-xl text-xs font-bold bg-petrol-800 hover:bg-petrol-900 text-white shadow">Bağlan & Kaydet</button>
             </div>
         </div>
     </div>
@@ -800,7 +809,7 @@
         }
 
         // ==========================================
-        // STORAGE & FIREBASE BULUT EŞİTLEME MOTORU
+        // STORAGE & FIREBASE & GOOGLE SHEETS MOTORU
         // ==========================================
         const STORAGE_KEY = "fix_house_erp_master_storage";
         const SCHEMA_VERSION = 16;
@@ -872,28 +881,30 @@
             }
             try {
                 const cfg = JSON.parse(configRaw);
-                if (!firebase.apps.length) {
-                    firebase.initializeApp(cfg);
-                }
-                dbRef = firebase.database().ref('fixhouse_erp_data');
-                
-                if(dot) dot.className = "w-2.5 h-2.5 rounded-full bg-amber-400 inline-block animate-pulse";
-                if(txt) txt.innerText = "Bağlanıyor...";
-
-                dbRef.on('value', (snapshot) => {
-                    const cloudData = snapshot.val();
-                    if (cloudData) {
-                        appSettings = StorageManager.migrateAndHeal(cloudData);
-                        localStorage.setItem(STORAGE_KEY, JSON.stringify(appSettings));
-                        refreshAllUI();
-                        if(dot) dot.className = "w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block";
-                        if(txt) txt.innerText = "Bulut Senkronize Aktif";
-                        isCloudSynced = true;
+                if (cfg.databaseURL && cfg.apiKey && cfg.projectId) {
+                    if (!firebase.apps.length) {
+                        firebase.initializeApp(cfg);
                     }
-                }, (error) => {
-                    if(dot) dot.className = "w-2.5 h-2.5 rounded-full bg-red-500 inline-block";
-                    if(txt) txt.innerText = "Ayar Hatası";
-                });
+                    dbRef = firebase.database().ref('fixhouse_erp_data');
+                    
+                    if(dot) dot.className = "w-2.5 h-2.5 rounded-full bg-amber-400 inline-block animate-pulse";
+                    if(txt) txt.innerText = "Bağlanıyor...";
+
+                    dbRef.on('value', (snapshot) => {
+                        const cloudData = snapshot.val();
+                        if (cloudData) {
+                            appSettings = StorageManager.migrateAndHeal(cloudData);
+                            localStorage.setItem(STORAGE_KEY, JSON.stringify(appSettings));
+                            refreshAllUI();
+                            if(dot) dot.className = "w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block";
+                            if(txt) txt.innerText = "Bulut Senkronize Aktif";
+                            isCloudSynced = true;
+                        }
+                    }, (error) => {
+                        if(dot) dot.className = "w-2.5 h-2.5 rounded-full bg-red-500 inline-block";
+                        if(txt) txt.innerText = "Ayar Hatası";
+                    });
+                }
             } catch(e) {
                 console.error("Cloud init error:", e);
                 if(dot) dot.className = "w-2.5 h-2.5 rounded-full bg-red-500 inline-block";
@@ -902,7 +913,7 @@
         }
 
         function clearCloudConfig() {
-            if(confirm("Firebase bulut bağlantısını kesmek ve ayarları silmek istediğinize emin misiniz? (Mevcut verileriniz silinmez, sadece eşitleme durur)")) {
+            if(confirm("Bulut bağlantısını kesmek ve ayarları silmek istediğinize emin misiniz? (Mevcut verileriniz silinmez, sadece eşitleme durur)")) {
                 localStorage.removeItem(CLOUD_CONFIG_KEY);
                 location.reload();
             }
@@ -913,6 +924,7 @@
             document.getElementById('firebaseDbUrlInput').value = cfg.databaseURL || '';
             document.getElementById('firebaseApiKeyInput').value = cfg.apiKey || '';
             document.getElementById('firebaseProjectIdInput').value = cfg.projectId || '';
+            document.getElementById('googleSheetsUrlInput').value = cfg.googleSheetsUrl || '';
             document.getElementById('cloudConfigModal').classList.remove('hidden');
         }
         function closeCloudConfigModal() { document.getElementById('cloudConfigModal').classList.add('hidden'); }
@@ -920,12 +932,25 @@
             const cfg = {
                 databaseURL: document.getElementById('firebaseDbUrlInput').value.trim(),
                 apiKey: document.getElementById('firebaseApiKeyInput').value.trim(),
-                projectId: document.getElementById('firebaseProjectIdInput').value.trim()
+                projectId: document.getElementById('firebaseProjectIdInput').value.trim(),
+                googleSheetsUrl: document.getElementById('googleSheetsUrlInput').value.trim()
             };
-            if(!cfg.databaseURL) { alert("Lütfen Database URL giriniz."); return; }
             localStorage.setItem(CLOUD_CONFIG_KEY, JSON.stringify(cfg));
             closeCloudConfigModal();
             location.reload();
+        }
+
+        // GOOGLE SHEETS API TETİKLEYİCİSİ
+        function triggerSheetSync(action, payload) {
+            const cfg = JSON.parse(localStorage.getItem(CLOUD_CONFIG_KEY) || '{}');
+            if (!cfg.googleSheetsUrl) return; 
+            
+            fetch(cfg.googleSheetsUrl, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: action, payload: payload })
+            }).catch(e => console.error("Sheet sync error", e));
         }
 
         const StorageManager = {
@@ -1566,6 +1591,12 @@
                 else { cust.transactions.push({ id: 'TX-DEP-' + ord.id, refOrder: ord.id, date: ord.date || new Date().toLocaleDateString('tr-TR'), type: 'Tahsilat (Kapora)', desc: `Sipariş #${ord.id} Kaporası`, debit: 0, credit: fin.depositAmt }); }
             }
             StorageManager.save(appSettings); renderLedgerUI();
+            
+            // Google Sheets Sync
+            triggerSheetSync('NEW_ORDER', {
+                id: ord.id, date: ord.date, customerName: ord.customerName, phone: ord.customerPhone, 
+                totalAmount: fin.listPrice, discountRate: fin.discRate, deposit: fin.depositAmt, balance: fin.balanceDue
+            });
         }
         function switchLedgerSubCategory(subCat) {
             currentLedgerSubCat = subCat; const btnStd = document.getElementById('subtab-ledger-standard'), btnBulk = document.getElementById('subtab-ledger-bulk'), titleEl = document.getElementById('ledgerCategoryHeaderTitle');
@@ -1665,16 +1696,31 @@
         function addCustomerTransaction(e) {
             e.preventDefault(); const id = document.getElementById('txCustomerId').value, c = (appSettings.customers || []).find(x => x.id === id); if (!c) return;
             const type = document.getElementById('txTypeSelect').value, desc = document.getElementById('txDescInput').value.trim(), amount = parseFloat(document.getElementById('txAmountInput').value) || 0, isCredit = type.startsWith('Tahsilat') || type === 'İskonto';
-            c.transactions.push({ id: 'TX-' + Date.now(), date: new Date().toLocaleDateString('tr-TR'), type: type, desc: desc, debit: isCredit ? 0 : amount, credit: isCredit ? amount : 0 });
+            const txDate = new Date().toLocaleDateString('tr-TR');
+            c.transactions.push({ id: 'TX-' + Date.now(), date: txDate, type: type, desc: desc, debit: isCredit ? 0 : amount, credit: isCredit ? amount : 0 });
             document.getElementById('txDescInput').value = ''; document.getElementById('txAmountInput').value = ''; StorageManager.save(appSettings); renderCustomerModalTransactions(c); renderLedgerUI();
+            
+            // Google Sheets Sync
+            triggerSheetSync('NEW_TRANSACTION', {
+                customerName: c.name, date: txDate, type: type, desc: desc, debit: isCredit ? 0 : amount, credit: isCredit ? amount : 0
+            });
+            
             if (isCredit && amount > 0) { setTimeout(() => { if (confirm(`${amount.toFixed(2)} ₺ tahsilat işlendi. Makbuz yazdırılsın mı?`)) printReceiptDirect(c.id, amount, type, desc); }, 200); }
         }
         function deleteCustomerTransaction(custId, idx) { const c = (appSettings.customers || []).find(x => x.id === custId); if (!c) return; if (confirm("Silinsin mi?")) { c.transactions.splice(idx, 1); StorageManager.save(appSettings); renderCustomerModalTransactions(c); renderLedgerUI(); } }
         function quickCollectCustomerPrompt(custId) {
             const c = (appSettings.customers || []).find(x => x.id === custId); if (!c) return; const { balance } = getCustomerLedgerTotals(c);
             const amtStr = prompt(`Tahsilat tutarı (Bakiye: ${balance.toFixed(2)} ₺):`, balance > 0 ? balance : 0); if (!amtStr) return; const amt = parseFloat(amtStr); if (isNaN(amt) || amt <= 0) return alert("Hatalı tutar.");
-            c.transactions.push({ id: 'TX-PAY-' + Date.now(), date: new Date().toLocaleDateString('tr-TR'), type: 'Tahsilat (Nakit)', desc: 'Hızlı Kasa Tahsilatı', debit: 0, credit: amt });
-            StorageManager.save(appSettings); renderLedgerUI(); if (confirm(`${amt.toFixed(2)} ₺ işlendi. Makbuz basılsın mı?`)) printReceiptDirect(c.id, amt, 'Tahsilat (Nakit)', 'Hızlı Kasa Tahsilatı');
+            const txDate = new Date().toLocaleDateString('tr-TR');
+            c.transactions.push({ id: 'TX-PAY-' + Date.now(), date: txDate, type: 'Tahsilat (Nakit)', desc: 'Hızlı Kasa Tahsilatı', debit: 0, credit: amt });
+            StorageManager.save(appSettings); renderLedgerUI(); 
+            
+            // Google Sheets Sync
+            triggerSheetSync('NEW_TRANSACTION', {
+                customerName: c.name, date: txDate, type: 'Tahsilat (Nakit)', desc: 'Hızlı Kasa Tahsilatı', debit: 0, credit: amt
+            });
+            
+            if (confirm(`${amt.toFixed(2)} ₺ işlendi. Makbuz basılsın mı?`)) printReceiptDirect(c.id, amt, 'Tahsilat (Nakit)', 'Hızlı Kasa Tahsilatı');
         }
         function deleteCustomerRecord(custId) { const idx = (appSettings.customers || []).findIndex(x => x.id === custId); if (idx > -1) { if (confirm(`Müşteri tamamen silinecek?`)) { appSettings.customers.splice(idx, 1); StorageManager.save(appSettings); renderLedgerUI(); } } }
 
