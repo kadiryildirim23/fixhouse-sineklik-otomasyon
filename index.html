@@ -22,10 +22,10 @@
     </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-
-    <!-- FIREBASE SDK (Uyumluluk Sürümü - CDN) -->
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+    
+    <!-- FIREBASE BULUT EŞİTLEME KÜTÜPHANELERİ -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
     <script>
         if (window.tailwind) {
@@ -159,12 +159,11 @@
                     <i class="fa-solid fa-industry text-petrol-500"></i> Fix House İmalat & Finansal Konsol
                 </div>
                 <div class="flex items-center space-x-2 md:space-x-3">
-                    <!-- BULUT BAĞLANTI DURUM GÖSTERGESİ -->
-                    <span id="cloudStatusBadge" class="text-[11px] font-bold bg-slate-50 text-slate-600 px-3 py-1.5 rounded border border-slate-200 flex items-center gap-1.5 cursor-pointer hover:bg-slate-100 transition" onclick="switchTab('settings'); setTimeout(openCloudConfigModal, 300);" title="Firebase Bulut Bağlantısı">
-                        <span id="syncDot" class="w-2 h-2 rounded-full bg-slate-400 inline-block"></span>
-                        <span id="syncText" class="hidden md:inline">Yerel Mod</span>
-                    </span>
-                    <span class="text-[11px] font-bold bg-slate-50 text-slate-600 px-3 py-1.5 rounded border border-slate-200 flex items-center gap-2 hidden md:flex">
+                    <button onclick="openCloudConfigModal()" class="flex items-center gap-2 text-[10px] font-bold bg-slate-50 text-slate-600 px-3 py-1.5 rounded border border-slate-200 hover:bg-slate-100 transition shadow-sm">
+                        <span id="syncDot" class="w-2.5 h-2.5 rounded-full bg-slate-400 inline-block"></span>
+                        <span id="syncText" class="hidden sm:inline-block">Yerel Mod</span>
+                    </button>
+                    <span class="text-[11px] font-bold bg-slate-50 text-slate-600 px-3 py-1.5 rounded border border-slate-200 flex items-center gap-2 hidden md:flex shadow-sm">
                         <i class="fa-regular fa-clock text-petrol-500"></i> <span id="clock">--.--.---- --:--:--</span>
                     </span>
                 </div>
@@ -401,6 +400,9 @@
                             </div>
                         </div>
                         <div class="flex flex-wrap gap-2 w-full md:w-auto">
+                            <button onclick="openCloudConfigModal()" class="bg-blue-600 hover:bg-blue-500 text-white text-[11px] px-4 py-2.5 rounded-lg font-bold transition shadow flex items-center justify-center gap-1.5 border border-blue-500">
+                                <i class="fa-solid fa-cloud"></i> Bulut Bağlantısı
+                            </button>
                             <button onclick="emergencyRestoreSettings()" class="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-lg font-bold text-xs transition shadow flex items-center justify-center gap-1.5">
                                 <i class="fa-solid fa-screwdriver-wrench"></i> Reçete & Şablonları Doldur / Sıfırla
                             </button>
@@ -538,11 +540,6 @@
                         <div class="absolute -right-10 -bottom-10 text-petrol-800 opacity-20"><i class="fa-solid fa-database text-9xl"></i></div>
                         <h2 class="text-sm font-extrabold text-white border-b border-petrol-800 pb-3 mb-4 flex items-center gap-2 relative z-10"><i class="fa-solid fa-shield-halved text-petrol-400"></i> VERİ YÖNETİMİ & FELAKET KURTARMA</h2>
                         <div class="flex flex-wrap gap-2.5 relative z-10">
-                            <!-- YENİ EKLENEN BULUT BAĞLANTISI (FIREBASE) BUTONU -->
-                            <button onclick="openCloudConfigModal()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-[11px] px-4 py-2.5 rounded-lg font-bold transition shadow flex items-center gap-1.5 border border-indigo-500">
-                                <i class="fa-solid fa-cloud"></i> Bulut Bağlantısı (Firebase)
-                            </button>
-                            
                             <button onclick="exportSettingsBackup()" class="bg-petrol-800 hover:bg-petrol-700 text-white border border-petrol-700 text-[11px] px-4 py-2.5 rounded-lg font-bold transition shadow flex items-center gap-1.5"><i class="fa-solid fa-download text-petrol-300"></i> İndir (JSON)</button>
                             <button onclick="shareSettingsBackup()" class="bg-emerald-600 hover:bg-emerald-500 text-white border border-emerald-500 text-[11px] px-4 py-2.5 rounded-lg font-bold transition shadow flex items-center gap-1.5"><i class="fa-solid fa-share-nodes text-emerald-200"></i> Yedeği Paylaş / Gönder</button>
                             <label class="bg-petrol-800 hover:bg-petrol-700 text-white border border-petrol-700 text-[11px] px-4 py-2.5 rounded-lg font-bold transition shadow flex items-center gap-1.5 cursor-pointer"><i class="fa-solid fa-upload text-petrol-300"></i> İçe Aktar<input type="file" onchange="importSettingsBackup(event)" class="hidden" accept=".json"></label>
@@ -862,14 +859,13 @@
 
         let dbRef = null;
         let isCloudSynced = false;
-        let isSavingToCloud = false;
 
         function initCloudSync() {
             const configRaw = localStorage.getItem(CLOUD_CONFIG_KEY);
             const dot = document.getElementById('syncDot');
             const txt = document.getElementById('syncText');
             if (!configRaw) {
-                if(dot) { dot.className = "w-2 h-2 rounded-full bg-slate-400 inline-block"; }
+                if(dot) { dot.className = "w-2.5 h-2.5 rounded-full bg-slate-400 inline-block"; }
                 if(txt) { txt.innerText = "Yerel Mod"; }
                 return;
             }
@@ -880,33 +876,26 @@
                 }
                 dbRef = firebase.database().ref('fixhouse_erp_data');
                 
-                if(dot) dot.className = "w-2 h-2 rounded-full bg-amber-400 inline-block animate-pulse";
+                if(dot) dot.className = "w-2.5 h-2.5 rounded-full bg-amber-400 inline-block animate-pulse";
                 if(txt) txt.innerText = "Bağlanıyor...";
 
                 dbRef.on('value', (snapshot) => {
-                    // Kullanıcı o an kayıt yapıyorsa, Firebase'den gelen aynı verinin ekranı sıfırlamasını (sonsuz döngüyü) engelle
-                    if (isSavingToCloud) return; 
-                    
                     const cloudData = snapshot.val();
                     if (cloudData) {
-                        isCloudSynced = true;
                         appSettings = StorageManager.migrateAndHeal(cloudData);
                         localStorage.setItem(STORAGE_KEY, JSON.stringify(appSettings));
                         refreshAllUI();
-                        if(dot) dot.className = "w-2 h-2 rounded-full bg-emerald-500 inline-block";
-                        if(txt) txt.innerText = "Bulut Aktif";
-                    } else {
-                        // Eğer bulut veritabanı tamamen boşsa, yerel veriyi buluta gönder.
-                        isSavingToCloud = true;
-                        dbRef.set(appSettings).then(() => { isSavingToCloud = false; }).catch(() => { isSavingToCloud = false; });
+                        if(dot) dot.className = "w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block";
+                        if(txt) txt.innerText = "Bulut Senkronize Aktif";
+                        isCloudSynced = true;
                     }
                 }, (error) => {
-                    if(dot) dot.className = "w-2 h-2 rounded-full bg-red-500 inline-block";
-                    if(txt) txt.innerText = "Bağlantı Hatası";
+                    if(dot) dot.className = "w-2.5 h-2.5 rounded-full bg-red-500 inline-block";
+                    if(txt) txt.innerText = "Ayar Hatası";
                 });
             } catch(e) {
                 console.error("Cloud init error:", e);
-                if(dot) dot.className = "w-2 h-2 rounded-full bg-red-500 inline-block";
+                if(dot) dot.className = "w-2.5 h-2.5 rounded-full bg-red-500 inline-block";
                 if(txt) txt.innerText = "Ayar Hatası";
             }
         }
@@ -973,15 +962,8 @@
                 try {
                     createAutoBackup(data);
                     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-                    
                     if (dbRef) {
-                        isSavingToCloud = true;
-                        dbRef.set(data).then(() => {
-                            isSavingToCloud = false;
-                        }).catch(err => {
-                            console.error("Cloud push error:", err);
-                            isSavingToCloud = false;
-                        });
+                        dbRef.set(data).catch(err => console.error("Cloud push error:", err));
                     }
                     return true;
                 } catch (e) {
@@ -1533,7 +1515,7 @@
                 else { it.tac = (it.en - pCut.dis.tac).toFixed(1); it.dikme = (it.boy - pCut.dis.dikme).toFixed(1); it.kanat = isDikey ? (it.en - pCut.dis.kanat).toFixed(1) : (it.boy - pCut.dis.kanat).toFixed(1); it.tul = isDikey ? (it.en - pCut.dis.tul).toFixed(1) : (it.boy - pCut.dis.tul).toFixed(1); it.ip = `${(it.en + it.boy + 10).toFixed(0)}cm / ${katSayisi}k`; }
                 it.m2 = mul.toFixed(2);
             } else {
-                let isKapi = it.menteseliTip.includes('kapi'); const mul = ((isKapi ? ((it.en * 4) + (boy * 2)) : ((it.en * 2) + (it.boy * 2))) / 100) * it.qty;
+                let isKapi = it.menteseliTip.includes('kapi'); const mul = ((isKapi ? ((en * 4) + (boy * 2)) : ((en * 2) + (boy * 2))) / 100) * it.qty;
                 if (it.mType === 'dis') { it.tac = (it.en - mCut.dis.tac).toFixed(1); it.dikme = (it.boy - mCut.dis.dikme).toFixed(1); it.kanat = (it.boy - mCut.dis.kanat).toFixed(1); it.tul = (it.boy - mCut.dis.tul).toFixed(1); } 
                 else { it.tac = (it.en + mCut.ic.tac).toFixed(1); it.dikme = (it.boy + mCut.ic.dikme).toFixed(1); it.kanat = (it.boy - mCut.ic.kanat).toFixed(1); it.tul = (it.boy + mCut.ic.tul).toFixed(1); }
                 it.m2 = mul.toFixed(2);
