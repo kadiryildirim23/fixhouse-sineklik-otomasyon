@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://www.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' https://cdnjs.cloudflare.com https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https: wss:; frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self';">
+    <!-- CSP Engeli Kaldırıldı: Firebase WebSocket (wss:) ve Tüm HTTPS Bağlantılarına İzin Verildi -->
+    <meta http-equiv="Content-Security-Policy" content="default-src * 'self' data: blob: 'unsafe-inline' 'unsafe-eval'; connect-src * https: wss: ws:;">
     <title>Fix House - İleri Ölçü, Tüketim Analizi, Finans & Cari Yönetim Sistemi</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
@@ -106,10 +107,10 @@
                 <div class="flex items-center space-x-2 md:space-x-3">
                     <button onclick="openCloudConfigModal()" class="flex items-center gap-2 text-[10px] font-bold bg-slate-50 text-slate-600 px-3 py-1.5 rounded border border-slate-200 hover:bg-slate-100 transition shadow-sm">
                         <span id="syncDot" class="w-2.5 h-2.5 rounded-full bg-slate-400 inline-block"></span>
-                        <span id="syncText" class="hidden sm:inline-block">Yerel Mod</span>
+                        <span id="syncText" class="hidden sm:inline-block">Bağlanıyor...</span>
                     </button>
                     <button onclick="forceManualSync()" title="Şimdi Eşitle" class="bg-petrol-50 hover:bg-petrol-100 text-petrol-800 border border-petrol-200 px-2.5 py-1.5 rounded text-[11px] font-bold transition shadow-sm flex items-center gap-1">
-                        <i class="fa-solid fa-rotate"></i> <span class="hidden md:inline">Eşitle</span>
+                        <i class="fa-solid fa-rotate"></i> <span class="hidden md:inline">Şimdi Eşitle</span>
                     </button>
                     <span class="text-[11px] font-bold bg-slate-50 text-slate-600 px-3 py-1.5 rounded border border-slate-200 flex items-center gap-2 hidden md:flex shadow-sm">
                         <i class="fa-regular fa-clock text-petrol-500"></i> <span id="clock">--.--.---- --:--:--</span>
@@ -381,7 +382,7 @@
                             <button onclick="shareSettingsBackup()" class="bg-emerald-600 hover:bg-emerald-500 text-white border border-emerald-500 text-[11px] px-4 py-2.5 rounded-lg font-bold transition shadow flex items-center gap-1.5"><i class="fa-solid fa-share-nodes text-emerald-200"></i> Yedeği Paylaş / Gönder</button>
                             <label class="bg-petrol-800 hover:bg-petrol-700 text-white border border-petrol-700 text-[11px] px-4 py-2.5 rounded-lg font-bold transition shadow flex items-center gap-1.5 cursor-pointer"><i class="fa-solid fa-upload text-petrol-300"></i> İçe Aktar<input type="file" onchange="importSettingsBackup(event)" class="hidden" accept=".json"></label>
                             <button onclick="openAutoBackupModal()" class="bg-blue-600 hover:bg-blue-500 text-white text-[11px] px-4 py-2.5 rounded-lg font-bold transition shadow flex items-center gap-1.5 border border-blue-500"><i class="fa-solid fa-clock-rotate-left text-blue-200"></i> Zaman Makinesi</button>
-                            <button onclick="clearCloudConfig()" class="bg-amber-600 hover:bg-amber-500 text-white text-[11px] px-4 py-2.5 rounded-lg font-bold transition shadow flex items-center gap-1.5 border border-amber-500"><i class="fa-solid fa-cloud-arrow-down"></i> Bağlantıyı Kes</button>
+                            <button onclick="clearCloudConfig()" class="bg-amber-600 hover:bg-amber-500 text-white text-[11px] px-4 py-2.5 rounded-lg font-bold transition shadow flex items-center gap-1.5 border border-amber-500"><i class="fa-solid fa-cloud-arrow-down"></i> Bağlantıyı Yenile</button>
                             <button onclick="masterReset()" class="bg-red-600 hover:bg-red-500 text-white text-[11px] px-4 py-2.5 rounded-lg font-bold transition shadow flex items-center gap-1.5 border border-red-500 md:ml-auto"><i class="fa-solid fa-triangle-exclamation text-red-200"></i> Sistemi Sıfırla</button>
                         </div>
                     </div>
@@ -410,14 +411,14 @@
                 <div class="bg-petrol-50 p-3 rounded-xl border border-petrol-100">
                     <p class="text-xs text-slate-700 mb-2"><b>1. Cihazlar Arası Eşitleme (Firebase)</b></p>
                     <div class="space-y-2">
-                        <div><label class="block text-[11px] font-bold text-slate-500 mb-1">Database URL</label><input type="text" id="firebaseDbUrlInput" placeholder="https://proje-adi.firebaseio.com" class="w-full border rounded-lg px-3 py-2 text-xs font-mono"></div>
-                        <div><label class="block text-[11px] font-bold text-slate-500 mb-1">API Key</label><input type="text" id="firebaseApiKeyInput" placeholder="AIzaSy..." class="w-full border rounded-lg px-3 py-2 text-xs font-mono"></div>
-                        <div><label class="block text-[11px] font-bold text-slate-500 mb-1">Project ID</label><input type="text" id="firebaseProjectIdInput" placeholder="proje-adi" class="w-full border rounded-lg px-3 py-2 text-xs font-mono"></div>
+                        <div><label class="block text-[11px] font-bold text-slate-500 mb-1">Database URL</label><input type="text" id="firebaseDbUrlInput" class="w-full border rounded-lg px-3 py-2 text-xs font-mono"></div>
+                        <div><label class="block text-[11px] font-bold text-slate-500 mb-1">API Key</label><input type="text" id="firebaseApiKeyInput" class="w-full border rounded-lg px-3 py-2 text-xs font-mono"></div>
+                        <div><label class="block text-[11px] font-bold text-slate-500 mb-1">Project ID</label><input type="text" id="firebaseProjectIdInput" class="w-full border rounded-lg px-3 py-2 text-xs font-mono"></div>
                     </div>
                 </div>
                 <div class="bg-emerald-50 p-3 rounded-xl border border-emerald-100">
                     <p class="text-xs text-slate-700 mb-2"><b>2. E-Tablo Raporlama (Google Sheets)</b></p>
-                    <div><label class="block text-[11px] font-bold text-slate-500 mb-1">Web App URL</label><input type="text" id="googleSheetsUrlInput" placeholder="https://script.google.com/macros/s/.../exec" class="w-full border rounded-lg px-3 py-2 text-xs font-mono"></div>
+                    <div><label class="block text-[11px] font-bold text-slate-500 mb-1">Web App URL</label><input type="text" id="googleSheetsUrlInput" class="w-full border rounded-lg px-3 py-2 text-xs font-mono"></div>
                 </div>
             </div>
             <div class="flex justify-end gap-2 pt-3 border-t">
@@ -564,6 +565,14 @@
 
     <!-- JAVASCRIPT ÇALIŞMA MOTORU -->
     <script>
+        // GÖMÜLÜ (OTOMATİK) FİX HOUSE BULUT YAPILANDIRMASI
+        const BUILTIN_CLOUD_CONFIG = {
+            databaseURL: "https://fixhouse-f2f29-default-rtdb.firebaseio.com",
+            apiKey: "AIzaSyB4jTIAo0pAcNVXZEc7bzBHi4wRKBdZWs0",
+            projectId: "fixhouse-f2f29",
+            googleSheetsUrl: "https://script.google.com/macros/s/AKfycbxZ_zzN17KIMvsCJt1Et1uP4n35rUw-uHasDunrJ-ZpqKdaotcpJCAPDpt6napl_nNfSw/exec"
+        };
+
         window.addEventListener('error', e => showErrorBanner('Sistem hatası: ' + (e.message || 'Bilinmeyen arayüz hatası.')));
         window.addEventListener('unhandledrejection', e => showErrorBanner('İşlem hatası: ' + (e.reason ? e.reason.message || e.reason : 'Asenkron işlem başarısız.')));
         function showErrorBanner(msg) { const b = document.getElementById('globalErrorBanner'), m = document.getElementById('globalErrorMessage'); if (b && m) { m.textContent = msg; b.classList.remove('hidden'); } }
@@ -589,7 +598,7 @@
         }
 
         const STORAGE_KEY = "fix_house_erp_master_storage";
-        const SCHEMA_VERSION = 16;
+        const SCHEMA_VERSION = 17;
         const PIN_STORAGE_KEY = "fix_house_erp_pin_code";
         const AUTO_BACKUP_KEY = "fix_house_23_auto_backups_erp_petrol";
         const DRAFT_STORAGE_KEY = "fix_house_active_form_draft";
@@ -660,48 +669,67 @@
         let dbRef = null;
         let isCloudSynced = false;
         let isApplyingRemote = false;
-        let lastPushedHash = "";
 
-        // GELİŞMİŞ GERÇEK ZAMANLI ÇAKIŞMA ÇÖZÜCÜ (Saat farkından etkilenmez, kayıtları birleştirir)
+        // Firebase bazen dizileri (Array) Object'e çevirir, bunu güvenli diziye dönüştürür
+        function toSafeArray(val) {
+            if (!val) return [];
+            if (Array.isArray(val)) return val.filter(Boolean);
+            if (typeof val === 'object') return Object.values(val).filter(Boolean);
+            return [];
+        }
+
+        function getActiveCloudConfig() {
+            const saved = safeJsonParse(readStorageValue(CLOUD_CONFIG_KEY, '{}'), {});
+            return {
+                databaseURL: sanitizeText(saved.databaseURL || BUILTIN_CLOUD_CONFIG.databaseURL).replace(/\/+$/, ''),
+                apiKey: sanitizeText(saved.apiKey || BUILTIN_CLOUD_CONFIG.apiKey),
+                projectId: sanitizeText(saved.projectId || BUILTIN_CLOUD_CONFIG.projectId),
+                googleSheetsUrl: sanitizeText(saved.googleSheetsUrl || BUILTIN_CLOUD_CONFIG.googleSheetsUrl)
+            };
+        }
+
         function resolveDataConflict(localData, cloudData) {
             if (!cloudData) return localData;
             if (!localData) return cloudData;
 
             const localTime = localData.updatedAt ? new Date(localData.updatedAt).getTime() : 0;
             const cloudTime = cloudData.updatedAt ? new Date(cloudData.updatedAt).getTime() : 0;
-            const deletedSet = new Set([...(localData.deletedIds || []), ...(cloudData.deletedIds || [])]);
+            const deletedSet = new Set([...toSafeArray(localData.deletedIds), ...toSafeArray(cloudData.deletedIds)]);
 
-            // Sepet (Siparişler) Akıllı Birleştirme
+            // Sepet Birleştirme (En yeni sipariş en üstte)
             const cartMap = new Map();
-            (localData.cart || []).forEach(o => { if (o && o.id && !deletedSet.has(o.id)) cartMap.set(o.id, o); });
-            (cloudData.cart || []).forEach(o => {
+            toSafeArray(localData.cart).forEach(o => { if (o && o.id && !deletedSet.has(o.id)) cartMap.set(o.id, o); });
+            toSafeArray(cloudData.cart).forEach(o => {
                 if (o && o.id && !deletedSet.has(o.id)) {
-                    if (!cartMap.has(o.id) || cloudTime >= localTime - 10000) cartMap.set(o.id, o);
+                    const ex = cartMap.get(o.id);
+                    const oTime = o.updatedAtMs || cloudTime;
+                    const exTime = ex ? (ex.updatedAtMs || localTime) : 0;
+                    if (!ex || oTime >= exTime) cartMap.set(o.id, o);
                 }
             });
 
-            // Cari Defter ve İşlemler Akıllı Birleştirme
+            // Cari Birleştirme
             const custMap = new Map();
-            (localData.customers || []).forEach(c => { if (c && c.id && !deletedSet.has(c.id)) custMap.set(c.id, JSON.parse(JSON.stringify(c))); });
-            (cloudData.customers || []).forEach(c => {
+            toSafeArray(localData.customers).forEach(c => { if (c && c.id && !deletedSet.has(c.id)) custMap.set(c.id, JSON.parse(JSON.stringify(c))); });
+            toSafeArray(cloudData.customers).forEach(c => {
                 if (c && c.id && !deletedSet.has(c.id)) {
                     if (!custMap.has(c.id)) {
                         custMap.set(c.id, JSON.parse(JSON.stringify(c)));
                     } else {
                         const ex = custMap.get(c.id);
                         const txMap = new Map();
-                        (ex.transactions || []).forEach(tx => { if (tx && tx.id && !deletedSet.has(tx.id)) txMap.set(tx.id, tx); });
-                        (c.transactions || []).forEach(tx => { if (tx && tx.id && !deletedSet.has(tx.id)) txMap.set(tx.id, tx); });
+                        toSafeArray(ex.transactions).forEach(tx => { if (tx && tx.id && !deletedSet.has(tx.id)) txMap.set(tx.id, tx); });
+                        toSafeArray(c.transactions).forEach(tx => { if (tx && tx.id && !deletedSet.has(tx.id)) txMap.set(tx.id, tx); });
                         const baseC = cloudTime >= localTime ? c : ex;
                         custMap.set(c.id, { ...baseC, transactions: Array.from(txMap.values()) });
                     }
                 }
             });
 
-            const base = cloudTime >= localTime - 5000 ? { ...localData, ...cloudData } : { ...cloudData, ...localData };
-            base.cart = Array.from(cartMap.values());
+            const base = cloudTime >= localTime ? { ...localData, ...cloudData } : { ...cloudData, ...localData };
+            base.cart = Array.from(cartMap.values()).sort((a, b) => (b.createdAtMs || 0) - (a.createdAtMs || 0));
             base.customers = Array.from(custMap.values());
-            base.deletedIds = Array.from(deletedSet).slice(-300);
+            base.deletedIds = Array.from(deletedSet).slice(-400);
             base.updatedAt = new Date(Math.max(localTime, cloudTime, Date.now())).toISOString();
             return base;
         }
@@ -712,51 +740,38 @@
             if (!appSettings.deletedIds.includes(id)) appSettings.deletedIds.push(id);
         }
 
-        function normalizeCloudConfig(cfg) {
-            if (!cfg || typeof cfg !== 'object') return null;
-            let databaseURL = sanitizeText(cfg.databaseURL || cfg.databaseUrl || '').replace(/\/+$/, '');
-            const apiKey = sanitizeText(cfg.apiKey || '');
-            const projectId = sanitizeText(cfg.projectId || '');
-            const googleSheetsUrl = sanitizeText(cfg.googleSheetsUrl || '');
-            if (!databaseURL || !apiKey) return null;
-            if (!/^https:\/\//i.test(databaseURL)) databaseURL = 'https://' + databaseURL;
-            return { databaseURL, apiKey, projectId, googleSheetsUrl };
-        }
-
         function connectFirebaseDatabase(cfg) {
             if (!cfg || !window.firebase) return null;
-            const projectId = cfg.projectId || (cfg.databaseURL.match(/https:\/\/([a-z0-9-]+)(?:-default-rtdb)?\./i) || [])[1] || 'fixhouse-erp';
-            const fbCfg = { apiKey: cfg.apiKey, databaseURL: cfg.databaseURL, projectId };
+            const fbCfg = { apiKey: cfg.apiKey, databaseURL: cfg.databaseURL, projectId: cfg.projectId || 'fixhouse-f2f29' };
             if (!firebase.apps.length) firebase.initializeApp(fbCfg);
             return firebase.database().ref(CLOUD_SYNC_ROOT);
         }
 
         function applyCloudStateFromSnapshot(snapshot) {
-            const dot = document.getElementById('syncDot');
-            const txt = document.getElementById('syncText');
+            const dot = document.getElementById('syncDot'), txt = document.getElementById('syncText');
             const cloudData = snapshot && typeof snapshot.val === 'function' ? snapshot.val() : null;
 
             if (!cloudData) {
-                if (dot) dot.className = 'w-2.5 h-2.5 rounded-full bg-amber-400 inline-block';
-                if (txt) txt.innerText = 'Bulut Hazır (Aktarılıyor)';
-                if (dbRef) dbRef.set(appSettings).catch(e => console.error(e));
+                if (dot) dot.className = 'w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block';
+                if (txt) txt.innerText = 'Bulut Senkronize Aktif';
+                if (dbRef) dbRef.set(JSON.parse(JSON.stringify(appSettings))).catch(e => console.error(e));
                 return;
             }
-
-            const incomingHash = stableHash({ cart: cloudData.cart, customers: cloudData.customers, montajPrice: cloudData.montajPrice, perakendePrice: cloudData.perakendePrice, deletedIds: cloudData.deletedIds });
-            const currentHash = stableHash({ cart: appSettings.cart, customers: appSettings.customers, montajPrice: appSettings.montajPrice, perakendePrice: appSettings.perakendePrice, deletedIds: appSettings.deletedIds });
 
             isApplyingRemote = true;
             try {
                 const merged = resolveDataConflict(appSettings, cloudData);
+                const beforeStr = JSON.stringify({ c: appSettings.cart, u: appSettings.customers });
                 appSettings = StorageManager.migrateAndHeal(merged);
+                const afterStr = JSON.stringify({ c: appSettings.cart, u: appSettings.customers });
+
                 writeStorageValue(STORAGE_KEY, appSettings);
                 refreshAllUI();
 
-                const mergedHash = stableHash({ cart: appSettings.cart, customers: appSettings.customers, montajPrice: appSettings.montajPrice, perakendePrice: appSettings.perakendePrice, deletedIds: appSettings.deletedIds });
-                if (mergedHash !== incomingHash && dbRef && mergedHash !== lastPushedHash) {
-                    lastPushedHash = mergedHash;
-                    dbRef.set(appSettings).catch(e => console.error(e));
+                // Eğer yerelde olup bulutta olmayan bir sipariş varsa anında buluta geri yaz
+                const cloudStr = JSON.stringify({ c: toSafeArray(cloudData.cart), u: toSafeArray(cloudData.customers) });
+                if (afterStr !== cloudStr && dbRef) {
+                    dbRef.set(JSON.parse(JSON.stringify(appSettings))).catch(e => console.error(e));
                 }
             } finally {
                 isApplyingRemote = false;
@@ -769,14 +784,8 @@
         }
 
         function initCloudSync() {
-            const configRaw = readStorageValue(CLOUD_CONFIG_KEY, '{}');
             const dot = document.getElementById('syncDot'), txt = document.getElementById('syncText');
-            const cfg = normalizeCloudConfig(safeJsonParse(configRaw, {}));
-            if (!cfg) {
-                if (dot) dot.className = "w-2.5 h-2.5 rounded-full bg-slate-400 inline-block";
-                if (txt) txt.innerText = "Yerel Mod";
-                return;
-            }
+            const cfg = getActiveCloudConfig();
             try {
                 dbRef = connectFirebaseDatabase(cfg);
                 if (!dbRef) throw new Error('Firebase başlatılamadı.');
@@ -786,8 +795,8 @@
                 dbRef.on('value', snap => applyCloudStateFromSnapshot(snap), err => {
                     console.error('Firebase sync error:', err);
                     if (dot) dot.className = "w-2.5 h-2.5 rounded-full bg-red-500 inline-block";
-                    if (txt) txt.innerText = "Erişim/İzin Hatası";
-                    showErrorBanner('Bulut okuma hatası: Firebase Rules (.read/.write) izinlerini kontrol edin.');
+                    if (txt) txt.innerText = "İzin Hatası";
+                    showErrorBanner('Firebase bağlantı hatası: ' + (err.message || 'Kuralları kontrol edin.'));
                 });
             } catch (e) {
                 console.error("Cloud init error:", e);
@@ -797,23 +806,26 @@
         }
 
         function forceManualSync() {
-            if (!dbRef) return openCloudConfigModal();
+            if (!dbRef) initCloudSync();
             const txt = document.getElementById('syncText');
             if (txt) txt.innerText = "Eşitleniyor...";
-            dbRef.once('value', snap => {
+            dbRef.once('value').then(snap => {
                 applyCloudStateFromSnapshot(snap);
-                dbRef.set(appSettings);
+                return dbRef.set(JSON.parse(JSON.stringify(appSettings)));
+            }).then(() => {
+                if (txt) txt.innerText = "Bulut Senkronize Aktif";
+            }).catch(err => {
+                showErrorBanner("Eşitleme hatası: " + err.message);
             });
         }
 
         function clearCloudConfig() {
-            if (confirm("Bulut bağlantısını kesmek istediğinize emin misiniz?")) {
-                SecureStorage.remove(CLOUD_CONFIG_KEY); location.reload();
-            }
+            SecureStorage.remove(CLOUD_CONFIG_KEY);
+            location.reload();
         }
 
         function openCloudConfigModal() {
-            const cfg = safeJsonParse(readStorageValue(CLOUD_CONFIG_KEY, '{}'), {});
+            const cfg = getActiveCloudConfig();
             document.getElementById('firebaseDbUrlInput').value = cfg.databaseURL || '';
             document.getElementById('firebaseApiKeyInput').value = cfg.apiKey || '';
             document.getElementById('firebaseProjectIdInput').value = cfg.projectId || '';
@@ -823,20 +835,18 @@
         function closeCloudConfigModal() { document.getElementById('cloudConfigModal').classList.add('hidden'); }
         function saveAndConnectCloud() {
             const rawCfg = {
-                databaseURL: sanitizeText(document.getElementById('firebaseDbUrlInput').value),
+                databaseURL: sanitizeText(document.getElementById('firebaseDbUrlInput').value).replace(/\/+$/, ''),
                 apiKey: sanitizeText(document.getElementById('firebaseApiKeyInput').value),
                 projectId: sanitizeText(document.getElementById('firebaseProjectIdInput').value),
                 googleSheetsUrl: sanitizeText(document.getElementById('googleSheetsUrlInput').value)
             };
-            const norm = normalizeCloudConfig(rawCfg);
-            if (!norm && rawCfg.databaseURL) return alert('Lütfen geçerli bir Firebase Database URL ve API Key girin.');
-            writeStorageValue(CLOUD_CONFIG_KEY, norm || rawCfg);
+            writeStorageValue(CLOUD_CONFIG_KEY, rawCfg);
             closeCloudConfigModal();
             location.reload();
         }
 
         function triggerSheetSync(action, payload) {
-            const cfg = safeJsonParse(readStorageValue(CLOUD_CONFIG_KEY, '{}'), {});
+            const cfg = getActiveCloudConfig();
             if (!cfg.googleSheetsUrl) return;
             fetch(cfg.googleSheetsUrl, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action, payload }) }).catch(e => console.error(e));
         }
@@ -854,11 +864,11 @@
                 if (data.kdvRate !== undefined) m.kdvRate = safeNumber(data.kdvRate, 20);
                 if (data.minM2 !== undefined) m.minM2 = safeNumber(data.minM2, 1.0);
                 if (data.cutDeductions && typeof data.cutDeductions === 'object') m.cutDeductions = data.cutDeductions;
-                if (Array.isArray(data.productGroups) && data.productGroups.length > 0) m.productGroups = data.productGroups;
-                if (Array.isArray(data.whatsappTemplates) && data.whatsappTemplates.length > 0) m.whatsappTemplates = data.whatsappTemplates;
-                if (Array.isArray(data.cart)) m.cart = data.cart;
-                if (Array.isArray(data.customers)) m.customers = data.customers.map(c => ({ ...c, category: c.category || 'standard', transactions: Array.isArray(c.transactions) ? c.transactions : [] }));
-                if (Array.isArray(data.deletedIds)) m.deletedIds = data.deletedIds;
+                if (toSafeArray(data.productGroups).length > 0) m.productGroups = toSafeArray(data.productGroups);
+                if (toSafeArray(data.whatsappTemplates).length > 0) m.whatsappTemplates = toSafeArray(data.whatsappTemplates);
+                m.cart = toSafeArray(data.cart).map(o => ({ ...o, items: toSafeArray(o.items) }));
+                m.customers = toSafeArray(data.customers).map(c => ({ ...c, category: c.category || 'standard', transactions: toSafeArray(c.transactions) }));
+                m.deletedIds = toSafeArray(data.deletedIds);
                 m.updatedAt = data.updatedAt || new Date().toISOString();
                 m.schemaVersion = SCHEMA_VERSION;
                 return m;
@@ -870,10 +880,9 @@
                     createAutoBackup(cleanData);
                     writeStorageValue(STORAGE_KEY, cleanData);
                     if (dbRef && !isApplyingRemote) {
-                        lastPushedHash = stableHash({ cart: cleanData.cart, customers: cleanData.customers, montajPrice: cleanData.montajPrice, perakendePrice: cleanData.perakendePrice, deletedIds: cleanData.deletedIds });
                         dbRef.set(cleanData).catch(err => {
                             console.error("Cloud push error:", err);
-                            showErrorBanner("Buluta yazma başarısız oldu! Firebase Rules (.write: true) izinlerini kontrol edin.");
+                            showErrorBanner("Buluta yazma başarısız oldu: " + err.message);
                         });
                     }
                     return true;
@@ -1230,8 +1239,9 @@
                     });
                 }
             });
+            const nowMs = Date.now();
             return {
-                id: 'ORD-' + Date.now().toString().slice(-6), date: new Date().toLocaleDateString('tr-TR'),
+                id: 'ORD-' + nowMs.toString().slice(-6), createdAtMs: nowMs, updatedAtMs: nowMs, date: new Date().toLocaleDateString('tr-TR'),
                 customerName: sanitizeText(document.getElementById('custName').value || 'İsimsiz Müşteri'), customerPhone: sanitizePhone(document.getElementById('custPhone').value || ''), customerAddress: sanitizeText(document.getElementById('custAddress').value || 'Elazığ Atölye Teslim'),
                 tariff: sanitizeText(document.getElementById('salesTariff').value), extraLabor: safeNumber(document.getElementById('extraLabor').value, 0), kdvStatus: sanitizeText(document.getElementById('kdvStatus').value), totalAmount: safeNumber(document.getElementById('grandTotalDisplay').innerText.replace(/[^\d,.-]/g, '').replace(',', '.'), 0), discountRate: 0, deposit: 0, items
             };
@@ -1250,11 +1260,11 @@
             if (!customerName || customerName === 'İsimsiz Müşteri' || !customerPhone) return alert('Müşteri adı ve telefon numarası zorunludur.');
             try {
                 isProcessing = true;
-                if (!appSettings.cart) appSettings.cart = [];
+                if (!Array.isArray(appSettings.cart)) appSettings.cart = [];
                 appSettings.cart.unshift({ ...ord, customerName, customerPhone });
                 StorageManager.save(appSettings);
                 clearFormDraft(); renderCartUI();
-                alert(`Sipariş #${ord.id} sepete eklendi!`);
+                alert(`Sipariş #${ord.id} sepete ve buluta eklendi!`);
                 switchTab('cart');
             } finally { isProcessing = false; }
         }
@@ -1270,7 +1280,7 @@
         function renderCartUI() {
             const cnt = document.getElementById('cartItemsContainer'), badge = document.getElementById('cartCountBadge'), mobBadge = document.getElementById('mobCartBadge'), sumBadge = document.getElementById('cartSummaryBadge');
             if (!cnt) return;
-            let cart = appSettings.cart || [];
+            let cart = toSafeArray(appSettings.cart);
             if (badge) badge.innerText = cart.length;
             if (mobBadge) { mobBadge.innerText = cart.length; mobBadge.classList.toggle('hidden', cart.length === 0); }
             const sStr = document.getElementById('cartFilterStartDate')?.value, eStr = document.getElementById('cartFilterEndDate')?.value;
@@ -1307,7 +1317,7 @@
                     </div>
                     <div class="overflow-x-auto border rounded-lg bg-white">
                         <table class="w-full text-left text-xs"><thead class="bg-slate-100 font-extrabold text-slate-600 text-[10px] border-b"><tr><th class="p-2 text-center">Adet</th><th class="p-2">Ürün</th><th class="p-2 text-center">EN</th><th class="p-2 text-center">BOY</th><th class="p-2 text-center">Kesim</th><th class="p-2 text-right">Tutar</th></tr></thead>
-                        <tbody>${o.items.map((it, idx) => `<tr class="hover:bg-slate-50"><td class="p-2 text-center"><input type="number" min="1" value="${it.qty}" onchange="updateCartItemDimensionById('${o.id}', ${idx}, 'qty', this.value)" class="w-14 text-center font-black border rounded"></td><td class="p-2 font-bold">${it.pType.toUpperCase()}</td><td class="p-2 text-center"><input type="number" step="0.1" value="${it.en}" onchange="updateCartItemDimensionById('${o.id}', ${idx}, 'en', this.value)" class="w-16 text-center font-bold border rounded"></td><td class="p-2 text-center"><input type="number" step="0.1" value="${it.boy}" onchange="updateCartItemDimensionById('${o.id}', ${idx}, 'boy', this.value)" class="w-16 text-center font-bold border rounded"></td><td class="p-2 text-center font-mono text-[10px]">T:${it.tac} D:${it.dikme} K:${it.kanat}</td><td class="p-2 text-right font-black text-emerald-600">${it.price}</td></tr>`).join('')}</tbody></table>
+                        <tbody>${toSafeArray(o.items).map((it, idx) => `<tr class="hover:bg-slate-50"><td class="p-2 text-center"><input type="number" min="1" value="${it.qty}" onchange="updateCartItemDimensionById('${o.id}', ${idx}, 'qty', this.value)" class="w-14 text-center font-black border rounded"></td><td class="p-2 font-bold">${(it.pType || '').toUpperCase()}</td><td class="p-2 text-center"><input type="number" step="0.1" value="${it.en}" onchange="updateCartItemDimensionById('${o.id}', ${idx}, 'en', this.value)" class="w-16 text-center font-bold border rounded"></td><td class="p-2 text-center"><input type="number" step="0.1" value="${it.boy}" onchange="updateCartItemDimensionById('${o.id}', ${idx}, 'boy', this.value)" class="w-16 text-center font-bold border rounded"></td><td class="p-2 text-center font-mono text-[10px]">T:${it.tac} D:${it.dikme} K:${it.kanat}</td><td class="p-2 text-right font-black text-emerald-600">${it.price}</td></tr>`).join('')}</tbody></table>
                     </div>
                     <div class="flex flex-wrap justify-end gap-2 pt-2">
                         <button onclick="openWaSendModal('${o.id}')" class="bg-emerald-600 text-white text-xs px-3 py-1.5 rounded-lg font-bold shadow-sm">WhatsApp</button>
@@ -1344,12 +1354,12 @@
         function updateCartOrderFieldById(orderId, field, val) {
             const num = parseFloat(val); if (isNaN(num) || num < 0) return;
             const ord = (appSettings.cart || []).find(o => o.id === orderId);
-            if (ord) { ord[field] = num; StorageManager.save(appSettings); renderCartUI(); }
+            if (ord) { ord[field] = num; ord.updatedAtMs = Date.now(); StorageManager.save(appSettings); renderCartUI(); }
         }
         function updateCartItemDimensionById(orderId, itemIdx, field, val) {
             const num = safeNumber(val, NaN); if (!Number.isFinite(num) || num <= 0) return;
             const ord = (appSettings.cart || []).find(o => o.id === orderId); if (!ord || !ord.items[itemIdx]) return;
-            ord.items[itemIdx][field] = num;
+            ord.items[itemIdx][field] = num; ord.updatedAtMs = Date.now();
             const it = ord.items[itemIdx], pCut = appSettings.cutDeductions?.plise || DEFAULT_SETTINGS.cutDeductions.plise, mCut = appSettings.cutDeductions?.mentese || DEFAULT_SETTINGS.cutDeductions.mentese;
             const isDikey = (it.pType === 'plise' && it.dir === 'dikey'), enV = safeNumber(it.en, 0), boyV = safeNumber(it.boy, 0), qtyV = safeNumber(it.qty, 1);
 
@@ -1402,7 +1412,7 @@
 
         function getCustomerLedgerTotals(c, startDate = null, endDate = null) {
             let debit = 0, credit = 0;
-            (c.transactions || []).forEach(t => {
+            toSafeArray(c.transactions).forEach(t => {
                 if (startDate || endDate) {
                     const tD = parseTurkishDate(t.date);
                     if (tD) {
@@ -1472,8 +1482,8 @@
             const tbody = document.getElementById('ledgerTableBody'); if (!tbody) return;
             const q = (document.getElementById('ledgerSearchInput')?.value || '').toLowerCase(), sStr = document.getElementById('ledgerFilterStartDate')?.value, eStr = document.getElementById('ledgerFilterEndDate')?.value;
             let overdueCount = 0; const todayStr = new Date().toISOString().slice(0, 10);
-            const filtered = (appSettings.customers || []).filter(c => (c.category || 'standard') === currentLedgerSubCat && (c.name.toLowerCase().includes(q) || (c.phone || '').includes(q)));
-            document.getElementById('bulkBadgeCount').innerText = (appSettings.customers || []).filter(c => c.category === 'bulk').length;
+            const filtered = toSafeArray(appSettings.customers).filter(c => (c.category || 'standard') === currentLedgerSubCat && (c.name.toLowerCase().includes(q) || (c.phone || '').includes(q)));
+            document.getElementById('bulkBadgeCount').innerText = toSafeArray(appSettings.customers).filter(c => c.category === 'bulk').length;
             filtered.sort((a, b) => a.name.localeCompare(b.name, 'tr', { sensitivity: 'base' }));
 
             tbody.innerHTML = filtered.map(c => {
@@ -1497,7 +1507,7 @@
             }).join('');
 
             document.getElementById('ledgerOverdueBanner')?.classList.toggle('hidden', overdueCount === 0);
-            let gRev = 0, gCol = 0; (appSettings.customers || []).forEach(c => { const { debit, credit } = getCustomerLedgerTotals(c, sStr, eStr); gRev += debit; gCol += credit; });
+            let gRev = 0, gCol = 0; toSafeArray(appSettings.customers).forEach(c => { const { debit, credit } = getCustomerLedgerTotals(c, sStr, eStr); gRev += debit; gCol += credit; });
             const estCost = gRev * 0.35, netP = Math.max(0, gRev - estCost), pMargin = gRev > 0 ? ((netP / gRev) * 100).toFixed(1) : 0;
             document.getElementById('repTotalSalesRevenue').innerText = `${gRev.toFixed(2)} ₺`; document.getElementById('repTotalCollected').innerText = `${gCol.toFixed(2)} ₺`; document.getElementById('repTotalMaterialCost').innerText = `${estCost.toFixed(2)} ₺`; document.getElementById('repNetProfit').innerText = `${netP.toFixed(2)} ₺`; document.getElementById('repProfitMarginBadge').innerText = `(Kâr: %${pMargin})`;
         }
@@ -1513,7 +1523,7 @@
         function renderCustomerModalTransactions(c) {
             const { debit, credit, balance } = getCustomerLedgerTotals(c);
             document.getElementById('custModalTotalDebit').innerText = `${debit.toFixed(2)} ₺`; document.getElementById('custModalTotalCredit').innerText = `${credit.toFixed(2)} ₺`; document.getElementById('custModalBalance').innerText = `${balance.toFixed(2)} ₺`;
-            document.getElementById('custModalTableBody').innerHTML = (c.transactions || []).map((t, idx) => `<tr class="hover:bg-slate-50 border-b"><td class="p-3 text-slate-500">${t.date}</td><td class="p-3 font-bold">${t.type}</td><td class="p-3">${escapeHTML(t.desc)}</td><td class="p-3 text-right font-bold">${t.debit > 0 ? t.debit.toFixed(2) + ' ₺' : '-'}</td><td class="p-3 text-right font-black text-emerald-600">${t.credit > 0 ? t.credit.toFixed(2) + ' ₺' : '-'}</td><td class="p-3 text-center space-x-1 whitespace-nowrap"><button onclick="editCustomerTransaction('${c.id}', ${idx})" class="text-blue-500 hover:bg-blue-50 p-1.5 rounded"><i class="fa-solid fa-pen"></i></button>${t.credit > 0 ? `<button onclick="printReceiptDirect('${c.id}', ${t.credit}, '${escapeHTML(t.type)}', '${escapeHTML(t.desc)}')" class="text-emerald-600 hover:bg-emerald-50 p-1.5 rounded"><i class="fa-solid fa-receipt"></i></button>` : ''}<button onclick="deleteCustomerTransaction('${c.id}', ${idx})" class="text-red-500 hover:bg-red-50 p-1.5 rounded"><i class="fa-solid fa-trash"></i></button></td></tr>`).join('');
+            document.getElementById('custModalTableBody').innerHTML = toSafeArray(c.transactions).map((t, idx) => `<tr class="hover:bg-slate-50 border-b"><td class="p-3 text-slate-500">${t.date}</td><td class="p-3 font-bold">${t.type}</td><td class="p-3">${escapeHTML(t.desc)}</td><td class="p-3 text-right font-bold">${t.debit > 0 ? t.debit.toFixed(2) + ' ₺' : '-'}</td><td class="p-3 text-right font-black text-emerald-600">${t.credit > 0 ? t.credit.toFixed(2) + ' ₺' : '-'}</td><td class="p-3 text-center space-x-1 whitespace-nowrap"><button onclick="editCustomerTransaction('${c.id}', ${idx})" class="text-blue-500 hover:bg-blue-50 p-1.5 rounded"><i class="fa-solid fa-pen"></i></button>${t.credit > 0 ? `<button onclick="printReceiptDirect('${c.id}', ${t.credit}, '${escapeHTML(t.type)}', '${escapeHTML(t.desc)}')" class="text-emerald-600 hover:bg-emerald-50 p-1.5 rounded"><i class="fa-solid fa-receipt"></i></button>` : ''}<button onclick="deleteCustomerTransaction('${c.id}', ${idx})" class="text-red-500 hover:bg-red-50 p-1.5 rounded"><i class="fa-solid fa-trash"></i></button></td></tr>`).join('');
         }
 
         function editCustomerTransaction(custId, txIdx) {
@@ -1642,7 +1652,7 @@
         function renderProductRecipes() {
             const cnt = document.getElementById('productRecipesContainer'); if (!cnt) return;
             if (!appSettings.productGroups || !appSettings.productGroups.length) appSettings.productGroups = JSON.parse(JSON.stringify(DEFAULT_SETTINGS.productGroups));
-            cnt.innerHTML = appSettings.productGroups.map((g, i) => `<div class="bg-slate-50 p-4 rounded-xl border border-slate-200 shadow-sm"><div class="flex justify-between items-center border-b border-slate-300 pb-3 mb-3"><h3 class="font-extrabold text-sm md:text-base text-petrol-900"><i class="fa-solid fa-box text-petrol-500 mr-2"></i> ${escapeHTML(g.name)}</h3><div class="space-x-2"><button onclick="addNewAccessoryToGroupPrompt(${i})" class="text-[11px] bg-slate-200 hover:bg-slate-300 px-3 py-1.5 rounded font-bold shadow-sm">+ Aksesuar</button><button onclick="deleteProductGroup(${i})" class="text-red-600 text-[11px] bg-red-50 hover:bg-red-100 border border-red-200 px-3 py-1.5 rounded font-bold shadow-sm">Grubu Sil</button></div></div><div class="overflow-x-auto rounded border border-slate-200"><table class="w-full text-left text-xs"><thead class="bg-white font-extrabold text-slate-500 text-[10px] uppercase border-b"><tr><th class="p-2.5">Adı</th><th class="p-2.5">Birim</th><th class="p-2.5 text-right">Maliyet</th><th class="p-2.5 text-center">Sil</th></tr></thead><tbody class="divide-y divide-slate-100 bg-slate-50/50">${(g.accessories || []).map((a, ai) => `<tr><td class="p-2.5 font-bold text-slate-800">${escapeHTML(a.name)}</td><td class="p-2.5 text-slate-600">${escapeHTML(a.unit)}</td><td class="p-2.5 text-right"><input type="number" step="0.1" value="${a.cost}" data-gidx="${i}" data-aidx="${ai}" class="recipe-cost-input w-20 border rounded px-2 py-1 font-bold text-right outline-none"></td><td class="p-2.5 text-center"><button onclick="deleteGroupAccessory(${i},${ai})" class="text-red-500 hover:bg-red-100 p-1.5 rounded"><i class="fa-solid fa-xmark"></i></button></td></tr>`).join('')}</tbody></table></div></div>`).join('');
+            cnt.innerHTML = appSettings.productGroups.map((g, i) => `<div class="bg-slate-50 p-4 rounded-xl border border-slate-200 shadow-sm"><div class="flex justify-between items-center border-b border-slate-300 pb-3 mb-3"><h3 class="font-extrabold text-sm md:text-base text-petrol-900"><i class="fa-solid fa-box text-petrol-500 mr-2"></i> ${escapeHTML(g.name)}</h3><div class="space-x-2"><button onclick="addNewAccessoryToGroupPrompt(${i})" class="text-[11px] bg-slate-200 hover:bg-slate-300 px-3 py-1.5 rounded font-bold shadow-sm">+ Aksesuar</button><button onclick="deleteProductGroup(${i})" class="text-red-600 text-[11px] bg-red-50 hover:bg-red-100 border border-red-200 px-3 py-1.5 rounded font-bold shadow-sm">Grubu Sil</button></div></div><div class="overflow-x-auto rounded border border-slate-200"><table class="w-full text-left text-xs"><thead class="bg-white font-extrabold text-slate-500 text-[10px] uppercase border-b"><tr><th class="p-2.5">Adı</th><th class="p-2.5">Birim</th><th class="p-2.5 text-right">Maliyet</th><th class="p-2.5 text-center">Sil</th></tr></thead><tbody class="divide-y divide-slate-100 bg-slate-50/50">${toSafeArray(g.accessories).map((a, ai) => `<tr><td class="p-2.5 font-bold text-slate-800">${escapeHTML(a.name)}</td><td class="p-2.5 text-slate-600">${escapeHTML(a.unit)}</td><td class="p-2.5 text-right"><input type="number" step="0.1" value="${a.cost}" data-gidx="${i}" data-aidx="${ai}" class="recipe-cost-input w-20 border rounded px-2 py-1 font-bold text-right outline-none"></td><td class="p-2.5 text-center"><button onclick="deleteGroupAccessory(${i},${ai})" class="text-red-500 hover:bg-red-100 p-1.5 rounded"><i class="fa-solid fa-xmark"></i></button></td></tr>`).join('')}</tbody></table></div></div>`).join('');
         }
 
         function addNewProductGroupPrompt() { let n = prompt("Yeni Grup Adı:"); if (n && n.trim()) { appSettings.productGroups.push({ id: "pg-" + Date.now(), name: n.trim(), accessories: [] }); StorageManager.save(appSettings); renderProductRecipes(); } }
@@ -1721,7 +1731,7 @@
 
         function renderWhatsAppTemplatesUI() {
             const cnt = document.getElementById('waTemplatesContainer'); if (!cnt) return;
-            cnt.innerHTML = (appSettings.whatsappTemplates || []).map((tpl, i) => `<div class="bg-slate-50 p-3 rounded-lg border border-slate-200 relative group"><input type="text" value="${escapeHTML(tpl.title)}" onchange="updateWaTemplateTitle(${i}, this.value)" class="w-full font-bold text-slate-700 mb-1.5 bg-transparent border-b border-slate-300 outline-none pb-1"><textarea rows="2" onchange="updateWaTemplateText(${i}, this.value)" class="w-full p-2 border border-slate-300 rounded outline-none">${escapeHTML(tpl.text)}</textarea><button onclick="deleteWhatsAppTemplate(${i})" class="absolute top-2 right-2 text-red-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition"><i class="fa-solid fa-xmark"></i></button></div>`).join('');
+            cnt.innerHTML = toSafeArray(appSettings.whatsappTemplates).map((tpl, i) => `<div class="bg-slate-50 p-3 rounded-lg border border-slate-200 relative group"><input type="text" value="${escapeHTML(tpl.title)}" onchange="updateWaTemplateTitle(${i}, this.value)" class="w-full font-bold text-slate-700 mb-1.5 bg-transparent border-b border-slate-300 outline-none pb-1"><textarea rows="2" onchange="updateWaTemplateText(${i}, this.value)" class="w-full p-2 border border-slate-300 rounded outline-none">${escapeHTML(tpl.text)}</textarea><button onclick="deleteWhatsAppTemplate(${i})" class="absolute top-2 right-2 text-red-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition"><i class="fa-solid fa-xmark"></i></button></div>`).join('');
         }
         function updateWaTemplateTitle(idx, val) { if (appSettings.whatsappTemplates[idx]) appSettings.whatsappTemplates[idx].title = val; }
         function updateWaTemplateText(idx, val) { if (appSettings.whatsappTemplates[idx]) appSettings.whatsappTemplates[idx].text = val; }
@@ -1731,13 +1741,13 @@
 
         function openWaSendModal(orderId) {
             activeWaOrderId = orderId;
-            document.getElementById('waSendButtonsContainer').innerHTML = (appSettings.whatsappTemplates || []).map(tpl => `<button onclick="executeWaSend('${tpl.id}')" class="w-full text-left bg-slate-50 hover:bg-emerald-50 border border-slate-200 p-3 rounded-lg transition"><div class="font-bold text-slate-800">${escapeHTML(tpl.title)}</div><div class="text-[10px] text-slate-500 truncate mt-1">${escapeHTML(tpl.text)}</div></button>`).join('');
+            document.getElementById('waSendButtonsContainer').innerHTML = toSafeArray(appSettings.whatsappTemplates).map(tpl => `<button onclick="executeWaSend('${tpl.id}')" class="w-full text-left bg-slate-50 hover:bg-emerald-50 border border-slate-200 p-3 rounded-lg transition"><div class="font-bold text-slate-800">${escapeHTML(tpl.title)}</div><div class="text-[10px] text-slate-500 truncate mt-1">${escapeHTML(tpl.text)}</div></button>`).join('');
             document.getElementById('waSendModal').classList.remove('hidden');
         }
         function closeWaSendModal() { document.getElementById('waSendModal').classList.add('hidden'); activeWaOrderId = null; }
         function buildWaOrderMessage(o, tpl) {
             const fin = computeOrderFinancials(o);
-            let pLines = o.items.map(i => `• ${i.seq}) ${i.pType.toUpperCase()} (${i.color}) - ${i.en}x${i.boy} cm [${i.qty} Adet]`).join('\n');
+            let pLines = toSafeArray(o.items).map(i => `• ${i.seq}) ${(i.pType || '').toUpperCase()} (${i.color}) - ${i.en}x${i.boy} cm [${i.qty} Adet]`).join('\n');
             let msg = tpl.text.replace(/{MUSTERI}/g, o.customerName || 'Müşterimiz');
             msg += `\n\n*Sipariş No:* #${o.id}\n*Tarih:* ${o.date}\n\n*Ürün Detayları:*\n${pLines}\n------------------------------\n*Liste Tutarı:* ${fin.listPrice.toFixed(2)} TL`;
             if (fin.discRate > 0) msg += `\n*İskonto:* %${fin.discRate} (-${fin.discountAmt.toFixed(2)} TL)`;
@@ -1808,7 +1818,7 @@
 
         function buildOrderA4HTML(o, breakAfter = false) {
             const fin = computeOrderFinancials(o);
-            return `<div class="a4-print-container" style="padding: 4mm; ${breakAfter ? 'page-break-after: always;' : ''}"><div class="print-header" style="display:flex; justify-content:space-between; align-items:flex-end;"><div><div style="font-size:15pt; font-weight:900; color:#0f766e;">FIX HOUSE SİSTEMLERİ</div><p style="font-size:8.5pt; margin:4px 0 0 0;">Kodu: <b>#${o.id}</b> | Tarih: <b>${o.date}</b></p></div><div style="text-align:right;"><h2 style="font-size:12pt; font-weight:bold; margin:0;">${escapeHTML(o.customerName)}</h2><p style="font-size:9pt; margin:1px 0;">Tel: <b>${escapeHTML(o.customerPhone)}</b></p></div></div><table class="print-table" style="margin-top:6px;"><thead><tr><th>#</th><th>Adet</th><th>Ürün</th><th>Renk</th><th>Özellikler</th><th>EN</th><th>BOY</th><th>TAÇ</th><th>DİKME</th><th>KANAT</th><th>TÜL</th></tr></thead><tbody>${o.items.map(i => `<tr><td>${i.seq}</td><td><b>${i.qty}</b></td><td>${i.pType.toUpperCase()}</td><td>${i.color}</td><td style="font-size:7pt;">${i.dir} ${i.tulType}</td><td style="font-weight:900;">${i.en}</td><td style="font-weight:900;">${i.boy}</td><td style="background:#f8fafc;">${i.tac}</td><td style="background:#f8fafc;">${i.dikme}</td><td style="background:#f8fafc;">${i.kanat}</td><td>${i.tul}</td></tr>`).join('')}</tbody></table><div style="display:flex; justify-content:flex-end; margin-top:10px;"><table style="width:280px; font-size:8.5pt; border-collapse:collapse; text-align:right;"><tr><td style="padding:3px; border:1px solid #cbd5e1;">Toplam Tutarı:</td><td style="padding:3px; border:1px solid #cbd5e1; font-weight:bold;">${fin.listPrice.toFixed(2)} ₺</td></tr><tr style="background:#f1f5f9;"><td style="padding:5px; border:1px solid #334155; font-weight:900;">Kalan Bakiye:</td><td style="padding:5px; border:1px solid #334155; font-weight:900; color:#b91c1c;">${fin.balanceDue.toFixed(2)} ₺</td></tr></table></div></div>`;
+            return `<div class="a4-print-container" style="padding: 4mm; ${breakAfter ? 'page-break-after: always;' : ''}"><div class="print-header" style="display:flex; justify-content:space-between; align-items:flex-end;"><div><div style="font-size:15pt; font-weight:900; color:#0f766e;">FIX HOUSE SİSTEMLERİ</div><p style="font-size:8.5pt; margin:4px 0 0 0;">Kodu: <b>#${o.id}</b> | Tarih: <b>${o.date}</b></p></div><div style="text-align:right;"><h2 style="font-size:12pt; font-weight:bold; margin:0;">${escapeHTML(o.customerName)}</h2><p style="font-size:9pt; margin:1px 0;">Tel: <b>${escapeHTML(o.customerPhone)}</b></p></div></div><table class="print-table" style="margin-top:6px;"><thead><tr><th>#</th><th>Adet</th><th>Ürün</th><th>Renk</th><th>Özellikler</th><th>EN</th><th>BOY</th><th>TAÇ</th><th>DİKME</th><th>KANAT</th><th>TÜL</th></tr></thead><tbody>${toSafeArray(o.items).map(i => `<tr><td>${i.seq}</td><td><b>${i.qty}</b></td><td>${(i.pType || '').toUpperCase()}</td><td>${i.color}</td><td style="font-size:7pt;">${i.dir} ${i.tulType}</td><td style="font-weight:900;">${i.en}</td><td style="font-weight:900;">${i.boy}</td><td style="background:#f8fafc;">${i.tac}</td><td style="background:#f8fafc;">${i.dikme}</td><td style="background:#f8fafc;">${i.kanat}</td><td>${i.tul}</td></tr>`).join('')}</tbody></table><div style="display:flex; justify-content:flex-end; margin-top:10px;"><table style="width:280px; font-size:8.5pt; border-collapse:collapse; text-align:right;"><tr><td style="padding:3px; border:1px solid #cbd5e1;">Toplam Tutarı:</td><td style="padding:3px; border:1px solid #cbd5e1; font-weight:bold;">${fin.listPrice.toFixed(2)} ₺</td></tr><tr style="background:#f1f5f9;"><td style="padding:5px; border:1px solid #334155; font-weight:900;">Kalan Bakiye:</td><td style="padding:5px; border:1px solid #334155; font-weight:900; color:#b91c1c;">${fin.balanceDue.toFixed(2)} ₺</td></tr></table></div></div>`;
         }
 
         function printDirectA4(o) {
@@ -1823,11 +1833,11 @@
         function printZebraLabels(o) {
             document.getElementById('printContainerA4').innerHTML = ''; document.getElementById('printContainerA5Receipt').innerHTML = '';
             let html = ''; const safeCode = o.id.replace(/[^A-Za-z0-9_-]/g, '');
-            o.items.forEach(i => {
+            toSafeArray(o.items).forEach(i => {
                 let q = i.qty || 1;
                 for (let n = 1; n <= q; n++) {
                     const bVal = `${safeCode}-${i.seq}-${n}`;
-                    html += `<div class="zebra-label"><div style="display:flex; justify-content:space-between; border-bottom:1.5px solid #000; padding-bottom:1px; line-height:1;"><div><span style="font-size:10pt; font-weight:900;">FİX HOUSE</span></div><span style="font-size:8pt; font-weight:900; background:#000; color:#fff; padding:1px 4px; -webkit-print-color-adjust:exact;">#${escapeHTML(o.id)}</span></div><div style="display:flex; justify-content:space-between; margin:1.5px 0;"><div style="font-size:9.5pt; font-weight:900; text-transform:uppercase; max-width:44mm; overflow:hidden;">${escapeHTML(o.customerName)}</div><div style="display:flex; gap:3px;">${getDoubleWingBadge(i)} <span style="font-size:8pt; font-weight:900;">${i.pType.toUpperCase()}</span> ${getColorBadgeSVG(i.color)}</div></div><div style="display:grid; grid-template-columns:36mm 1fr; gap:2mm; border:1.5px solid #000; padding:1.5px; background:#fafafa; -webkit-print-color-adjust:exact;"><div style="text-align:center; border-right:1px solid #000;"><div style="font-size:5.5pt; font-weight:900;">KASA ÖLÇÜSÜ</div><div style="font-size:12pt; font-weight:900;">${i.en} × ${i.boy}</div></div><div style="display:grid; grid-template-columns:repeat(4, 1fr); text-align:center;"><div><span style="font-size:5.5pt; font-weight:bold;">TAÇ</span><b style="font-size:9.5pt; font-weight:900; display:block;">${i.tac}</b></div><div><span style="font-size:5.5pt; font-weight:bold;">DİKME</span><b style="font-size:9.5pt; font-weight:900; display:block;">${i.dikme}</b></div><div><span style="font-size:5.5pt; font-weight:bold;">KANAT</span><b style="font-size:9.5pt; font-weight:900; display:block;">${i.kanat}</b></div><div><span style="font-size:5.5pt; font-weight:bold;">TÜL</span><b style="font-size:9.5pt; font-weight:900; display:block;">${i.tul}</b></div></div></div><div style="display:flex; justify-content:space-between; min-height:15px; margin:1px 0;"><div>${getSpecialMeshBadge(i.tulType) || `<span style="font-size:7pt; font-weight:bold;">İP: <b>${i.ip}</b></span>`}</div><div style="font-size:7pt; font-weight:bold;">${i.note ? '[' + escapeHTML(i.note) + ']' : ''}</div></div><div style="text-align:center; display:flex; flex-direction:column; align-items:center;">${generateCode128SVG(bVal, 28)}<div style="font-family:monospace; font-size:6.5pt; font-weight:bold;">*${bVal}*</div></div></div>`;
+                    html += `<div class="zebra-label"><div style="display:flex; justify-content:space-between; border-bottom:1.5px solid #000; padding-bottom:1px; line-height:1;"><div><span style="font-size:10pt; font-weight:900;">FİX HOUSE</span></div><span style="font-size:8pt; font-weight:900; background:#000; color:#fff; padding:1px 4px; -webkit-print-color-adjust:exact;">#${escapeHTML(o.id)}</span></div><div style="display:flex; justify-content:space-between; margin:1.5px 0;"><div style="font-size:9.5pt; font-weight:900; text-transform:uppercase; max-width:44mm; overflow:hidden;">${escapeHTML(o.customerName)}</div><div style="display:flex; gap:3px;">${getDoubleWingBadge(i)} <span style="font-size:8pt; font-weight:900;">${(i.pType || '').toUpperCase()}</span> ${getColorBadgeSVG(i.color)}</div></div><div style="display:grid; grid-template-columns:36mm 1fr; gap:2mm; border:1.5px solid #000; padding:1.5px; background:#fafafa; -webkit-print-color-adjust:exact;"><div style="text-align:center; border-right:1px solid #000;"><div style="font-size:5.5pt; font-weight:900;">KASA ÖLÇÜSÜ</div><div style="font-size:12pt; font-weight:900;">${i.en} × ${i.boy}</div></div><div style="display:grid; grid-template-columns:repeat(4, 1fr); text-align:center;"><div><span style="font-size:5.5pt; font-weight:bold;">TAÇ</span><b style="font-size:9.5pt; font-weight:900; display:block;">${i.tac}</b></div><div><span style="font-size:5.5pt; font-weight:bold;">DİKME</span><b style="font-size:9.5pt; font-weight:900; display:block;">${i.dikme}</b></div><div><span style="font-size:5.5pt; font-weight:bold;">KANAT</span><b style="font-size:9.5pt; font-weight:900; display:block;">${i.kanat}</b></div><div><span style="font-size:5.5pt; font-weight:bold;">TÜL</span><b style="font-size:9.5pt; font-weight:900; display:block;">${i.tul}</b></div></div></div><div style="display:flex; justify-content:space-between; min-height:15px; margin:1px 0;"><div>${getSpecialMeshBadge(i.tulType) || `<span style="font-size:7pt; font-weight:bold;">İP: <b>${i.ip}</b></span>`}</div><div style="font-size:7pt; font-weight:bold;">${i.note ? '[' + escapeHTML(i.note) + ']' : ''}</div></div><div style="text-align:center; display:flex; flex-direction:column; align-items:center;">${generateCode128SVG(bVal, 28)}<div style="font-family:monospace; font-size:6.5pt; font-weight:bold;">*${bVal}*</div></div></div>`;
                 }
             });
             document.getElementById('printContainerZebra').innerHTML = html; window.print();
@@ -1835,14 +1845,14 @@
         function printCartOrderZebraDirectById(id) { const o = (appSettings.cart || []).find(x => x.id === id); if (o) printZebraLabels(o); }
         function printBulkZebra(orders) {
             let mockOrder = { id: "TOPLU", customerName: "TOPLU YAZDIRMA", items: [] };
-            orders.forEach(o => o.items.forEach(it => mockOrder.items.push({ ...it, note: `${o.customerName.substring(0,8)} - ${it.note || ''}` })));
+            orders.forEach(o => toSafeArray(o.items).forEach(it => mockOrder.items.push({ ...it, note: `${o.customerName.substring(0,8)} - ${it.note || ''}` })));
             printZebraLabels(mockOrder);
         }
         function printCustomerStatementA4() {
             const c = (appSettings.customers || []).find(x => x.id === activeCustomerStatementId); if (!c) return;
             const { balance } = getCustomerLedgerTotals(c);
             document.getElementById('printContainerZebra').innerHTML = ''; document.getElementById('printContainerA5Receipt').innerHTML = '';
-            document.getElementById('printContainerA4').innerHTML = `<div class="a4-print-container" style="padding:10mm;"><div class="print-header" style="display:flex; justify-content:space-between; align-items:flex-end;"><div><div style="font-size:14pt; font-weight:900; color:#0f766e;">FIX HOUSE - CARİ EKSTRE</div><p style="font-size:8.5pt; margin:4px 0 0 0;">Cari Kod: <b>${c.code}</b></p></div><div style="text-align:right;"><h2 style="font-size:11pt; font-weight:bold; margin:0;">${escapeHTML(c.name)}</h2><p style="font-size:8pt; margin:0; font-weight:bold; color:#b91c1c;">Vade: ${c.dueDate || '-'}</p></div></div><table class="print-table" style="margin-top:15px;"><thead><tr><th>Tarih</th><th>İşlem Türü</th><th>Açıklama</th><th style="text-align:right;">Borç</th><th style="text-align:right;">Tahsilat</th></tr></thead><tbody>${(c.transactions || []).map(t => `<tr><td>${t.date}</td><td style="font-weight:bold;">${escapeHTML(t.type)}</td><td style="text-align:left;">${escapeHTML(t.desc)}</td><td style="text-align:right; font-weight:bold;">${t.debit > 0 ? t.debit.toFixed(2) + ' ₺' : '-'}</td><td style="text-align:right; font-weight:bold; color:#047857;">${t.credit > 0 ? t.credit.toFixed(2) + ' ₺' : '-'}</td></tr>`).join('')}</tbody></table><div style="display:flex; justify-content:flex-end; margin-top:15px;"><table style="width:260px; font-size:8.5pt; border-collapse:collapse; text-align:right;"><tr style="background:#f1f5f9;"><td style="padding:5px; border:1px solid #334155; font-weight:900;">Kalan Borç:</td><td style="padding:5px; border:1px solid #334155; font-weight:900; color:#b91c1c; font-size:10pt;">${balance.toFixed(2)} ₺</td></tr></table></div></div>`;
+            document.getElementById('printContainerA4').innerHTML = `<div class="a4-print-container" style="padding:10mm;"><div class="print-header" style="display:flex; justify-content:space-between; align-items:flex-end;"><div><div style="font-size:14pt; font-weight:900; color:#0f766e;">FIX HOUSE - CARİ EKSTRE</div><p style="font-size:8.5pt; margin:4px 0 0 0;">Cari Kod: <b>${c.code}</b></p></div><div style="text-align:right;"><h2 style="font-size:11pt; font-weight:bold; margin:0;">${escapeHTML(c.name)}</h2><p style="font-size:8pt; margin:0; font-weight:bold; color:#b91c1c;">Vade: ${c.dueDate || '-'}</p></div></div><table class="print-table" style="margin-top:15px;"><thead><tr><th>Tarih</th><th>İşlem Türü</th><th>Açıklama</th><th style="text-align:right;">Borç</th><th style="text-align:right;">Tahsilat</th></tr></thead><tbody>${toSafeArray(c.transactions).map(t => `<tr><td>${t.date}</td><td style="font-weight:bold;">${escapeHTML(t.type)}</td><td style="text-align:left;">${escapeHTML(t.desc)}</td><td style="text-align:right; font-weight:bold;">${t.debit > 0 ? t.debit.toFixed(2) + ' ₺' : '-'}</td><td style="text-align:right; font-weight:bold; color:#047857;">${t.credit > 0 ? t.credit.toFixed(2) + ' ₺' : '-'}</td></tr>`).join('')}</tbody></table><div style="display:flex; justify-content:flex-end; margin-top:15px;"><table style="width:260px; font-size:8.5pt; border-collapse:collapse; text-align:right;"><tr style="background:#f1f5f9;"><td style="padding:5px; border:1px solid #334155; font-weight:900;">Kalan Borç:</td><td style="padding:5px; border:1px solid #334155; font-weight:900; color:#b91c1c; font-size:10pt;">${balance.toFixed(2)} ₺</td></tr></table></div></div>`;
             window.print();
         }
         function printReceiptDirect(custId, amt, pType, desc) {
@@ -1853,14 +1863,14 @@
         }
 
         function exportLedgerExcel() {
-            const cL = appSettings.customers || []; if (!cL.length || !window.XLSX) return;
+            const cL = toSafeArray(appSettings.customers); if (!cL.length || !window.XLSX) return;
             const rows = cL.map(c => { const { debit, credit, balance } = getCustomerLedgerTotals(c); return { "Kod": c.code, "Müşteri": c.name, "Telefon": c.phone, "Borç": debit, "Tahsilat": credit, "Bakiye": balance }; });
             const ws = XLSX.utils.json_to_sheet(rows), wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Cari"); XLSX.writeFile(wb, `FixHouse_Cari_${new Date().toISOString().slice(0, 10)}.xlsx`);
         }
         function exportCustomerStatementExcel() {
             if (!activeCustomerStatementId) return;
-            const c = (appSettings.customers || []).find(x => x.id === activeCustomerStatementId); if (!c || !(c.transactions || []).length) return alert("Hareket bulunmuyor.");
-            const rows = c.transactions.map(t => ({ "Tarih": t.date, "İşlem Türü": t.type, "Açıklama": t.desc, "Borç (TL)": t.debit || 0, "Tahsilat (TL)": t.credit || 0 }));
+            const c = (appSettings.customers || []).find(x => x.id === activeCustomerStatementId); if (!c || !toSafeArray(c.transactions).length) return alert("Hareket bulunmuyor.");
+            const rows = toSafeArray(c.transactions).map(t => ({ "Tarih": t.date, "İşlem Türü": t.type, "Açıklama": t.desc, "Borç (TL)": t.debit || 0, "Tahsilat (TL)": t.credit || 0 }));
             const { debit, credit, balance } = getCustomerLedgerTotals(c);
             rows.push({ "Tarih": "GENEL TOPLAM", "İşlem Türü": "-", "Açıklama": "-", "Borç (TL)": debit, "Tahsilat (TL)": credit }, { "Tarih": "KALAN BAKİYE", "İşlem Türü": "-", "Açıklama": "-", "Borç (TL)": balance, "Tahsilat (TL)": "" });
             if (window.XLSX) { const ws = XLSX.utils.json_to_sheet(rows), wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Müşteri Ekstresi"); XLSX.writeFile(wb, `FixHouse_Ekstre_${c.name.replace(/\s+/g, '_')}_${new Date().toISOString().slice(0, 10)}.xlsx`); }
