@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://www.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' https://cdnjs.cloudflare.com https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https:; frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self';">
     <title>Fix House - İleri Ölçü, Tüketim Analizi, Finans & Cari Yönetim Sistemi</title>
     
     <!-- CDN ve Fallback Desteği -->
@@ -798,6 +799,167 @@
             return str.replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m]));
         }
 
+        function safeJsonParse(value, fallback = null) {
+            if (typeof value !== 'string' || !value.trim()) return fallback;
+            try {
+                return JSON.parse(value);
+            } catch (e) {
+                console.warn('Geçersiz JSON atıldı:', e.message || e);
+                return fallback;
+            }
+        }
+
+        function getCurrentPin() {
+            try {
+                if (appSettings && typeof appSettings.appPin === 'string' && appSettings.appPin.trim()) {
+                    return appSettings.appPin.trim();
+                }
+                const pin = localStorage.getItem(PIN_STORAGE_KEY);
+                if (typeof pin === 'string' && pin.trim()) return pin.trim();
+            } catch (e) {}
+            return DEFAULT_SETTINGS.appPin || 'fixhouse';
+        }
+
+        function stableHash(value) {
+            const input = typeof value === 'string' ? value : JSON.stringify(value || {});
+            let hash = 2166136261;
+            for (let i = 0; i < input.length; i++) {
+                const code = input.charCodeAt(i);
+                hash ^= code;
+                hash = Math.imul(hash, 16777619);
+            }
+            return (hash >>> 0).toString(16);
+        }
+
+        function xorObfuscate(input, key) {
+            const text = String(input || '');
+            const secret = String(key || 'fixhouse');
+            let result = '';
+            for (let i = 0; i < text.length; i++) {
+                const charCode = text.charCodeAt(i) ^ (secret.charCodeAt(i % secret.length) + i);
+                result += String.fromCharCode(charCode);
+            }
+            return result;
+        }
+
+        function xorEncodeValue(value, key) {
+            const plain = typeof value === 'string' ? value : JSON.stringify(value);
+            const encoded = xorObfuscate(plain, key);
+            return btoa(encodeURIComponent(encoded).replace(/%([0-9A-F]{2})/g, (_, p1) => String.fromCharCode(parseInt(p1, 16))));
+        }
+
+        function xorDecodeValue(value, key) {
+            if (typeof value !== 'string' || !value) return value;
+            try {
+                const binary = atob(value);
+                const normalized = decodeURIComponent(escape(binary));
+                const decoded = xorObfuscate(normalized, key);
+                return decoded;
+            } catch (e) {
+                return value;
+            }
+        }
+
+        const SecureStorage = {
+            read(key, fallback = null) {
+                try {
+                    const raw = localStorage.getItem(key);
+                    if (raw === null || raw === undefined) return fallback;
+                    if (raw.startsWith('v3:')) {
+                        const parsed = safeJsonParse(raw.slice(3), null);
+                        if (parsed && typeof parsed === 'object' && typeof parsed.value === 'string') {
+                            const expected = stableHash(parsed.value);
+                            if (parsed.checksum === expected) return parsed.value;
+                        }
+                        return fallback;
+                    }
+                    if (raw.startsWith('v2:')) {
+                        const decrypted = xorDecodeValue(raw.slice(3), getCurrentPin());
+                        return decrypted;
+                    }
+                    return raw;
+                } catch (e) {
+                    console.warn('Storage read failed:', e);
+                    return fallback;
+                }
+            },
+            write(key, value) {
+                try {
+                    const raw = typeof value === 'string' ? value : JSON.stringify(value);
+                    const envelope = JSON.stringify({ version: 3, checksum: stableHash(raw), value: raw });
+                    localStorage.setItem(key, 'v3:' + envelope);
+                    return true;
+                } catch (e) {
+                    console.warn('Storage write failed:', e);
+                    return false;
+                }
+            },
+            remove(key) {
+                try {
+                    localStorage.removeItem(key);
+                    return true;
+                } catch (e) {
+                    console.warn('Storage remove failed:', e);
+                    return false;
+                }
+            }
+        };
+
+        function readStorageValue(key, fallback = null) {
+            return SecureStorage.read(key, fallback);
+        }
+
+        function writeStorageValue(key, value) {
+            return SecureStorage.write(key, value);
+        }
+
+        function sanitizeText(value) {
+            if (value === null || value === undefined) return '';
+            return String(value).replace(/[\u0000-\u001F\u007F]/g, '').trim();
+        }
+
+        function sanitizePhone(value) {
+            return sanitizeText(value).replace(/[^\d+()\-\s]/g, '');
+        }
+
+        function safeNumber(value, fallback = 0) {
+            const parsed = Number(value);
+            return Number.isFinite(parsed) ? parsed : fallback;
+        }
+
+        function normalizeCloudConfig(cfg) {
+            if (!cfg || typeof cfg !== 'object') return null;
+
+            const databaseURL = sanitizeText(cfg.databaseURL || cfg.databaseUrl || cfg.dbUrl || cfg.database_url || cfg.url || '');
+            const apiKey = sanitizeText(cfg.apiKey || cfg.api_key || cfg.webApiKey || cfg.web_api_key || '');
+            const projectId = sanitizeText(cfg.projectId || cfg.project_id || cfg.projectID || cfg.project || '');
+            const googleSheetsUrl = sanitizeText(cfg.googleSheetsUrl || cfg.google_sheets_url || '');
+
+            if (!databaseURL || !apiKey) return null;
+
+            const normalized = {
+                databaseURL,
+                apiKey,
+                projectId,
+                googleSheetsUrl
+            };
+
+            if (!/^https:\/\/.+/i.test(normalized.databaseURL)) {
+                return null;
+            }
+
+            if (!/^(https:\/\/)?([a-z0-9-]+\.)?(firebaseio|firebasedatabase)\.(com|app)(\/.*)?$/i.test(normalized.databaseURL)) {
+                return null;
+            }
+
+            return normalized;
+        }
+
+        function isValidCloudConfig(cfg) {
+            const normalized = normalizeCloudConfig(cfg);
+            return !!normalized && !!normalized.databaseURL && !!normalized.apiKey;
+        }
+
         function parseTurkishDate(dateStr) {
             if (!dateStr) return null;
             if (dateStr.includes('.')) {
@@ -817,6 +979,7 @@
         const AUTO_BACKUP_KEY = "fix_house_23_auto_backups_erp_petrol";
         const DRAFT_STORAGE_KEY = "fix_house_active_form_draft";
         const CLOUD_CONFIG_KEY = "fix_house_firebase_cloud_config";
+        const CLOUD_SYNC_ROOT = "fixhouse_erp_data";
         const MAX_BACKUPS = 3;
 
         const DEFAULT_WHATSAPP_TEMPLATES = [
@@ -870,40 +1033,108 @@
         let dbRef = null;
         let isCloudSynced = false;
 
-        function initCloudSync() {
-            const configRaw = localStorage.getItem(CLOUD_CONFIG_KEY);
+        function resolveDataConflict(localData, cloudData) {
+            const localTime = localData && localData.updatedAt ? new Date(localData.updatedAt).getTime() : 0;
+            const cloudTime = cloudData && cloudData.updatedAt ? new Date(cloudData.updatedAt).getTime() : 0;
+            if (!cloudData) return localData;
+            if (!localData) return cloudData;
+            if (cloudTime > localTime) return { ...localData, ...cloudData, updatedAt: cloudData.updatedAt || localData.updatedAt };
+            if (localTime > cloudTime) return { ...cloudData, ...localData, updatedAt: localData.updatedAt || cloudData.updatedAt };
+            return { ...cloudData, ...localData, updatedAt: new Date().toISOString() };
+        }
+
+        function showLocalOnlyWarning() {
             const dot = document.getElementById('syncDot');
             const txt = document.getElementById('syncText');
-            if (!configRaw) {
-                if(dot) { dot.className = "w-2.5 h-2.5 rounded-full bg-slate-400 inline-block"; }
-                if(txt) { txt.innerText = "Yerel Mod"; }
+            if(dot) { dot.className = "w-2.5 h-2.5 rounded-full bg-slate-400 inline-block"; }
+            if(txt) { txt.innerText = "Yerel Mod — Cihazda saklanır"; }
+            showErrorBanner('Uyarı: Bulut eşitleme aktif değil. Siparişler sadece bu cihazda kalır; farklı cihazlarda görünmez.');
+        }
+
+        function connectFirebaseDatabase(cfg) {
+            if (!cfg || !window.firebase || typeof window.firebase.initializeApp !== 'function') {
+                return null;
+            }
+
+            const projectId = cfg.projectId || (cfg.databaseURL.match(/https:\/\/([a-z0-9-]+)(?:-default-rtdb)?\.(?:firebaseio|firebasedatabase)\.(?:com|app)/i) || [])[1] || 'fixhouse-erp';
+            const firebaseConfig = {
+                apiKey: cfg.apiKey,
+                databaseURL: cfg.databaseURL,
+                projectId: projectId
+            };
+
+            if (!firebaseConfig.databaseURL || !firebaseConfig.apiKey) {
+                return null;
+            }
+
+            if (!firebase.apps.length) {
+                firebase.initializeApp(firebaseConfig);
+            }
+
+            return firebase.database().ref(CLOUD_SYNC_ROOT);
+        }
+
+        function applyCloudStateFromSnapshot(snapshot) {
+            const dot = document.getElementById('syncDot');
+            const txt = document.getElementById('syncText');
+            const cloudData = snapshot && typeof snapshot.val === 'function' ? snapshot.val() : null;
+            if (!cloudData) {
+                if (dot) dot.className = 'w-2.5 h-2.5 rounded-full bg-amber-400 inline-block';
+                if (txt) txt.innerText = 'Bulut boş, yerel veriyi taşı';
+                return;
+            }
+
+            const merged = resolveDataConflict(StorageManager.load(), cloudData);
+            appSettings = StorageManager.migrateAndHeal(merged);
+            appSettings.updatedAt = new Date().toISOString();
+            writeStorageValue(STORAGE_KEY, appSettings);
+            refreshAllUI();
+
+            if (dot) dot.className = 'w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block';
+            if (txt) txt.innerText = 'Bulut Senkronize Aktif';
+            isCloudSynced = true;
+        }
+
+        function initCloudSync() {
+            const configRaw = readStorageValue(CLOUD_CONFIG_KEY, '{}');
+            const dot = document.getElementById('syncDot');
+            const txt = document.getElementById('syncText');
+            if (!configRaw || configRaw === '{}') {
+                showLocalOnlyWarning();
                 return;
             }
             try {
-                const cfg = JSON.parse(configRaw);
-                if (cfg.databaseURL && cfg.apiKey && cfg.projectId) {
-                    if (!firebase.apps.length) {
-                        firebase.initializeApp(cfg);
+                const cfg = safeJsonParse(configRaw, {});
+                const normalizedCfg = normalizeCloudConfig(cfg);
+                if (normalizedCfg && isValidCloudConfig(normalizedCfg)) {
+                    dbRef = connectFirebaseDatabase(normalizedCfg);
+                    if (!dbRef) {
+                        throw new Error('Firebase veritabanı başlatılamadı.');
                     }
-                    dbRef = firebase.database().ref('fixhouse_erp_data');
-                    
+
                     if(dot) dot.className = "w-2.5 h-2.5 rounded-full bg-amber-400 inline-block animate-pulse";
                     if(txt) txt.innerText = "Bağlanıyor...";
 
+                    dbRef.once('value', (snapshot) => {
+                        applyCloudStateFromSnapshot(snapshot);
+                    }).catch((error) => {
+                        console.error('Firebase read error:', error);
+                        showLocalOnlyWarning();
+                    });
+
                     dbRef.on('value', (snapshot) => {
-                        const cloudData = snapshot.val();
-                        if (cloudData) {
-                            appSettings = StorageManager.migrateAndHeal(cloudData);
-                            localStorage.setItem(STORAGE_KEY, JSON.stringify(appSettings));
-                            refreshAllUI();
-                            if(dot) dot.className = "w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block";
-                            if(txt) txt.innerText = "Bulut Senkronize Aktif";
-                            isCloudSynced = true;
-                        }
+                        applyCloudStateFromSnapshot(snapshot);
                     }, (error) => {
+                        console.error('Firebase sync error:', error);
                         if(dot) dot.className = "w-2.5 h-2.5 rounded-full bg-red-500 inline-block";
                         if(txt) txt.innerText = "Ayar Hatası";
                     });
+
+                    if (typeof dbRef.keepSynced === 'function') {
+                        dbRef.keepSynced(true);
+                    }
+                } else {
+                    showLocalOnlyWarning();
                 }
             } catch(e) {
                 console.error("Cloud init error:", e);
@@ -914,37 +1145,50 @@
 
         function clearCloudConfig() {
             if(confirm("Bulut bağlantısını kesmek ve ayarları silmek istediğinize emin misiniz? (Mevcut verileriniz silinmez, sadece eşitleme durur)")) {
-                localStorage.removeItem(CLOUD_CONFIG_KEY);
+                SecureStorage.remove(CLOUD_CONFIG_KEY);
                 location.reload();
             }
         }
 
         function openCloudConfigModal() {
-            const cfg = JSON.parse(localStorage.getItem(CLOUD_CONFIG_KEY) || '{}');
-            document.getElementById('firebaseDbUrlInput').value = cfg.databaseURL || '';
-            document.getElementById('firebaseApiKeyInput').value = cfg.apiKey || '';
-            document.getElementById('firebaseProjectIdInput').value = cfg.projectId || '';
-            document.getElementById('googleSheetsUrlInput').value = cfg.googleSheetsUrl || '';
+            const cfg = safeJsonParse(readStorageValue(CLOUD_CONFIG_KEY, '{}'), {});
+            const dbUrlInput = document.getElementById('firebaseDbUrlInput');
+            const apiKeyInput = document.getElementById('firebaseApiKeyInput');
+            const projectIdInput = document.getElementById('firebaseProjectIdInput');
+            const sheetsUrlInput = document.getElementById('googleSheetsUrlInput');
+            if (dbUrlInput) dbUrlInput.value = typeof cfg.databaseURL === 'string' ? cfg.databaseURL : '';
+            if (apiKeyInput) apiKeyInput.value = typeof cfg.apiKey === 'string' ? cfg.apiKey : '';
+            if (projectIdInput) projectIdInput.value = typeof cfg.projectId === 'string' ? cfg.projectId : '';
+            if (sheetsUrlInput) sheetsUrlInput.value = typeof cfg.googleSheetsUrl === 'string' ? cfg.googleSheetsUrl : '';
             document.getElementById('cloudConfigModal').classList.remove('hidden');
         }
         function closeCloudConfigModal() { document.getElementById('cloudConfigModal').classList.add('hidden'); }
         function saveAndConnectCloud() {
             const cfg = {
-                databaseURL: document.getElementById('firebaseDbUrlInput').value.trim(),
-                apiKey: document.getElementById('firebaseApiKeyInput').value.trim(),
-                projectId: document.getElementById('firebaseProjectIdInput').value.trim(),
-                googleSheetsUrl: document.getElementById('googleSheetsUrlInput').value.trim()
+                databaseURL: sanitizeText(document.getElementById('firebaseDbUrlInput').value),
+                apiKey: sanitizeText(document.getElementById('firebaseApiKeyInput').value),
+                projectId: sanitizeText(document.getElementById('firebaseProjectIdInput').value),
+                googleSheetsUrl: sanitizeText(document.getElementById('googleSheetsUrlInput').value)
             };
-            localStorage.setItem(CLOUD_CONFIG_KEY, JSON.stringify(cfg));
+            if (!isValidCloudConfig(cfg) && cfg.databaseURL && !cfg.googleSheetsUrl) {
+                alert('Geçerli Firebase veritabanı URL, API anahtarı ve proje kimliği gerekli.');
+                return;
+            }
+            try {
+                writeStorageValue(CLOUD_CONFIG_KEY, cfg);
+            } catch (e) {
+                alert('Bulut ayarları kaydedilemedi. Depolama alanı dolu olabilir.');
+                return;
+            }
             closeCloudConfigModal();
             location.reload();
         }
 
         // GOOGLE SHEETS API TETİKLEYİCİSİ
         function triggerSheetSync(action, payload) {
-            const cfg = JSON.parse(localStorage.getItem(CLOUD_CONFIG_KEY) || '{}');
-            if (!cfg.googleSheetsUrl) return; 
-            
+            const cfg = safeJsonParse(readStorageValue(CLOUD_CONFIG_KEY, '{}'), {});
+            if (!cfg.googleSheetsUrl) return;
+
             fetch(cfg.googleSheetsUrl, {
                 method: 'POST',
                 mode: 'no-cors',
@@ -956,30 +1200,32 @@
         const StorageManager = {
             load() {
                 try {
-                    let parsed = null;
-                    const raw = localStorage.getItem(STORAGE_KEY);
-                    if (raw) { try { parsed = JSON.parse(raw); } catch(e){} }
-                    if (!parsed) return JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
+                    const raw = readStorageValue(STORAGE_KEY, null);
+                    const parsed = safeJsonParse(raw, null);
+                    if (!parsed || typeof parsed !== 'object') return JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
                     return this.migrateAndHeal(parsed);
-                } catch(e) {
+                } catch (e) {
                     return JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
                 }
             },
             migrateAndHeal(data) {
+                if (!data || typeof data !== 'object') {
+                    return JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
+                }
                 const m = JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
-                if (data.montajPrice !== undefined) m.montajPrice = parseFloat(data.montajPrice) || 220;
-                if (data.perakendePrice !== undefined) m.perakendePrice = parseFloat(data.perakendePrice) || 300;
-                if (data.kdvRate !== undefined) m.kdvRate = parseFloat(data.kdvRate) || 20;
-                if (data.minM2 !== undefined) m.minM2 = parseFloat(data.minM2) || 1.0;
-                if (data.cutDeductions) m.cutDeductions = data.cutDeductions;
+                if (data.montajPrice !== undefined) m.montajPrice = safeNumber(data.montajPrice, 220);
+                if (data.perakendePrice !== undefined) m.perakendePrice = safeNumber(data.perakendePrice, 300);
+                if (data.kdvRate !== undefined) m.kdvRate = safeNumber(data.kdvRate, 20);
+                if (data.minM2 !== undefined) m.minM2 = safeNumber(data.minM2, 1.0);
+                if (data.cutDeductions && typeof data.cutDeductions === 'object') m.cutDeductions = data.cutDeductions;
                 if (Array.isArray(data.productGroups) && data.productGroups.length > 0) m.productGroups = data.productGroups;
-                
+
                 if (data.whatsappTemplates && !Array.isArray(data.whatsappTemplates)) {
                     m.whatsappTemplates = [
-                        { id: 'wa-1', title: '📍 Sipariş Alındı', text: data.whatsappTemplates.alinan || '' },
-                        { id: 'wa-2', title: '⚙️ Üretimde', text: data.whatsappTemplates.uretim || '' },
-                        { id: 'wa-3', title: '🚚 Montaja Hazır', text: data.whatsappTemplates.montaj || '' },
-                        { id: 'wa-4', title: '✅ Tamamlandı / Teklif', text: data.whatsappTemplates.bitti || '' }
+                        { id: 'wa-1', title: '📍 Sipariş Alındı', text: sanitizeText(data.whatsappTemplates.alinan || '') },
+                        { id: 'wa-2', title: '⚙️ Üretimde', text: sanitizeText(data.whatsappTemplates.uretim || '') },
+                        { id: 'wa-3', title: '🚚 Montaja Hazır', text: sanitizeText(data.whatsappTemplates.montaj || '') },
+                        { id: 'wa-4', title: '✅ Tamamlandı / Teklif', text: sanitizeText(data.whatsappTemplates.bitti || '') }
                     ];
                 } else if (Array.isArray(data.whatsappTemplates) && data.whatsappTemplates.length > 0) {
                     m.whatsappTemplates = data.whatsappTemplates;
@@ -988,18 +1234,23 @@
                 if (Array.isArray(data.cart)) m.cart = data.cart;
                 if (Array.isArray(data.customers)) m.customers = data.customers.map(c => ({ ...c, category: c.category || 'standard' }));
 
+                m.updatedAt = data.updatedAt || new Date().toISOString();
                 m.schemaVersion = SCHEMA_VERSION;
                 return m;
             },
             save(data) {
                 try {
-                    createAutoBackup(data);
-                    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-                    if (dbRef) {
-                        dbRef.set(data).catch(err => console.error("Cloud push error:", err));
+                    const cleanData = data && typeof data === 'object' ? JSON.parse(JSON.stringify(data)) : JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
+                    cleanData.updatedAt = new Date().toISOString();
+                    createAutoBackup(cleanData);
+                    const persisted = writeStorageValue(STORAGE_KEY, cleanData);
+                    if (!persisted) return false;
+                    if (dbRef && typeof dbRef.set === 'function') {
+                        dbRef.set(cleanData).catch(err => console.error("Cloud push error:", err));
                     }
                     return true;
                 } catch (e) {
+                    console.error('Storage save error:', e);
                     return false;
                 }
             }
@@ -1418,19 +1669,19 @@
         function getOrderData() {
             let items = [];
             document.querySelectorAll('#measureRowsContainer > div').forEach((c, i) => {
-                let en = parseFloat(c.querySelector('.inp-en').value);
+                let en = safeNumber(c.querySelector('.inp-en').value, 0);
                 if (en > 0) {
-                    let accs = []; c.querySelectorAll('.custom-acc-item').forEach(it => { let s = it.querySelector('.acc-select'); if (s.value) accs.push({ accId: s.value, qty: parseInt(it.querySelector('.acc-qty').value) || 1 }); });
+                    let accs = []; c.querySelectorAll('.custom-acc-item').forEach(it => { let s = it.querySelector('.acc-select'); if (s && s.value) accs.push({ accId: s.value, qty: parseInt(it.querySelector('.acc-qty').value) || 1 }); });
                     items.push({
-                        seq: i + 1, qty: parseInt(c.querySelector('.inp-qty').value) || 1, pType: c.querySelector('.product-type').value, mType: c.querySelector('.measure-type').value, color: c.querySelector('.color-type').value, dir: c.querySelector('.opt-dir')?.value || '', menteseliTip: c.querySelector('.opt-menteseli-tip')?.value || '', tulType: c.querySelector('.opt-tul')?.value || '', caseType: c.querySelector('.opt-case')?.value || '', magnetType: c.querySelector('.opt-magnet')?.value || '',
-                        en: en, boy: parseFloat(c.querySelector('.inp-boy').value), note: escapeHTML(c.querySelector('.inp-note').value || ''), tac: c.querySelector('.out-tac').innerText, dikme: c.querySelector('.out-dikme').innerText, kanat: c.querySelector('.out-kanat').innerText, tul: c.querySelector('.out-tul').innerText, ip: c.querySelector('.out-ip').innerText, m2: c.querySelector('.out-m2').innerText, price: c.querySelector('.out-price').innerText, customAccessories: accs
+                        seq: i + 1, qty: parseInt(c.querySelector('.inp-qty').value) || 1, pType: sanitizeText(c.querySelector('.product-type').value), mType: sanitizeText(c.querySelector('.measure-type').value), color: sanitizeText(c.querySelector('.color-type').value), dir: sanitizeText(c.querySelector('.opt-dir')?.value || ''), menteseliTip: sanitizeText(c.querySelector('.opt-menteseli-tip')?.value || ''), tulType: sanitizeText(c.querySelector('.opt-tul')?.value || ''), caseType: sanitizeText(c.querySelector('.opt-case')?.value || ''), magnetType: sanitizeText(c.querySelector('.opt-magnet')?.value || ''),
+                        en: en, boy: safeNumber(c.querySelector('.inp-boy').value, 0), note: escapeHTML(c.querySelector('.inp-note').value || ''), tac: c.querySelector('.out-tac').innerText, dikme: c.querySelector('.out-dikme').innerText, kanat: c.querySelector('.out-kanat').innerText, tul: c.querySelector('.out-tul').innerText, ip: c.querySelector('.out-ip').innerText, m2: c.querySelector('.out-m2').innerText, price: c.querySelector('.out-price').innerText, customAccessories: accs
                     });
                 }
             });
             return {
                 id: 'ORD-' + Date.now().toString().slice(-6), date: new Date().toLocaleDateString('tr-TR'),
-                customerName: escapeHTML(document.getElementById('custName').value.trim() || 'İsimsiz Müşteri'), customerPhone: escapeHTML(document.getElementById('custPhone').value.trim() || ''), customerAddress: escapeHTML(document.getElementById('custAddress').value.trim() || 'Elazığ Atölye Teslim'),
-                tariff: document.getElementById('salesTariff').value, extraLabor: parseFloat(document.getElementById('extraLabor').value) || 0, kdvStatus: document.getElementById('kdvStatus').value, totalAmount: parseFloat(document.getElementById('grandTotalDisplay').innerText) || 0, discountRate: 0, deposit: 0, items: items
+                customerName: sanitizeText(document.getElementById('custName').value || 'İsimsiz Müşteri'), customerPhone: sanitizePhone(document.getElementById('custPhone').value || ''), customerAddress: sanitizeText(document.getElementById('custAddress').value || 'Elazığ Atölye Teslim'),
+                tariff: sanitizeText(document.getElementById('salesTariff').value), extraLabor: safeNumber(document.getElementById('extraLabor').value, 0), kdvStatus: sanitizeText(document.getElementById('kdvStatus').value), totalAmount: safeNumber(document.getElementById('grandTotalDisplay').innerText.replace(/[^\d,.-]/g, '').replace(',', '.'), 0), discountRate: 0, deposit: 0, items: items
             };
         }
         function resetMeasureForm() {
@@ -1440,7 +1691,13 @@
 
         function addOrderToCartAction() {
             if (isProcessing) return; const ord = getOrderData(); if (ord.items.length === 0) { alert("En az 1 ölçü satırı giriniz!"); return; }
-            try { isProcessing = true; if (!appSettings.cart) appSettings.cart = []; appSettings.cart.unshift(ord); StorageManager.save(appSettings); clearFormDraft(); renderCartUI(); alert(`Sipariş #${ord.id} sepete eklendi!`); switchTab('cart'); } finally { isProcessing = false; }
+            const customerName = sanitizeText(ord.customerName);
+            const customerPhone = sanitizePhone(ord.customerPhone);
+            if (!customerName || !customerPhone) {
+                alert('Müşteri adı ve telefon numarası zorunludur.');
+                return;
+            }
+            try { isProcessing = true; if (!appSettings.cart) appSettings.cart = []; appSettings.cart.unshift({ ...ord, customerName, customerPhone }); StorageManager.save(appSettings); clearFormDraft(); renderCartUI(); alert(`Sipariş #${ord.id} sepete eklendi!`); switchTab('cart'); } finally { isProcessing = false; }
         }
         function computeOrderFinancials(o) { 
             const listPrice = roundMoney(o.totalAmount); const discRate = parseFloat(o.discountRate) || 0; const discountAmt = roundMoney((listPrice * discRate) / 100); 
@@ -1539,18 +1796,31 @@
 
         function updateCartOrderFieldById(orderId, field, val) { const num = parseFloat(val); if (isNaN(num) || num < 0) return; const ord = (appSettings.cart || []).find(o => o.id === orderId); if (ord) { ord[field] = num; StorageManager.save(appSettings); renderCartUI(); } }
         function updateCartItemDimensionById(orderId, itemIdx, field, val) {
-            const num = parseFloat(val); if (isNaN(num) || num <= 0) return; const ord = (appSettings.cart || []).find(o => o.id === orderId); if (!ord || !ord.items[itemIdx]) return;
-            ord.items[itemIdx][field] = num; const it = ord.items[itemIdx]; const pCut = appSettings.cutDeductions?.plise || DEFAULT_SETTINGS.cutDeductions.plise; const mCut = appSettings.cutDeductions?.mentese || DEFAULT_SETTINGS.cutDeductions.mentese;
+            const num = safeNumber(val, NaN);
+            if (!Number.isFinite(num) || num <= 0) return;
+            const ord = (appSettings.cart || []).find(o => o.id === orderId);
+            if (!ord || !ord.items[itemIdx]) return;
+
+            ord.items[itemIdx][field] = num;
+            const it = ord.items[itemIdx];
+            const pCut = appSettings.cutDeductions?.plise || DEFAULT_SETTINGS.cutDeductions.plise;
+            const mCut = appSettings.cutDeductions?.mentese || DEFAULT_SETTINGS.cutDeductions.mentese;
             const isDikey = (it.pType === 'plise' && it.dir === 'dikey');
+            const enValue = safeNumber(it.en, 0);
+            const boyValue = safeNumber(it.boy, 0);
+            const qtyValue = safeNumber(it.qty, 1);
+
             if (it.pType === 'plise') {
-                const mul = ((!isDikey ? ((it.en * 2) + (it.boy * 3)) : ((it.en * 3) + (it.boy * 2))) / 100) * it.qty; const katSayisi = isDikey ? Math.floor((it.boy / 2.5) - 2) : Math.floor((it.en / 2.5) - 2);
-                if (it.mType === 'ic') { it.tac = (it.en + pCut.ic.tac).toFixed(1); it.dikme = (it.boy + pCut.ic.dikme).toFixed(1); it.kanat = isDikey ? (it.en - pCut.ic.kanat).toFixed(1) : (it.boy - pCut.ic.kanat).toFixed(1); it.tul = isDikey ? (it.en + pCut.ic.tul).toFixed(1) : (it.boy + pCut.ic.tul).toFixed(1); it.ip = `${(it.en + it.boy + 26).toFixed(0)}cm / ${katSayisi}k`; } 
-                else { it.tac = (it.en - pCut.dis.tac).toFixed(1); it.dikme = (it.boy - pCut.dis.dikme).toFixed(1); it.kanat = isDikey ? (it.en - pCut.dis.kanat).toFixed(1) : (it.boy - pCut.dis.kanat).toFixed(1); it.tul = isDikey ? (it.en - pCut.dis.tul).toFixed(1) : (it.boy - pCut.dis.tul).toFixed(1); it.ip = `${(it.en + it.boy + 10).toFixed(0)}cm / ${katSayisi}k`; }
+                const mul = ((!isDikey ? ((enValue * 2) + (boyValue * 3)) : ((enValue * 3) + (boyValue * 2))) / 100) * qtyValue;
+                const katSayisi = isDikey ? Math.floor((boyValue / 2.5) - 2) : Math.floor((enValue / 2.5) - 2);
+                if (it.mType === 'ic') { it.tac = (enValue + pCut.ic.tac).toFixed(1); it.dikme = (boyValue + pCut.ic.dikme).toFixed(1); it.kanat = isDikey ? (enValue - pCut.ic.kanat).toFixed(1) : (boyValue - pCut.ic.kanat).toFixed(1); it.tul = isDikey ? (enValue + pCut.ic.tul).toFixed(1) : (boyValue + pCut.ic.tul).toFixed(1); it.ip = `${(enValue + boyValue + 26).toFixed(0)}cm / ${katSayisi}k`; }
+                else { it.tac = (enValue - pCut.dis.tac).toFixed(1); it.dikme = (boyValue - pCut.dis.dikme).toFixed(1); it.kanat = isDikey ? (enValue - pCut.dis.kanat).toFixed(1) : (boyValue - pCut.dis.kanat).toFixed(1); it.tul = isDikey ? (enValue - pCut.dis.tul).toFixed(1) : (boyValue - pCut.dis.tul).toFixed(1); it.ip = `${(enValue + boyValue + 10).toFixed(0)}cm / ${katSayisi}k`; }
                 it.m2 = mul.toFixed(2);
             } else {
-                let isKapi = it.menteseliTip.includes('kapi'); const mul = ((isKapi ? ((en * 4) + (boy * 2)) : ((en * 2) + (boy * 2))) / 100) * it.qty;
-                if (it.mType === 'dis') { it.tac = (it.en - mCut.dis.tac).toFixed(1); it.dikme = (it.boy - mCut.dis.dikme).toFixed(1); it.kanat = (it.boy - mCut.dis.kanat).toFixed(1); it.tul = (it.boy - mCut.dis.tul).toFixed(1); } 
-                else { it.tac = (it.en + mCut.ic.tac).toFixed(1); it.dikme = (it.boy + mCut.ic.dikme).toFixed(1); it.kanat = (it.boy - mCut.ic.kanat).toFixed(1); it.tul = (it.boy + mCut.ic.tul).toFixed(1); }
+                const isKapi = String(it.menteseliTip || '').toLowerCase().includes('kapi');
+                const mul = ((isKapi ? ((enValue * 4) + (boyValue * 2)) : ((enValue * 2) + (boyValue * 2))) / 100) * qtyValue;
+                if (it.mType === 'dis') { it.tac = (enValue - mCut.dis.tac).toFixed(1); it.dikme = (boyValue - mCut.dis.dikme).toFixed(1); it.kanat = (boyValue - mCut.dis.kanat).toFixed(1); it.tul = (boyValue - mCut.dis.tul).toFixed(1); }
+                else { it.tac = (enValue + mCut.ic.tac).toFixed(1); it.dikme = (boyValue + mCut.ic.dikme).toFixed(1); it.kanat = (boyValue - mCut.ic.kanat).toFixed(1); it.tul = (boyValue + mCut.ic.tul).toFixed(1); }
                 it.m2 = mul.toFixed(2);
             }
             StorageManager.save(appSettings); renderCartUI();
@@ -1848,7 +2118,108 @@
             StorageManager.save(appSettings); applySettingsToUI(); renderWhatsAppTemplatesUI(); renderProductRecipes(); calculateAllRows(); calculateMaterialConsumption(); alert("Ayarlar onarıldı!");
         }
         
-        function exportSettingsBackup() { const blob = new Blob([JSON.stringify(appSettings, null, 2)], { type: "application/json;charset=utf-8" }); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `FixHouse_Yedek_${new Date().toISOString().slice(0, 10)}.json`; a.click(); }
+        function base64ToUint8Array(value) {
+            if (!value) return new Uint8Array();
+            const binary = atob(value);
+            const bytes = new Uint8Array(binary.length);
+            for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+            return bytes;
+        }
+
+        function uint8ArrayToBase64(bytes) {
+            let binary = '';
+            bytes.forEach(byte => binary += String.fromCharCode(byte));
+            return btoa(binary);
+        }
+
+        async function deriveBackupKey(password, saltBytes) {
+            const enc = new TextEncoder();
+            const passwordKey = await crypto.subtle.importKey('raw', enc.encode(password), 'PBKDF2', false, ['deriveKey']);
+            return crypto.subtle.deriveKey({
+                name: 'PBKDF2',
+                hash: 'SHA-256',
+                salt: saltBytes,
+                iterations: 200000
+            }, passwordKey, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']);
+        }
+
+        async function encryptBackupPayload(payload, password) {
+            if (!window.crypto || !window.crypto.subtle || !window.isSecureContext) {
+                return JSON.stringify(payload, null, 2);
+            }
+            const enc = new TextEncoder();
+            const salt = crypto.getRandomValues(new Uint8Array(16));
+            const iv = crypto.getRandomValues(new Uint8Array(12));
+            const key = await deriveBackupKey(password, salt);
+            const cipher = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, enc.encode(JSON.stringify(payload, null, 2)));
+            const payloadObj = {
+                kind: 'fixhouse-secure-backup-v1',
+                salt: uint8ArrayToBase64(salt),
+                iv: uint8ArrayToBase64(iv),
+                data: uint8ArrayToBase64(new Uint8Array(cipher))
+            };
+            return JSON.stringify(payloadObj);
+        }
+
+        async function decryptBackupPayload(content, password) {
+            if (!content || typeof content !== 'string') throw new Error('Yedek dosyası boş.');
+            let parsed;
+            try {
+                parsed = JSON.parse(content);
+            } catch (e) {
+                return JSON.parse(content);
+            }
+            if (!parsed || parsed.kind !== 'fixhouse-secure-backup-v1') {
+                return JSON.parse(content);
+            }
+            if (!window.crypto || !window.crypto.subtle || !window.isSecureContext) {
+                throw new Error('Bu tarayıcıda güvenli yedek açma desteklenmiyor.');
+            }
+            const salt = base64ToUint8Array(parsed.salt);
+            const iv = base64ToUint8Array(parsed.iv);
+            const key = await deriveBackupKey(password, salt);
+            const decrypted = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, base64ToUint8Array(parsed.data));
+            return JSON.parse(new TextDecoder().decode(decrypted));
+        }
+
+        function detectBackupFormat(rawText) {
+            if (typeof rawText !== 'string' || !rawText.trim()) return 'plain';
+            try {
+                const parsed = JSON.parse(rawText);
+                if (parsed && parsed.kind === 'fixhouse-secure-backup-v1') return 'secure';
+                return 'plain';
+            } catch (e) {
+                return 'plain';
+            }
+        }
+
+        function exportSettingsBackup() {
+            if (window.crypto && window.crypto.subtle && window.isSecureContext) {
+                const password = prompt('Yedeği şifrelemek için parola girin (boş bırakılırsa normal JSON indirilecek):', '');
+                if (password === null) return;
+                const securePayload = async () => {
+                    try {
+                        const content = password ? await encryptBackupPayload(appSettings, password) : JSON.stringify(appSettings, null, 2);
+                        const fileName = `FixHouse_Yedek_${new Date().toISOString().slice(0, 10)}${password ? '_secure' : ''}.json`;
+                        const blob = new Blob([content], { type: 'application/json;charset=utf-8' });
+                        const a = document.createElement('a');
+                        a.href = URL.createObjectURL(blob);
+                        a.download = fileName;
+                        a.click();
+                    } catch (err) {
+                        alert('Yedek şifreleme başarısız: ' + (err.message || err));
+                    }
+                };
+                securePayload();
+                return;
+            }
+            const blob = new Blob([JSON.stringify(appSettings, null, 2)], { type: "application/json;charset=utf-8" });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `FixHouse_Yedek_${new Date().toISOString().slice(0, 10)}.json`;
+            a.click();
+        }
+
         async function shareSettingsBackup() {
             const dataStr = JSON.stringify(appSettings, null, 2); const fileName = `FixHouse_ERP_Yedek_${new Date().toISOString().slice(0, 10)}.json`;
             const file = new File([dataStr], fileName, { type: 'application/json' });
@@ -1856,27 +2227,55 @@
                 try { await navigator.share({ files: [file], title: 'Fix House Sistem Yedeği', text: 'Fix House ERP güncel veri yedeği dosyasıdır. (Yeni bir cihazda "İçe Aktar" butonu ile yükleyebilirsiniz.)' }); } catch (err) {}
             } else { alert("Cihazınız doğrudan dosya paylaşımını desteklemiyor. İndirip kendinize gönderebilirsiniz."); }
         }
-        function importSettingsBackup(e) {
+
+        async function importSettingsBackup(e) {
             const file = e.target.files[0]; if (!file) return; const r = new FileReader();
-            r.onload = (ev) => {
-                try { const parsed = JSON.parse(ev.target.result); if (parsed) { appSettings = StorageManager.migrateAndHeal(parsed); StorageManager.save(appSettings); refreshAllUI(); alert("Veriler yüklendi!"); } } catch (err) { alert("Hata: " + err.message); }
-            }; r.readAsText(file);
+            r.onload = async (ev) => {
+                try {
+                    const rawText = String(ev.target.result || '');
+                    const format = detectBackupFormat(rawText);
+                    let parsed;
+                    if (format === 'secure') {
+                        if (!(window.crypto && window.crypto.subtle && window.isSecureContext)) {
+                            throw new Error('Şifreli yedekleri açmak için güvenli ortam gerekli.');
+                        }
+                        const password = prompt('Şifreli yedeğin parolasını girin:', '');
+                        if (password === null || password === '') {
+                            throw new Error('Parola boş olamaz.');
+                        }
+                        parsed = await decryptBackupPayload(rawText, password);
+                    } else {
+                        parsed = JSON.parse(rawText);
+                    }
+                    if (parsed) {
+                        appSettings = StorageManager.migrateAndHeal(parsed);
+                        StorageManager.save(appSettings);
+                        refreshAllUI();
+                        alert('Veriler yüklendi!');
+                    }
+                } catch (err) {
+                    alert('Hata: ' + (err.message || err));
+                }
+            };
+            r.readAsText(file);
         }
 
         function createAutoBackup(currentData) {
             try {
-                let backups = JSON.parse(localStorage.getItem(AUTO_BACKUP_KEY)) || [];
+                const rawBackups = readStorageValue(AUTO_BACKUP_KEY, '[]');
+                let backups = safeJsonParse(rawBackups, []);
+                if (!Array.isArray(backups)) backups = [];
                 const dataStr = JSON.stringify(currentData);
                 if (backups.length > 0 && backups[0].dataStr === dataStr) return;
                 backups.unshift({ timestamp: new Date().toLocaleString('tr-TR'), dataStr: dataStr, summary: `Yedekleme Noktası` });
                 if (backups.length > MAX_BACKUPS) backups = backups.slice(0, MAX_BACKUPS);
-                localStorage.setItem(AUTO_BACKUP_KEY, JSON.stringify(backups));
+                writeStorageValue(AUTO_BACKUP_KEY, backups);
             } catch(e) {}
         }
         function openAutoBackupModal() {
             const tbody = document.getElementById('autoBackupTableBody'); if(!tbody) return;
-            tbody.innerHTML = ''; const backups = JSON.parse(localStorage.getItem(AUTO_BACKUP_KEY)) || [];
-            if (backups.length === 0) { tbody.innerHTML = `<tr><td colspan="3" class="text-center py-6 text-slate-400">Yedek bulunmuyor.</td></tr>`; } 
+            tbody.innerHTML = ''; const rawBackups = readStorageValue(AUTO_BACKUP_KEY, '[]'); const backups = safeJsonParse(rawBackups, []);
+            if (!Array.isArray(backups) || backups.length === 0) { tbody.innerHTML = `<tr><td colspan="3" class="text-center py-6 text-slate-400">Yedek bulunmuyor.</td></tr>`; }
             else {
                 backups.forEach((b, idx) => {
                     tbody.innerHTML += `
@@ -1892,9 +2291,9 @@
         }
         function closeAutoBackupModal() { document.getElementById('autoBackupModal').classList.add('hidden'); }
         async function restoreAutoBackup(index) {
-            const backups = JSON.parse(localStorage.getItem(AUTO_BACKUP_KEY)) || []; if (!backups[index]) return;
+            const rawBackups = readStorageValue(AUTO_BACKUP_KEY, '[]'); const backups = safeJsonParse(rawBackups, []); if (!Array.isArray(backups) || !backups[index]) return;
             if (confirm(`Sistemi ${backups[index].timestamp} yedeğine döndürmek istiyor musunuz?`)) {
-                appSettings = JSON.parse(backups[index].dataStr); StorageManager.save(appSettings); closeAutoBackupModal();
+                appSettings = JSON.parse(backups[index].dataStr); appSettings.updatedAt = new Date().toISOString(); StorageManager.save(appSettings); closeAutoBackupModal();
                 refreshAllUI(); alert(`Sistem başarıyla kurtarıldı!`);
             }
         }
@@ -1905,9 +2304,17 @@
             }
         }
         function changeAppPassword() {
-            const input = document.getElementById('settingNewPin'); if (!input) return; const newPin = input.value.trim();
+            const input = document.getElementById('settingNewPin'); if (!input) return; const newPin = sanitizeText(input.value).trim();
             if (newPin.length < 4) return alert("Şifre en az 4 karakterden oluşmalıdır!");
-            localStorage.setItem(PIN_STORAGE_KEY, newPin); appSettings.appPin = newPin; StorageManager.save(appSettings); input.value = ''; alert(`Sistem şifresi "${newPin}" olarak güncellendi!`);
+            try {
+                SecureStorage.write(PIN_STORAGE_KEY, newPin);
+                appSettings.appPin = newPin;
+                StorageManager.save(appSettings);
+                input.value = '';
+                alert(`Sistem şifresi "${newPin}" olarak güncellendi!`);
+            } catch (e) {
+                alert('Şifre kaydedilemedi. Depolama alanı dolu olabilir.');
+            }
         }
 
         function renderWhatsAppTemplatesUI() {
