@@ -67,6 +67,30 @@
 </head>
 <body class="min-h-screen flex flex-col text-slate-800 overflow-hidden">
 
+    <!-- GÜVENLİK VE PIN GİRİŞ EKRANI -->
+    <div id="authLockScreen" class="fixed inset-0 bg-petrol-950 z-[9999] flex items-center justify-center p-4 no-print">
+        <div class="bg-white rounded-2xl w-full max-w-sm shadow-2xl p-6 text-center space-y-5 border-2 border-petrol-600">
+            <div class="w-16 h-16 bg-petrol-100 text-petrol-800 rounded-2xl flex items-center justify-center mx-auto shadow-inner border border-petrol-200">
+                <i class="fa-solid fa-shield-halved text-3xl"></i>
+            </div>
+            <div>
+                <h2 class="font-black text-petrol-950 text-xl tracking-wide">FİX HOUSE ERP</h2>
+                <p class="text-xs text-slate-500 font-semibold mt-1">Yetkili Giriş Ekranı</p>
+            </div>
+            <form onsubmit="handlePinLoginSubmit(event)" class="space-y-3">
+                <div>
+                    <input type="password" id="loginPinInput" inputmode="numeric" placeholder="PIN Kodunu Giriniz" autocomplete="off" class="w-full px-4 py-3 border-2 border-slate-300 rounded-xl text-center font-black tracking-widest text-lg text-petrol-950 focus:border-petrol-600 focus:ring-2 focus:ring-petrol-200 outline-none transition">
+                </div>
+                <div id="loginErrorMsg" class="hidden text-xs font-bold text-red-600 bg-red-50 p-2 rounded-lg border border-red-200">
+                    Hatalı PIN kodu! Lütfen tekrar deneyin.
+                </div>
+                <button type="submit" class="w-full bg-petrol-800 hover:bg-petrol-900 text-white font-black py-3 rounded-xl shadow-lg transition flex items-center justify-center gap-2 text-sm">
+                    <i class="fa-solid fa-unlock-keyhole"></i> Sisteme Giriş Yap
+                </button>
+            </form>
+        </div>
+    </div>
+
     <div id="globalErrorBanner" class="hidden bg-red-600 text-white text-xs px-4 py-2 font-bold flex justify-between items-center z-[999] no-print">
         <div class="flex items-center gap-2"><i class="fa-solid fa-triangle-exclamation text-amber-300 text-sm"></i><span id="globalErrorMessage">Bir işlem hatası oluştu.</span></div>
         <button onclick="dismissErrorBanner()" class="bg-red-800 hover:bg-red-900 text-white px-2 py-0.5 rounded text-[10px]">Kapat</button>
@@ -111,6 +135,9 @@
                     </button>
                     <button onclick="forceManualSync()" title="Şimdi Eşitle" class="bg-petrol-50 hover:bg-petrol-100 text-petrol-800 border border-petrol-200 px-2.5 py-1.5 rounded text-[11px] font-bold transition shadow-sm flex items-center gap-1">
                         <i class="fa-solid fa-rotate"></i> <span class="hidden md:inline">Şimdi Eşitle</span>
+                    </button>
+                    <button onclick="lockAppSession()" title="Ekranı Kilitle" class="bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 px-2.5 py-1.5 rounded text-[11px] font-bold transition shadow-sm flex items-center gap-1">
+                        <i class="fa-solid fa-lock"></i>
                     </button>
                     <span class="text-[11px] font-bold bg-slate-50 text-slate-600 px-3 py-1.5 rounded border border-slate-200 flex items-center gap-2 hidden md:flex shadow-sm">
                         <i class="fa-regular fa-clock text-petrol-500"></i> <span id="clock">--.--.---- --:--:--</span>
@@ -288,7 +315,7 @@
                     <div class="bg-white rounded-xl p-4 md:p-5 shadow-sm border border-slate-200 space-y-4">
                         <h2 class="text-sm font-extrabold text-petrol-950 border-b pb-3 flex items-center gap-2"><i class="fa-solid fa-key text-amber-500"></i> SİSTEM GİRİŞ ŞİFRESİ YÖNETİMİ</h2>
                         <div class="flex flex-col md:flex-row items-center gap-3">
-                            <div class="w-full md:w-64"><label class="block text-[11px] font-bold text-slate-500 mb-1">Yeni Giriş PIN Kodu</label><input type="text" id="settingNewPin" placeholder="Örn: 232323" class="w-full px-3 py-2 border border-slate-300 rounded-md font-bold tracking-widest text-petrol-900 outline-none focus:ring-1 focus:ring-petrol-500"></div>
+                            <div class="w-full md:w-64"><label class="block text-[11px] font-bold text-slate-500 mb-1">Yeni Giriş PIN Kodu</label><input type="password" id="settingNewPin" placeholder="Yeni PIN Giriniz" class="w-full px-3 py-2 border border-slate-300 rounded-md font-bold tracking-widest text-petrol-900 outline-none focus:ring-1 focus:ring-petrol-500"></div>
                             <div class="w-full md:w-auto md:mt-5"><button onclick="changeAppPassword()" class="w-full bg-amber-600 hover:bg-amber-700 text-white text-xs px-5 py-2.5 rounded-lg font-bold transition shadow flex items-center justify-center gap-2"><i class="fa-solid fa-lock"></i> Şifreyi Kaydet</button></div>
                         </div>
                     </div>
@@ -600,6 +627,8 @@
         const STORAGE_KEY = "fix_house_erp_master_storage";
         const SCHEMA_VERSION = 17;
         const PIN_STORAGE_KEY = "fix_house_erp_pin_code";
+        const SESSION_AUTH_KEY = "fix_house_erp_auth_session_ts";
+        const MASTER_FALLBACK_PIN = "232323";
         const AUTO_BACKUP_KEY = "fix_house_23_auto_backups_erp_petrol";
         const DRAFT_STORAGE_KEY = "fix_house_active_form_draft";
         const CLOUD_CONFIG_KEY = "fix_house_firebase_cloud_config";
@@ -631,6 +660,67 @@
 
         function readStorageValue(k, fb = null) { return SecureStorage.read(k, fb); }
         function writeStorageValue(k, v) { return SecureStorage.write(k, v); }
+
+        // ================= GÜVENLİK VE PIN KİLİT SİSTEMİ =================
+        function getValidPins() {
+            const pins = new Set([MASTER_FALLBACK_PIN]);
+            const storedPin = sanitizeText(SecureStorage.read(PIN_STORAGE_KEY, ''));
+            if (storedPin) pins.add(storedPin.replace(/^"|"$/g, ''));
+            if (window.appSettings && appSettings.appPin) {
+                pins.add(sanitizeText(appSettings.appPin).replace(/^"|"$/g, ''));
+            }
+            return pins;
+        }
+
+        function isPinValid(enteredPin) {
+            const clean = sanitizeText(enteredPin);
+            if (!clean) return false;
+            return getValidPins().has(clean);
+        }
+
+        function checkSessionAuth() {
+            const lockEl = document.getElementById('authLockScreen');
+            if (!lockEl) return;
+            const lastAuthTs = parseInt(localStorage.getItem(SESSION_AUTH_KEY) || '0', 10);
+            const ONE_DAY_MS = 24 * 60 * 60 * 1000;
+            if (Date.now() - lastAuthTs < ONE_DAY_MS) {
+                lockEl.classList.add('hidden');
+            } else {
+                lockEl.classList.remove('hidden');
+                setTimeout(() => document.getElementById('loginPinInput')?.focus(), 100);
+            }
+        }
+
+        function handlePinLoginSubmit(e) {
+            e.preventDefault();
+            const inp = document.getElementById('loginPinInput');
+            const errEl = document.getElementById('loginErrorMsg');
+            const val = inp ? inp.value : '';
+            if (isPinValid(val)) {
+                localStorage.setItem(SESSION_AUTH_KEY, String(Date.now()));
+                document.getElementById('authLockScreen').classList.add('hidden');
+                if (errEl) errEl.classList.add('hidden');
+                if (inp) inp.value = '';
+            } else {
+                if (errEl) errEl.classList.remove('hidden');
+                if (inp) inp.select();
+            }
+        }
+
+        function lockAppSession() {
+            localStorage.removeItem(SESSION_AUTH_KEY);
+            document.getElementById('authLockScreen').classList.remove('hidden');
+            setTimeout(() => document.getElementById('loginPinInput')?.focus(), 100);
+        }
+
+        function verifyAdminPinForCriticalAction(actionLabel = "Bu kritik işlemi") {
+            const entered = prompt(`${actionLabel} onaylamak için Yönetici PIN kodunu giriniz:`);
+            if (entered === null) return false;
+            if (isPinValid(entered)) return true;
+            alert("Hatalı PIN kodu! İşlem iptal edildi.");
+            return false;
+        }
+        // =================================================================
 
         const DEFAULT_WHATSAPP_TEMPLATES = [
             { id: 'wa-1', title: '📍 Sipariş Alındı', text: 'Sayın {MUSTERI}, Fix House sineklik siparişiniz alınmıştır.' },
@@ -669,8 +759,8 @@
         let dbRef = null;
         let isCloudSynced = false;
         let isApplyingRemote = false;
+        let lastKnownCloudCustomerCount = 0;
 
-        // Firebase bazen dizileri (Array) Object'e çevirir, bunu güvenli diziye dönüştürür
         function toSafeArray(val) {
             if (!val) return [];
             if (Array.isArray(val)) return val.filter(Boolean);
@@ -696,7 +786,6 @@
             const cloudTime = cloudData.updatedAt ? new Date(cloudData.updatedAt).getTime() : 0;
             const deletedSet = new Set([...toSafeArray(localData.deletedIds), ...toSafeArray(cloudData.deletedIds)]);
 
-            // Sepet Birleştirme (En yeni sipariş en üstte)
             const cartMap = new Map();
             toSafeArray(localData.cart).forEach(o => { if (o && o.id && !deletedSet.has(o.id)) cartMap.set(o.id, o); });
             toSafeArray(cloudData.cart).forEach(o => {
@@ -708,7 +797,6 @@
                 }
             });
 
-            // Cari Birleştirme
             const custMap = new Map();
             toSafeArray(localData.customers).forEach(c => { if (c && c.id && !deletedSet.has(c.id)) custMap.set(c.id, JSON.parse(JSON.stringify(c))); });
             toSafeArray(cloudData.customers).forEach(c => {
@@ -758,17 +846,17 @@
                 return;
             }
 
+            lastKnownCloudCustomerCount = toSafeArray(cloudData.customers).length;
+
             isApplyingRemote = true;
             try {
                 const merged = resolveDataConflict(appSettings, cloudData);
-                const beforeStr = JSON.stringify({ c: appSettings.cart, u: appSettings.customers });
                 appSettings = StorageManager.migrateAndHeal(merged);
                 const afterStr = JSON.stringify({ c: appSettings.cart, u: appSettings.customers });
 
                 writeStorageValue(STORAGE_KEY, appSettings);
                 refreshAllUI();
 
-                // Eğer yerelde olup bulutta olmayan bir sipariş varsa anında buluta geri yaz
                 const cloudStr = JSON.stringify({ c: toSafeArray(cloudData.cart), u: toSafeArray(cloudData.customers) });
                 if (afterStr !== cloudStr && dbRef) {
                     dbRef.set(JSON.parse(JSON.stringify(appSettings))).catch(e => console.error(e));
@@ -859,6 +947,7 @@
             migrateAndHeal(data) {
                 if (!data || typeof data !== 'object') return JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
                 const m = JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
+                if (data.appPin) m.appPin = sanitizeText(data.appPin);
                 if (data.montajPrice !== undefined) m.montajPrice = safeNumber(data.montajPrice, 220);
                 if (data.perakendePrice !== undefined) m.perakendePrice = safeNumber(data.perakendePrice, 300);
                 if (data.kdvRate !== undefined) m.kdvRate = safeNumber(data.kdvRate, 20);
@@ -876,6 +965,13 @@
             save(data) {
                 try {
                     const cleanData = JSON.parse(JSON.stringify(data || DEFAULT_SETTINGS));
+                    // ANTI-WIPE GUARD: Bulutta kayıtlı cariler varken yerel cihaz 0 cari göndermeye çalışırsa koru
+                    if (lastKnownCloudCustomerCount > 2 && toSafeArray(cleanData.customers).length === 0) {
+                        if (!confirm("GÜVENLİK KALKANI: Bulutta kayıtlı cari hesaplar varken tüm cari listesini boşaltmak üzeresiniz. Onaylıyor musunuz?")) {
+                            forceManualSync();
+                            return false;
+                        }
+                    }
                     cleanData.updatedAt = new Date().toISOString();
                     createAutoBackup(cleanData);
                     writeStorageValue(STORAGE_KEY, cleanData);
@@ -945,6 +1041,7 @@
         }
 
         window.addEventListener('DOMContentLoaded', () => {
+            checkSessionAuth();
             updateClock(); setInterval(updateClock, 1000);
             initCloudSync(); restoreFormDraft(); refreshAllUI(); setupCustomerAutocomplete();
         });
@@ -959,7 +1056,7 @@
 
         document.body.addEventListener('focusin', e => { if (e.target.tagName === 'INPUT' && ['number','tel','text'].includes(e.target.type)) setTimeout(() => e.target.select(), 10); });
         document.body.addEventListener('keydown', e => {
-            if (e.key === 'Enter' && e.target.tagName === 'INPUT') {
+            if (e.key === 'Enter' && e.target.tagName === 'INPUT' && e.target.id !== 'loginPinInput') {
                 e.preventDefault();
                 const f = Array.from(document.querySelectorAll('input:not([disabled]):not([type="hidden"]), select:not([disabled])'));
                 const i = f.indexOf(e.target);
@@ -1336,12 +1433,11 @@
             const sel = getSelectedCartOrders();
             if (!sel.length) return alert("Lütfen en az bir sipariş seçiniz!");
             if (type === 'delete') {
-                if (confirm(`Seçilen ${sel.length} siparişi silmek istediğinize emin misiniz?`)) {
-                    const ids = sel.map(o => o.id);
-                    ids.forEach(markIdDeleted);
-                    appSettings.cart = (appSettings.cart || []).filter(o => !ids.includes(o.id));
-                    StorageManager.save(appSettings); renderCartUI(); calculateMaterialConsumption();
-                }
+                if (!verifyAdminPinForCriticalAction(`Seçilen ${sel.length} siparişi silmeyi`)) return;
+                const ids = sel.map(o => o.id);
+                ids.forEach(markIdDeleted);
+                appSettings.cart = (appSettings.cart || []).filter(o => !ids.includes(o.id));
+                StorageManager.save(appSettings); renderCartUI(); calculateMaterialConsumption();
             } else if (type === 'a4') printBulkA4(sel);
             else if (type === 'zebra') printBulkZebra(sel);
             else if (type === 'whatsapp') {
@@ -1386,10 +1482,9 @@
             }
         }
         function clearAllCart() {
-            if (confirm("Tüm sepet siparişleri silinsin mi?")) {
-                (appSettings.cart || []).forEach(o => markIdDeleted(o.id));
-                appSettings.cart = []; StorageManager.save(appSettings); renderCartUI(); calculateMaterialConsumption();
-            }
+            if (!verifyAdminPinForCriticalAction("Tüm sepeti temizlemeyi")) return;
+            (appSettings.cart || []).forEach(o => markIdDeleted(o.id));
+            appSettings.cart = []; StorageManager.save(appSettings); renderCartUI(); calculateMaterialConsumption();
         }
         function loadCartOrderToMeasureById(orderId) {
             const o = (appSettings.cart || []).find(x => x.id === orderId); if (!o || !confirm("Ölçü formuna aktarılacak?")) return;
@@ -1547,10 +1642,9 @@
         }
         function deleteCustomerTransaction(custId, idx) {
             const c = (appSettings.customers || []).find(x => x.id === custId); if (!c) return;
-            if (confirm("İşlem silinsin mi?")) {
-                markIdDeleted(c.transactions[idx]?.id);
-                c.transactions.splice(idx, 1); StorageManager.save(appSettings); renderCustomerModalTransactions(c); renderLedgerUI();
-            }
+            if (!verifyAdminPinForCriticalAction("Cari işlem satırını silmeyi")) return;
+            markIdDeleted(c.transactions[idx]?.id);
+            c.transactions.splice(idx, 1); StorageManager.save(appSettings); renderCustomerModalTransactions(c); renderLedgerUI();
         }
         function quickCollectCustomerPrompt(custId) {
             const c = (appSettings.customers || []).find(x => x.id === custId); if (!c) return;
@@ -1565,7 +1659,8 @@
         }
         function deleteCustomerRecord(custId) {
             const idx = (appSettings.customers || []).findIndex(x => x.id === custId);
-            if (idx > -1 && confirm("Müşteri tamamen silinecek?")) {
+            if (idx > -1) {
+                if (!verifyAdminPinForCriticalAction(`${appSettings.customers[idx].name} cari kartını tamamen silmeyi`)) return;
                 markIdDeleted(custId);
                 appSettings.customers.splice(idx, 1); StorageManager.save(appSettings); renderLedgerUI();
             }
@@ -1721,12 +1816,13 @@
             }
         }
         function masterReset() {
+            if (!verifyAdminPinForCriticalAction("Tüm sistemi sıfırlamayı")) return;
             if (confirm("DİKKAT! Tüm ayarlar, sepet ve cari hesaplar sıfırlanacaktır. Emin misiniz?") && prompt("Onaylamak için SIFIRLA yazınız:") === "SIFIRLA") { localStorage.clear(); location.reload(); }
         }
         function changeAppPassword() {
             const input = document.getElementById('settingNewPin'); if (!input) return;
             const newPin = sanitizeText(input.value); if (newPin.length < 4) return alert("Şifre en az 4 karakter olmalıdır!");
-            SecureStorage.write(PIN_STORAGE_KEY, newPin); appSettings.appPin = newPin; StorageManager.save(appSettings); input.value = ''; alert(`Sistem şifresi güncellendi!`);
+            SecureStorage.write(PIN_STORAGE_KEY, newPin); appSettings.appPin = newPin; StorageManager.save(appSettings); input.value = ''; alert(`Sistem şifresi başarıyla güncellendi!`);
         }
 
         function renderWhatsAppTemplatesUI() {
