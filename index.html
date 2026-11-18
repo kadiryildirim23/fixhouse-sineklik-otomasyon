@@ -236,7 +236,7 @@
                         <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-center">
                             <div class="bg-petrol-900/60 p-3 rounded-xl border border-petrol-800/80"><span class="block text-[10px] font-bold text-petrol-300 uppercase tracking-widest">Dönem Cirosu</span><b id="repTotalSalesRevenue" class="text-lg md:text-xl font-black text-white">0.00 ₺</b></div>
                             <div class="bg-emerald-950/40 p-3 rounded-xl border border-emerald-700/50"><span class="block text-[10px] font-bold text-emerald-300 uppercase tracking-widest">Kasaya Giren</span><b id="repTotalCollected" class="text-lg md:text-xl font-black text-emerald-400">0.00 ₺</b></div>
-                            <div class="bg-red-950/40 p-3 rounded-xl border border-red-700/50"><span class="block text-[10px] font-bold text-red-300 uppercase tracking-widest">Hammadde Tüketimi</span><b id="repTotalMaterialCost" class="text-lg md:text-xl font-black text-red-400">0.00 ₺</b></div>
+                            <div class="bg-red-950/40 p-3 rounded-xl border border-red-700/50"><span class="block text-[10px] font-bold text-red-300 uppercase tracking-widest">Gerçek Hammadde Maliyeti</span><b id="repTotalMaterialCost" class="text-lg md:text-xl font-black text-red-400">0.00 ₺</b></div>
                             <div class="bg-amber-950/40 p-3 rounded-xl border border-amber-600/50"><span class="block text-[10px] font-bold text-amber-300 uppercase tracking-widest">Net Faaliyet Kârı</span><b id="repNetProfit" class="text-lg md:text-xl font-black text-amber-300">0.00 ₺</b><span id="repProfitMarginBadge" class="block text-[9px] text-amber-300/80 font-bold mt-0.5">(Kâr: %0.0)</span></div>
                         </div>
                     </div>
@@ -271,21 +271,25 @@
                     </div>
                 </section>
 
-                <!-- MODÜL 4: TÜKETİM ANALİZİ -->
+                <!-- MODÜL 4: TÜKETİM ANALİZİ (SEÇMELİ MOD) -->
                 <section id="sec-consumption" class="space-y-5 hidden">
                     <div class="bg-white rounded-xl p-4 md:p-5 shadow-sm border border-slate-200">
                         <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 border-b pb-3 mb-4">
                             <div>
-                                <h2 class="text-sm md:text-base font-extrabold text-petrol-950 flex items-center gap-2"><i class="fa-solid fa-chart-pie text-teal-600"></i> MALZEME TÜKETİM, REÇETE & GİDER ANALİZİ</h2>
-                                <p class="text-xs text-slate-500 mt-0.5">Sadece <b>o an ekranda çalışılan (aktif) ölçü formuna</b> ait hammadde sarfiyatını hesaplar.</p>
+                                <h2 class="text-sm md:text-base font-extrabold text-petrol-950 flex items-center gap-2"><i class="fa-solid fa-chart-pie text-teal-600"></i> MALZEME TÜKETİM & REÇETE ANALİZİ</h2>
+                                <p class="text-xs text-slate-500 mt-0.5">İstediğiniz kaynağı seçerek hammadde sarfiyatını ve toplam reçete maliyetini inceleyin.</p>
                             </div>
-                            <button onclick="calculateMaterialConsumption()" class="bg-petrol-800 hover:bg-petrol-900 text-white text-xs px-5 py-2.5 rounded-lg font-bold transition shadow flex items-center gap-1.5"><i class="fa-solid fa-calculator text-teal-300"></i> Tüketimi Canlı Hesapla</button>
+                            <div class="flex bg-slate-100 p-1 rounded-xl border border-slate-200 gap-1 text-xs">
+                                <button onclick="switchConsumptionMode('active')" id="btnConsActive" class="px-3 py-1.5 rounded-lg font-bold bg-petrol-800 text-white shadow-sm transition">Anlık Ölçü Formu</button>
+                                <button onclick="switchConsumptionMode('cart')" id="btnConsCart" class="px-3 py-1.5 rounded-lg font-bold text-slate-600 hover:text-slate-900 transition">Sepette Bekleyenler</button>
+                                <button onclick="switchConsumptionMode('ledger')" id="btnConsLedger" class="px-3 py-1.5 rounded-lg font-bold text-slate-600 hover:text-slate-900 transition">Üretimi Yapılanlar (Cari)</button>
+                            </div>
                         </div>
                         <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5">
                             <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200"><span class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider"><i class="fa-solid fa-bars text-petrol-600 mr-1"></i> Alüminyum Profil</span><b id="conTotalProfileMeters" class="text-base md:text-lg font-black text-slate-800">0.00 m</b><span id="conTotalProfileBars" class="block text-[10px] text-petrol-700 font-bold mt-0.5">(0 Boy 6m)</span></div>
                             <div class="bg-teal-50 p-3.5 rounded-xl border border-teal-100"><span class="block text-[10px] font-bold text-teal-700 uppercase tracking-wider"><i class="fa-solid fa-border-all text-teal-600 mr-1"></i> Toplam Tül</span><b id="conTotalMeshM2" class="text-base md:text-lg font-black text-teal-900">0.00 m²</b></div>
                             <div class="bg-amber-50 p-3.5 rounded-xl border border-amber-100"><span class="block text-[10px] font-bold text-amber-700 uppercase tracking-wider"><i class="fa-solid fa-ring text-amber-600 mr-1"></i> Plise İpi</span><b id="conTotalCordMeters" class="text-base md:text-lg font-black text-amber-900">0.00 m</b></div>
-                            <div class="bg-emerald-50 p-3.5 rounded-xl border border-emerald-100"><span class="block text-[10px] font-bold text-emerald-700 uppercase tracking-wider"><i class="fa-solid fa-coins text-emerald-600 mr-1"></i> Hammadde Gideri</span><b id="conTotalCostEstimate" class="text-base md:text-lg font-black text-emerald-900">0.00 ₺</b></div>
+                            <div class="bg-emerald-50 p-3.5 rounded-xl border border-emerald-100"><span class="block text-[10px] font-bold text-emerald-700 uppercase tracking-wider"><i class="fa-solid fa-coins text-emerald-600 mr-1"></i> Reçete Maliyeti</span><b id="conTotalCostEstimate" class="text-base md:text-lg font-black text-emerald-900">0.00 ₺</b></div>
                         </div>
                         <div class="border border-slate-200 rounded-xl overflow-hidden shadow-sm bg-white">
                             <table class="w-full text-left text-xs">
@@ -760,6 +764,7 @@
         let isCloudSynced = false;
         let isApplyingRemote = false;
         let lastKnownCloudCustomerCount = 0;
+        let currentConsumptionMode = 'active'; // 'active' | 'cart' | 'ledger'
 
         function toSafeArray(val) {
             if (!val) return [];
@@ -965,7 +970,6 @@
             save(data) {
                 try {
                     const cleanData = JSON.parse(JSON.stringify(data || DEFAULT_SETTINGS));
-                    // ANTI-WIPE GUARD: Bulutta kayıtlı cariler varken yerel cihaz 0 cari göndermeye çalışırsa koru
                     if (lastKnownCloudCustomerCount > 2 && toSafeArray(cleanData.customers).length === 0) {
                         if (!confirm("GÜVENLİK KALKANI: Bulutta kayıtlı cari hesaplar varken tüm cari listesini boşaltmak üzeresiniz. Onaylıyor musunuz?")) {
                             forceManualSync();
@@ -1315,10 +1319,31 @@
         }
 
         function calculateAllRows() { document.querySelectorAll('#measureRowsContainer > div').forEach(c => calculateRow(c.id.split('-')[1])); }
+        
+        function calculateEstimatedOrderRawCost(items) {
+            let pMeters = 0, pMesh = 0, sMesh = 0, cMeters = 0, mMeters = 0, cWedge = 0, hSet = 0, sLock = 0;
+            const cProf = getRecipeCost('pg-plise', 'acc-profil') || 45, cPMesh = getRecipeCost('pg-plise', 'acc-plise-tul') || 35, cSMesh = getRecipeCost('pg-plise', 'acc-polen-tul') || 400, cCord = getRecipeCost('pg-plise', 'acc-ip') || 2, cMag = getRecipeCost('pg-plise', 'acc-serit-miknatis') || 60, cW = getRecipeCost('pg-plise', 'acc-takoz') || 5, cH = getRecipeCost('pg-mentese', 'acc-mentese') || 15, cSL = getRecipeCost('pg-mentese', 'acc-citcit') || 8;
+
+            toSafeArray(items).forEach(i => {
+                const q = i.qty || 1, en = parseFloat(i.en) || 0, boy = parseFloat(i.boy) || 0;
+                const m2 = Math.max(((en * boy) / 10000) * q, appSettings.minM2 * q), isDikey = (i.pType === 'plise' && i.dir === 'dikey');
+                if (i.pType === 'plise') {
+                    pMeters += ((!isDikey ? ((en * 2) + (boy * 3)) : ((en * 3) + (boy * 2))) / 100) * q; cWedge += (4 * q);
+                    if (i.magnetType === 'var') mMeters += (((isDikey ? ((en * 3) + (boy * 2)) : ((en * 2) + (boy * 3))) / 100)) * q;
+                    if (i.tulType === 'polen') sMesh += m2; else pMesh += m2;
+                    cMeters += (((en + boy + 26) * 4 / 100) * q);
+                } else {
+                    let isKapi = (i.menteseliTip || '').includes('kapi'); pMeters += ((isKapi ? ((en * 4) + (boy * 2)) : ((en * 2) + (boy * 2))) / 100) * q;
+                    hSet += (isKapi ? 3 * q : 2 * q); sLock += (isKapi ? 2 * q : 1 * q); if (i.tulType === 'kedi') sMesh += m2; else pMesh += m2;
+                }
+            });
+            return (pMeters * cProf) + (pMesh * cPMesh) + (sMesh * cSMesh) + (cMeters * cCord) + (mMeters * cMag) + (cWedge * cW) + (hSet * cH) + (sLock * cSL);
+        }
+
         function calculateGrandTotal() {
             if (!document.getElementById('salesTariff').value) { document.getElementById('grandTotalDisplay').innerText = "Tarife Seç"; document.getElementById('estimatedCostDisplay').innerText = "Maliyet: 0.00 ₺"; return; }
-            let t = 0, raw = 0;
-            document.querySelectorAll('#measureRowsContainer > div').forEach(c => { t += roundMoney(c.querySelector('.out-price').innerText); raw += roundMoney(c.querySelector('.out-m2').innerText) * 80; });
+            let t = 0, raw = calculateEstimatedOrderRawCost(getOrderData().items);
+            document.querySelectorAll('#measureRowsContainer > div').forEach(c => { t += roundMoney(c.querySelector('.out-price').innerText); });
             t += roundMoney(document.getElementById('extraLabor').value);
             if (document.getElementById('kdvStatus').value === 'dahil') t = roundMoney(t * (1 + (appSettings.kdvRate / 100)));
             document.getElementById('grandTotalDisplay').innerText = t.toFixed(2) + ' ₺'; document.getElementById('estimatedCostDisplay').innerText = `Maliyet: ${roundMoney(raw).toFixed(2)} ₺`;
@@ -1525,14 +1550,14 @@
             const txIdx = cust.transactions.findIndex(t => t.refOrder === ord.id && t.type === 'Sipariş Faturası');
             const descText = `Sipariş #${ord.id} (${ord.items.length} Kalem)` + (fin.discRate > 0 ? ` [%${fin.discRate} İskonto]` : '');
             if (txIdx > -1) { cust.transactions[txIdx].debit = fin.netPayable; cust.transactions[txIdx].desc = descText; }
-            else { cust.transactions.push({ id: 'TX-ORD-' + ord.id, refOrder: ord.id, date: ord.date || new Date().toLocaleDateString('tr-TR'), type: 'Sipariş Faturası', desc: descText, debit: fin.netPayable, credit: 0 }); }
+            else { cust.transactions.push({ id: 'TX-ORD-' + ord.id, refOrder: ord.id, refItems: ord.items || [], date: ord.date || new Date().toLocaleDateString('tr-TR'), type: 'Sipariş Faturası', desc: descText, debit: fin.netPayable, credit: 0 }); }
 
             if (fin.depositAmt > 0) {
                 const depIdx = cust.transactions.findIndex(t => t.refOrder === ord.id && t.type === 'Tahsilat (Kapora)');
                 if (depIdx > -1) cust.transactions[depIdx].credit = fin.depositAmt;
                 else cust.transactions.push({ id: 'TX-DEP-' + ord.id, refOrder: ord.id, date: ord.date || new Date().toLocaleDateString('tr-TR'), type: 'Tahsilat (Kapora)', desc: `Sipariş #${ord.id} Kaporası`, debit: 0, credit: fin.depositAmt });
             }
-            StorageManager.save(appSettings); renderLedgerUI();
+            StorageManager.save(appSettings); renderLedgerUI(); renderLedgerFinancialSummary();
             triggerSheetSync('NEW_ORDER', { id: ord.id, date: ord.date, customerName: ord.customerName, phone: ord.customerPhone, totalAmount: fin.listPrice, discountRate: fin.discRate, deposit: fin.depositAmt, balance: fin.balanceDue });
         }
 
@@ -1542,7 +1567,7 @@
             if (mode === 'today') { const d = now.toISOString().slice(0,10); sEl.value = d; eEl.value = d; }
             else if (mode === 'month') { sEl.value = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().slice(0,10); eEl.value = now.toISOString().slice(0,10); }
             else { sEl.value = ''; eEl.value = ''; }
-            renderLedgerUI();
+            renderLedgerUI(); renderLedgerFinancialSummary();
         }
         function clearLedgerDateFilter() { setLedgerQuickDate('all'); }
 
@@ -1602,9 +1627,29 @@
             }).join('');
 
             document.getElementById('ledgerOverdueBanner')?.classList.toggle('hidden', overdueCount === 0);
-            let gRev = 0, gCol = 0; toSafeArray(appSettings.customers).forEach(c => { const { debit, credit } = getCustomerLedgerTotals(c, sStr, eStr); gRev += debit; gCol += credit; });
-            const estCost = gRev * 0.35, netP = Math.max(0, gRev - estCost), pMargin = gRev > 0 ? ((netP / gRev) * 100).toFixed(1) : 0;
-            document.getElementById('repTotalSalesRevenue').innerText = `${gRev.toFixed(2)} ₺`; document.getElementById('repTotalCollected').innerText = `${gCol.toFixed(2)} ₺`; document.getElementById('repTotalMaterialCost').innerText = `${estCost.toFixed(2)} ₺`; document.getElementById('repNetProfit').innerText = `${netP.toFixed(2)} ₺`; document.getElementById('repProfitMarginBadge').innerText = `(Kâr: %${pMargin})`;
+            renderLedgerFinancialSummary();
+        }
+
+        function renderLedgerFinancialSummary() {
+            const sStr = document.getElementById('ledgerFilterStartDate')?.value, eStr = document.getElementById('ledgerFilterEndDate')?.value;
+            let gRev = 0, gCol = 0, totalRealMaterialCost = 0;
+            
+            toSafeArray(appSettings.customers).forEach(c => {
+                const { debit, credit } = getCustomerLedgerTotals(c, sStr, eStr);
+                gRev += debit; gCol += credit;
+                toSafeArray(c.transactions).forEach(t => {
+                    if (t.type === 'Sipariş Faturası' && t.refItems) {
+                        totalRealMaterialCost += calculateEstimatedOrderRawCost(t.refItems);
+                    }
+                });
+            });
+
+            const netP = Math.max(0, gRev - totalRealMaterialCost), pMargin = gRev > 0 ? ((netP / gRev) * 100).toFixed(1) : 0;
+            document.getElementById('repTotalSalesRevenue').innerText = `${gRev.toFixed(2)} ₺`;
+            document.getElementById('repTotalCollected').innerText = `${gCol.toFixed(2)} ₺`;
+            document.getElementById('repTotalMaterialCost').innerText = `${totalRealMaterialCost.toFixed(2)} ₺`;
+            document.getElementById('repNetProfit').innerText = `${netP.toFixed(2)} ₺`;
+            document.getElementById('repProfitMarginBadge').innerText = `(Kâr: %${pMargin})`;
         }
 
         function updateCustomerDueDate(custId, val) { const c = (appSettings.customers || []).find(x => x.id === custId); if (c) { c.dueDate = val; StorageManager.save(appSettings); renderLedgerUI(); } }
@@ -1628,7 +1673,7 @@
             const isCredit = t.credit > 0, newAmtStr = prompt("Yeni Tutarı (₺) Girin:", isCredit ? t.credit : t.debit); if (newAmtStr === null) return;
             const newAmt = parseFloat(newAmtStr); if (isNaN(newAmt) || newAmt < 0) return alert("Geçersiz tutar!");
             t.desc = newDesc.trim(); if (isCredit) { t.credit = newAmt; t.debit = 0; } else { t.debit = newAmt; t.credit = 0; }
-            StorageManager.save(appSettings); renderCustomerModalTransactions(c); renderLedgerUI();
+            StorageManager.save(appSettings); renderCustomerModalTransactions(c); renderLedgerUI(); renderLedgerFinancialSummary();
         }
         function addCustomerTransaction(e) {
             e.preventDefault(); const id = document.getElementById('txCustomerId').value, c = (appSettings.customers || []).find(x => x.id === id); if (!c) return;
@@ -1636,7 +1681,7 @@
             const txDate = new Date().toLocaleDateString('tr-TR');
             c.transactions.push({ id: 'TX-' + Date.now(), date: txDate, type, desc, debit: isCredit ? 0 : amount, credit: isCredit ? amount : 0 });
             document.getElementById('txDescInput').value = ''; document.getElementById('txAmountInput').value = '';
-            StorageManager.save(appSettings); renderCustomerModalTransactions(c); renderLedgerUI();
+            StorageManager.save(appSettings); renderCustomerModalTransactions(c); renderLedgerUI(); renderLedgerFinancialSummary();
             triggerSheetSync('NEW_TRANSACTION', { customerName: c.name, date: txDate, type, desc, debit: isCredit ? 0 : amount, credit: isCredit ? amount : 0 });
             if (isCredit && amount > 0) setTimeout(() => { if (confirm(`${amount.toFixed(2)} ₺ tahsilat işlendi. Makbuz yazdırılsın mı?`)) printReceiptDirect(c.id, amount, type, desc); }, 200);
         }
@@ -1644,7 +1689,7 @@
             const c = (appSettings.customers || []).find(x => x.id === custId); if (!c) return;
             if (!verifyAdminPinForCriticalAction("Cari işlem satırını silmeyi")) return;
             markIdDeleted(c.transactions[idx]?.id);
-            c.transactions.splice(idx, 1); StorageManager.save(appSettings); renderCustomerModalTransactions(c); renderLedgerUI();
+            c.transactions.splice(idx, 1); StorageManager.save(appSettings); renderCustomerModalTransactions(c); renderLedgerUI(); renderLedgerFinancialSummary();
         }
         function quickCollectCustomerPrompt(custId) {
             const c = (appSettings.customers || []).find(x => x.id === custId); if (!c) return;
@@ -1653,7 +1698,7 @@
             const amt = parseFloat(amtStr); if (isNaN(amt) || amt <= 0) return alert("Hatalı tutar.");
             const txDate = new Date().toLocaleDateString('tr-TR');
             c.transactions.push({ id: 'TX-PAY-' + Date.now(), date: txDate, type: 'Tahsilat (Nakit)', desc: 'Hızlı Kasa Tahsilatı', debit: 0, credit: amt });
-            StorageManager.save(appSettings); renderLedgerUI();
+            StorageManager.save(appSettings); renderLedgerUI(); renderLedgerFinancialSummary();
             triggerSheetSync('NEW_TRANSACTION', { customerName: c.name, date: txDate, type: 'Tahsilat (Nakit)', desc: 'Hızlı Kasa Tahsilatı', debit: 0, credit: amt });
             if (confirm(`${amt.toFixed(2)} ₺ işlendi. Makbuz basılsın mı?`)) printReceiptDirect(c.id, amt, 'Tahsilat (Nakit)', 'Hızlı Kasa Tahsilatı');
         }
@@ -1662,7 +1707,7 @@
             if (idx > -1) {
                 if (!verifyAdminPinForCriticalAction(`${appSettings.customers[idx].name} cari kartını tamamen silmeyi`)) return;
                 markIdDeleted(custId);
-                appSettings.customers.splice(idx, 1); StorageManager.save(appSettings); renderLedgerUI();
+                appSettings.customers.splice(idx, 1); StorageManager.save(appSettings); renderLedgerUI(); renderLedgerFinancialSummary();
             }
         }
 
@@ -1680,7 +1725,7 @@
             e.preventDefault(); const name = document.getElementById('newCustName').value.trim(), phone = document.getElementById('newCustPhone').value.trim(), address = document.getElementById('newCustAddress').value.trim(), category = document.getElementById('newCustCategory').value, initDebt = parseFloat(document.getElementById('newCustInitialDebt').value) || 0;
             if (editCustomerModeId) { const c = appSettings.customers.find(x => x.id === editCustomerModeId); if (c) { c.name = name; c.phone = phone; c.address = address; c.category = category; StorageManager.save(appSettings); } }
             else { const cust = findOrCreateCustomer(name, phone, address, category); if (initDebt > 0) cust.transactions.push({ id: 'TX-INIT-' + Date.now(), date: new Date().toLocaleDateString('tr-TR'), type: 'Açılış Bakiyesi', desc: 'Devreden Borç', debit: initDebt, credit: 0 }); StorageManager.save(appSettings); }
-            closeNewCustomerModal(); renderLedgerUI();
+            closeNewCustomerModal(); renderLedgerUI(); renderLedgerFinancialSummary();
         }
         function openMergeModalCurrent() {
             const src = (appSettings.customers || []).find(x => x.id === activeCustomerStatementId); if (!src) return;
@@ -1696,22 +1741,50 @@
                 (src.transactions || []).forEach(t => tgt.transactions.push({ ...t, desc: `[Devir: ${src.name}] ` + t.desc }));
                 markIdDeleted(src.id);
                 appSettings.customers = appSettings.customers.filter(c => c.id !== src.id);
-                StorageManager.save(appSettings); closeMergeModal(); closeCustomerLedgerModal(); renderLedgerUI();
+                StorageManager.save(appSettings); closeMergeModal(); closeCustomerLedgerModal(); renderLedgerUI(); renderLedgerFinancialSummary();
             }
+        }
+
+        function switchConsumptionMode(mode) {
+            currentConsumptionMode = mode;
+            const bActive = document.getElementById('btnConsActive'), bCart = document.getElementById('btnConsCart'), bLedger = document.getElementById('btnConsLedger');
+            const activeCls = "px-3 py-1.5 rounded-lg font-bold bg-petrol-800 text-white shadow-sm transition";
+            const idleCls = "px-3 py-1.5 rounded-lg font-bold text-slate-600 hover:text-slate-900 transition";
+            bActive.className = mode === 'active' ? activeCls : idleCls;
+            bCart.className = mode === 'cart' ? activeCls : idleCls;
+            bLedger.className = mode === 'ledger' ? activeCls : idleCls;
+            calculateMaterialConsumption();
         }
 
         function calculateMaterialConsumption() {
             const tbody = document.getElementById('consumptionTableBody'); if (!tbody) return;
-            let allItems = [...(getOrderData().items || [])];
-            if (!allItems.length) {
-                tbody.innerHTML = `<tr><td colspan="5" class="text-center py-8 text-slate-400">Hesaplanacak ürün bulunmuyor. Lütfen ölçü formuna ürün giriniz veya sepetteki siparişi 'Ölçüye Al' butonuyla forma taşıyınız.</td></tr>`;
-                document.getElementById('conTotalProfileMeters').innerText = "0.00 m"; document.getElementById('conTotalProfileBars').innerText = "(0 Boy 6m)"; document.getElementById('conTotalMeshM2').innerText = "0.00 m²"; document.getElementById('conTotalCostEstimate').innerText = "0.00 ₺";
+            let targetItems = [];
+            
+            if (currentConsumptionMode === 'active') {
+                targetItems = [...(getOrderData().items || [])];
+            } else if (currentConsumptionMode === 'cart') {
+                toSafeArray(appSettings.cart).forEach(o => { toSafeArray(o.items).forEach(it => targetItems.push(it)); });
+            } else if (currentConsumptionMode === 'ledger') {
+                toSafeArray(appSettings.customers).forEach(c => {
+                    toSafeArray(c.transactions).forEach(t => {
+                        if (t.type === 'Sipariş Faturası' && t.refItems) {
+                            toSafeArray(t.refItems).forEach(it => targetItems.push(it));
+                        }
+                    });
+                });
+            }
+
+            if (!targetItems.length) {
+                const labelMap = { active: 'anlık ölçü formunda', cart: 'sepette bekleyen siparişlerde', ledger: 'üretimi yapılan cari kayıtlarda' };
+                tbody.innerHTML = `<tr><td colspan="5" class="text-center py-8 text-slate-400">Seçilen kaynakta (${labelMap[currentConsumptionMode]}) hesaplanacak ürün bulunmuyor.</td></tr>`;
+                document.getElementById('conTotalProfileMeters').innerText = "0.00 m"; document.getElementById('conTotalProfileBars').innerText = "(0 Boy 6m)"; document.getElementById('conTotalMeshM2').innerText = "0.00 m²"; document.getElementById('conTotalCordMeters').innerText = "0.0 m"; document.getElementById('conTotalCostEstimate').innerText = "0.00 ₺";
                 return;
             }
+
             let pMeters = 0, pMesh = 0, sMesh = 0, cMeters = 0, mMeters = 0, cWedge = 0, hSet = 0, sLock = 0;
             const cProf = getRecipeCost('pg-plise', 'acc-profil') || 45, cPMesh = getRecipeCost('pg-plise', 'acc-plise-tul') || 35, cSMesh = getRecipeCost('pg-plise', 'acc-polen-tul') || 400, cCord = getRecipeCost('pg-plise', 'acc-ip') || 2, cMag = getRecipeCost('pg-plise', 'acc-serit-miknatis') || 60, cW = getRecipeCost('pg-plise', 'acc-takoz') || 5, cH = getRecipeCost('pg-mentese', 'acc-mentese') || 15, cSL = getRecipeCost('pg-mentese', 'acc-citcit') || 8;
 
-            allItems.forEach(i => {
+            targetItems.forEach(i => {
                 const q = i.qty || 1, en = parseFloat(i.en) || 0, boy = parseFloat(i.boy) || 0;
                 const m2 = Math.max(((en * boy) / 10000) * q, appSettings.minM2 * q), isDikey = (i.pType === 'plise' && i.dir === 'dikey');
                 if (i.pType === 'plise') {
